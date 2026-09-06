@@ -3,7 +3,7 @@ namespace Yuki.Learning.StateMachine
 {
     public interface IRuntimeAnchorBase
     {
-        //Kuy67
+        //Kuy
         void IProvide(GameObject player);
         void IUnset();
     }
