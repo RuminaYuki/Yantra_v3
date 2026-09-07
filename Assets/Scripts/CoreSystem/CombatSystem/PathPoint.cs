@@ -7,6 +7,37 @@ public class PathPoint : MonoBehaviour
     [SerializeField] private List<PathPointData> pathPoints = new();
     private int currentIndex = 0;
 
+    private void Awake()
+    {
+        RefreshPathPoints();
+    }
+
+    private void OnValidate()
+    {
+        RefreshPathPoints();
+    }
+
+    private void RefreshPathPoints()
+    {
+        List<PathPointData> existingPoints = pathPoints ?? new List<PathPointData>();
+        Transform[] children = GetComponentsInChildren<Transform>(true);
+
+        pathPoints = new List<PathPointData>(children.Length - 1);
+
+        foreach (Transform child in children)
+        {
+            if (child == transform)
+                continue;
+
+            PathPointData existingPoint = existingPoints.Find(point => point != null && point.Transform == child);
+            pathPoints.Add(existingPoint ?? new PathPointData
+            {
+                Transform = child,
+                Radius = 0.1f
+            });
+        }
+    }
+
     public PathPointData CheckNextPoint(Vector3 hitPosition)
     {
         if (currentIndex >= pathPoints.Count)
