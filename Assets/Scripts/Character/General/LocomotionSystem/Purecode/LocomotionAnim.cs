@@ -11,6 +11,7 @@ public class LocomotionAnim
 
     private int _TurnAngle;
     private int _TurnTrigger;
+    private int _IsTurning;
 
     public LocomotionAnim(Animator animator, float dampTime = 0.25f, float multiply = 1)
     {
@@ -38,6 +39,11 @@ public class LocomotionAnim
         _TurnTrigger = Animator.StringToHash(nameTurnTrigger);
     }
 
+    public void SetTurnStateParameter(string nameIsTurning)
+    {
+        _IsTurning = Animator.StringToHash(nameIsTurning);
+    }
+
     //=========================SetKey===========================
     //SetMove Method Overload
     public void SetMove(float velocityX, float velocityZ)
@@ -57,6 +63,16 @@ public class LocomotionAnim
     {
         _animator.SetFloat(_TurnAngle, turnAngle);
         _animator.SetTrigger(_TurnTrigger);
+    }
+
+    public void SetTurnAngleContinuous(float turnAngle)
+    {
+        _animator.SetFloat(_TurnAngle, turnAngle);
+    }
+
+    public void SetIsTurning(bool value)
+    {
+        _animator.SetBool(_IsTurning, value);
     }
 
     #region Secondary API

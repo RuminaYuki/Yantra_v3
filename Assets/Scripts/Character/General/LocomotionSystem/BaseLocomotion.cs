@@ -16,7 +16,9 @@ public class BaseLocomotion : MonoBehaviour,ILocomotionLock,IRootMotionControl
     [Header("Turn Animation")]
     [SerializeField] private string _nameTurnAngle = "StartTurnAngle";
     [SerializeField] private string _nameStartTurn = "StartTurn";
+    [SerializeField] private string _nameIsTurning = "IsTurning";
     [SerializeField] private float _angleTurn = 45f;
+    private bool _enableTurn = true;
 
     [Header("Rotation")]
     [SerializeField] private float _rotateSpeed = 1f;
@@ -55,6 +57,7 @@ public class BaseLocomotion : MonoBehaviour,ILocomotionLock,IRootMotionControl
         LocomotionAnim = new LocomotionAnim(Animator,_dampTime,_multiply);
         LocomotionAnim.SetMoveParameter(_nameParameterMoveX,_nameParameterMoveZ);
         LocomotionAnim.SetTurnParameter(_nameTurnAngle,_nameStartTurn);
+        LocomotionAnim.SetTurnStateParameter(_nameIsTurning);
         Rotation = new RotationTransform(transform,_rotateSpeed);
         Gravity = new GravityCharacterCon(CharacterController,_gravityMultiplier);
     }
@@ -130,6 +133,7 @@ public class BaseLocomotion : MonoBehaviour,ILocomotionLock,IRootMotionControl
     public void SetRotateSmoothSpeed(float value) => Rotation.Speed = value;
     public float GetGravityMultiplier() => Gravity._GravityMultiplier;
     public void SetGravityMultiplier(float value) => Gravity._GravityMultiplier = value;
+    public void SetEnableTurn(bool enabled) => _enableTurn = enabled;
 
     private void ResetLockedMovement()
     {
@@ -146,6 +150,7 @@ public class BaseLocomotion : MonoBehaviour,ILocomotionLock,IRootMotionControl
 
     private void UpdateTurnAnimation()
     {
+        if (!_enableTurn) return;
         bool isMoving = _movementDirection.sqrMagnitude > MovementThreshold;
         bool justStartedMoving = isMoving && !_wasMoving;
 

@@ -21,10 +21,13 @@ public class PlayerLocomotion : BaseLocomotion
 
     [Header("Turn Logic Setting")]
     [SerializeField] private bool _turnbyCamera;
+    [SerializeField] private float _angleTurnExit = 10f;
 
-    
+    private bool _isTurning;
+    private float _lastRawAngle;
+    private float _unwrappedAngle;
 
-    
+
     protected override void Awake()
     {
         base.Awake();
@@ -44,20 +47,22 @@ public class PlayerLocomotion : BaseLocomotion
         _playerInput.Player.Move.performed -= OnMovePerformed;
         _playerInput.Player.Move.canceled -= OnMoveCanceled;
     }
+    void Start()
+    {
+        SetEnableTurn(false);
+    }
     protected override void Update()
     {
         Vector3 direction = GetDirectionWithReferencePoint();
         SetMovementDirection(direction);
-        SetFacingDirection(direction.sqrMagnitude > 0.01f || _turnbyCamera
+        SetFacingDirection(direction.sqrMagnitude > 0.01f
             ? GetCameraForwardFlat()
             : Vector3.zero);
+
         base.Update();
 
-        if (IsMovementLocked)
-            return;
-
         if (_turnbyCamera)
-            TurnByCamera(direction);
+            UpdateTurnByCamera(direction);
     }
 
     private void OnMovePerformed(InputAction.CallbackContext ctx)
@@ -70,13 +75,39 @@ public class PlayerLocomotion : BaseLocomotion
     }
 
     #region SetAnimation
-    private void TurnByCamera(Vector3 direction)
+    private void UpdateTurnByCamera(Vector3 direction)
     {
-        float angle = GetSignedAngleToCamera();
+        bool isMoving = direction.sqrMagnitude > 0.01f;
 
-        if (Mathf.Abs(angle) >= _angleTurnbyCamera && !(direction.sqrMagnitude > 0.01f))
+        if (_isTurning)
         {
-            LocomotionAnim.SetTurn(angle);
+            float rawAngle = GetSignedAngleToCamera();
+            _unwrappedAngle += Mathf.DeltaAngle(_lastRawAngle, rawAngle);
+            _lastRawAngle = rawAngle;
+
+            LocomotionAnim.SetTurnAngleContinuous(_unwrappedAngle);
+
+            if (isMoving || Mathf.Abs(_unwrappedAngle) <= _angleTurnExit)
+            {
+                _isTurning = false;
+                LocomotionAnim.SetIsTurning(false);
+                UnlockLocomotion(this);
+            }
+            return;
+        }
+
+        if (IsMovementLocked || isMoving)
+            return;
+
+        float startAngle = GetSignedAngleToCamera();
+        if (Mathf.Abs(startAngle) >= _angleTurnbyCamera)
+        {
+            _isTurning = true;
+            _lastRawAngle = startAngle;
+            _unwrappedAngle = startAngle;
+            LockLocomotion(this);
+            LocomotionAnim.SetIsTurning(true);
+            LocomotionAnim.SetTurnAngleContinuous(startAngle);
         }
     }
 
