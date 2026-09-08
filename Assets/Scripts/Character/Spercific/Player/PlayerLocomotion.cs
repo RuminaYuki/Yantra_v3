@@ -19,7 +19,13 @@ public class PlayerLocomotion : BaseLocomotion
     [Header("Turn Animation Setting")]
     [SerializeField] private string _nameTurnAngle = "StartTurnAngle";
     [SerializeField] private string _nameIsTurning = "IsTurning";
+    [SerializeField] private string _nameTurnSpeed = "TurnSpeedMultiplier";
     [SerializeField] private float _angleTurnbyCamera = 60;
+
+    [Header("Turn Speed Setting")]
+    [SerializeField] private float _minTurnSpeedMultiplier = 1f;
+    [SerializeField] private float _maxTurnSpeedMultiplier = 2f;
+    [SerializeField] private float _maxTurnAngleForSpeed = 180f;
 
     [Header("Turn Logic Setting")]
     [SerializeField] private bool _turnbyCamera;
@@ -27,6 +33,7 @@ public class PlayerLocomotion : BaseLocomotion
 
     private int _turnAngleHash;
     private int _isTurningHash;
+    private int _turnSpeedHash;
     private bool _isTurning;
     private float _lastRawAngle;
     private float _unwrappedAngle;
@@ -38,6 +45,7 @@ public class PlayerLocomotion : BaseLocomotion
         _playerInput = new InputSystem_Actions();
         _turnAngleHash = Animator.StringToHash(_nameTurnAngle);
         _isTurningHash = Animator.StringToHash(_nameIsTurning);
+        _turnSpeedHash = Animator.StringToHash(_nameTurnSpeed);
     }
 
     void OnEnable()
@@ -117,6 +125,10 @@ public class PlayerLocomotion : BaseLocomotion
     private void SetTurnAngleContinuous(float turnAngle)
     {
         Animator.SetFloat(_turnAngleHash, turnAngle);
+
+        float t = Mathf.InverseLerp(_angleTurnbyCamera, _maxTurnAngleForSpeed, Mathf.Abs(turnAngle));
+        float speedMultiplier = Mathf.Lerp(_minTurnSpeedMultiplier, _maxTurnSpeedMultiplier, t);
+        Animator.SetFloat(_turnSpeedHash, speedMultiplier);
     }
 
     private void SetIsTurning(bool value)
