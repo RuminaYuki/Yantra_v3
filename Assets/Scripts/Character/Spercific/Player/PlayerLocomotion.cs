@@ -17,12 +17,16 @@ public class PlayerLocomotion : BaseLocomotion
 
     //Turn
     [Header("Turn Animation Setting")]
+    [SerializeField] private string _nameTurnAngle = "StartTurnAngle";
+    [SerializeField] private string _nameIsTurning = "IsTurning";
     [SerializeField] private float _angleTurnbyCamera = 60;
 
     [Header("Turn Logic Setting")]
     [SerializeField] private bool _turnbyCamera;
     [SerializeField] private float _angleTurnExit = 10f;
 
+    private int _turnAngleHash;
+    private int _isTurningHash;
     private bool _isTurning;
     private float _lastRawAngle;
     private float _unwrappedAngle;
@@ -32,6 +36,8 @@ public class PlayerLocomotion : BaseLocomotion
     {
         base.Awake();
         _playerInput = new InputSystem_Actions();
+        _turnAngleHash = Animator.StringToHash(_nameTurnAngle);
+        _isTurningHash = Animator.StringToHash(_nameIsTurning);
     }
 
     void OnEnable()
@@ -46,10 +52,6 @@ public class PlayerLocomotion : BaseLocomotion
         _playerInput.Disable();
         _playerInput.Player.Move.performed -= OnMovePerformed;
         _playerInput.Player.Move.canceled -= OnMoveCanceled;
-    }
-    void Start()
-    {
-        SetEnableTurn(false);
     }
     protected override void Update()
     {
@@ -85,12 +87,12 @@ public class PlayerLocomotion : BaseLocomotion
             _unwrappedAngle += Mathf.DeltaAngle(_lastRawAngle, rawAngle);
             _lastRawAngle = rawAngle;
 
-            LocomotionAnim.SetTurnAngleContinuous(_unwrappedAngle);
+            SetTurnAngleContinuous(_unwrappedAngle);
 
             if (isMoving || Mathf.Abs(_unwrappedAngle) <= _angleTurnExit)
             {
                 _isTurning = false;
-                LocomotionAnim.SetIsTurning(false);
+                SetIsTurning(false);
                 UnlockLocomotion(this);
             }
             return;
@@ -106,9 +108,20 @@ public class PlayerLocomotion : BaseLocomotion
             _lastRawAngle = startAngle;
             _unwrappedAngle = startAngle;
             LockLocomotion(this);
-            LocomotionAnim.SetIsTurning(true);
-            LocomotionAnim.SetTurnAngleContinuous(startAngle);
+            SetIsTurning(true);
+            SetTurnAngleContinuous(startAngle);
         }
+    }
+    #endregion
+    #region HelperMethod
+    private void SetTurnAngleContinuous(float turnAngle)
+    {
+        Animator.SetFloat(_turnAngleHash, turnAngle);
+    }
+
+    private void SetIsTurning(bool value)
+    {
+        Animator.SetBool(_isTurningHash, value);
     }
 
     private float GetSignedAngleToCamera()
@@ -119,9 +132,6 @@ public class PlayerLocomotion : BaseLocomotion
         return Vector3.SignedAngle(playerForward, cameraForward, Vector3.up );
     }
 
-    #endregion
-
-    #region HelperMethod
     private Vector3 GetWorldDirectionRelativeTo(
     Vector3 inputDirection,
     Transform referenceTransform)
@@ -157,7 +167,6 @@ public class PlayerLocomotion : BaseLocomotion
         return flatForward.normalized;
     }
     #endregion
-
     #region //API
     // Direction
     public void SetDirection(Vector3 direction) => _directionMove = direction;

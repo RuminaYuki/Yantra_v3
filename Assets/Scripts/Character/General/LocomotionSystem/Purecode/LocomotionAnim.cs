@@ -9,10 +9,6 @@ public class LocomotionAnim
     private int _moveZ; //Set parameter
     private int _moveX; //Set parameter
 
-    private int _TurnAngle;
-    private int _TurnTrigger;
-    private int _IsTurning;
-
     public LocomotionAnim(Animator animator, float dampTime = 0.25f, float multiply = 1)
     {
         _animator = animator;
@@ -32,18 +28,6 @@ public class LocomotionAnim
         _moveX = Animator.StringToHash(nameParameterMoveX);
         _moveZ = Animator.StringToHash(nameParameterMoveZ);
     }
-    //Turn
-    public void SetTurnParameter(string nameTurnAngle, string nameTurnTrigger)
-    {
-        _TurnAngle = Animator.StringToHash(nameTurnAngle);
-        _TurnTrigger = Animator.StringToHash(nameTurnTrigger);
-    }
-
-    public void SetTurnStateParameter(string nameIsTurning)
-    {
-        _IsTurning = Animator.StringToHash(nameIsTurning);
-    }
-
     //=========================SetKey===========================
     //SetMove Method Overload
     public void SetMove(float velocityX, float velocityZ)
@@ -57,22 +41,6 @@ public class LocomotionAnim
     {
         float finalVelocity = velocityZ * _multiply;
         _animator.SetFloat(_moveZ, finalVelocity, _dampTime, Time.deltaTime);
-    }
-
-    public void SetTurn(float turnAngle)
-    {
-        _animator.SetFloat(_TurnAngle, turnAngle);
-        _animator.SetTrigger(_TurnTrigger);
-    }
-
-    public void SetTurnAngleContinuous(float turnAngle)
-    {
-        _animator.SetFloat(_TurnAngle, turnAngle);
-    }
-
-    public void SetIsTurning(bool value)
-    {
-        _animator.SetBool(_IsTurning, value);
     }
 
     #region Secondary API
