@@ -5,7 +5,7 @@ using UnityEngine;
 namespace Yuki.Learning.StateMachine.ScriptableObjects
 {
     [CreateAssetMenu(
-        fileName = "NewTransitionTable",
+        fileName = "New_TransitionTable",
         menuName = "YUKI Learning State Machine/StateMachine/Transition Table")]
     public class TransitionTableSO : ScriptableObject
     {

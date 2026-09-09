@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Yuki.Learning.StateMachine.ScriptableObjects
 {
     [CreateAssetMenu(
-        fileName = "NewState",
+        fileName = "New_State",
         menuName = "YUKI Learning State Machine/StateMachine/State")]
     public class StateSO : ScriptableObject
     {
