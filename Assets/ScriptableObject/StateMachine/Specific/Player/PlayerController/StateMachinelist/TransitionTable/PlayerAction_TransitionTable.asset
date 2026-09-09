@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5492ed31ba40b643aaf3d94f1de0aa7, type: 3}
+  m_Name: PlayerAction_TransitionTable
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
+  _initialState: {fileID: 11400000, guid: 9b03be382e028a34b8b91e0341e8b28f, type: 2}
+  _anyTransitions:
+  - ToState: {fileID: 11400000, guid: 6936ac72c9d3f5b4fa1af6e969ba1a6d, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: e0248a1eb1b6d264eb8fd79d10929aab, type: 2}
+        ExpectedResult: 0
+      - Condition: {fileID: 11400000, guid: 4aba0be7dc493b94db6b000027948bc1, type: 2}
+        ExpectedResult: 1
+  _transitions:
+  - FromState: {fileID: 11400000, guid: 6936ac72c9d3f5b4fa1af6e969ba1a6d, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 0133e3475460f0546aa2646398424ac9, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: 11400000, guid: 9b03be382e028a34b8b91e0341e8b28f, type: 2}
