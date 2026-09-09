@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "CountDownTimer_Action", 
-    menuName = "YUKI Learning State Machine/StateMachine/Actions/Standard/Timer/CountDownTimerAction")]
+    menuName = "YUKI Learning State Machine/StateMachine/Actions/Standard/CountDownTimerAction")]
 public class CountDownTimerActionSO : StateActionSO
 {
     [Header("Set Max Duration to 0 to disable randomization")]

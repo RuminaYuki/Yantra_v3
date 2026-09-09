@@ -12,35 +12,12 @@ public class Health : MonoBehaviour, IDamageable,IHeal
 
     public VoidEventChannelSO OnDead;
     public FloatEventChannelSO OnHealthChanged;
-    public VoidEventChannelSO Onhit;
-
-    protected void DeadEvent() => OnDead?.Raise();
-    protected void HealthChangedEvent() => OnHealthChanged?.Raise(CurrentHP);
+    public VoidEventChannelSO OnHurt;
+    public VoidEventChannelSO OnHit;
 
     protected virtual void Awake()
     {
         CurrentHP = maxHealth;
-    }
-    private void Update()
-    {
-        // Debugging purpose only, remove this in production
-        if (Input.GetKeyDown(KeyCode.F2))
-        {
-            TakeDamage(1f);
-        }       
-        if (Input.GetKeyDown(KeyCode.F3))
-        {
-            if (this.CompareTag("Player")) return;
-            Kill();
-        }
-        if (Input.GetKeyDown(KeyCode.F1))
-        {
-            if (IsDead)
-            {
-                CurrentHP = maxHealth; // Revive with full health
-            }
-            Heal(1f); // Heal by 1
-        }
     }
 
     public virtual void Heal(float amount)
@@ -50,17 +27,18 @@ public class Health : MonoBehaviour, IDamageable,IHeal
         CurrentHP += amount;
         if (CurrentHP > maxHealth)
             CurrentHP = maxHealth;
-        HealthChangedEvent();
+        OnHealthChanged?.Raise(CurrentHP);
         Debug.Log($"{gameObject.name} <color=#32CD32> healed {amount}.</color> Current HP: {CurrentHP}/{maxHealth}");
     }
 
     public virtual void TakeDamage(float damage)
     {
+        OnHit?.Raise();
         if (IsDead || IgnoreDamage) return;
 
         CurrentHP -= damage;
-        HealthChangedEvent();
-        Onhit?.Raise();
+        OnHealthChanged?.Raise(CurrentHP);
+        OnHurt?.Raise();
 
         Debug.Log($"{gameObject.name} took {damage} damage. Current HP: {CurrentHP}/{maxHealth}");
         if (CurrentHP <= 0)
@@ -76,18 +54,18 @@ public class Health : MonoBehaviour, IDamageable,IHeal
         if (IsDead) return;
 
         CurrentHP = 0;
-        HealthChangedEvent();
+        OnHealthChanged?.Raise(CurrentHP);
         Dead();
     }
 
     private void Dead()
     {
         //if (SaveManager.Instance != null && this.gameObject.CompareTag("Player")) SaveManager.Instance.LoadAll();
-        DeadEvent();
+        OnDead?.Raise();
     }
 
     public bool IgnoreDamage { get; private set; } = false;
-    public void EnableIgnoreDamage(bool enable)
+    public void SetEnableIgnoreDamage(bool enable)
     {
         IgnoreDamage = enable;
     }
@@ -95,12 +73,12 @@ public class Health : MonoBehaviour, IDamageable,IHeal
     public void SetCurrentHealth(float amount)
     {
         CurrentHP = Mathf.Clamp(amount, 0f, maxHealth);
-        HealthChangedEvent();
+        OnHealthChanged?.Raise(CurrentHP);
     }
 
     public void RestoreFullHealth()
     {
         CurrentHP = maxHealth;
-        HealthChangedEvent();
+        OnHealthChanged?.Raise(CurrentHP);
     }
 }
