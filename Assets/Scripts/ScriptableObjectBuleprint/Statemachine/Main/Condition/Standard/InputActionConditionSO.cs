@@ -5,7 +5,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "InputAction_Condition",
-    menuName = "YUKI Learning State Machine/StateMachine/Conditions/Input Action")]
+    menuName = "YUKI Learning State Machine/StateMachine/Conditions/Standard/Input Action")]
 public class InputActionConditionSO : StateConditionSO
 {
     [SerializeField] private InputActionReference _inputAction;
