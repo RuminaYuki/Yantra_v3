@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.Splines;
 using static UnityEngine.Rendering.DebugUI;
 
@@ -17,21 +18,32 @@ public class SplineToLineRenderer : MonoBehaviour
     [SerializeField] float offset = 0f;
 
     [Header("Debug")]
+    #region Debug
+    public bool debugDraw = true;
+    #endregion
     [Range(0f, 1f)]
     [SerializeField] float currentProgress = 0f;
+
+    [Header("Event Actions")]
+    [SerializeField] FloatEventChannelSO DrawingProgress;
+    [SerializeField] Vector3EventChannelSO CurrentKnotPositionEvent;
+
     public float CurrentProgress 
     {
         get => Mathf.Clamp01(currentProgress + offset);
-        set => currentProgress = Mathf.Clamp01(value + offset);
+        set 
+        {
+            currentProgress = Mathf.Clamp01(value + offset);
+            progressIsChange();
+            DrawingProgress.Raise(currentProgress);
+        }
     }
 
-    [SerializeField] Vector3 currentKnotPosition;
     public Vector3 CurrentKnotPosition
     {
         get => splineContainer.EvaluatePosition(CurrentProgress);
     }
 
-    [SerializeField] Vector3 nextKnotPosition;
     public Vector3 NextKnotPosition
     {
         get
@@ -41,7 +53,12 @@ public class SplineToLineRenderer : MonoBehaviour
         }
     }
 
-    void Update()
+    private void Update()
+    {
+        if (debugDraw) progressIsChange();
+    }
+
+    void progressIsChange()
     {
         if (splineContainer == null || lineRenderer == null)
             return;
@@ -58,6 +75,7 @@ public class SplineToLineRenderer : MonoBehaviour
             Vector3 position = splineContainer.EvaluatePosition(t);
 
             lineRenderer.SetPosition(i, position);
+            CurrentKnotPositionEvent.Raise(position);
         }
     }
 
