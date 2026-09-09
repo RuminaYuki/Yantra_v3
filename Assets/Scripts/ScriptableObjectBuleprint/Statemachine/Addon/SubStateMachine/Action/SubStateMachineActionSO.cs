@@ -21,6 +21,7 @@ public class SubStateMachineAction : StateAction
 
     private StateMachine _parentStateMachine;
     private StateMachine _childStateMachine;
+    private bool _skipNextUpdate;
 
     public SubStateMachineAction(TransitionTableSO transitionTable)
     {
@@ -57,10 +58,18 @@ public class SubStateMachineAction : StateAction
             _childStateMachine);
 
         _childStateMachine.SetInitialState(initialState);
+        
+        _skipNextUpdate = true;
     }
 
     public override void OnUpdate()
     {
+        if (_skipNextUpdate)
+        {
+            _skipNextUpdate = false;
+            return;
+        }
+
         _childStateMachine?.OnUpdate();
     }
 
