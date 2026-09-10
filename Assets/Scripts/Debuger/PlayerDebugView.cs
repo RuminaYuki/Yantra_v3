@@ -106,7 +106,7 @@ public class PlayerDebugView : MonoBehaviour
         }
         lineY += _lineHeight + 4f;
 
-        GUI.Label(new Rect(x + 10f, lineY, _width - 20f, _lineHeight), "Guard / Skill");
+        GUI.Label(new Rect(x + 10f, lineY, _width - 20f, _lineHeight), "BlockSystem");
         lineY += _lineHeight;
 
         if (_blockSystem != null)
