@@ -722,7 +722,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75cdf09ac25658f418a3be3784b9c864, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealthDebug
-  IgnoreDamage: 0
 --- !u!114 &252646486
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -741,7 +740,11 @@ MonoBehaviour:
   _maxGuardPoints: 100
   _currentGuardPoints: 100
   _guardDecreasedPerHit: 10
-  _voidHitEventChannel: {fileID: 0}
+  _voidHitEventChannel: {fileID: 11400000, guid: e3452f38e0993a04ea066bb6815c43e6, type: 2}
+  _OnGuardPointDepleted: {fileID: 11400000, guid: a2e0752c413868641ae40c58a65a8ff6, type: 2}
+  _OnCurrentGuardPointChange: {fileID: 11400000, guid: bf7c02770f3bb9342963539e449a6782, type: 2}
+  _isParryEnable: 0
+  _skillPointPerHit: 5
 --- !u!114 &252646487
 MonoBehaviour:
   m_ObjectHideFlags: 0
