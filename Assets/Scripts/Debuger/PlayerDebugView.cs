@@ -12,6 +12,8 @@ public class PlayerDebugView : MonoBehaviour
 
     [SerializeField] private Health _health;
     [SerializeField] private BaseLocomotion _locomotion;
+    [SerializeField] private BlockSystem _blockSystem;
+    [SerializeField] private SkillPoints _skillPoints;
     [SerializeField] private bool _showDebug = true;
     [SerializeField, Min(0.1f)] private float _cheatHealthAmount = 10f;
     [SerializeField] private KeyCode _decreaseHealthKey = KeyCode.Minus;
@@ -29,6 +31,10 @@ public class PlayerDebugView : MonoBehaviour
             _health = GetComponent<Health>();
         if (_locomotion == null)
             _locomotion = GetComponent<BaseLocomotion>();
+        if (_blockSystem == null)
+            _blockSystem = GetComponent<BlockSystem>();
+        if (_skillPoints == null)
+            _skillPoints = GetComponent<SkillPoints>();
     }
 
     private void Update()
@@ -48,7 +54,7 @@ public class PlayerDebugView : MonoBehaviour
         if (!_showDebug)
             return;
 
-        float height = 45f + _lineHeight * 8f;
+        float height = 45f + _lineHeight * 10f;
         Vector2 position = GetPanelPosition(height);
         float x = position.x;
         float y = position.y;
@@ -97,6 +103,34 @@ public class PlayerDebugView : MonoBehaviour
         else
         {
             GUI.Label(new Rect(x + 10f, lineY, _width - 20f, _lineHeight), "  (No Locomotion found)");
+        }
+        lineY += _lineHeight + 4f;
+
+        GUI.Label(new Rect(x + 10f, lineY, _width - 20f, _lineHeight), "Guard / Skill");
+        lineY += _lineHeight;
+
+        if (_blockSystem != null)
+        {
+            GUI.Label(
+                new Rect(x + 10f, lineY, _width - 20f, _lineHeight),
+                $"  Guard: {_blockSystem.CurrentGuardPoints:F0} / {_blockSystem.MaxGuardPoints:F0}");
+            lineY += _lineHeight;
+        }
+        else
+        {
+            GUI.Label(new Rect(x + 10f, lineY, _width - 20f, _lineHeight), "  (No BlockSystem found)");
+            lineY += _lineHeight;
+        }
+
+        if (_skillPoints != null)
+        {
+            GUI.Label(
+                new Rect(x + 10f, lineY, _width - 20f, _lineHeight),
+                $"  Skill: {_skillPoints.CurrentSkillPoints:F0}");
+        }
+        else
+        {
+            GUI.Label(new Rect(x + 10f, lineY, _width - 20f, _lineHeight), "  (No SkillPoints found)");
         }
     }
 

@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5492ed31ba40b643aaf3d94f1de0aa7, type: 3}
+  m_Name: PlayerGun_TransitionTable
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
+  _initialState: {fileID: 11400000, guid: 5f1c61591d442564d8f7a6466a2d88c3, type: 2}
+  _anyTransitions: []
+  _transitions:
+  - FromState: {fileID: 11400000, guid: 5f1c61591d442564d8f7a6466a2d88c3, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 769b1bfded3799449883861337199c1c, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: 11400000, guid: fb2626b32d1d5564394606b0e314be20, type: 2}
+  - FromState: {fileID: 11400000, guid: 5f1c61591d442564d8f7a6466a2d88c3, type: 2}
+    ConditionGroups: []
+    ToState: {fileID: 11400000, guid: 8b4db16cbac9db746823a84ce9a9d7ad, type: 2}
+  - FromState: {fileID: 11400000, guid: 5f1c61591d442564d8f7a6466a2d88c3, type: 2}
+    ConditionGroups: []
+    ToState: {fileID: 11400000, guid: 1d201d53e901c484a9775b515f8dff62, type: 2}
+  - FromState: {fileID: 11400000, guid: fb2626b32d1d5564394606b0e314be20, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 769b1bfded3799449883861337199c1c, type: 2}
+        ExpectedResult: 1
+    ToState: {fileID: 11400000, guid: 5f1c61591d442564d8f7a6466a2d88c3, type: 2}
+  - FromState: {fileID: 11400000, guid: fb2626b32d1d5564394606b0e314be20, type: 2}
+    ConditionGroups: []
+    ToState: {fileID: 11400000, guid: eaef4f2d51a4efd418587060d3960508, type: 2}
+  - FromState: {fileID: 11400000, guid: fb2626b32d1d5564394606b0e314be20, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: af711762909f97245a6f17fdf20bb11d, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: 11400000, guid: 1d201d53e901c484a9775b515f8dff62, type: 2}
+  - FromState: {fileID: 11400000, guid: eaef4f2d51a4efd418587060d3960508, type: 2}
+    ConditionGroups: []
+    ToState: {fileID: 11400000, guid: 8b4db16cbac9db746823a84ce9a9d7ad, type: 2}

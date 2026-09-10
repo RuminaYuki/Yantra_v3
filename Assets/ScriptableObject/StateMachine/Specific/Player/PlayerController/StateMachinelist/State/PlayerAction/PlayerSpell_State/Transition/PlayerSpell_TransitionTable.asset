@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5492ed31ba40b643aaf3d94f1de0aa7, type: 3}
+  m_Name: PlayerSpell_TransitionTable
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
+  _initialState: {fileID: 11400000, guid: d08469faf1150de43a12cb91b522f706, type: 2}
+  _anyTransitions:
+  - ToState: {fileID: 11400000, guid: 9751ef8dbc8b16f41b889755fe1e8040, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: cb1cbefa2378d2849a0b241ed3250912, type: 2}
+        ExpectedResult: 0
+  _transitions:
+  - FromState: {fileID: 11400000, guid: d08469faf1150de43a12cb91b522f706, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 6f3254f9b72c5d94e8f5a3d10346c40d, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: 11400000, guid: 1b8f9100fa7e64245bb258da1e9fd68f, type: 2}
+  - FromState: {fileID: 11400000, guid: 1b8f9100fa7e64245bb258da1e9fd68f, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 6f3254f9b72c5d94e8f5a3d10346c40d, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: 11400000, guid: bbbf87d1c01b8cd419a425d4e7846460, type: 2}
+  - FromState: {fileID: 11400000, guid: bbbf87d1c01b8cd419a425d4e7846460, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 6f3254f9b72c5d94e8f5a3d10346c40d, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: 11400000, guid: 9751ef8dbc8b16f41b889755fe1e8040, type: 2}

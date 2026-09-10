@@ -22,6 +22,9 @@ public class BlockSystem : MonoBehaviour
     [SerializeField] bool _isParryEnable = false;
     [SerializeField] float _skillPointPerHit = 5f;
 
+    public float CurrentGuardPoints => _currentGuardPoints;
+    public float MaxGuardPoints => _maxGuardPoints;
+
     private void Awake()
     {
         if (_health == null) _health = GetComponent<Health>();

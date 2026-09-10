@@ -3,7 +3,9 @@ using UnityEngine;
 public class SkillPoints : MonoBehaviour
 {
     [SerializeField] float _skillPoints = 0f;
-    
+
+    public float CurrentSkillPoints => _skillPoints;
+
     public void gaint(float amount)
     {
         amount = amount < 0 ? -amount : amount;
