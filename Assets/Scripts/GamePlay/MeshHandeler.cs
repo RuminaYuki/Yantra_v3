@@ -2,14 +2,18 @@ using UnityEngine;
 
 public class MeshHandeler : MonoBehaviour
 {
-    [SerializeField] private MeshRenderer _meshRenderer;
+    [SerializeField] private MeshRendererAnchor _meshRenderer;
+    void Awake() { 
+    }
 
     public void EnableMesh()
     {
-        _meshRenderer.enabled = true;
+        Debug.Log("Enable");
+        _meshRenderer.Value.enabled = true;
     }
     public void DisableMesh()
     {
-        _meshRenderer.enabled = false;
+        Debug.Log("Disable");
+        _meshRenderer.Value.enabled = false;
     }
 }
