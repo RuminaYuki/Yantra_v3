@@ -717,6 +717,9 @@ MonoBehaviour:
   _maxGuardPoints: 10
   _currentGuardPoints: 10
   _guardDecreasedPerHit: 1
+  _recoveryGuardPointsPerSecond: 5
+  _decreasedGuardPointsPerSecond: 5
+  _delayForRecovery: 1
   _voidHitEventChannel: {fileID: 11400000, guid: e3452f38e0993a04ea066bb6815c43e6, type: 2}
   _OnGuardPointDepleted: {fileID: 11400000, guid: a2e0752c413868641ae40c58a65a8ff6, type: 2}
   _OnCurrentGuardPointChange: {fileID: 11400000, guid: bf7c02770f3bb9342963539e449a6782, type: 2}
@@ -3152,8 +3155,8 @@ GameObject:
   m_Component:
   - component: {fileID: 892255361}
   - component: {fileID: 892255366}
-  - component: {fileID: 892255365}
   - component: {fileID: 892255364}
+  - component: {fileID: 892255365}
   - component: {fileID: 892255363}
   - component: {fileID: 892255362}
   - component: {fileID: 892255367}
@@ -3216,7 +3219,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 892255360}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
