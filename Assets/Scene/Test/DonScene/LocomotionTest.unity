@@ -557,6 +557,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerCameraInput
   cameraController: {fileID: 358135423}
+  _logResolveMethod: 0
 --- !u!114 &252646479
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1868,24 +1869,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerCameraController
   vcamGameplay: {fileID: 2079266446}
-  _tppPivot: {fileID: 790078617}
   _fppEyePosition: {fileID: 790078617}
   _otsPivot: {fileID: 0}
   _yantraPivot: {fileID: 790078617}
-  _yantraOffsetRotationY: 0
-  _tppOffset: {x: 0, y: 0, z: 0}
-  _tppFOV: 60
-  _fppFOV: 40
+  _fppFOV: 60
   _otsFOV: 50
+  _yantraFOV: 40
   _mouseSensitivity: 0.15
-  _transitionSpeed: 12
+  _inputIsAnalog: 0
   _minPitch: -40
   _maxPitch: 60
-  _collisionMask:
-    serializedVersion: 2
-    m_Bits: 1
-  _cameraRadius: 0.2
-  _minDistance: 0.5
+  _positionSpeed: 30
+  _rotationSpeed: 25
+  _fovSpeed: 12
 --- !u!4 &358135424
 Transform:
   m_ObjectHideFlags: 0
