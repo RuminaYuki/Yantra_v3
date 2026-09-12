@@ -1,4 +1,6 @@
-﻿using Unity.Mathematics;
+﻿using System;
+using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -13,6 +15,7 @@ public class DrawController : MonoBehaviour
     
     [Header("Settings")]
     [SerializeField] float angleThreshold = 10f;
+    [SerializeField] List<DrawingType> _drawingType = new();
 
     private Vector2 lastMousePos;
 
@@ -61,12 +64,6 @@ public class DrawController : MonoBehaviour
             float angleDifference =
                 Mathf.Abs(Mathf.DeltaAngle(mouseAngle, splineAngle));
 
-            /*Debug.Log(
-                $"Mouse: {mouseAngle:F1}° | " +
-                $"Spline: {splineAngle:F1}° | " +
-                $"Difference: {angleDifference:F1}°"
-            );*/
-
             if (angleDifference < angleThreshold)
             {
                 splineToLineRenderer.AddProgress();
@@ -75,4 +72,13 @@ public class DrawController : MonoBehaviour
 
         lastMousePos = mousePosition;
     }
+
+    public List<DrawingType> GetListDrawingType() => _drawingType;
+}
+
+[Serializable]
+public struct DrawingType
+{
+    public int ID;
+    public GameObject Prefab;
 }
