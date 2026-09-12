@@ -14,6 +14,7 @@ public class DrawRadialManuSelect : MonoBehaviour
     [SerializeField] IntEventChannelSO _radialIntID_IEC;
 
     InputSystem_Actions _playerInput;
+    int _Id;
 
     private void Awake()
     {
@@ -50,45 +51,23 @@ public class DrawRadialManuSelect : MonoBehaviour
         }   
     }
 
-    private void Update()
-    {
-        
-    }
-
     private void HandleRadialIntID(int ID)
     {
         Debug.Log($"Radial Menu Button ID: {ID}");
+        _Id = ID;
     }
 
     private void HandleOpenRadial(InputAction.CallbackContext context)
     {
-        //ConvertDrawTypeToRadialManuData();
+        _Id = -1;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = false;
         _boolRadialSOAdvEventChannal.Raise(true, _dataSO);
     }    
     private void HandleCloseRadial(InputAction.CallbackContext context)
     {
-        //ConvertDrawTypeToRadialManuData();
+        _drawController.InstantiateNewTemplat(_Id);
         Cursor.lockState = CursorLockMode.Locked;
         _boolRadialSOAdvEventChannal.Raise(false, _dataSO);
     }
-
-/*    private RadialMenuDataSO ConvertDrawTypeToRadialManuData()
-    {
-        List<DrawingType> drawingTypes = _drawController.GetListDrawingType();
-
-        _dataSO.ClearListData();
-
-        foreach (var drawingType in drawingTypes)
-        {
-            RadialMenuButtonData buttonData = new RadialMenuButtonData
-            {
-                buttonName = drawingType.ToString(),
-            };
-            _dataSO.GetListData().Add(buttonData);
-        }
-
-        return _dataSO;
-    }*/
 }
