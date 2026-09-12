@@ -14,6 +14,9 @@ public class BlockSystem : MonoBehaviour
     [SerializeField] float _maxGuardPoints = 100f;
     [SerializeField] float _currentGuardPoints = 100f;
     [SerializeField] float _guardDecreasedPerHit = 10f;
+    [SerializeField] float _recoveryGuardPointsPerSecond = 5f;
+    [SerializeField] float _decreasedGuardPointsPerSecond = 5f;
+    [SerializeField] float _delayForRecovery = 1f;
     [SerializeField] VoidEventChannelSO _voidHitEventChannel;
     [SerializeField] VoidEventChannelSO _OnGuardPointDepleted;
     [SerializeField] FloatEventChannelSO _OnCurrentGuardPointChange;
@@ -21,6 +24,8 @@ public class BlockSystem : MonoBehaviour
     [Header("Parry System")]
     [SerializeField] bool _isParryEnable = false;
     [SerializeField] float _skillPointPerHit = 5f;
+
+    private float _recoveryDelayTimer;
 
     public float CurrentGuardPoints => _currentGuardPoints;
     public float MaxGuardPoints => _maxGuardPoints;
@@ -42,6 +47,21 @@ public class BlockSystem : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.P))
         {
             ExcuteParry(!_isParryEnable);
+        }
+
+        if (_isBlockEnable)
+        {
+            _recoveryDelayTimer = 0f;
+            _currentGuardPoints = Mathf.Min(_maxGuardPoints, _currentGuardPoints - _decreasedGuardPointsPerSecond * Time.deltaTime);
+        }
+
+        if (!_isBlockEnable && _currentGuardPoints < _maxGuardPoints)
+        {
+            _recoveryDelayTimer += Time.deltaTime;
+            if (_recoveryDelayTimer >= _delayForRecovery)
+            {
+                _currentGuardPoints = Mathf.Min(_maxGuardPoints, _currentGuardPoints + _recoveryGuardPointsPerSecond * Time.deltaTime);
+            }
         }
     }
 
@@ -84,9 +104,5 @@ public class BlockSystem : MonoBehaviour
     {
         _health.SetEnableIgnoreDamage(isBlock);
         _isBlockEnable = isBlock;
-        if (!isBlock)
-        {
-            _currentGuardPoints = _maxGuardPoints;
-        }
     }
 }
