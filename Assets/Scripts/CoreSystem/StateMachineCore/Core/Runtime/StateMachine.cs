@@ -106,6 +106,7 @@ namespace Yuki.Learning.StateMachine
             _currentState = initialState;
             StateChanged?.Invoke(previousStateName,CurrentStateName);
             _currentState.OnStateEnter();
+            NotifyAnyTransitionsStateEnter();
         }
 
         public void ChangeState(State nextState)
@@ -123,6 +124,15 @@ namespace Yuki.Learning.StateMachine
             _currentState = nextState;
             StateChanged?.Invoke(previousStateName,CurrentStateName);
             _currentState.OnStateEnter();
+            NotifyAnyTransitionsStateEnter();
+        }
+
+        private void NotifyAnyTransitionsStateEnter()
+        {
+            foreach (StateTransition transition in _anyTransitions)
+            {
+                transition?.OnStateEnter();
+            }
         }
 
         public void SetAnyTransitions(StateTransition[] transitions)
