@@ -233,7 +233,6 @@ GameObject:
   m_Component:
   - component: {fileID: 42690378}
   - component: {fileID: 42690379}
-  - component: {fileID: 42690380}
   m_Layer: 0
   m_Name: Drawing
   m_TagString: Untagged
@@ -273,24 +272,6 @@ MonoBehaviour:
   splineToLineRenderer: {fileID: 0}
   camera: {fileID: 1174525379}
   angleThreshold: 18
---- !u!114 &42690380
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 42690377}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c9d1363e406ac7d49b180d1b5d5f99cc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AnimationProgress
-  _drawingProgress: {fileID: 11400000, guid: 4bca11e823f1c954498d0962317b28c6, type: 2}
-  _radialIntID_IEC: {fileID: 11400000, guid: 7462493a27c12774785a0565594b45e4, type: 2}
-  _id: -1
-  _animationName:
-  - Teamplat1
-  - Teamplat2
 --- !u!1 &177536585
 GameObject:
   m_ObjectHideFlags: 0
@@ -2329,8 +2310,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2990068b2c2e004d9551760d250ffe0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AnimationProgressDriver
-  _animator: {fileID: 0}
-  _aPD_AEC: {fileID: 0}
+  _animator: {fileID: 273510153}
+  _aPD_SetEnable_AEC: {fileID: 11400000, guid: acd6a1d536bf6a54ead182646c6247c6, type: 2}
+  _aPD_AEC: {fileID: 11400000, guid: c71c818643cfef64c8af8ee8b6ccf03e, type: 2}
 --- !u!1 &1811466534
 GameObject:
   m_ObjectHideFlags: 0
