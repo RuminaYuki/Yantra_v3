@@ -12,13 +12,10 @@ public class DrawController : MonoBehaviour
     [Header("References")]
     [SerializeField] SplineToLineRenderer splineToLineRenderer;
     [SerializeField] Camera camera;
-    [SerializeField] GameObject PositionReferences;
-    
+
     [Header("Settings")]
     [SerializeField] float angleThreshold = 10f;
-    [SerializeField] List<DrawingType> _drawingType = new();
 
-    private Vector2 lastMousePos;
 
     private void Awake()
     {
@@ -29,43 +26,38 @@ public class DrawController : MonoBehaviour
     private void OnEnable()
     {
         playerInput.Enable();
-        if (playerInput != null)
+        if (splineToLineRenderer != null)
         {
-            playerInput.Player.MousePosition.performed += HandleStroke;
+            LockCursorForDrawing();
         }
     }
 
     private void OnDisable()
     {
         playerInput.Disable();
-        if (playerInput != null)
-        {
-            playerInput.Player.MousePosition.performed -= HandleStroke;
-        }
     }
 
-    public void InstantiateNewTemplat(int ID)
+    private void Update()
     {
-        if (ID > _drawingType.Count - 1 || ID < 0) return;
-
-        splineToLineRenderer = null;
-
-        foreach (DrawingType drawType in _drawingType)
+        if (splineToLineRenderer == null)
         {
-            if (ID != drawType.ID) continue;
+            return;
+        }
 
-            GameObject NewTemplat = Instantiate(drawType.Prefab, PositionReferences.transform.position, PositionReferences.transform.rotation, transform);
-            splineToLineRenderer = NewTemplat.GetComponent<SplineToLineRenderer>();
-            splineToLineRenderer.AddProgress();
+        if (Mouse.current != null)
+        {
+            HandleStroke(Mouse.current.delta.ReadValue());
+        }
+
+        if (splineToLineRenderer.GetProgress() >= 1)
+        {
+            Destroy(splineToLineRenderer.gameObject);
         }
     }
 
-    private void HandleStroke(InputAction.CallbackContext context)
+    private void HandleStroke(Vector2 mouseMovement)
     {
         if (splineToLineRenderer == null) return;
-
-        Vector2 mousePosition = context.action.ReadValue<Vector2>();
-        Vector2 mouseMovement = mousePosition - lastMousePos;
 
         if (mouseMovement.sqrMagnitude > 0.01f)
         {
@@ -88,14 +80,22 @@ public class DrawController : MonoBehaviour
                 splineToLineRenderer.AddProgress();
             }
         }
-        lastMousePos = mousePosition;
     }
-    public List<DrawingType> GetListDrawingType() => _drawingType;
-}
 
-[Serializable]
-public struct DrawingType
-{
-    public int ID;
-    public GameObject Prefab;
+    public void SetSplineToLineRenderer(SplineToLineRenderer value)
+    {
+        splineToLineRenderer = value;
+        if (value != null)
+        {
+            LockCursorForDrawing();
+        }
+    }
+
+    public void AddProgress() => splineToLineRenderer.AddProgress();
+
+    private void LockCursorForDrawing()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
 }
