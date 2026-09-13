@@ -26,11 +26,16 @@ public class SplineToLineRenderer : MonoBehaviour
 
     [Header("Event Actions")]
     [SerializeField] FloatEventChannelSO DrawingProgress;
+    [SerializeField] VoidEventChannelSO FinishedDrawing;
     [SerializeField] Vector3EventChannelSO CurrentKnotPositionEvent;
 
     public float CurrentProgress 
     {
-        get => Mathf.Clamp01(currentProgress + offset);
+        get
+        {
+            float CP = Mathf.Clamp01(currentProgress + offset);
+            return CP;
+        }
         set 
         {
             currentProgress = Mathf.Clamp01(value + offset);
@@ -76,6 +81,10 @@ public class SplineToLineRenderer : MonoBehaviour
 
             lineRenderer.SetPosition(i, position);
             CurrentKnotPositionEvent.Raise(position);
+            if (t == 1) 
+            {
+                FinishedDrawing.Raise();
+            }
         }
     }
 

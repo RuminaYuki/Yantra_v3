@@ -417,6 +417,7 @@ GameObject:
   - component: {fileID: 6992668070200989819}
   - component: {fileID: 6143102382303526504}
   - component: {fileID: 191047758022763715}
+  - component: {fileID: 2122695168428089354}
   m_Layer: 0
   m_Name: Teamplat1
   m_TagString: Untagged
@@ -462,6 +463,7 @@ MonoBehaviour:
   debugDraw: 0
   currentProgress: 0
   DrawingProgress: {fileID: 11400000, guid: 4bca11e823f1c954498d0962317b28c6, type: 2}
+  FinishedDrawing: {fileID: 11400000, guid: 8093bfb66c12baa408962589b5af9a0f, type: 2}
   CurrentKnotPositionEvent: {fileID: 11400000, guid: 404a4e1f1475cfe43a0477da26ed818c, type: 2}
 --- !u!114 &191047758022763715
 MonoBehaviour:
@@ -477,6 +479,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SplineToVFX
   currentKnotPositionEvent: {fileID: 11400000, guid: 404a4e1f1475cfe43a0477da26ed818c, type: 2}
   vfx: {fileID: 5642781701793015850}
+--- !u!114 &2122695168428089354
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5437896037443083365}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c9d1363e406ac7d49b180d1b5d5f99cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AnimationProgress
+  _drawingProgress: {fileID: 11400000, guid: 4bca11e823f1c954498d0962317b28c6, type: 2}
+  _finishedDrawing: {fileID: 11400000, guid: 8093bfb66c12baa408962589b5af9a0f, type: 2}
+  _aPD_SetEnable_AEC: {fileID: 11400000, guid: acd6a1d536bf6a54ead182646c6247c6, type: 2}
+  _aPD_AEC: {fileID: 11400000, guid: c71c818643cfef64c8af8ee8b6ccf03e, type: 2}
+  _animationName: Teamplat1
 --- !u!1 &8045506577680314285
 GameObject:
   m_ObjectHideFlags: 0
