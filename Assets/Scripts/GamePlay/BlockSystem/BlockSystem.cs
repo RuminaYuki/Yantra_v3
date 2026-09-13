@@ -52,7 +52,11 @@ public class BlockSystem : MonoBehaviour
         if (_isBlockEnable)
         {
             _recoveryDelayTimer = 0f;
-            _currentGuardPoints = Mathf.Min(_maxGuardPoints, _currentGuardPoints - _decreasedGuardPointsPerSecond * Time.deltaTime);
+            _currentGuardPoints = Mathf.Max(0, _currentGuardPoints - _decreasedGuardPointsPerSecond * Time.deltaTime);
+            if (_currentGuardPoints <= 0)
+            {
+                _OnGuardPointDepleted.Raise();
+            }
         }
 
         if (!_isBlockEnable && _currentGuardPoints < _maxGuardPoints)
