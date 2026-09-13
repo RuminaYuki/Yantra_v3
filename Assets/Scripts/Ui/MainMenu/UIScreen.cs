@@ -16,6 +16,7 @@ namespace Yantra.UI
         Settings = 2,
         Credits = 3,
         Pause = 10,
+        GameOver = 11,
         Loading = 20,
         ConfirmDialog = 30,
     }

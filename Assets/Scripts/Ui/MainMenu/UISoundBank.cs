@@ -2,14 +2,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-/// <summary>
-/// เสียง UI — วางตัวเดียวบน UIRoot
-///
-/// มันจะไล่หา Selectable ทุกตัวใต้ UIRoot แล้วแปะตัวรับ event ให้เอง
-/// ไม่ต้องไปแตะปุ่มทีละอัน และปุ่มที่เพิ่มทีหลังก็แค่กด Rescan
-///
-/// ส่งเสียงผ่าน SoundManager เสมอ เพื่อให้ mixer routing กับ slider ทำงานถูกต้อง
-/// </summary>
 public class UISoundBank : MonoBehaviour
 {
     public static UISoundBank Instance { get; private set; }
@@ -17,6 +9,8 @@ public class UISoundBank : MonoBehaviour
     [Header("Sound IDs")]
     [SerializeField] private SoundID _hover;
     [SerializeField] private SoundID _click;
+
+    [Tooltip("ใช้กับปุ่มที่แปะ UIBackButtonTag และตอนกด ESC")]
     [SerializeField] private SoundID _back;
 
     [Header("Options")]
@@ -83,8 +77,14 @@ public class UISoundBank : MonoBehaviour
         Play(_hover);
     }
 
-    internal void PlayClick() => Play(_click);
-    public void PlayBack() => Play(_back);
+    /// <summary>isBack = true ใช้เสียงย้อนกลับ ถ้าไม่ได้ตั้งไว้จะใช้เสียงคลิกแทน</summary>
+    public void PlayClick(bool isBack)
+    {
+        Play(isBack && _back != null ? _back : _click);
+    }
+
+    /// <summary>เรียกตอนกด ESC — ไม่ได้ผ่านปุ่มเลยต้องสั่งเอง</summary>
+    public void PlayBack() => Play(_back != null ? _back : _click);
 
     /// <summary>ให้หน้าจอเรียกตอนเปิดใหม่ เพื่อรีเซ็ตช่วงกันเสียงลั่น</summary>
     public void NotifyScreenOpened()
@@ -103,19 +103,18 @@ public class UISoundBank : MonoBehaviour
     }
 }
 
-/// <summary>
-/// ตัวรับ event ต่อปุ่ม — ถูก AddComponent โดย UISoundBank ไม่ต้องแปะเอง
-///
-/// ใช้ OnPointerDown ไม่ใช่ OnPointerClick
-/// เพราะปุ่มที่กดแล้วเปลี่ยนหน้าจอ จะปิด CanvasGroup.interactable ทันทีใน onClick
-/// ถ้ารอถึง OnPointerClick จะเช็คเจอว่ากดไม่ได้แล้ว แล้วเงียบไปเฉย ๆ
-/// </summary>
 public class UISoundEmitter : MonoBehaviour,
     IPointerEnterHandler, IPointerExitHandler,
     IPointerDownHandler, ISubmitHandler,
     ISelectHandler
 {
     private bool _pointerInside;
+    private bool _isBackButton;
+
+    private void Awake()
+    {
+        _isBackButton = GetComponent<UIBackButtonTag>() != null;
+    }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
@@ -143,13 +142,13 @@ public class UISoundEmitter : MonoBehaviour,
     public void OnPointerDown(PointerEventData eventData)
     {
         if (!IsUsable()) return;
-        UISoundBank.Instance?.PlayClick();
+        UISoundBank.Instance?.PlayClick(_isBackButton);
     }
 
     public void OnSubmit(BaseEventData eventData)
     {
         if (!IsUsable()) return;
-        UISoundBank.Instance?.PlayClick();
+        UISoundBank.Instance?.PlayClick(_isBackButton);
     }
 
     /// <summary>ปุ่มที่กดไม่ได้ ไม่ควรมีเสียงตอบสนอง</summary>

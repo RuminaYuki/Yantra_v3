@@ -56,11 +56,15 @@ namespace Yantra.UI
         {
             if (screen == null || screen.Id == ScreenId.None) return;
 
+            // ตัวที่ลงทะเบียนไว้ก่อนและยังมีชีวิตอยู่ = ตัวจริงเสมอ
+            //
+            // เคสที่เจอบ่อย: กลับมา MainMenuScene ซึ่งมี UIRoot อยู่ใน scene
+            // Unity สร้าง UIRoot ชุดใหม่ขึ้นมา แล้ว UIManager สั่ง Destroy ตัวเอง
+            // แต่ Unity ทำลายจริงตอนท้ายเฟรม ลูก ๆ เลย Awake ไปแล้วและมาลงทะเบียนซ้ำ
+            // ไม่ใช่ error — แค่เมินตัวใหม่ไป เดี๋ยวมันก็ถูกทำลายเอง
             if (_registry.TryGetValue(screen.Id, out var existing) && existing != null && existing != screen)
-            {
-                Debug.LogWarning($"[UIManager] มี {screen.Id} ซ้ำกัน 2 อัน: {existing.name} / {screen.name}", screen);
                 return;
-            }
+
             _registry[screen.Id] = screen;
         }
 
@@ -69,6 +73,13 @@ namespace Yantra.UI
             if (screen == null) return;
             if (_registry.TryGetValue(screen.Id, out var found) && found == screen)
                 _registry.Remove(screen.Id);
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetStatics()
+        {
+            _registry.Clear();
+            Instance = null;
         }
 
         public static bool TryGet<T>(ScreenId id, out T screen) where T : UIScreen

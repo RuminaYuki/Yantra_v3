@@ -51,7 +51,16 @@ public class SceneLoader : MonoBehaviour
         if (Instance == this) Instance = null;
     }
 
-    public void LoadScene(string sceneName)
+    /// <summary>
+    /// โหลด scene
+    /// openAfterLoad: หน้าจอที่จะเปิดหลังโหลดเสร็จ
+    ///
+    /// จำเป็นตอนกลับมา MainMenuScene เพราะ UIManager ตัวที่ข้าม scene มา
+    /// รัน Start() ไปตั้งแต่เปิดเกมแล้ว ค่า Open On Start เลยไม่ทำงานอีก
+    /// ส่วน UIManager ตัวใหม่ใน scene ถูกสั่ง Destroy ทิ้งก่อนจะถึง Start()
+    /// ถ้าไม่สั่งเปิดเอง stack จะว่างเปล่าแล้วได้จอดำ
+    /// </summary>
+    public void LoadScene(string sceneName, ScreenId openAfterLoad = ScreenId.None)
     {
         if (IsLoading)
         {
@@ -65,10 +74,10 @@ public class SceneLoader : MonoBehaviour
             return;
         }
 
-        StartCoroutine(LoadRoutine(sceneName));
+        StartCoroutine(LoadRoutine(sceneName, openAfterLoad));
     }
 
-    private IEnumerator LoadRoutine(string sceneName)
+    private IEnumerator LoadRoutine(string sceneName, ScreenId openAfterLoad)
     {
         IsLoading = true;
         LoadStarted?.Invoke(sceneName);
@@ -135,7 +144,11 @@ public class SceneLoader : MonoBehaviour
 
         yield return new WaitForSecondsRealtime(_postLoadHold);
 
-        // 9) เปิดจอ
+        // 9) เปิดหน้าที่ต้องการก่อน แล้วค่อยเปิดจอ
+        //    เรียงลำดับนี้เพื่อไม่ให้เห็นจอว่างแวบหนึ่งระหว่างสองคำสั่ง
+        if (openAfterLoad != ScreenId.None)
+            ui.Open(openAfterLoad, instant: true);
+
         ui.Close(ScreenId.Loading);
 
         IsLoading = false;
