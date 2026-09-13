@@ -1,5 +1,5 @@
+using System;
 using System.Collections.Generic;
-using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -8,10 +8,14 @@ public class DrawRadialManuSelect : MonoBehaviour
     [Header("References")]
     [SerializeField] DrawController _drawController;
     [SerializeField] RadialMenuDataSO _dataSO;
+    [SerializeField] GameObject PositionReferences;
 
     [Header("Event Channal")]
     [SerializeField] BoolRadialSOAdvEventChannal _boolRadialSOAdvEventChannal;
     [SerializeField] IntEventChannelSO _radialIntID_IEC;
+
+    [Header("Setting")]
+    [SerializeField] List<DrawingType> _drawingType = new();
 
     InputSystem_Actions _playerInput;
     int _Id;
@@ -41,7 +45,7 @@ public class DrawRadialManuSelect : MonoBehaviour
         _playerInput.Disable();
         if (_playerInput != null)
         {
-            _playerInput.Player.MousePosition.performed -= HandleOpenRadial;
+            _playerInput.Player.YantRadial.started -= HandleOpenRadial;
             _playerInput.Player.YantRadial.canceled -= HandleCloseRadial;
         }
 
@@ -51,9 +55,17 @@ public class DrawRadialManuSelect : MonoBehaviour
         }   
     }
 
+    private void OnValidate()
+    {
+        for (int i = 0; i < _drawingType.Count; i++)
+        {
+            _drawingType[i].ID = i;
+        }
+    }
+
     private void HandleRadialIntID(int ID)
     {
-        Debug.Log($"Radial Menu Button ID: {ID}");
+        //Debug.Log($"Radial Menu Button ID: {ID}");
         _Id = ID;
     }
 
@@ -66,8 +78,32 @@ public class DrawRadialManuSelect : MonoBehaviour
     }    
     private void HandleCloseRadial(InputAction.CallbackContext context)
     {
-        _drawController.InstantiateNewTemplat(_Id);
+        InstantiateNewTemplat(_Id);
         Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
         _boolRadialSOAdvEventChannal.Raise(false, _dataSO);
     }
+
+    public void InstantiateNewTemplat(int ID)
+    {
+        if (ID > _drawingType.Count - 1 || ID < 0) return;
+
+        _drawController.SetSplineToLineRenderer(null);
+
+        foreach (DrawingType drawType in _drawingType)
+        {
+            if (ID != drawType.ID) continue;
+
+            GameObject NewTemplat = Instantiate(drawType.Prefab, PositionReferences.transform.position, PositionReferences.transform.rotation, transform);
+            _drawController.SetSplineToLineRenderer(NewTemplat.GetComponent<SplineToLineRenderer>());
+            _drawController.AddProgress();
+        }
+    }
+}
+
+[Serializable]
+public class DrawingType
+{
+    public int ID;
+    public GameObject Prefab;
 }

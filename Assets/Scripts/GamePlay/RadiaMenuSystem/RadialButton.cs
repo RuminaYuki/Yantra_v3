@@ -14,21 +14,8 @@ public class RadialButton : MonoBehaviour
     [SerializeField] float _angleOffset = 15f;
     float _angleThreshold = 15f;
     [SerializeField] IntEventChannelSO _radialIntID_IEC;
-    private InputSystem_Actions playerInput;
-    private Vector2 lastMousePos;
-
-    private void Awake()
-    {
-        playerInput = new InputSystem_Actions();
-    }
-
     private void OnEnable()
     {
-        playerInput.Enable();
-        if (playerInput != null)
-        {
-            playerInput.Player.MousePosition.performed += HandleStroke;
-        }
         if (_radialIntID_IEC != null)
         {
             _radialIntID_IEC.Raised += HandleThisIsSelect;
@@ -37,14 +24,9 @@ public class RadialButton : MonoBehaviour
 
     private void OnDisable()
     {
-        playerInput.Disable();
-        if (playerInput != null)
-        {
-            playerInput.Player.MousePosition.performed -= HandleStroke;
-        }
         if(_radialIntID_IEC != null)
         {
-            _radialIntID_IEC.Raised += HandleThisIsSelect;
+            _radialIntID_IEC.Raised -= HandleThisIsSelect;
         }
     }
 
@@ -70,11 +52,16 @@ public class RadialButton : MonoBehaviour
         }
     }
 
-    private void HandleStroke(InputAction.CallbackContext context)
+    private void Update()
     {
-        Vector2 mousePosition = context.action.ReadValue<Vector2>();
-        Vector2 mouseMovement = mousePosition - lastMousePos;
+        if (Mouse.current != null)
+        {
+            HandleStroke(Mouse.current.delta.ReadValue());
+        }
+    }
 
+    private void HandleStroke(Vector2 mouseMovement)
+    {
         Vector2 iconDirection = (_sprintIcon.transform.position - _pivot.transform.position).normalized;
 
         if (mouseMovement.sqrMagnitude > 0.01f)
@@ -95,7 +82,5 @@ public class RadialButton : MonoBehaviour
                 _radialIntID_IEC.Raise(_buttonID);
             }
         }
-
-        lastMousePos = mousePosition;
     }
 }
