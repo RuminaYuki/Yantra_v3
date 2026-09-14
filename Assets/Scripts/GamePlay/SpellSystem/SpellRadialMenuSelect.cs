@@ -73,7 +73,7 @@ public class SpellRadialMenuSelect : MonoBehaviour
         {
             if (ID != spellType.ID) continue;
 
-            GameObject newTemplate = Instantiate(spellType.Prefab, PositionReferences.transform.position, PositionReferences.transform.rotation, transform);
+            GameObject newTemplate = Instantiate(spellType.Prefab, PositionReferences.transform.position, PositionReferences.transform.rotation, PositionReferences.transform);
             _spellController.SetSplineToLineRenderer(newTemplate.GetComponent<SplineToLineRenderer>());
             _spellController.AddProgress();
         }
