@@ -51,7 +51,7 @@ public class SpellController : MonoBehaviour
             HandleStroke(Mouse.current.delta.ReadValue());
         }
 
-        if (splineToLineRenderer.GetProgress() >= 1)
+        if (splineToLineRenderer.GetProgress() >= 1 || !_isActive)
         {
             Destroy(splineToLineRenderer.gameObject);
         }
