@@ -29,7 +29,11 @@ public class DrawRadialManuSelect : MonoBehaviour
     private void OnEnable()
     {
         _playerInput.Enable();
-        
+        if (_playerInput != null)
+        {
+            _playerInput.Player.Spell.started += HandleOpenRadial;
+            _playerInput.Player.Spell.canceled += HandleCloseRadial;
+        } 
         if (_radialIntID_IEC != null)
         {
             _radialIntID_IEC.Raised += HandleRadialIntID;
@@ -39,7 +43,11 @@ public class DrawRadialManuSelect : MonoBehaviour
     private void OnDisable()
     {
         _playerInput.Disable();
-
+            if (_playerInput != null)
+        {
+            _playerInput.Player.Spell.started -= HandleOpenRadial;
+            _playerInput.Player.Spell.canceled -= HandleCloseRadial;
+        } 
         if (_radialIntID_IEC != null)
         {
             _radialIntID_IEC.Raised -= HandleRadialIntID;
