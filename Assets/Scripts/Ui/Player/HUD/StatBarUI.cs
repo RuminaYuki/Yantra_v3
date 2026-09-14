@@ -12,9 +12,23 @@ using UnityEngine.UI;
 /// </summary>
 public abstract class StatBarUI : MonoBehaviour
 {
+    public enum FillMode
+    {
+        [Tooltip("ใช้ fillAmount — ลดจากขอบตาม Fill Origin ที่ตั้งใน Image")]
+        Filled,
+
+        [Tooltip("ย่อ scale แกน X — หุบเข้าหาตรงกลาง ต้องตั้ง Pivot X = 0.5")]
+        ScaleFromCenter,
+    }
+
     [Header("Fill")]
-    [Tooltip("Image ที่ตั้ง Image Type = Filled")]
+    [Tooltip("Image ที่จะใช้แสดงค่า")]
     [SerializeField] protected Image _fill;
+
+    [Tooltip("Filled = ลดจากขอบ (Health)\n" +
+             "ScaleFromCenter = หุบเข้ากลาง (Guard)\n\n" +
+             "Unity ไม่มี Fill Origin แบบ Center ให้เลือก เลยต้องใช้ scale แทน")]
+    [SerializeField] private FillMode _mode = FillMode.Filled;
 
     [Tooltip("ความเร็วที่แถบวิ่งตามค่าจริง — 0 = เปลี่ยนทันที")]
     [SerializeField] private float _fillSpeed = 3f;
@@ -86,7 +100,24 @@ public abstract class StatBarUI : MonoBehaviour
             ? target
             : Mathf.MoveTowards(_displayed, target, _fillSpeed * Time.deltaTime);
 
-        _fill.fillAmount = _displayed;
+        ApplyAmount(_fill, _displayed);
+    }
+
+    /// <summary>
+    /// ScaleFromCenter ย่อ localScale.x แทนการใช้ fillAmount
+    /// ต้องตั้ง Pivot X = 0.5 ที่ RectTransform ไม่งั้นจะหุบไปข้างเดียว
+    /// </summary>
+    private void ApplyAmount(Image image, float amount)
+    {
+        if (_mode == FillMode.ScaleFromCenter)
+        {
+            var scale = image.rectTransform.localScale;
+            scale.x = amount;
+            image.rectTransform.localScale = scale;
+            return;
+        }
+
+        image.fillAmount = amount;
     }
 
     /// <summary>
@@ -110,7 +141,7 @@ public abstract class StatBarUI : MonoBehaviour
             _delayedTimer = 0f;
         }
 
-        _delayedFill.fillAmount = _delayedDisplayed;
+        ApplyAmount(_delayedFill, _delayedDisplayed);
     }
 
     private void UpdateText(float current, float max)

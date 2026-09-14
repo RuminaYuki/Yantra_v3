@@ -862,6 +862,7 @@ MonoBehaviour:
   _minTrauma: 0.25
   _maxTrauma: 0.75
   _flashImage: {fileID: 4494067690512853749, guid: 80bb1b45fc2c8364980c4959dfacca70, type: 3}
+  _flashObjectName: HurtFlash
   _flashMaxAlpha: 0.35
   _flashInDuration: 0.05
   _flashOutDuration: 0.35
@@ -881,6 +882,7 @@ MonoBehaviour:
   _onDead: {fileID: 0}
   _scaleByDamage: 0
   _fixedStrength: 0.5
+  _stopShakeDelay: 0.8
 --- !u!114 &252646491
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7864,6 +7866,9 @@ MonoBehaviour:
   _inputIsAnalog: 0
   _minPitch: -40
   _maxPitch: 60
+  _recenterPitchOnLock: 1
+  _recenterSpeed: 90
+  _recenterThreshold: 0.05
   _positionSpeed: 30
   _rotationSpeed: 25
   _fovSpeed: 12
