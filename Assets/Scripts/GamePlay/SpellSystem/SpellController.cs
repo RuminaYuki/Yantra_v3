@@ -16,7 +16,7 @@ public class SpellController : MonoBehaviour
     [Header("Settings")]
     [SerializeField] float angleThreshold = 10f;
 
-    private bool _isActive = false;
+    public bool _isActive = false;
 
 
     private void Awake()

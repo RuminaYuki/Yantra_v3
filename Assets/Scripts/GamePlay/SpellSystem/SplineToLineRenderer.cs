@@ -23,6 +23,7 @@ public class SplineToLineRenderer : MonoBehaviour
     #endregion
     [Range(0f, 1f)]
     [SerializeField] float currentProgress = 0f;
+    private bool finishedSpellRaised;
 
     [Header("Event Actions")]
     [SerializeField] FloatEventChannelSO SpellProgress;
@@ -39,6 +40,10 @@ public class SplineToLineRenderer : MonoBehaviour
         set 
         {
             currentProgress = Mathf.Clamp01(value + offset);
+            if (currentProgress < 1f)
+            {
+                finishedSpellRaised = false;
+            }
             progressIsChange();
             SpellProgress.Raise(currentProgress);
         }
@@ -81,9 +86,10 @@ public class SplineToLineRenderer : MonoBehaviour
 
             lineRenderer.SetPosition(i, position);
             CurrentKnotPositionEvent.Raise(position);
-            if (t == 1) 
+            if (t >= 1f && !finishedSpellRaised)
             {
-                FinishedSpell.Raise();
+                finishedSpellRaised = true;
+                FinishedSpell?.Raise();
             }
         }
     }

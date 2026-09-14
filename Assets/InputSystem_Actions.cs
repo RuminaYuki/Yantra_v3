@@ -153,6 +153,16 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""priority"": 0
                 },
                 {
+                    ""name"": ""Effect"",
+                    ""type"": ""Button"",
+                    ""id"": ""3a4e7c91-2f6b-4d8a-9c1e-5b7f0d3a6e82"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
+                },
+                {
                     ""name"": ""Block"",
                     ""type"": ""Button"",
                     ""id"": ""fecc2f0b-46d3-452a-92e1-4e0f92c93afc"",
@@ -572,6 +582,17 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
                     ""action"": ""Spell"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4e8a1c6f-3b7d-49e2-8f5a-0c4d6b1e7a93"",
+                    ""path"": ""<Keyboard>/t"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""Effect"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -1241,6 +1262,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player_DrawGun = m_Player.FindAction("DrawGun", throwIfNotFound: true);
         m_Player_Aim = m_Player.FindAction("Aim", throwIfNotFound: true);
         m_Player_Spell = m_Player.FindAction("Spell", throwIfNotFound: true);
+        m_Player_Effect = m_Player.FindAction("Effect", throwIfNotFound: true);
         m_Player_Block = m_Player.FindAction("Block", throwIfNotFound: true);
         m_Player_EquipGun = m_Player.FindAction("EquipGun", throwIfNotFound: true);
         m_Player_Reload = m_Player.FindAction("Reload", throwIfNotFound: true);
@@ -1348,6 +1370,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_DrawGun;
     private readonly InputAction m_Player_Aim;
     private readonly InputAction m_Player_Spell;
+    private readonly InputAction m_Player_Effect;
     private readonly InputAction m_Player_Block;
     private readonly InputAction m_Player_EquipGun;
     private readonly InputAction m_Player_Reload;
@@ -1391,6 +1414,10 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/Spell".
         /// </summary>
         public InputAction @Spell => m_Wrapper.m_Player_Spell;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Effect".
+        /// </summary>
+        public InputAction @Effect => m_Wrapper.m_Player_Effect;
         /// <summary>
         /// Provides access to the underlying input action "Player/Block".
         /// </summary>
@@ -1467,6 +1494,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Spell.started += instance.OnSpell;
             @Spell.performed += instance.OnSpell;
             @Spell.canceled += instance.OnSpell;
+            @Effect.started += instance.OnEffect;
+            @Effect.performed += instance.OnEffect;
+            @Effect.canceled += instance.OnEffect;
             @Block.started += instance.OnBlock;
             @Block.performed += instance.OnBlock;
             @Block.canceled += instance.OnBlock;
@@ -1520,6 +1550,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Spell.started -= instance.OnSpell;
             @Spell.performed -= instance.OnSpell;
             @Spell.canceled -= instance.OnSpell;
+            @Effect.started -= instance.OnEffect;
+            @Effect.performed -= instance.OnEffect;
+            @Effect.canceled -= instance.OnEffect;
             @Block.started -= instance.OnBlock;
             @Block.performed -= instance.OnBlock;
             @Block.canceled -= instance.OnBlock;
@@ -1886,6 +1919,13 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnSpell(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Effect" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnEffect(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "Block" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
