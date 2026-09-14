@@ -16,6 +16,8 @@ public class SpellController : MonoBehaviour
     [Header("Settings")]
     [SerializeField] float angleThreshold = 10f;
 
+    private bool _isActive = false;
+
 
     private void Awake()
     {
@@ -44,7 +46,7 @@ public class SpellController : MonoBehaviour
             return;
         }
 
-        if (Mouse.current != null)
+        if (Mouse.current != null && _isActive)
         {
             HandleStroke(Mouse.current.delta.ReadValue());
         }
@@ -90,6 +92,8 @@ public class SpellController : MonoBehaviour
             LockCursorForSpell();
         }
     }
+
+    public void SetActive(bool value) => _isActive = value;
 
     public void AddProgress() => splineToLineRenderer.AddProgress();
 

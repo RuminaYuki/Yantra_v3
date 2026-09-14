@@ -60,7 +60,7 @@ public class SplineToLineRenderer : MonoBehaviour
 
     private void Update()
     {
-        if (debugSpell) progressIsChange();
+        progressIsChange();
     }
 
     void progressIsChange()

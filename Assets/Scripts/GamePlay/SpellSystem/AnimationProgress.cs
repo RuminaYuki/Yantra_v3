@@ -28,7 +28,6 @@ public class AnimationProgress : MonoBehaviour
         if (_aPD_SetEnable_AEC != null)
         {
             _aPD_SetEnable_AEC.Raise(true);
-            _aPD_SetEnable_AEC.Raised += HandleDestroy;
         }
     }
 
@@ -47,7 +46,6 @@ public class AnimationProgress : MonoBehaviour
         if (_aPD_SetEnable_AEC != null)
         {
             _aPD_SetEnable_AEC.Raise(false);
-            _aPD_SetEnable_AEC.Raised -= HandleDestroy;
         }
     }
 
@@ -60,11 +58,5 @@ public class AnimationProgress : MonoBehaviour
     private void HandleFinishSpell()
     {
         _aPD_SetEnable_AEC.Raise(false);
-    }
-
-    private void HandleDestroy(bool force)
-    {
-        if (force) return;
-        Destroy(gameObject);
     }
 }
