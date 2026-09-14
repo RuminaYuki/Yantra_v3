@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System;
 
 public class AttackSphereCast : MonoBehaviour
 {
@@ -75,6 +76,8 @@ public class AttackSphereCast : MonoBehaviour
             attackOrigin = value;
         }
     }
+
+    public event Action OnHit;
     #endregion
 
 
@@ -99,6 +102,7 @@ public class AttackSphereCast : MonoBehaviour
                 if (damageable != null)
                 {
                     damageable.TakeDamage(damageAmount);
+                    OnHit?.Invoke();
                     if (showDebugLogs)
                         Debug.Log($"{gameObject.name} attack origin overlapping {col.name} directly, damage applied.");
                     return true;
@@ -113,12 +117,14 @@ public class AttackSphereCast : MonoBehaviour
         if (Physics.SphereCast(attackOrigin.position, attackRadius, attackOrigin.forward, out RaycastHit hit, attackRange, layerMask))
         {
             hit.collider.GetComponent<IDamageable>()?.TakeDamage(damageAmount);
+            OnHit?.Invoke();
             if (showDebugLogs)
             {
                 Debug.Log($"{gameObject.name} attacked {hit.collider.name} (layer: {LayerMask.LayerToName(hit.collider.gameObject.layer)}) at distance {hit.distance:F2} for {damageAmount} damage.", hit.collider.gameObject);
             }
             return true;
         }
+        
         if (showDebugLogs)
         {
             Debug.Log($"{gameObject.name} SphereCast hit nothing (range {attackRange}, radius {attackRadius}).");
