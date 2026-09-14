@@ -54,6 +54,8 @@ public class PlayerCameraController : MonoBehaviour
     private bool _isCutsceneMode = false;
     private bool _isPaused = false;
 
+    private bool _isLookLocked = false;
+
     #region Public Properties API
 
     public bool IsPaused
@@ -108,6 +110,27 @@ public class PlayerCameraController : MonoBehaviour
         set => _isFreeLookingInBook = value;
     }
 
+    /// <summary>
+    /// ล็อกการหมุนกล้อง — ใช้ตอนวาดยันต์ ตาย หรือโดน stun
+    ///
+    /// ล็อกแค่การหัน ตัวละครยังเดินได้ปกติ และไม่ยุ่งกับ cursor
+    /// (ต่างจาก IsPaused ที่ปลดล็อกเมาส์ให้ด้วย)
+    /// </summary>
+    public bool IsLookLocked
+    {
+        get => _isLookLocked;
+        set
+        {
+            _isLookLocked = value;
+
+            // ทิ้ง input ที่ค้างอยู่ ไม่งั้นพอปลดล็อกกล้องจะดีดไปตามค่าที่ค้าง
+            if (_isLookLocked) _currentLookDelta = Vector2.zero;
+        }
+    }
+
+    /// <summary>เวอร์ชันเมธอด เผื่อใช้กับ UnityEvent ใน Inspector</summary>
+    public void SetLookLocked(bool locked) => IsLookLocked = locked;
+
     public Vector2 CameraRotation => new Vector2(_yaw, _pitch);
     public float MinPitch => _minPitch;
     public float MaxPitch => _maxPitch;
@@ -145,6 +168,10 @@ public class PlayerCameraController : MonoBehaviour
         }
 
         float dt = Time.deltaTime;
+
+        // ล็อกแค่การหมุน — ตำแหน่งกับ FOV ยังทำงานต่อ
+        // เพราะกล้องต้องติดหัวผู้เล่นอยู่ดี ถ้าหยุดหมดจะหลุดออกจากตัวละคร
+        if (_isLookLocked) _currentLookDelta = Vector2.zero;
 
         UpdateRotation(dt);
         UpdatePosition(dt);

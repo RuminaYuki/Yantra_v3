@@ -73,9 +73,19 @@ public class PlayerHurtReaction : MonoBehaviour
             CameraShaker.Instance?.AddTrauma(Mathf.Lerp(0.25f, 0.75f, strength));
     }
 
+    [Header("Death")]
+    [Tooltip("หน่วงก่อนหยุดสั่นตอนตาย ให้จังหวะโดนตีครั้งสุดท้ายเล่นจบก่อน")]
+    [SerializeField] private float _stopShakeDelay = 0.8f;
+
     private void HandleDead()
     {
-        // ตายแล้วต้องหยุดสั่นทันที ไม่งั้นจอสั่นค้างทับหน้า Game Over
+        StartCoroutine(StopShakeAfterDelay());
+    }
+
+    private System.Collections.IEnumerator StopShakeAfterDelay()
+    {
+        // ใช้ Realtime เพราะหน้า Game Over ตั้ง timeScale = 0
+        yield return new WaitForSecondsRealtime(_stopShakeDelay);
         CameraShaker.Instance?.StopImmediate();
     }
 }

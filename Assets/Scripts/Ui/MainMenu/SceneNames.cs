@@ -5,5 +5,5 @@
 public static class SceneNames
 {
     public const string MainMenu = "MainMenuScene";
-    public const string Gameplay = "PoomTestScene2";
+    public const string Gameplay = "PoomPlayerBehaviorTest";
 }
