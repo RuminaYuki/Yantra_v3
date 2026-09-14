@@ -3,8 +3,8 @@ using UnityEngine;
 public class AnimationProgress : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] FloatEventChannelSO _drawingProgress;
-    [SerializeField] VoidEventChannelSO _finishedDrawing;
+    [SerializeField] FloatEventChannelSO _spellProgress;
+    [SerializeField] VoidEventChannelSO _finishedSpell;
     [SerializeField] BoolEventChannelSO _aPD_SetEnable_AEC;
     [SerializeField] AnimationProgressDriverAdvEventChannal _aPD_AEC;
 
@@ -15,14 +15,14 @@ public class AnimationProgress : MonoBehaviour
 
     private void OnEnable()
     {
-        if (_drawingProgress != null)
+        if (_spellProgress != null)
         {
-            _drawingProgress.Raised += HandleProgressChanger;
+            _spellProgress.Raised += HandleProgressChanger;
         }
 
-        if (_finishedDrawing != null)
+        if (_finishedSpell != null)
         {
-            _finishedDrawing.Raised += HandleFinishDrawing;
+            _finishedSpell.Raised += HandleFinishSpell;
         }
 
         if (_aPD_SetEnable_AEC != null)
@@ -34,14 +34,14 @@ public class AnimationProgress : MonoBehaviour
 
     private void OnDisable()
     {
-        if (_drawingProgress != null)
+        if (_spellProgress != null)
         {
-            _drawingProgress.Raised -= HandleProgressChanger;
+            _spellProgress.Raised -= HandleProgressChanger;
         }
 
-        if (_finishedDrawing != null)
+        if (_finishedSpell != null)
         {
-            _finishedDrawing.Raised -= HandleFinishDrawing;
+            _finishedSpell.Raised -= HandleFinishSpell;
         }
 
         if (_aPD_SetEnable_AEC != null)
@@ -57,7 +57,7 @@ public class AnimationProgress : MonoBehaviour
         _aPD_AEC.Raise(_animationName, _layerIndex, value, 0, 1);
     }
 
-    private void HandleFinishDrawing()
+    private void HandleFinishSpell()
     {
         _aPD_SetEnable_AEC.Raise(false);
     }

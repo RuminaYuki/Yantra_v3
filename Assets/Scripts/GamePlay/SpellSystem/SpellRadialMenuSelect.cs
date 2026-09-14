@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class DrawRadialManuSelect : MonoBehaviour
+public class SpellRadialMenuSelect : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] DrawController _drawController;
+    [SerializeField] SpellController _spellController;
     [SerializeField] RadialMenuDataSO _dataSO;
     [SerializeField] GameObject PositionReferences;
 
@@ -15,11 +15,11 @@ public class DrawRadialManuSelect : MonoBehaviour
     [SerializeField] IntEventChannelSO _radialIntID_IEC;
 
     [Header("Setting")]
-    [SerializeField] List<DrawingType> _drawingType = new();
+    [SerializeField] List<SpellType> _spellTypes = new();
 
     InputSystem_Actions _playerInput;
     int _Id;
-    bool _isDrawing = false;
+    bool _isCasting = false;
     [SerializeField] bool _isActive = false;
     private void Awake()
     {
@@ -56,9 +56,9 @@ public class DrawRadialManuSelect : MonoBehaviour
 
     private void OnValidate()
     {
-        for (int i = 0; i < _drawingType.Count; i++)
+        for (int i = 0; i < _spellTypes.Count; i++)
         {
-            _drawingType[i].ID = i;
+            _spellTypes[i].ID = i;
         }
     }
 
@@ -87,23 +87,23 @@ public class DrawRadialManuSelect : MonoBehaviour
 
     public void InstantiateNewTemplat(int ID)
     {
-        if (ID > _drawingType.Count - 1 || ID < 0) return;
+        if (ID > _spellTypes.Count - 1 || ID < 0) return;
 
-        _drawController.SetSplineToLineRenderer(null);
+        _spellController.SetSplineToLineRenderer(null);
 
-        foreach (DrawingType drawType in _drawingType)
+        foreach (SpellType spellType in _spellTypes)
         {
-            if (ID != drawType.ID) continue;
+            if (ID != spellType.ID) continue;
 
-            GameObject NewTemplat = Instantiate(drawType.Prefab, PositionReferences.transform.position, PositionReferences.transform.rotation, transform);
-            _drawController.SetSplineToLineRenderer(NewTemplat.GetComponent<SplineToLineRenderer>());
-            _drawController.AddProgress();
+            GameObject newTemplate = Instantiate(spellType.Prefab, PositionReferences.transform.position, PositionReferences.transform.rotation, transform);
+            _spellController.SetSplineToLineRenderer(newTemplate.GetComponent<SplineToLineRenderer>());
+            _spellController.AddProgress();
         }
     }
 
     #region API
     /// <summary>
-    /// เริ่มการใช้งาน Radial ของการวาดยันต์
+    /// เริ่มการใช้งาน Radial ของการร่ายคาถา
     /// </summary>
     /// <param name="value">จำนวนเส้นรัศมี (แฉก) ที่ต้องการให้สะท้อนในการวาดยันต์ เช่น 4, 8, หรือ 16 เส้น</param>
     public void OpenRadial(bool value = true) => _isActive = value;
@@ -111,7 +111,7 @@ public class DrawRadialManuSelect : MonoBehaviour
 }
 
 [Serializable]
-public class DrawingType
+public class SpellType
 {
     public int ID;
     public GameObject Prefab;

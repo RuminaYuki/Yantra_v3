@@ -4,7 +4,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class DrawController : MonoBehaviour
+public class SpellController : MonoBehaviour
 {
     [Header("Player Input")]
     private InputSystem_Actions playerInput;
@@ -28,7 +28,7 @@ public class DrawController : MonoBehaviour
         playerInput.Enable();
         if (splineToLineRenderer != null)
         {
-            LockCursorForDrawing();
+            LockCursorForSpell();
         }
     }
 
@@ -87,13 +87,13 @@ public class DrawController : MonoBehaviour
         splineToLineRenderer = value;
         if (value != null)
         {
-            LockCursorForDrawing();
+            LockCursorForSpell();
         }
     }
 
     public void AddProgress() => splineToLineRenderer.AddProgress();
 
-    private void LockCursorForDrawing()
+    private void LockCursorForSpell()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;

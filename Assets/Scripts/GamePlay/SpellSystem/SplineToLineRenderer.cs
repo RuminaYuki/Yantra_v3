@@ -19,14 +19,14 @@ public class SplineToLineRenderer : MonoBehaviour
 
     [Header("Debug")]
     #region Debug
-    public bool debugDraw = true;
+    public bool debugSpell = true;
     #endregion
     [Range(0f, 1f)]
     [SerializeField] float currentProgress = 0f;
 
     [Header("Event Actions")]
-    [SerializeField] FloatEventChannelSO DrawingProgress;
-    [SerializeField] VoidEventChannelSO FinishedDrawing;
+    [SerializeField] FloatEventChannelSO SpellProgress;
+    [SerializeField] VoidEventChannelSO FinishedSpell;
     [SerializeField] Vector3EventChannelSO CurrentKnotPositionEvent;
 
     public float CurrentProgress 
@@ -40,7 +40,7 @@ public class SplineToLineRenderer : MonoBehaviour
         {
             currentProgress = Mathf.Clamp01(value + offset);
             progressIsChange();
-            DrawingProgress.Raise(currentProgress);
+            SpellProgress.Raise(currentProgress);
         }
     }
 
@@ -60,7 +60,7 @@ public class SplineToLineRenderer : MonoBehaviour
 
     private void Update()
     {
-        if (debugDraw) progressIsChange();
+        if (debugSpell) progressIsChange();
     }
 
     void progressIsChange()
@@ -68,7 +68,7 @@ public class SplineToLineRenderer : MonoBehaviour
         if (splineContainer == null || lineRenderer == null)
             return;
 
-        // จำนวนจุดที่ต้องใช้ในการวาดตาม Progress
+        // จำนวนจุดที่ต้องใช้ในการร่ายตาม Progress
         int pointCount = Mathf.Max(2, Mathf.CeilToInt(resolutions * CurrentProgress));
 
         lineRenderer.positionCount = pointCount;
@@ -83,7 +83,7 @@ public class SplineToLineRenderer : MonoBehaviour
             CurrentKnotPositionEvent.Raise(position);
             if (t == 1) 
             {
-                FinishedDrawing.Raise();
+                FinishedSpell.Raise();
             }
         }
     }
