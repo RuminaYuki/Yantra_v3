@@ -19,9 +19,15 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
         [SerializeField]
         private TransitionItem[] _transitions =
             Array.Empty<TransitionItem>();
-
+        
+        public State CreateInitialState(StateMachine stateMachine)
+        {
+            return CreateInitialState(stateMachine, out _);
+        }
+        
         public State CreateInitialState(
-            StateMachine stateMachine)
+            StateMachine stateMachine,
+            out IReadOnlyDictionary<StateSO, State> allStates)
         {
             if (stateMachine == null)
             {
@@ -74,6 +80,7 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
             stateMachine.SetAnyTransitions(
                 runtimeAnyTransitions);
 
+            allStates = runtimeStates;
             return runtimeStates[_initialState];
         }
 
