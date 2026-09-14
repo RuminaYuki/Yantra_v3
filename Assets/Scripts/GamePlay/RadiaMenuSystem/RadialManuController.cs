@@ -18,7 +18,7 @@ public class RadialManuController : MonoBehaviour
 
     List<GameObject> _radialMenuButtons = new();
 
-    float _currentCountOfButtons = 0;
+    public bool _isActive;
 
     private void Awake()
     {
@@ -47,6 +47,8 @@ public class RadialManuController : MonoBehaviour
     {
         _countOfButtons = Data != null ? Data.GetListData().Count : _countOfButtons;
         CreateRadialMenu(Data);
+
+        _isActive = value;
 
         _canvasGroup.alpha = value ? 1f : 0f;
         _canvasGroup.interactable = value;
@@ -81,13 +83,11 @@ public class RadialManuController : MonoBehaviour
             );
 
             RadialButton radialButton = radialMenu.GetComponent<RadialButton>();
-            radialButton.FixRotation(fillAmount, i);
+            radialButton.SetClass(fillAmount, i, this);
 
             _radialMenuButtons.Add(radialMenu);
         }
     }
-
-
 
     private void ClearList()
     {
@@ -97,4 +97,6 @@ public class RadialManuController : MonoBehaviour
         }
         _radialMenuButtons.Clear();
     }
+
+    public bool GetActive() => _isActive;
 }

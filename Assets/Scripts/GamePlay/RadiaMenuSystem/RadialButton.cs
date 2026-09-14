@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
@@ -14,6 +14,8 @@ public class RadialButton : MonoBehaviour
     [SerializeField] float _angleOffset = 15f;
     float _angleThreshold = 15f;
     [SerializeField] IntEventChannelSO _radialIntID_IEC;
+
+    private RadialManuController _radialManu;
     private void OnEnable()
     {
         if (_radialIntID_IEC != null)
@@ -30,9 +32,10 @@ public class RadialButton : MonoBehaviour
         }
     }
 
-    public void FixRotation(float fillAmount, int Id)
+    public void SetClass(float fillAmount, int Id, RadialManuController radialManu)
     {
         _buttonID = Id;
+        _radialManu = radialManu;
 
         fillAmount = (fillAmount / 2f);
         float angle = fillAmount * 360f;
@@ -54,6 +57,14 @@ public class RadialButton : MonoBehaviour
 
     private void Update()
     {
+        if (_radialManu != null)
+        {
+            if (!_radialManu.GetActive()) return;
+        }
+        else
+        {
+            Debug.LogWarning($"Wait what {this.gameObject.name} มายังไง??");
+        }
         if (Mouse.current != null)
         {
             HandleStroke(Mouse.current.delta.ReadValue());

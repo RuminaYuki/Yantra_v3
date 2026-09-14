@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -19,7 +19,8 @@ public class DrawRadialManuSelect : MonoBehaviour
 
     InputSystem_Actions _playerInput;
     int _Id;
-
+    bool _isDrawing = false;
+    [SerializeField] bool _isActive = false;
     private void Awake()
     {
         _playerInput = new InputSystem_Actions();
@@ -30,8 +31,8 @@ public class DrawRadialManuSelect : MonoBehaviour
         _playerInput.Enable();
         if (_playerInput != null)
         {
-            _playerInput.Player.YantRadial.started += HandleOpenRadial;
-            _playerInput.Player.YantRadial.canceled += HandleCloseRadial;
+            _playerInput.Player.Spell.started += HandleOpenRadial;
+            _playerInput.Player.Spell.canceled += HandleCloseRadial;
         }
 
         if (_radialIntID_IEC != null)
@@ -45,8 +46,8 @@ public class DrawRadialManuSelect : MonoBehaviour
         _playerInput.Disable();
         if (_playerInput != null)
         {
-            _playerInput.Player.YantRadial.started -= HandleOpenRadial;
-            _playerInput.Player.YantRadial.canceled -= HandleCloseRadial;
+            _playerInput.Player.Spell.started -= HandleOpenRadial;
+            _playerInput.Player.Spell.canceled -= HandleCloseRadial;
         }
 
         if (_radialIntID_IEC != null)
@@ -71,6 +72,8 @@ public class DrawRadialManuSelect : MonoBehaviour
 
     private void HandleOpenRadial(InputAction.CallbackContext context)
     {
+        if (!_isActive) return;
+
         _Id = -1;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = false;
@@ -99,6 +102,14 @@ public class DrawRadialManuSelect : MonoBehaviour
             _drawController.AddProgress();
         }
     }
+
+    #region API
+    /// <summary>
+    /// เริ่มการใช้งาน Radial ของการวาดยันต์
+    /// </summary>
+    /// <param name="value">จำนวนเส้นรัศมี (แฉก) ที่ต้องการให้สะท้อนในการวาดยันต์ เช่น 4, 8, หรือ 16 เส้น</param>
+    public void OpenRadial(bool value = true) => _isActive = value;
+    #endregion
 }
 
 [Serializable]

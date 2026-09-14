@@ -183,16 +183,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""priority"": 0
                 },
                 {
-                    ""name"": ""YantRadial"",
-                    ""type"": ""Button"",
-                    ""id"": ""7a40ee08-0ee5-4dce-9265-ab0757c6a273"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false,
-                    ""priority"": 0
-                },
-                {
                     ""name"": ""Look"",
                     ""type"": ""Value"",
                     ""id"": ""6b444451-8a00-4d00-a97e-f47457f736a8"",
@@ -227,6 +217,16 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""type"": ""Value"",
                     ""id"": ""f9fc47bc-43a8-4b85-8bfb-52d7ef4c0697"",
                     ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true,
+                    ""priority"": 0
+                },
+                {
+                    ""name"": ""DrawYant"",
+                    ""type"": ""Button"",
+                    ""id"": ""9c336356-8d34-4e19-8901-f673731c9477"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true,
@@ -570,7 +570,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""path"": ""<Mouse>/rightButton"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": "";Keyboard&Mouse"",
                     ""action"": ""Spell"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -583,17 +583,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Aim"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""de8c4226-cdab-4bea-92d9-3fc3cb26bb55"",
-                    ""path"": ""<Mouse>/rightButton"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""YantRadial"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -614,7 +603,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""path"": ""<Keyboard>/f"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": "";Keyboard&Mouse"",
                     ""action"": ""Block"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -625,7 +614,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""path"": ""<Keyboard>/q"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": "";Keyboard&Mouse"",
                     ""action"": ""EquipGun"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -636,8 +625,19 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""path"": ""<Keyboard>/r"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": "";Keyboard&Mouse"",
                     ""action"": ""Reload"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ab3d8917-301a-473b-98bf-632a592bbdc5"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";Keyboard&Mouse"",
+                    ""action"": ""DrawYant"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1244,11 +1244,11 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player_Block = m_Player.FindAction("Block", throwIfNotFound: true);
         m_Player_EquipGun = m_Player.FindAction("EquipGun", throwIfNotFound: true);
         m_Player_Reload = m_Player.FindAction("Reload", throwIfNotFound: true);
-        m_Player_YantRadial = m_Player.FindAction("YantRadial", throwIfNotFound: true);
         m_Player_Look = m_Player.FindAction("Look", throwIfNotFound: true);
         m_Player_Interact = m_Player.FindAction("Interact", throwIfNotFound: true);
         m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
         m_Player_MousePosition = m_Player.FindAction("MousePosition", throwIfNotFound: true);
+        m_Player_DrawYant = m_Player.FindAction("DrawYant", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Navigate = m_UI.FindAction("Navigate", throwIfNotFound: true);
@@ -1351,11 +1351,11 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Block;
     private readonly InputAction m_Player_EquipGun;
     private readonly InputAction m_Player_Reload;
-    private readonly InputAction m_Player_YantRadial;
     private readonly InputAction m_Player_Look;
     private readonly InputAction m_Player_Interact;
     private readonly InputAction m_Player_Jump;
     private readonly InputAction m_Player_MousePosition;
+    private readonly InputAction m_Player_DrawYant;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -1404,10 +1404,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Reload => m_Wrapper.m_Player_Reload;
         /// <summary>
-        /// Provides access to the underlying input action "Player/YantRadial".
-        /// </summary>
-        public InputAction @YantRadial => m_Wrapper.m_Player_YantRadial;
-        /// <summary>
         /// Provides access to the underlying input action "Player/Look".
         /// </summary>
         public InputAction @Look => m_Wrapper.m_Player_Look;
@@ -1423,6 +1419,10 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/MousePosition".
         /// </summary>
         public InputAction @MousePosition => m_Wrapper.m_Player_MousePosition;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/DrawYant".
+        /// </summary>
+        public InputAction @DrawYant => m_Wrapper.m_Player_DrawYant;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1476,9 +1476,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Reload.started += instance.OnReload;
             @Reload.performed += instance.OnReload;
             @Reload.canceled += instance.OnReload;
-            @YantRadial.started += instance.OnYantRadial;
-            @YantRadial.performed += instance.OnYantRadial;
-            @YantRadial.canceled += instance.OnYantRadial;
             @Look.started += instance.OnLook;
             @Look.performed += instance.OnLook;
             @Look.canceled += instance.OnLook;
@@ -1491,6 +1488,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @MousePosition.started += instance.OnMousePosition;
             @MousePosition.performed += instance.OnMousePosition;
             @MousePosition.canceled += instance.OnMousePosition;
+            @DrawYant.started += instance.OnDrawYant;
+            @DrawYant.performed += instance.OnDrawYant;
+            @DrawYant.canceled += instance.OnDrawYant;
         }
 
         /// <summary>
@@ -1529,9 +1529,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @Reload.started -= instance.OnReload;
             @Reload.performed -= instance.OnReload;
             @Reload.canceled -= instance.OnReload;
-            @YantRadial.started -= instance.OnYantRadial;
-            @YantRadial.performed -= instance.OnYantRadial;
-            @YantRadial.canceled -= instance.OnYantRadial;
             @Look.started -= instance.OnLook;
             @Look.performed -= instance.OnLook;
             @Look.canceled -= instance.OnLook;
@@ -1544,6 +1541,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @MousePosition.started -= instance.OnMousePosition;
             @MousePosition.performed -= instance.OnMousePosition;
             @MousePosition.canceled -= instance.OnMousePosition;
+            @DrawYant.started -= instance.OnDrawYant;
+            @DrawYant.performed -= instance.OnDrawYant;
+            @DrawYant.canceled -= instance.OnDrawYant;
         }
 
         /// <summary>
@@ -1908,13 +1908,6 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnReload(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "YantRadial" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnYantRadial(InputAction.CallbackContext context);
-        /// <summary>
         /// Method invoked when associated input action "Look" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
@@ -1942,6 +1935,13 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnMousePosition(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "DrawYant" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnDrawYant(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "UI" which allows adding and removing callbacks.
