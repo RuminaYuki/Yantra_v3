@@ -42,7 +42,7 @@ public class PlayerCameraInput : MonoBehaviour
         // 4) หาทั้งฉาก — ช้าสุด ใช้เป็นทางสุดท้าย
         //    FindObjectsInactive.Include เผื่อ Player ถูกปิดไว้ตอน Awake
         var all = Object.FindObjectsByType<PlayerCameraController>(
-            FindObjectsInactive.Include, FindObjectsSortMode.None);
+            FindObjectsInactive.Include);
 
         if (all.Length == 1) return Report(all[0], "ค้นทั้งฉาก");
 
@@ -68,8 +68,11 @@ public class PlayerCameraInput : MonoBehaviour
     {
         if (cameraController == null) return;
 
-        // ไม่ป้อน input ตอน pause หรือ cutscene
-        if (cameraController.IsPaused || cameraController.IsCutsceneMode) return;
+        // ไม่ป้อน input ตอน pause, cutscene หรือถูกสั่งล็อก
+        // ตัดตั้งแต่ต้นทางเลยจะดีกว่าให้ controller มากรองทีหลัง
+        if (cameraController.IsPaused) return;
+        if (cameraController.IsCutsceneMode) return;
+        if (cameraController.IsLookLocked) return;
 
         if (Mouse.current != null)
             cameraController.FeedLookInput(Mouse.current.delta.ReadValue());

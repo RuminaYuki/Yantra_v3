@@ -2,13 +2,6 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
-/// <summary>
-/// จุดเดียวที่รวม feedback ตอนโดนตี — สั่นกล้อง + แฟลชสีแดง
-/// ระบบ damage เรียกแค่ HurtFeedback.Instance.Play(...) พอ
-/// ไม่ต้องรู้จัก CameraShaker หรือ UI เลย
-///
-/// วางบน GameObject ไหนก็ได้ในฉากเกม (แนะนำตัวเดียวกับ GameManager)
-/// </summary>
 public class HurtFeedback : MonoBehaviour
 {
     public static HurtFeedback Instance { get; private set; }
@@ -21,8 +14,14 @@ public class HurtFeedback : MonoBehaviour
     [SerializeField] private float _maxTrauma = 0.75f;
 
     [Header("Screen Flash (ไม่ใส่ก็ได้)")]
-    [Tooltip("Image สีแดงเต็มจอ ตั้ง alpha = 0 ไว้ และ Raycast Target ติ๊กออก")]
+    [Tooltip("Image สีแดงเต็มจอ ตั้ง alpha = 0 ไว้ และ Raycast Target ติ๊กออก\n" +
+             "เว้นว่างได้ จะหาจากชื่อ GameObject ให้เอง")]
     [SerializeField] private Image _flashImage;
+
+    [Tooltip("ชื่อ GameObject ของแผ่นแฟลช ใช้ตอนหาอัตโนมัติ\n" +
+             "จำเป็นเพราะแผ่นแฟลชอยู่ใน prefab UIRoot ส่วนตัวนี้อยู่ใน scene\n" +
+             "Unity ลาก reference ข้ามกันไม่ได้ เลยต้องหาตอน runtime แทน")]
+    [SerializeField] private string _flashObjectName = "HurtFlash";
 
     [SerializeField] private float _flashMaxAlpha = 0.35f;
     [SerializeField] private float _flashInDuration = 0.05f;
@@ -38,12 +37,41 @@ public class HurtFeedback : MonoBehaviour
             return;
         }
         Instance = this;
+    }
+
+    private void Start()
+    {
+        // หาใน Start ไม่ใช่ Awake เพื่อให้ UIRoot สร้างเสร็จก่อน
+        if (_flashImage == null) _flashImage = FindFlashImage();
 
         if (_flashImage != null)
         {
             _flashImage.raycastTarget = false;
             SetFlashAlpha(0f);
         }
+        else
+        {
+            Debug.Log($"[HurtFeedback] ไม่พบแผ่นแฟลชชื่อ '{_flashObjectName}' — จะมีแค่จอสั่น", this);
+        }
+    }
+
+    /// <summary>
+    /// หาจากชื่อ แม้ GameObject จะปิดอยู่ก็ตาม
+    /// FindObjectsByType หาเฉพาะที่ active เลยต้องไล่จาก UIRoot เอง
+    /// </summary>
+    private Image FindFlashImage()
+    {
+        if (string.IsNullOrEmpty(_flashObjectName)) return null;
+
+        var allImages = FindObjectsByType<Image>(
+            FindObjectsInactive.Include);
+
+        foreach (var image in allImages)
+        {
+            if (image.gameObject.name == _flashObjectName) return image;
+        }
+
+        return null;
     }
 
     private void OnDestroy()

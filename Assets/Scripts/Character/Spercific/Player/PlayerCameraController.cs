@@ -33,6 +33,17 @@ public class PlayerCameraController : MonoBehaviour
     [SerializeField] private float _minPitch = -40f;
     [SerializeField] private float _maxPitch = 60f;
 
+    [Header("Look Lock")]
+    [Tooltip("ตอนล็อกกล้อง ให้ pitch ค่อย ๆ กลับมาที่ 0 (มองตรงแนวนอน)\n" +
+             "ปิดไว้ถ้าอยากให้ค้างที่มุมเดิม")]
+    [SerializeField] private bool _recenterPitchOnLock = true;
+
+    [Tooltip("องศาต่อวินาทีที่ pitch วิ่งกลับ — 90 ≈ จาก 45 องศากลับถึงกลางใน 0.5 วิ")]
+    [SerializeField] private float _recenterSpeed = 90f;
+
+    [Tooltip("มุมที่ถือว่ากลับถึงกลางแล้ว กันการคำนวณต่อไม่รู้จบ")]
+    [SerializeField] private float _recenterThreshold = 0.05f;
+
     [Header("Smoothing")]
     [Tooltip("ความเร็วขยับตำแหน่ง — FPS ควรสูง ๆ ไม่งั้นกล้องจะตามหัวไม่ทัน")]
     [SerializeField] private float _positionSpeed = 30f;
@@ -53,6 +64,8 @@ public class PlayerCameraController : MonoBehaviour
     private bool _isFreeLookingInBook = false;
     private bool _isCutsceneMode = false;
     private bool _isPaused = false;
+
+    private bool _isLookLocked = false;
 
     #region Public Properties API
 
@@ -107,6 +120,20 @@ public class PlayerCameraController : MonoBehaviour
         get => _isFreeLookingInBook;
         set => _isFreeLookingInBook = value;
     }
+    public bool IsLookLocked
+    {
+        get => _isLookLocked;
+        set
+        {
+            _isLookLocked = value;
+
+            // ทิ้ง input ที่ค้างอยู่ ไม่งั้นพอปลดล็อกกล้องจะดีดไปตามค่าที่ค้าง
+            if (_isLookLocked) _currentLookDelta = Vector2.zero;
+        }
+    }
+
+    /// <summary>เวอร์ชันเมธอด เผื่อใช้กับ UnityEvent ใน Inspector</summary>
+    public void SetLookLocked(bool locked) => IsLookLocked = locked;
 
     public Vector2 CameraRotation => new Vector2(_yaw, _pitch);
     public float MinPitch => _minPitch;
@@ -146,11 +173,31 @@ public class PlayerCameraController : MonoBehaviour
 
         float dt = Time.deltaTime;
 
+        // ล็อกแค่การหมุน — ตำแหน่งกับ FOV ยังทำงานต่อ
+        // เพราะกล้องต้องติดหัวผู้เล่นอยู่ดี ถ้าหยุดหมดจะหลุดออกจากตัวละคร
+        if (_isLookLocked)
+        {
+            _currentLookDelta = Vector2.zero;
+            RecenterPitch(dt);
+        }
+
         UpdateRotation(dt);
         UpdatePosition(dt);
         UpdateFOV(dt);
 
         _currentLookDelta = Vector2.zero;
+    }
+
+    private void RecenterPitch(float dt)
+    {
+        if (!_recenterPitchOnLock) return;
+        if (Mathf.Abs(_pitch) <= _recenterThreshold)
+        {
+            _pitch = 0f;
+            return;
+        }
+
+        _pitch = Mathf.MoveTowards(_pitch, 0f, _recenterSpeed * dt);
     }
 
     // ---------- Rotation ----------
