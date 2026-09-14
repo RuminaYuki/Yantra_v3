@@ -45,6 +45,7 @@ public class AnimationProgressDriver : MonoBehaviour
 
     private void HandleSetProgress(
         string animationName,
+        int layerIndex,
         float progress,
         float normalizedStart,
         float normalizedEnd)
@@ -71,7 +72,7 @@ public class AnimationProgressDriver : MonoBehaviour
         );
 
 
-        _animator.Play(animationName, 0, normalizedTime);
+        _animator.Play(animationName, layerIndex, normalizedTime);
         _animator.Update(0f);
     }
 }

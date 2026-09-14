@@ -9,6 +9,7 @@ public class AnimationProgress : MonoBehaviour
     [SerializeField] AnimationProgressDriverAdvEventChannal _aPD_AEC;
 
     [Header("Animation Setting")]
+    [SerializeField] int _layerIndex;
     [SerializeField] string _animationName;
 
 
@@ -53,7 +54,7 @@ public class AnimationProgress : MonoBehaviour
 
     private void HandleProgressChanger(float value)
     {
-        _aPD_AEC.Raise(_animationName, value, 0, 1);
+        _aPD_AEC.Raise(_animationName, _layerIndex, value, 0, 1);
     }
 
     private void HandleFinishDrawing()
