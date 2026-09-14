@@ -10,12 +10,15 @@ public class CountDownTimerConditionSO : StateConditionSO
     [Header("Set Max Duration to 0 to disable randomization")]
     [SerializeField] private float minDuration = 0f;
     [SerializeField] private float maxDuration = 0f;
-    [Header("Debug")]
-    [SerializeField] private bool enableDebugLogs;
 
+    public float Duration => _condition.Duration;
+    public float Remaining => _condition.Remaining;
+
+    private CountDownTimerCondition _condition;
     public override Condition CreateCondition()
     {
-        return new CountDownTimerCondition(minDuration, maxDuration, enableDebugLogs);
+        _condition = new CountDownTimerCondition(minDuration, maxDuration);
+        return _condition;
     }
 }
 
@@ -23,21 +26,21 @@ public class CountDownTimerCondition : Condition
 {
     private readonly float _minDuration;
     private readonly float _maxDuration;
-    private readonly bool _enableDebugLogs;
 
-    private float _duration;
+    
     private float _elapsed;
+    public float Duration { get; private set; }
+    public float Remaining => Mathf.Max(0f, Duration - _elapsed);
 
-    public CountDownTimerCondition(float minDuration, float maxDuration, bool enableDebugLogs)
+    public CountDownTimerCondition(float minDuration, float maxDuration)
     {
         _minDuration = minDuration;
         _maxDuration = maxDuration;
-        _enableDebugLogs = enableDebugLogs;
     }
 
     public override void OnStateEnter()
     {
-        _duration = _maxDuration > 0f
+        Duration = _maxDuration > 0f
             ? Random.Range(_minDuration, _maxDuration)
             : _minDuration;
 
@@ -48,9 +51,6 @@ public class CountDownTimerCondition : Condition
     {
         _elapsed += Time.deltaTime;
 
-        if (_enableDebugLogs)
-            Debug.Log($"CountDownTimerCondition: {Mathf.Max(_duration - _elapsed, 0f)} seconds remaining.");
-
-        return _elapsed >= _duration;
+        return _elapsed >= Duration;
     }
 }

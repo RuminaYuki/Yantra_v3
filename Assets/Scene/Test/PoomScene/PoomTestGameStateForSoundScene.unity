@@ -590,6 +590,51 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1357931485
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1357931486}
+  - component: {fileID: 1357931487}
+  m_Layer: 0
+  m_Name: ObserverTrigger
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1357931486
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1357931485}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.64965, y: 0, z: 6.05667}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1357931487
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1357931485}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1260cbdc229be254aa3611f3ce9b4f66, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleStateTriggerEvent
+  battleStateTriggerEventChannel: {fileID: 11400000, guid: b8ce22274883fd844a112f11326fa3cb, type: 2}
 --- !u!1 &1865114086
 GameObject:
   m_ObjectHideFlags: 0
@@ -643,6 +688,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TestTriggerBattleState_GameState
   triggerConditionSO: {fileID: 11400000, guid: 4d6d357493438cf49a98fd6af5f19ae6, type: 2}
+  countDownTimerConditionSO: {fileID: 11400000, guid: f95b9b0edd580aa4980ea54838b42efb, type: 2}
 --- !u!114 &1865114089
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -679,3 +725,4 @@ SceneRoots:
   - {fileID: 787154054}
   - {fileID: 1248637698}
   - {fileID: 1865114090}
+  - {fileID: 1357931486}
