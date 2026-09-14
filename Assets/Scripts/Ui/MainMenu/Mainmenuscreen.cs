@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.Device;
 using Yantra.UI;
 
 public class MainMenuScreen : UIScreen
@@ -8,7 +7,7 @@ public class MainMenuScreen : UIScreen
 
     public void OnNewGameClicked()
     {
-        SceneLoader.Instance.LoadScene(SceneNames.Gameplay);
+        SceneLoader.Instance.LoadGameplay();
     }
 
     public void OnSettingsClicked()

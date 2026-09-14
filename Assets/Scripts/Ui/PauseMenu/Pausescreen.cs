@@ -19,7 +19,7 @@ public class PauseScreen : UIScreen
         PauseController.Instance?.ForceResumeTime();
 
         UIManager.Instance.CloseAll(instant: true);
-        SceneLoader.Instance.LoadScene(SceneNames.MainMenu, ScreenId.MainMenu);
+        SceneLoader.Instance.LoadMainMenu();
     }
 
     /// <summary>กด ESC ตอนอยู่หน้านี้ = Resume ไม่ใช่แค่ปิดหน้าจอเฉย ๆ</summary>

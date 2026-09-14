@@ -8,13 +8,15 @@ using Yantra.UI;
 using UnityEngine.InputSystem;
 #endif
 
-/// <summary>
-/// วางบน UIRoot (ตัวเดียวกับ UIManager) เพื่อให้อยู่ข้าม scene
-/// </summary>
 [DefaultExecutionOrder(-90)]
 public class SceneLoader : MonoBehaviour
 {
     public static SceneLoader Instance { get; private set; }
+
+    [Header("Scenes")]
+    [Tooltip("ลาก SceneCatalog asset ใส่ — เก็บ scene ทั้งหมดของเกมไว้ที่เดียว\n" +
+             "ระบบอื่นเรียกผ่าน SceneLoader.Instance.Catalog ได้")]
+    [SerializeField] private SceneCatalog _catalog;
 
     [Header("Timing")]
     [Tooltip("เวลาขั้นต่ำที่หน้าโหลดต้องอยู่ — กันจอกระพริบตอนโหลดเร็วเกิน")]
@@ -32,6 +34,9 @@ public class SceneLoader : MonoBehaviour
 
     public bool IsLoading { get; private set; }
 
+    /// <summary>ให้ระบบอื่นอ่านชื่อ scene ได้โดยไม่ต้องถือ reference เอง</summary>
+    public SceneCatalog Catalog => _catalog;
+
     /// <summary>ให้ระบบอื่นฟังได้ เช่น หยุด BGM เมนู, ปิด input</summary>
     public event Action<string> LoadStarted;
     public event Action<string> LoadCompleted;
@@ -44,6 +49,48 @@ public class SceneLoader : MonoBehaviour
             return;
         }
         Instance = this;
+
+        if (_catalog == null)
+            Debug.LogError("[SceneLoader] ยังไม่ได้ใส่ SceneCatalog — โหลด scene ไม่ได้", this);
+    }
+
+    /// <summary>โหลดหน้าเมนูหลัก — ไม่ต้องรู้ชื่อ scene</summary>
+    public void LoadMainMenu()
+    {
+        if (_catalog == null) return;
+        LoadScene(_catalog.MainMenu, ScreenId.MainMenu);
+    }
+
+    /// <summary>โหลด scene เกม — ไม่ต้องรู้ชื่อ scene</summary>
+    public void LoadGameplay()
+    {
+        if (_catalog == null) return;
+        LoadScene(_catalog.Gameplay);
+    }
+
+    /// <summary>โหลด scene ปัจจุบันใหม่ — ใช้ตอนกด Retry</summary>
+    public void ReloadCurrentScene()
+    {
+        LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+ 
+    public void LoadSceneByKey(string key, ScreenId openAfterLoad = ScreenId.None)
+    {
+        if (_catalog == null)
+        {
+            Debug.LogError("[SceneLoader] ยังไม่ได้ใส่ SceneCatalog", this);
+            return;
+        }
+
+        if (!_catalog.TryGetScene(key, out string sceneName))
+        {
+            Debug.LogError($"[SceneLoader] ไม่พบ scene ชื่อเรียก '{key}' ใน SceneCatalog " +
+                           "— เช็คว่าพิมพ์ตรงกับที่ตั้งไว้ไหม", this);
+            return;
+        }
+
+        LoadScene(sceneName, openAfterLoad);
     }
 
     private void OnDestroy()
@@ -51,15 +98,6 @@ public class SceneLoader : MonoBehaviour
         if (Instance == this) Instance = null;
     }
 
-    /// <summary>
-    /// โหลด scene
-    /// openAfterLoad: หน้าจอที่จะเปิดหลังโหลดเสร็จ
-    ///
-    /// จำเป็นตอนกลับมา MainMenuScene เพราะ UIManager ตัวที่ข้าม scene มา
-    /// รัน Start() ไปตั้งแต่เปิดเกมแล้ว ค่า Open On Start เลยไม่ทำงานอีก
-    /// ส่วน UIManager ตัวใหม่ใน scene ถูกสั่ง Destroy ทิ้งก่อนจะถึง Start()
-    /// ถ้าไม่สั่งเปิดเอง stack จะว่างเปล่าแล้วได้จอดำ
-    /// </summary>
     public void LoadScene(string sceneName, ScreenId openAfterLoad = ScreenId.None)
     {
         if (IsLoading)
