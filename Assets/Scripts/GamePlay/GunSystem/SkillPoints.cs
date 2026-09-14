@@ -8,6 +8,7 @@ public class SkillPoints : MonoBehaviour
     [SerializeField] VoidEventChannelSO _onMaxPoint;
 
     public float CurrentSkillPoints => _skillPoints;
+    public float MaxSkillPoints => _maxPoint;
 
     public void gaint(float amount)
     {
