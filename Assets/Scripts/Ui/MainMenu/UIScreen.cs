@@ -5,10 +5,6 @@ using UnityEngine.EventSystems;
 
 namespace Yantra.UI
 {
-    /// <summary>
-    /// รหัสประจำหน้าจอ. เพิ่มหน้าใหม่ = เพิ่ม enum ตัวนี้ตัวเดียว
-    /// อย่าเรียงใหม่หรือลบของเก่าออก เพราะ Inspector เก็บเป็นตัวเลข
-    /// </summary>
     public enum ScreenId
     {
         None = 0,
@@ -19,6 +15,7 @@ namespace Yantra.UI
         GameOver = 11,
         Loading = 20,
         ConfirmDialog = 30,
+        SceneSelect = 90,   // หน้าทดสอบ เลขห่างไว้กันชนกับหน้าจริงที่จะเพิ่มทีหลัง
     }
 
     [RequireComponent(typeof(CanvasGroup))]

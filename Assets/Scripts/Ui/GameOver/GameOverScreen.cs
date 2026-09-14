@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using Yantra.UI;
 
 public class GameOverScreen : UIScreen
@@ -33,8 +32,7 @@ public class GameOverScreen : UIScreen
         Time.timeScale = 1f;
         UIManager.Instance.CloseAll(instant: true);
 
-        string currentScene = SceneManager.GetActiveScene().name;
-        SceneLoader.Instance.LoadScene(currentScene);
+        SceneLoader.Instance.ReloadCurrentScene();
     }
 
     public void OnMainMenuClicked()
@@ -42,8 +40,7 @@ public class GameOverScreen : UIScreen
         Time.timeScale = 1f;
         UIManager.Instance.CloseAll(instant: true);
 
-        // ต้องบอกด้วยว่าโหลดเสร็จแล้วให้เปิดหน้าไหน ไม่งั้นได้จอดำ
-        SceneLoader.Instance.LoadScene(SceneNames.MainMenu, ScreenId.MainMenu);
+        SceneLoader.Instance.LoadMainMenu();
     }
 
     /// <summary>กด ESC ตอนอยู่หน้านี้ไม่ควรปิดมันได้</summary>

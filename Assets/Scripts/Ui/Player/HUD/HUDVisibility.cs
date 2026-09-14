@@ -2,18 +2,12 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using Yantra.UI;
 
-/// <summary>
-/// คุมว่า HUD ควรโชว์ตอนไหน — แปะบน HUDScreen
-///
-/// HUD ไม่ใช่ UIScreen เพราะมันไม่เข้า stack
-/// (ถ้าเข้า stack เวลาเปิด Pause มันจะถูกนับเป็นหน้าที่ต้องปิด/เปิดด้วย ซึ่งผิด)
-/// เลยต้องมีตัวคุมแยกที่ตัดสินจากสถานการณ์แทน
-/// </summary>
 public class HUDVisibility : MonoBehaviour
 {
     [Header("Scenes")]
-    [Tooltip("ชื่อ scene ที่ไม่ควรมี HUD")]
-    [SerializeField] private string[] _hiddenInScenes = { "MainMenuScene" };
+    [Tooltip("ซ่อน HUD ตอนอยู่หน้าเมนูหลัก — อ่านชื่อ scene จาก SceneCatalog ของ SceneLoader\n" +
+             "ไม่ hardcode ชื่อ เพราะถ้าใครเปลี่ยนชื่อ scene จะพังเงียบ")]
+    [SerializeField] private bool _hideInMainMenu = true;
 
     [Header("Hide During")]
     [Tooltip("ซ่อนตอนมีเมนูเปิดอยู่ เช่น Pause, Settings, Game Over")]
@@ -61,14 +55,12 @@ public class HUDVisibility : MonoBehaviour
     {
         _sceneAllowsHUD = true;
 
-        foreach (var hidden in _hiddenInScenes)
-        {
-            if (string.Equals(sceneName, hidden, System.StringComparison.OrdinalIgnoreCase))
-            {
-                _sceneAllowsHUD = false;
-                return;
-            }
-        }
+        if (!_hideInMainMenu) return;
+
+        var catalog = SceneLoader.Instance != null ? SceneLoader.Instance.Catalog : null;
+        if (catalog == null) return;
+
+        if (catalog.IsMainMenu(sceneName)) _sceneAllowsHUD = false;
     }
 
     private void Update()
@@ -98,7 +90,7 @@ public class HUDVisibility : MonoBehaviour
                 if (_retryTimer >= 0.5f)
                 {
                     _retryTimer = 0f;
-                    _camera = FindFirstObjectByType<PlayerCameraController>();
+                    _camera = FindAnyObjectByType<PlayerCameraController>();
                 }
             }
 

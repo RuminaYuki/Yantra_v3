@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
@@ -25,6 +26,8 @@ public class AudioSettingsApplier : MonoBehaviour
 
         RefreshSoundManager();
         Apply();
+
+        StartCoroutine(ApplyAfterSceneReady());
     }
 
     private void OnDisable()
@@ -37,13 +40,21 @@ public class AudioSettingsApplier : MonoBehaviour
     {
         // SoundManager ไม่ข้าม scene (UseDontDestroyOnLoad = false)
         // ทุกครั้งที่เปลี่ยนฉากต้องหาตัวใหม่ แล้วยิงค่าให้มันอีกรอบ
+        StartCoroutine(ApplyAfterSceneReady());
+    }
+
+    private IEnumerator ApplyAfterSceneReady()
+    {
+        yield return null;                      // ข้าม 1 เฟรม ให้ Awake วิ่งครบ
+        yield return new WaitForEndOfFrame();   // เผื่อ Start ด้วย
+
         RefreshSoundManager();
         Apply();
     }
 
     private void RefreshSoundManager()
     {
-        _soundManager = Object.FindFirstObjectByType<SoundManager>(FindObjectsInactive.Exclude);
+        _soundManager = Object.FindAnyObjectByType<SoundManager>(FindObjectsInactive.Exclude);
 
         if (_logRoute)
             Debug.Log(_soundManager != null
