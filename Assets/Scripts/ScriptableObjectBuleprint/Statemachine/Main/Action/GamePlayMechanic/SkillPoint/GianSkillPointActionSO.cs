@@ -8,6 +8,22 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 public class GianSkillOnHitPointActionSO : StateActionSO
 {
     [SerializeField] private float gianSkillPointAmount = 1f;
+
+    public float GianSkillPointAmount
+    {
+        get => gianSkillPointAmount;
+        set
+        {
+            if (value < 0f)
+            {
+                Debug.LogWarning("Gian skill point amount cannot be negative. Setting to 0.");
+                gianSkillPointAmount = 0f;
+                return;
+            }
+            gianSkillPointAmount = value;
+        }
+    }
+
     public override StateAction CreateAction(StateMachine stateMachine)
     {
         return new GianSkillOnHitPointAction(gianSkillPointAmount);

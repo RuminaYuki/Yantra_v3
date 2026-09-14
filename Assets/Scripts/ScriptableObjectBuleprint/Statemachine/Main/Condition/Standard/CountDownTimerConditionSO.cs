@@ -11,6 +11,38 @@ public class CountDownTimerConditionSO : StateConditionSO
     [SerializeField] private float minDuration = 0f;
     [SerializeField] private float maxDuration = 0f;
 
+    #region Properties
+    public float MinDuration
+    {
+        get => minDuration;
+        set
+        {
+            if (value < 0f)
+            {
+                Debug.LogWarning("Min duration cannot be negative. Setting to 0.");
+                minDuration = 0f;
+                return;
+            }
+            minDuration = value;
+        }
+    }
+
+    public float MaxDuration
+    {
+        get => maxDuration;
+        set
+        {
+            if (value < 0f)
+            {
+                Debug.LogWarning("Max duration cannot be negative. Setting to 0.");
+                maxDuration = 0f;
+                return;
+            }
+            maxDuration = value;
+        }
+    }
+    #endregion
+
     public float Duration => _condition.Duration;
     public float Remaining => _condition.Remaining;
 

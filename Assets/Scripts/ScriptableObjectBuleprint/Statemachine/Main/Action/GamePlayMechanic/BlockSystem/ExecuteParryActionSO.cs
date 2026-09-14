@@ -2,27 +2,27 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 [CreateAssetMenu(
-    fileName = "ExcuteBlock_Action",
-    menuName = "YUKI Learning State Machine/StateMachine/Actions/GamePlayMechanic/BlockSystem/Excute Block")]
-public class ExcuteBlockActionSO : StateActionSO
+    fileName = "ExecuteParry_Action",
+    menuName = "YUKI Learning State Machine/StateMachine/Actions/GamePlayMechanic/BlockSystem/Execute Parry")]
+public class ExecuteParryActionSO : StateActionSO
 {
-    [Tooltip("Whether the block action is enabled.")]
+    [Tooltip("Whether the parry action is enabled.")]
     [SerializeField] private bool _enable = true;
-    [Tooltip("Whether to reset the block value when exiting the state.")]
+    [Tooltip("Whether to reset the parry value when exiting the state.")]
     [SerializeField] private bool _resetValueOnExit = true;
     public override StateAction CreateAction(StateMachine stateMachine)
     {
-        return new ExcuteBlockAction(_enable, _resetValueOnExit);
+        return new ExecuteParryAction(_enable, _resetValueOnExit);
     }
 }
 
-public class ExcuteBlockAction : StateAction
+public class ExecuteParryAction : StateAction
 {
     private readonly bool _enable;
     private readonly bool _resetValueOnExit;
     private BlockSystem _blockSystem;
 
-    public ExcuteBlockAction(bool enable, bool resetValueOnExit)
+    public ExecuteParryAction(bool enable, bool resetValueOnExit)
     {
         _enable = enable;
         _resetValueOnExit = resetValueOnExit;
@@ -34,7 +34,7 @@ public class ExcuteBlockAction : StateAction
 
         if (_blockSystem == null)
             Debug.LogError(
-                "ExcuteParryAction requires BlockSystem.",
+                "ExecuteParryAction requires BlockSystem.",
                 stateMachine.Owner);
     }
 
@@ -43,7 +43,7 @@ public class ExcuteBlockAction : StateAction
         if (_blockSystem == null)
             return;
 
-        _blockSystem.ExcuteBlock(_enable);
+        _blockSystem.ExecuteParry(_enable);
     }
 
     public override void OnUpdate() { }
@@ -53,6 +53,6 @@ public class ExcuteBlockAction : StateAction
         if (_blockSystem == null || !_resetValueOnExit)
             return;
 
-        _blockSystem.ExcuteBlock(!_enable);
+        _blockSystem.ExecuteParry(!_enable);
     }
 }

@@ -48,7 +48,7 @@ public sealed class HomingMissileEffect : IEffectExecutor
         Rigidbody body = projectile.GetComponent<Rigidbody>();
         if (body != null)
         {
-            body.velocity = context.Direction * context.Definition.ProjectileSpeed;
+            body.linearVelocity = context.Direction * context.Definition.ProjectileSpeed;
         }
     }
 }

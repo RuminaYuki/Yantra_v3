@@ -4,7 +4,25 @@ using UnityEngine;
 public class Health : MonoBehaviour, IDamageable,IHeal
 {
     [SerializeField] protected float maxHealth = 10f;
-    public float MaxHealth => maxHealth;
+    [SerializeField] protected bool assignValue = false;
+    public float MaxHealth
+    {
+        get => maxHealth;
+        set
+        {
+            if (value <= 0)
+            {
+                Debug.LogWarning("Max health must be greater than zero.");
+                return;
+            }
+            maxHealth = value;
+            if (CurrentHP > maxHealth)
+            {
+                CurrentHP = maxHealth;
+                OnHealthChanged?.Raise(CurrentHP);
+            }
+        }
+    }
     
     [field: SerializeField]
     public float CurrentHP { get; protected set; }

@@ -124,7 +124,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1388802737599980058, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
   m_PrefabInstance: {fileID: 157890718447475477}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1522678633}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7955172d3062ea94e88e5c962ad6bcf4, type: 3}
@@ -135,7 +135,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8773688531908745627, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
   m_PrefabInstance: {fileID: 157890718447475477}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1522678633}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dd64ae5dcdd4a5542a58e4e5b15ca526, type: 3}
@@ -146,7 +146,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5297182538942025389, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
   m_PrefabInstance: {fileID: 157890718447475477}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1522678633}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 37724f921a0bd8842bc9734fd3920468, type: 3}
@@ -157,7 +157,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5003668158767368267, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
   m_PrefabInstance: {fileID: 157890718447475477}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1522678633}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 70593bd5a83c1d140b9c1097ed3a20ab, type: 3}
@@ -168,7 +168,7 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8004421902298451198, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
   m_PrefabInstance: {fileID: 157890718447475477}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1522678633}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ccb13068375baf8429d81ca6734009cb, type: 3}
@@ -731,6 +731,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Health
   maxHealth: 10
+  assignValue: 0
   <CurrentHP>k__BackingField: 0
   OnDead: {fileID: 0}
   OnHealthChanged: {fileID: 0}
@@ -856,12 +857,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AttackSphereCast
   attackOrigin: {fileID: 862212475}
-  damageAmount: 1
-  attackRange: 1.42
-  attackRadius: 0.5
-  showGizmos: 1
-  showDebugLogs: 0
-  attackInputAction: {fileID: 1120369429361536294, guid: 35845fe01580c41289b024647b1d1c53, type: 3}
 --- !u!1 &1076853625
 GameObject:
   m_ObjectHideFlags: 0
@@ -1259,6 +1254,38 @@ Mesh:
       - serializedVersion: 1
         m_IndexStart: 0
         m_IndexCount: 0
+--- !u!1 &1522678633 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8849103926970512020, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+  m_PrefabInstance: {fileID: 157890718447475477}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1522678639
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1522678633}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3b62f809a9c40c4a9f8e36828d69982, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Provider
+  Anchors:
+  - {fileID: 11400000, guid: ded8b5ee8f0dd57488cc9fa0e5c0d061, type: 2}
+--- !u!114 &1522678642
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1522678633}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95f64f53f0ecfff46bf5c835423cae83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerApplyAllStats
+  playerStatsSO: {fileID: 11400000, guid: 201a7e70135b6414680d7253b9efd913, type: 2}
 --- !u!1 &1531160000
 GameObject:
   m_ObjectHideFlags: 0
@@ -1836,12 +1863,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AttackSphereCast
   attackOrigin: {fileID: 2064463058}
-  damageAmount: 1
-  attackRange: 1.42
-  attackRadius: 0.5
-  showGizmos: 1
-  showDebugLogs: 0
-  attackInputAction: {fileID: 1120369429361536294, guid: 35845fe01580c41289b024647b1d1c53, type: 3}
 --- !u!114 &2064463053
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1867,6 +1888,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Health
   maxHealth: 10
+  assignValue: 0
   <CurrentHP>k__BackingField: 0
   OnDead: {fileID: 0}
   OnHealthChanged: {fileID: 0}
@@ -2021,7 +2043,7 @@ PrefabInstance:
       objectReference: {fileID: 1320565543}
     - target: {fileID: 478201052558623066, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_VersionIndex
-      value: 1496
+      value: 1514
       objectReference: {fileID: 0}
     - target: {fileID: 998187679989262526, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_Name
@@ -2031,6 +2053,14 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 1320565543}
+    - target: {fileID: 5297182538942025389, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: maxHealth
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 5297182538942025389, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: <MaxHealth>k__BackingField
+      value: 1000
+      objectReference: {fileID: 0}
     - target: {fileID: 7805174591217772816, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -2038,7 +2068,13 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8849103926970512020, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      insertIndex: 4
+      addedObject: {fileID: 1522678639}
+    - targetCorrespondingSourceObject: {fileID: 8849103926970512020, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1522678642}
   m_SourcePrefab: {fileID: 100100000, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

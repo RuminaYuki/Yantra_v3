@@ -12,6 +12,7 @@ public class BlockSystem : MonoBehaviour
     [Header("Block System")]
     [SerializeField] bool _isBlockEnable = false;
     [SerializeField] float _maxGuardPoints = 100f;
+    [SerializeField] bool _assignValue = false;
     [SerializeField] float _currentGuardPoints = 100f;
     [SerializeField] float _guardDecreasedPerHit = 10f;
     [SerializeField] float _recoveryGuardPointsPerSecond = 5f;
@@ -28,25 +29,43 @@ public class BlockSystem : MonoBehaviour
     private float _recoveryDelayTimer;
 
     public float CurrentGuardPoints => _currentGuardPoints;
-    public float MaxGuardPoints => _maxGuardPoints;
+    public float MaxGuardPoints
+    {
+        get => _maxGuardPoints;
+        set
+        {
+            if (value <= 0)
+            {
+                Debug.LogWarning("Max guard points must be greater than zero.");
+                return;
+            }
+            _maxGuardPoints = value;
+            if (_currentGuardPoints > _maxGuardPoints)
+            {
+                _currentGuardPoints = _maxGuardPoints;
+                _OnCurrentGuardPointChange.Raise(_currentGuardPoints);
+            }
+        }
+    }
 
     private void Awake()
     {
         if (_health == null) _health = GetComponent<Health>();
         if (_skillPoints == null) _skillPoints = GetComponent<SkillPoints>();
 
-        _currentGuardPoints = _maxGuardPoints;
+        if(_assignValue)
+            _currentGuardPoints = _maxGuardPoints;
     }
 
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.B))
         {
-            ExcuteBlock(!_isBlockEnable);
+            ExecuteBlock(!_isBlockEnable);
         }
         if (Input.GetKeyDown(KeyCode.P))
         {
-            ExcuteParry(!_isParryEnable);
+            ExecuteParry(!_isParryEnable);
         }
 
         if (_isBlockEnable)
@@ -99,12 +118,12 @@ public class BlockSystem : MonoBehaviour
         }
     }
 
-    public void ExcuteParry(bool isParry)
+    public void ExecuteParry(bool isParry)
     {
         _health.SetEnableIgnoreDamage(isParry);
         _isParryEnable = isParry;
     }
-    public void ExcuteBlock(bool isBlock)
+    public void ExecuteBlock(bool isBlock)
     {
         _health.SetEnableIgnoreDamage(isBlock);
         _isBlockEnable = isBlock;

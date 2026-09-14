@@ -8,7 +8,23 @@ public class SkillPoints : MonoBehaviour
     [SerializeField] VoidEventChannelSO _onMaxPoint;
 
     public float CurrentSkillPoints => _skillPoints;
-    public float MaxSkillPoints => _maxPoint;
+    public float MaxSkillPoints
+    {
+        get => _maxPoint;
+        set
+        {
+            if (value <= 0)
+            {
+                Debug.LogWarning("Max skill points must be greater than zero.");
+                return;
+            }
+            _maxPoint = value;
+            if (_skillPoints > _maxPoint)
+            {
+                _skillPoints = _maxPoint;
+            }
+        }
+    }
 
     public void gaint(float amount)
     {

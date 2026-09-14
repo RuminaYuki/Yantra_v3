@@ -15,6 +15,21 @@ public class AnimationFinishedConditionSO : StateConditionSO
     [SerializeField, Range(0f, 1f)] private float finishTime = 1f;
     [SerializeField, Min(0f)] private float extraSeconds = 0f;
 
+    public float ExtraSeconds
+    {
+        get => extraSeconds;
+        set
+        {
+            if (value < 0f)
+            {
+                Debug.LogWarning("Extra seconds cannot be negative. Setting to 0.");
+                extraSeconds = 0f;
+                return;
+            }
+            extraSeconds = value;
+        }
+    }
+
     public override Condition CreateCondition()
     {
         return new AnimationFinishedCondition(
