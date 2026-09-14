@@ -2,27 +2,27 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 [CreateAssetMenu(
-    fileName = "ExcuteParry_Action",
-    menuName = "YUKI Learning State Machine/StateMachine/Actions/BlockSystem/Excute Parry")]
-public class ExcuteParryActionSO : StateActionSO
+    fileName = "ExcuteBlock_Action",
+    menuName = "YUKI Learning State Machine/StateMachine/Actions/GamePlayMechanic/BlockSystem/Excute Block")]
+public class ExcuteBlockActionSO : StateActionSO
 {
-    [Tooltip("Whether the parry action is enabled.")]
+    [Tooltip("Whether the block action is enabled.")]
     [SerializeField] private bool _enable = true;
-    [Tooltip("Whether to reset the parry value when exiting the state.")]
+    [Tooltip("Whether to reset the block value when exiting the state.")]
     [SerializeField] private bool _resetValueOnExit = true;
     public override StateAction CreateAction(StateMachine stateMachine)
     {
-        return new ExcuteParryAction(_enable, _resetValueOnExit);
+        return new ExcuteBlockAction(_enable, _resetValueOnExit);
     }
 }
 
-public class ExcuteParryAction : StateAction
+public class ExcuteBlockAction : StateAction
 {
     private readonly bool _enable;
     private readonly bool _resetValueOnExit;
     private BlockSystem _blockSystem;
 
-    public ExcuteParryAction(bool enable, bool resetValueOnExit)
+    public ExcuteBlockAction(bool enable, bool resetValueOnExit)
     {
         _enable = enable;
         _resetValueOnExit = resetValueOnExit;
@@ -43,7 +43,7 @@ public class ExcuteParryAction : StateAction
         if (_blockSystem == null)
             return;
 
-        _blockSystem.ExcuteParry(_enable);
+        _blockSystem.ExcuteBlock(_enable);
     }
 
     public override void OnUpdate() { }
@@ -53,6 +53,6 @@ public class ExcuteParryAction : StateAction
         if (_blockSystem == null || !_resetValueOnExit)
             return;
 
-        _blockSystem.ExcuteParry(!_enable);
+        _blockSystem.ExcuteBlock(!_enable);
     }
 }
