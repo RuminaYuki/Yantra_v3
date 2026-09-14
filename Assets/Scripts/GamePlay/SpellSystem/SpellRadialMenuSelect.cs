@@ -17,23 +17,10 @@ public class SpellRadialMenuSelect : MonoBehaviour
     [Header("Setting")]
     [SerializeField] List<SpellType> _spellTypes = new();
 
-    InputSystem_Actions _playerInput;
     int _Id;
-    bool _isCasting = false;
-    [SerializeField] bool _isActive = false;
-    private void Awake()
-    {
-        _playerInput = new InputSystem_Actions();
-    }
 
     private void OnEnable()
     {
-        _playerInput.Enable();
-        if (_playerInput != null)
-        {
-            _playerInput.Player.Spell.started += HandleOpenRadial;
-            _playerInput.Player.Spell.canceled += HandleCloseRadial;
-        } 
         if (_radialIntID_IEC != null)
         {
             _radialIntID_IEC.Raised += HandleRadialIntID;
@@ -42,12 +29,6 @@ public class SpellRadialMenuSelect : MonoBehaviour
 
     private void OnDisable()
     {
-        _playerInput.Disable();
-            if (_playerInput != null)
-        {
-            _playerInput.Player.Spell.started -= HandleOpenRadial;
-            _playerInput.Player.Spell.canceled -= HandleCloseRadial;
-        } 
         if (_radialIntID_IEC != null)
         {
             _radialIntID_IEC.Raised -= HandleRadialIntID;
@@ -64,20 +45,17 @@ public class SpellRadialMenuSelect : MonoBehaviour
 
     private void HandleRadialIntID(int ID)
     {
-        //Debug.Log($"Radial Menu Button ID: {ID}");
         _Id = ID;
     }
 
-    private void HandleOpenRadial(InputAction.CallbackContext context)
+    public void HandleOpenRadial()
     {
-        if (!_isActive) return;
-
         _Id = -1;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = false;
         _boolRadialSOAdvEventChannal.Raise(true, _dataSO);
     }    
-    private void HandleCloseRadial(InputAction.CallbackContext context)
+    public void HandleCloseRadial()
     {
         InstantiateNewTemplat(_Id);
         Cursor.lockState = CursorLockMode.Locked;
@@ -100,14 +78,6 @@ public class SpellRadialMenuSelect : MonoBehaviour
             _spellController.AddProgress();
         }
     }
-
-    #region API
-    /// <summary>
-    /// เริ่มการใช้งาน Radial ของการร่ายคาถา
-    /// </summary>
-    /// <param name="value">จำนวนเส้นรัศมี (แฉก) ที่ต้องการให้สะท้อนในการวาดยันต์ เช่น 4, 8, หรือ 16 เส้น</param>
-    public void OpenRadial(bool value = true) => _isActive = value;
-    #endregion
 }
 
 [Serializable]
