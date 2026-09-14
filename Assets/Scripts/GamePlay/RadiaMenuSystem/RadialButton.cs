@@ -14,6 +14,7 @@ public class RadialButton : MonoBehaviour
     [SerializeField] float _angleOffset = 15f;
     float _angleThreshold = 15f;
     [SerializeField] IntEventChannelSO _radialIntID_IEC;
+    [SerializeField] VoidEventChannelSO _onSelected;
 
     private RadialManuController _radialManu;
     private void OnEnable()
@@ -91,6 +92,7 @@ public class RadialButton : MonoBehaviour
             if (angleDifference < _angleThreshold)
             {
                 _radialIntID_IEC.Raise(_buttonID);
+                _onSelected.Raise();
             }
         }
     }
