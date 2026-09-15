@@ -39,7 +39,7 @@ public class SpellController : MonoBehaviour
         playerInput.Disable();
     }
 
-    private void Update()
+    private void LateUpdate()
     {
         if (splineToLineRenderer == null)
         {

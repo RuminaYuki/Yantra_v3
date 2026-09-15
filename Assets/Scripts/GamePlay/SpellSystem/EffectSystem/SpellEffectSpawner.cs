@@ -11,6 +11,8 @@ public class SpellEffectSpawner : MonoBehaviour
     [SerializeField] private bool activateOnSpawn;
     [SerializeField] private bool destroySpawnerAfterSpawn;
 
+    public Transform runtimeSpawnPoint;
+
     private void OnEnable()
     {
         if (spellDrawFinished == null)
@@ -42,11 +44,16 @@ public class SpellEffectSpawner : MonoBehaviour
             return;
         }
 
-        Transform origin = spawnPoint != null ? spawnPoint : transform;
+        Transform origin = runtimeSpawnPoint != null
+            ? runtimeSpawnPoint
+            : spawnPoint != null
+                ? spawnPoint
+                : transform;
         GameObject effectObject = Instantiate(
             effectPrefab,
             origin.position,
-            origin.rotation);
+            origin.rotation,
+            origin.transform.parent);
 
         if (activateOnSpawn)
         {
@@ -61,7 +68,7 @@ public class SpellEffectSpawner : MonoBehaviour
             }
             else
             {
-                controller.SetOwner(gameObject);
+                controller.SetOwner(origin.gameObject);
                 controller.ActivateFromSpawn();
             }
         }
@@ -70,5 +77,10 @@ public class SpellEffectSpawner : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
+
+    public void SetSpawnPoint(Transform point)
+    {
+        runtimeSpawnPoint = point;
     }
 }
