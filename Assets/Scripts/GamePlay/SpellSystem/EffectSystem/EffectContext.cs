@@ -40,7 +40,7 @@ public sealed class HomingMissileEffect : IEffectExecutor
             return;
         }
 
-        GameObject projectile = Object.Instantiate(
+        /*GameObject projectile = Object.Instantiate(
             prefab,
             context.Origin,
             Quaternion.LookRotation(context.Direction));
@@ -49,6 +49,15 @@ public sealed class HomingMissileEffect : IEffectExecutor
         if (body != null)
         {
             body.linearVelocity = context.Direction * context.Definition.ProjectileSpeed;
+        }*/
+
+        if (!context.Definition.Animator)
+        {
+            Animator animator = context.Definition.Animator.Value;
+            if (!string.IsNullOrEmpty(context.Definition.AnimationName))
+            {
+                animator.CrossFade(context.Definition.AnimationName, 0.2f, context.Definition.LayerIndex);
+            }
         }
     }
 }
@@ -89,7 +98,7 @@ public sealed class SelfHealEffect : IEffectExecutor
             return;
         }
 
-        Health health = context.Owner.GetComponentInParent<Health>();
+        Health health = context.Owner.GetComponent<Health>();
         if (health != null)
         {
             health.Heal(context.Definition.Power);

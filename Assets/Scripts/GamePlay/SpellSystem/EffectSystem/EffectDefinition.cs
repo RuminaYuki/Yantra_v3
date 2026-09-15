@@ -32,6 +32,9 @@ public class EffectDefinition : ScriptableObject
     [SerializeField, Min(0f)] private float projectileSpeed = 20f;
     [SerializeField, Min(0f)] private float homingStrength = 10f;
     [SerializeField] private GameObject projectilePrefab;
+    [SerializeField] private AnimatorAnchor animator;
+    [SerializeField] string animationName;
+    [SerializeField] int layerIndex = 0;
 
     public EffectType Type => effectType;
     public EffectActivationMode ActivationMode => activationMode;
@@ -42,4 +45,7 @@ public class EffectDefinition : ScriptableObject
     public float ProjectileSpeed => projectileSpeed;
     public float HomingStrength => homingStrength;
     public GameObject ProjectilePrefab => projectilePrefab;
+    public AnimatorAnchor Animator => animator;
+    public string AnimationName => animationName;
+    public int LayerIndex => layerIndex;
 }
