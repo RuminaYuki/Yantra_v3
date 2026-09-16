@@ -31,8 +31,8 @@ public class PlayerHurtReaction : MonoBehaviour
         _health = GetComponent<Health>();
 
         // ไม่ได้ลากใส่ก็ดึงจาก Health เอง จะได้ไม่มีทางใส่ผิดตัว
-        if (_onHurt == null) _onHurt = _health.OnHurt;
-        if (_onDead == null) _onDead = _health.OnDead;
+        if (_onHurt == null) _onHurt = _health.OnHurtEventChannel;
+        if (_onDead == null) _onDead = _health.OnDeadEventChannel;
     }
 
     private void OnEnable()

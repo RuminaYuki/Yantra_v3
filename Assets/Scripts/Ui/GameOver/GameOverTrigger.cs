@@ -22,7 +22,7 @@ public class GameOverTrigger : MonoBehaviour
     private void Awake()
     {
         _health = GetComponent<Health>();
-        if (_onDead == null && _health != null) _onDead = _health.OnDead;
+        if (_onDead == null && _health != null) _onDead = _health.OnDeadEventChannel;
     }
 
     private void OnEnable()

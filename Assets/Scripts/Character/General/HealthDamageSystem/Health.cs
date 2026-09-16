@@ -19,7 +19,8 @@ public class Health : MonoBehaviour, IDamageable,IHeal
             if (CurrentHP > maxHealth)
             {
                 CurrentHP = maxHealth;
-                OnHealthChanged?.Raise(CurrentHP);
+                OnHealthChangedEventChannel?.Raise(CurrentHP);
+                OnHealthChanged?.Invoke(CurrentHP);
             }
         }
     }
@@ -28,10 +29,16 @@ public class Health : MonoBehaviour, IDamageable,IHeal
     public float CurrentHP { get; protected set; }
     public bool IsDead => CurrentHP <= 0;
 
-    public VoidEventChannelSO OnDead;
-    public FloatEventChannelSO OnHealthChanged;
-    public VoidEventChannelSO OnHurt;
-    public VoidEventChannelSO OnHit;
+    public VoidEventChannelSO OnDeadEventChannel;
+    public FloatEventChannelSO OnHealthChangedEventChannel;
+    public VoidEventChannelSO OnHurtEventChannel;
+    public VoidEventChannelSO OnHitEventChannel;
+
+    public event Action OnDead;
+    public event Action<float> OnHealthChanged;
+    public event Action OnHurt;
+    public event Action OnHit;
+    public event Action<string> OnHitDamageType;
 
     protected virtual void Awake()
     {
@@ -45,18 +52,22 @@ public class Health : MonoBehaviour, IDamageable,IHeal
         CurrentHP += amount;
         if (CurrentHP > maxHealth)
             CurrentHP = maxHealth;
-        OnHealthChanged?.Raise(CurrentHP);
+        OnHealthChangedEventChannel?.Raise(CurrentHP);
+        OnHealthChanged?.Invoke(CurrentHP);
         Debug.Log($"{gameObject.name} <color=#32CD32> healed {amount}.</color> Current HP: {CurrentHP}/{maxHealth}");
     }
 
     public virtual void TakeDamage(float damage)
     {
-        OnHit?.Raise();
+        OnHitEventChannel?.Raise();
+        OnHit?.Invoke();
         if (IsDead || IgnoreDamage) return;
 
         CurrentHP -= damage;
-        OnHealthChanged?.Raise(CurrentHP);
-        OnHurt?.Raise();
+        OnHealthChangedEventChannel?.Raise(CurrentHP);
+        OnHealthChanged?.Invoke(CurrentHP);
+        OnHurtEventChannel?.Raise();
+        OnHurt?.Invoke();
 
         Debug.Log($"{gameObject.name} took {damage} damage. Current HP: {CurrentHP}/{maxHealth}");
         if (CurrentHP <= 0)
@@ -66,20 +77,26 @@ public class Health : MonoBehaviour, IDamageable,IHeal
             Dead();
         }
     }
+    public void DamageType(string type)
+    {
+        OnHitDamageType?.Invoke(type);
+    }
 
     public void Kill()
     {
         if (IsDead) return;
 
         CurrentHP = 0;
-        OnHealthChanged?.Raise(CurrentHP);
+        OnHealthChangedEventChannel?.Raise(CurrentHP);
+        OnHealthChanged?.Invoke(CurrentHP);
         Dead();
     }
 
     private void Dead()
     {
         //if (SaveManager.Instance != null && this.gameObject.CompareTag("Player")) SaveManager.Instance.LoadAll();
-        OnDead?.Raise();
+        OnDeadEventChannel?.Raise();
+        OnDead?.Invoke();
     }
 
     public bool IgnoreDamage { get; private set; } = false;
@@ -91,12 +108,14 @@ public class Health : MonoBehaviour, IDamageable,IHeal
     public void SetCurrentHealth(float amount)
     {
         CurrentHP = Mathf.Clamp(amount, 0f, maxHealth);
-        OnHealthChanged?.Raise(CurrentHP);
+        OnHealthChangedEventChannel?.Raise(CurrentHP);
+        OnHealthChanged?.Invoke(CurrentHP);
     }
 
     public void RestoreFullHealth()
     {
         CurrentHP = maxHealth;
-        OnHealthChanged?.Raise(CurrentHP);
+        OnHealthChangedEventChannel?.Raise(CurrentHP);
+        OnHealthChanged?.Invoke(CurrentHP);
     }
 }
