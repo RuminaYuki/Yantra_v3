@@ -114,7 +114,7 @@ public class SpellController : MonoBehaviour
         while (timeDuration > 0)
         {
             timeDuration -= Time.deltaTime;
-            Debug.Log($"timeDuration {timeDuration}");
+            //Debug.Log($"timeDuration {timeDuration}");
             yield return null;
         }
 

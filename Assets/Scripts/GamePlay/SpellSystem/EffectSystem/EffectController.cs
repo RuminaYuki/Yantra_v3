@@ -11,15 +11,22 @@ public class EffectController : MonoBehaviour
     [SerializeField] private Transform effectOrigin;
     [SerializeField] private Transform effectDirection;
     [SerializeField] private bool destroyAfterFinished = true;
+    [SerializeField] private float destroyDelayAfterUse = 0.5f;
+
+    [Header("Event Channels")]
+    [SerializeField] private VoidEventChannelSO finishedEventChannel;
+    [SerializeField] private BoolEventChannelSO forceEnabledEventChannel;
 
     private InputSystem_Actions generatedActions;
     private GameObject effectOwner;
     private IEffectExecutor executor;
-    private float remainingDuration;
+    [SerializeField] private float remainingDuration;
     private float cooldownRemaining;
     private bool isEnabled;
     private bool isHeld;
     private bool hasExecuted;
+    private bool hasFinished;
+    private bool hasStarted;
 
     public bool IsEnabled => isEnabled;
     public bool IsActive => remainingDuration > 0f;
@@ -53,11 +60,21 @@ public class EffectController : MonoBehaviour
 
     private void OnEnable()
     {
+        if (forceEnabledEventChannel != null)
+        {
+            forceEnabledEventChannel.Raised += HandleForceEnabled;
+        }
+
         SetEnabled(true);
     }
 
     private void OnDisable()
     {
+        if (forceEnabledEventChannel != null)
+        {
+            forceEnabledEventChannel.Raised -= HandleForceEnabled;
+        }
+
         SetEnabled(false);
         CancelCurrentUse();
     }
@@ -74,9 +91,11 @@ public class EffectController : MonoBehaviour
             cooldownRemaining = Mathf.Max(0f, cooldownRemaining - Time.deltaTime);
         }
 
-        if (remainingDuration <= 0f)
+        if (hasStarted && remainingDuration <= 0f && !hasFinished)
         {
-            return;
+            isHeld = false;
+            hasExecuted = false;
+            FinishAndDestroy();
         }
 
         remainingDuration = Mathf.Max(0f, remainingDuration - Time.deltaTime);
@@ -85,13 +104,6 @@ public class EffectController : MonoBehaviour
             isHeld)
         {
             ExecuteIfReady();
-        }
-
-        if (remainingDuration <= 0f)
-        {
-            isHeld = false;
-            hasExecuted = false;
-            FinishAndDestroy();
         }
     }
 
@@ -132,6 +144,7 @@ public class EffectController : MonoBehaviour
             return;
         }
 
+        hasStarted = true;
         isHeld = true;
         hasExecuted = false;
 
@@ -180,6 +193,7 @@ public class EffectController : MonoBehaviour
 
     public void ExecuteEffect()
     {
+        hasStarted = true;
         ExecuteIfReady();
     }
 
@@ -190,6 +204,7 @@ public class EffectController : MonoBehaviour
             return;
         }
 
+        hasStarted = true;
         isHeld = true;
         hasExecuted = false;
 
@@ -210,6 +225,7 @@ public class EffectController : MonoBehaviour
     {
         remainingDuration = definition.Duration;
         hasExecuted = false;
+        hasFinished = false;
         ExecuteIfReady();
     }
 
@@ -254,18 +270,35 @@ public class EffectController : MonoBehaviour
         if (definition.ActivationMode == EffectActivationMode.SingleUse)
         {
             remainingDuration = 0f;
-            FinishAndDestroy();
+            FinishAndDestroy(destroyDelayAfterUse);
         }
     }
 
-    private void FinishAndDestroy()
+    private void FinishAndDestroy(float Delay = 0)
     {
-        if (!destroyAfterFinished)
+        if (hasFinished)
         {
             return;
         }
 
-        Destroy(gameObject);
+        hasFinished = true;
+        finishedEventChannel?.Raise();
+
+        if (!destroyAfterFinished)
+        {
+            return;
+        }
+        Destroy(gameObject, Delay);
+    }
+
+    private void HandleForceEnabled(bool enabled)
+    {
+        SetEnabled(enabled);
+
+        if (!enabled)
+        {
+            Destroy(gameObject);
+        }
     }
 
     private void CancelCurrentUse()
@@ -274,6 +307,7 @@ public class EffectController : MonoBehaviour
         remainingDuration = 0f;
         cooldownRemaining = 0f;
         hasExecuted = false;
+        hasStarted = false;
     }
 
     private InputAction GetAction()
@@ -311,4 +345,5 @@ public class EffectController : MonoBehaviour
                 return null;
         }
     }
+
 }
