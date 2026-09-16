@@ -243,6 +243,7 @@ public class EffectController : MonoBehaviour
 
         executor.Execute(new EffectContext(
             effectOwner != null ? effectOwner : gameObject,
+            this.gameObject,
             GetOrigin(),
             GetDirection(),
             definition));

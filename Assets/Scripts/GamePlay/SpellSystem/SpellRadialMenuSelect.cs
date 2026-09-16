@@ -9,6 +9,7 @@ public class SpellRadialMenuSelect : MonoBehaviour
     [SerializeField] SpellController _spellController;
     [SerializeField] RadialMenuDataSO _dataSO;
     [SerializeField] GameObject PositionReferences;
+    [SerializeField] GameObject OwnerForEffect;
 
     [Header("Event Channal")]
     [SerializeField] BoolRadialSOAdvEventChannal _boolRadialSOAdvEventChannal;
@@ -78,12 +79,11 @@ public class SpellRadialMenuSelect : MonoBehaviour
             if (effectSpawner != null)
             {
                 Debug.Log("here");
-                effectSpawner.SetSpawnPoint(transform);
+                effectSpawner.SetSpawnPoint(OwnerForEffect.transform != null ? OwnerForEffect.transform : transform);
             }
 
             _spellController.SetSplineToLineRenderer(newTemplate.GetComponent<SplineToLineRenderer>());
-            //if spellController destroy after Instantiate use this line
-            //_spellController.SetActive(true);
+            _spellController.SetActive(true);
             _spellController.AddProgress();
         }
     }

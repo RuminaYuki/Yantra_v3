@@ -1,19 +1,23 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public readonly struct EffectContext
 {
     public readonly GameObject Owner;
+    public readonly GameObject EffectOwner;
     public readonly Vector3 Origin;
     public readonly Vector3 Direction;
     public readonly EffectDefinition Definition;
 
     public EffectContext(
         GameObject owner,
+        GameObject effectOwner,
         Vector3 origin,
         Vector3 direction,
         EffectDefinition definition)
     {
         Owner = owner;
+        EffectOwner = effectOwner;
         Origin = origin;
         Direction = direction.sqrMagnitude > 0f
             ? direction.normalized
@@ -40,20 +44,18 @@ public sealed class HomingMissileEffect : IEffectExecutor
             return;
         }
 
-        /*GameObject projectile = Object.Instantiate(
-            prefab,
-            context.Origin,
-            Quaternion.LookRotation(context.Direction));
-
-        Rigidbody body = projectile.GetComponent<Rigidbody>();
-        if (body != null)
-        {
-            body.linearVelocity = context.Direction * context.Definition.ProjectileSpeed;
-        }*/
-
         if (!context.Definition.Animator)
         {
             Animator animator = context.Definition.Animator.Value;
+            if (animator == null) return;
+
+            VoidEventChannelSO eventChannel = animator.gameObject.GetComponent<HandleShoting>().GetEventChannel();
+            BulletSpawner[] spawners = context.EffectOwner.gameObject.GetComponentsInChildren<BulletSpawner>();
+            foreach (BulletSpawner spawn in spawners)
+            {
+                spawn.SetEventChannel(eventChannel);
+            }
+
             if (!string.IsNullOrEmpty(context.Definition.AnimationName))
             {
                 animator.CrossFade(context.Definition.AnimationName, 0.2f, context.Definition.LayerIndex);
@@ -98,7 +100,7 @@ public sealed class SelfHealEffect : IEffectExecutor
             return;
         }
 
-        Health health = context.Owner.GetComponent<Health>();
+        Health health = context.Owner.GetComponentInChildren<Health>();
         if (health != null)
         {
             health.Heal(context.Definition.Power);

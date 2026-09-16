@@ -8,10 +8,12 @@ public class SpellEffectSpawner : MonoBehaviour
     [Header("Spawn")]
     [SerializeField] private GameObject effectPrefab;
     [SerializeField] private Transform spawnPoint;
+    [SerializeField] bool spawnInMainCamara = false;
     [SerializeField] private bool activateOnSpawn;
     [SerializeField] private bool destroySpawnerAfterSpawn;
 
-    public Transform runtimeSpawnPoint;
+    [Header("Runtime Value")]
+    [SerializeField] Transform runtimeSpawnPoint;
 
     private void OnEnable()
     {
@@ -44,16 +46,18 @@ public class SpellEffectSpawner : MonoBehaviour
             return;
         }
 
-        Transform origin = runtimeSpawnPoint != null
-            ? runtimeSpawnPoint
-            : spawnPoint != null
-                ? spawnPoint
-                : transform;
+        Transform origin = spawnInMainCamara == true 
+            ? Camera.main.transform 
+            : runtimeSpawnPoint != null
+                ? runtimeSpawnPoint
+                : spawnPoint != null
+                    ? spawnPoint
+                    : transform;
         GameObject effectObject = Instantiate(
             effectPrefab,
             origin.position,
             origin.rotation,
-            origin.transform.parent);
+            origin.transform);
 
         if (activateOnSpawn)
         {

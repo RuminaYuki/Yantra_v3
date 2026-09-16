@@ -6,6 +6,7 @@ public class MissileHitDetector : MonoBehaviour
     [Header("Penetration")]
     [SerializeField, Min(0)] private int maxPenetrations;
     [SerializeField] private bool destroyAfterPenetrationLimit = true;
+    [SerializeField] private LayerMask obstacleLayer;
     [SerializeField] private MissileDamageApplier damageApplier;
     [SerializeField] private HomingMissile missile;
 
@@ -32,6 +33,11 @@ public class MissileHitDetector : MonoBehaviour
 
     private void ProcessHit(Collider hitCollider)
     {
+        if ((obstacleLayer.value & (1 << hitCollider.gameObject.layer)) != 0)
+        {
+            Destroy(gameObject);
+        }
+
         if (damageApplier == null)
             return;
 

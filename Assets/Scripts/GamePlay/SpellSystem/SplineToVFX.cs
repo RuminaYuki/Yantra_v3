@@ -3,7 +3,7 @@ using UnityEngine.VFX;
 
 public class SplineToVFX : MonoBehaviour
 {
-    [SerializeField] private Vector3EventChannelSO currentKnotPositionEvent;
+    [SerializeField] SplineToLineRenderer splineRender;
     [SerializeField] private VisualEffect vfx;
 
     private static readonly int InitializePositionID =
@@ -11,20 +11,21 @@ public class SplineToVFX : MonoBehaviour
 
     private void Awake()
     {
-        if (currentKnotPositionEvent != null)
-            currentKnotPositionEvent.Raised += SetVFXPosition;
-
         if (vfx == null)
         {
             Debug.LogWarning("VFX is not assigned.");
             gameObject.SetActive(false);
         }
+        if (splineRender == null)
+        {
+            Debug.LogWarning("splineRender is not assigned.");
+            gameObject.SetActive(false);
+        }
     }
 
-    private void OnDestroy()
+    private void Update()
     {
-        if (currentKnotPositionEvent != null)
-            currentKnotPositionEvent.Raised -= SetVFXPosition;
+        SetVFXPosition(splineRender.GetCurrentPosition());
     }
 
     public void SetVFXPosition(Vector3 position)

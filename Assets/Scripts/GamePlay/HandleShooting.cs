@@ -8,4 +8,6 @@ public class HandleShoting : MonoBehaviour
     {
         _startShooting.Raise();
     }
+
+    public VoidEventChannelSO GetEventChannel() => _startShooting;
 }

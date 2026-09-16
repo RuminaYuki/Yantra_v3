@@ -78,7 +78,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HomingMissile
   moveSpeed: 10
-  turnSpeed: 360
+  turnSpeed: 20
   maxTrackingAngle: 100
   lifetime: 10
   targetDetector: {fileID: 3000000000000000004}
@@ -140,6 +140,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MissileHitDetector
   maxPenetrations: 0
   destroyAfterPenetrationLimit: 1
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 0
   damageApplier: {fileID: 3000000000000000005}
   missile: {fileID: 3000000000000000003}
 --- !u!135 &6413678207997662850

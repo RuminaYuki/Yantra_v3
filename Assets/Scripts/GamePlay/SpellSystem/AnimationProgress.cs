@@ -4,13 +4,14 @@ public class AnimationProgress : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] FloatEventChannelSO _spellProgress;
-    [SerializeField] VoidEventChannelSO _finishedSpell;
     [SerializeField] BoolEventChannelSO _aPD_SetEnable_AEC;
     [SerializeField] AnimationProgressDriverAdvEventChannal _aPD_AEC;
 
     [Header("Animation Setting")]
     [SerializeField] int _layerIndex;
     [SerializeField] string _animationName;
+    [SerializeField, Range(0f, 1f)] float _startTime = 0f;
+    [SerializeField, Range(0f, 1f)] float _endTime = 1f;
 
 
     private void OnEnable()
@@ -18,11 +19,6 @@ public class AnimationProgress : MonoBehaviour
         if (_spellProgress != null)
         {
             _spellProgress.Raised += HandleProgressChanger;
-        }
-
-        if (_finishedSpell != null)
-        {
-            _finishedSpell.Raised += HandleFinishSpell;
         }
 
         if (_aPD_SetEnable_AEC != null)
@@ -38,11 +34,6 @@ public class AnimationProgress : MonoBehaviour
             _spellProgress.Raised -= HandleProgressChanger;
         }
 
-        if (_finishedSpell != null)
-        {
-            _finishedSpell.Raised -= HandleFinishSpell;
-        }
-
         if (_aPD_SetEnable_AEC != null)
         {
             _aPD_SetEnable_AEC.Raise(false);
@@ -52,7 +43,15 @@ public class AnimationProgress : MonoBehaviour
 
     private void HandleProgressChanger(float value)
     {
-        _aPD_AEC.Raise(_animationName, _layerIndex, value, 0, 1);
+        if (value >= 1) 
+        {
+            if (_spellProgress != null)
+            {
+                _spellProgress.Raised -= HandleProgressChanger;
+            }
+            HandleFinishSpell(); 
+        }
+        _aPD_AEC.Raise(_animationName, _layerIndex, value, _startTime, _endTime);
     }
 
     private void HandleFinishSpell()

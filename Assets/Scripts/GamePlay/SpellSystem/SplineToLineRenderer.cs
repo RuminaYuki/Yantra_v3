@@ -1,7 +1,6 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.Splines;
-using static UnityEngine.Rendering.DebugUI;
 
 [ExecuteInEditMode]
 public class SplineToLineRenderer : MonoBehaviour
@@ -24,11 +23,10 @@ public class SplineToLineRenderer : MonoBehaviour
     [Range(0f, 1f)]
     [SerializeField] float currentProgress = 0f;
     private bool finishedSpellRaised;
+    Vector3 currentPosition = Vector3.zero;
 
     [Header("Event Actions")]
     [SerializeField] FloatEventChannelSO SpellProgress;
-    [SerializeField] VoidEventChannelSO FinishedSpell;
-    [SerializeField] Vector3EventChannelSO CurrentKnotPositionEvent;
 
     public float CurrentProgress 
     {
@@ -82,14 +80,12 @@ public class SplineToLineRenderer : MonoBehaviour
             // คำนวณ t ให้อยู่ตั้งแต่ 0 ถึง progress
             float t = CurrentProgress * ((float)i / (pointCount - 1));
 
-            Vector3 position = splineContainer.EvaluatePosition(t);
+            currentPosition = splineContainer.EvaluatePosition(t);
 
-            lineRenderer.SetPosition(i, position);
-            CurrentKnotPositionEvent.Raise(position);
+            lineRenderer.SetPosition(i, currentPosition);
             if (t >= 1f && !finishedSpellRaised)
             {
                 finishedSpellRaised = true;
-                FinishedSpell?.Raise();
             }
         }
     }
@@ -109,5 +105,6 @@ public class SplineToLineRenderer : MonoBehaviour
         return (new Vector2(nextScreen.x, nextScreen.y) -
                 new Vector2(currentScreen.x, currentScreen.y)).normalized;
     }
+    public Vector3 GetCurrentPosition() => currentPosition;
     #endregion
 }

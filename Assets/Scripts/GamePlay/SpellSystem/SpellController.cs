@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Unity.Mathematics;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,13 +9,22 @@ public class SpellController : MonoBehaviour
 
     [Header("References")]
     [SerializeField] SplineToLineRenderer splineToLineRenderer;
+    [SerializeField] FadeObject fadeObject;
     [SerializeField] Camera camera;
 
-    [Header("Settings")]
+    [Header("Spell Settings")]
     [SerializeField] float angleThreshold = 10f;
 
-    public bool _isActive = false;
+    [Header("Fade Settings")]
+    [SerializeField] float fadeDuration = 1.0f;
+    [SerializeField] float waitTimeDestroy = 0.5f;
 
+    [Header("Event Channels")]
+    [SerializeField] VoidEventChannelSO FinishedSpell;
+
+    private bool _isActive = false;
+    private bool _fadeStarted;
+    private Coroutine _coroutine;
 
     private void Awake()
     {
@@ -41,19 +48,35 @@ public class SpellController : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (splineToLineRenderer == null)
-        {
-            return;
-        }
+        if (splineToLineRenderer == null) return;
 
         if (Mouse.current != null && _isActive)
         {
             HandleStroke(Mouse.current.delta.ReadValue());
         }
 
-        if (splineToLineRenderer.GetProgress() >= 1 || !_isActive)
+        if (!_isActive && !_fadeStarted)
         {
+            if (_coroutine != null) StopCoroutine(_coroutine);
+
             Destroy(splineToLineRenderer.gameObject);
+        }
+
+        if (!_fadeStarted && splineToLineRenderer.GetProgress() >= 1)
+        {
+            fadeObject = splineToLineRenderer.gameObject.GetComponent<FadeObject>();
+            if (fadeObject == null)
+            {
+                splineToLineRenderer.gameObject.AddComponent<FadeObject>();
+                fadeObject = splineToLineRenderer.gameObject.GetComponent<FadeObject>();
+            }
+
+            fadeObject.PlayFade(fadeDuration, 0f, 1f);
+            _fadeStarted = true;
+
+            if (_coroutine != null) StopCoroutine(_coroutine);
+            _coroutine = StartCoroutine(DestroyObject());
+
         }
     }
 
@@ -84,9 +107,25 @@ public class SpellController : MonoBehaviour
         }
     }
 
+    IEnumerator DestroyObject()
+    {
+        float timeDuration = fadeDuration + waitTimeDestroy;
+
+        while (timeDuration > 0)
+        {
+            timeDuration -= Time.deltaTime;
+            Debug.Log($"timeDuration {timeDuration}");
+            yield return null;
+        }
+
+        FinishedSpell.Raise();
+        Destroy(splineToLineRenderer.gameObject);
+    }
+
     public void SetSplineToLineRenderer(SplineToLineRenderer value)
     {
         splineToLineRenderer = value;
+        _fadeStarted = false;
         if (value != null)
         {
             LockCursorForSpell();
