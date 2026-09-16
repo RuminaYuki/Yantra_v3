@@ -970,8 +970,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpellController
   splineToLineRenderer: {fileID: 0}
+  fadeObject: {fileID: 0}
   camera: {fileID: 5649328168353456120}
   angleThreshold: 50
+  fadeDuration: 1
+  waitTimeDestroy: 0.5
+  FinishedSpell: {fileID: 11400000, guid: b60df277e448c304fa3652d66128c202, type: 2}
 --- !u!114 &4862087661120125586
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1611,6 +1615,9 @@ MonoBehaviour:
   _inputIsAnalog: 0
   _minPitch: -40
   _maxPitch: 60
+  _recenterPitchOnLock: 1
+  _recenterSpeed: 90
+  _recenterThreshold: 0.05
   _positionSpeed: 30
   _rotationSpeed: 25
   _fovSpeed: 12
@@ -2353,7 +2360,7 @@ MonoBehaviour:
   m_PreserveMeshAssetOnDestroy: 0
   assetGuid: 
   m_Mesh: {fileID: 0}
-  m_VersionIndex: 1490
+  m_VersionIndex: 1493
   m_IsSelectable: 1
   m_SelectedFaces: 
   m_SelectedEdges: []
@@ -4174,6 +4181,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Health
   maxHealth: 1000
+  assignValue: 0
   <CurrentHP>k__BackingField: 0
   OnDead: {fileID: 0}
   OnHealthChanged: {fileID: 0}
@@ -4195,6 +4203,7 @@ MonoBehaviour:
   _skillPoints: {fileID: 0}
   _isBlockEnable: 0
   _maxGuardPoints: 100
+  _assignValue: 0
   _currentGuardPoints: 100
   _guardDecreasedPerHit: 1
   _recoveryGuardPointsPerSecond: 5
@@ -4233,12 +4242,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AttackSphereCast
   attackOrigin: {fileID: 8210927608881472776}
-  damageAmount: 1
-  attackRange: 1
-  attackRadius: 0.5
-  showGizmos: 1
-  showDebugLogs: 0
-  attackInputAction: {fileID: 1120369429361536294, guid: 35845fe01580c41289b024647b1d1c53, type: 3}
 --- !u!114 &4775584325482975735
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4254,6 +4257,7 @@ MonoBehaviour:
   _spellController: {fileID: 5961984159641964894}
   _dataSO: {fileID: 11400000, guid: eb868a75d494ccd4f88ea6dcf34d4909, type: 2}
   PositionReferences: {fileID: 8511398325305958148}
+  OwnerForEffect: {fileID: 998187679989262526}
   _boolRadialSOAdvEventChannal: {fileID: 11400000, guid: 1066bfc6aaaab7d4ca52b755e80ea879, type: 2}
   _radialIntID_IEC: {fileID: 11400000, guid: 7462493a27c12774785a0565594b45e4, type: 2}
   _spellTypes:
@@ -4261,6 +4265,8 @@ MonoBehaviour:
     Prefab: {fileID: 5437896037443083365, guid: ede61f3f5ffd73042bb01273fa72b9a0, type: 3}
   - ID: 1
     Prefab: {fileID: 1711945922463456488, guid: d7b520d27490f2e4587546f79f213df0, type: 3}
+  - ID: 2
+    Prefab: {fileID: 1711945922463456488, guid: b0586180c2c2f674fafec5a8f8ce30bb, type: 3}
 --- !u!1 &9126798675211712603
 GameObject:
   m_ObjectHideFlags: 0
@@ -5011,6 +5017,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8ae6f1f69491be74eb7eaed14b2ad546, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7468116098294717165}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8ae6f1f69491be74eb7eaed14b2ad546, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 22024015370671751}
     - targetCorrespondingSourceObject: {fileID: 5624500337462876311, guid: 8ae6f1f69491be74eb7eaed14b2ad546, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2339718793251703297}
@@ -5184,6 +5193,19 @@ MonoBehaviour:
   _animator: {fileID: 3577789472457321848}
   _aPD_SetEnable_AEC: {fileID: 11400000, guid: acd6a1d536bf6a54ead182646c6247c6, type: 2}
   _aPD_AEC: {fileID: 11400000, guid: c71c818643cfef64c8af8ee8b6ccf03e, type: 2}
+--- !u!114 &22024015370671751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2155777344524217709}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 87666c3b2a23f764c9611cc8991ff8a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HandleShoting
+  _startShooting: {fileID: 11400000, guid: 0601cb40d77a7d84da4856f221cdc24f, type: 2}
 --- !u!4 &2462550224614777632 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3676918214384071452, guid: 8ae6f1f69491be74eb7eaed14b2ad546, type: 3}
