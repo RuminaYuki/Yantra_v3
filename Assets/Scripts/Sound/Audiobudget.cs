@@ -13,7 +13,7 @@ public static class AudioListenerCache
         {
             if (cached == null)
             {
-                AudioListener listener = Object.FindObjectOfType<AudioListener>();
+                AudioListener listener = Object.FindAnyObjectByType<AudioListener>();
                 if (listener != null) cached = listener.transform;
             }
             return cached;

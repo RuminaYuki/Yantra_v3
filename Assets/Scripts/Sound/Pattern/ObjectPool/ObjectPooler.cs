@@ -28,6 +28,9 @@ public class ObjectPooler : Singleton<ObjectPooler>
     [SerializeField] private bool groupUnderContainer = true;
 
     private List<Pool> finalPools;
+
+    // [FIX] เพิ่ม [System.NonSerialized] เพื่อปิด Warning ของ Unity Serialization
+    [System.NonSerialized]
     public Dictionary<string, List<GameObject>> poolDictionary;
     private Dictionary<string, Transform> containers;
 

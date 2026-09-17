@@ -39,7 +39,7 @@ public class PauseController : MonoBehaviour
         Instance = this;
 
         if (_cameraController == null)
-            _cameraController = FindFirstObjectByType<PlayerCameraController>();
+            _cameraController = FindAnyObjectByType<PlayerCameraController>();
     }
 
     private void Start()
@@ -120,6 +120,8 @@ public class PauseController : MonoBehaviour
     private void Update()
     {
         if (!PausePressed()) return;
+
+        Debug.Log($"ESC | CanPause={CanPause()} | IsPaused={IsPaused} | HasAnyOpen={UIManager.Instance?.HasAnyOpen}");
 
         // ถ้ามีหน้าจออื่นซ้อนอยู่บน Pause (เช่น Settings) ให้ย้อนกลับแทน
         var ui = UIManager.Instance;
