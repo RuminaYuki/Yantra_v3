@@ -3,9 +3,14 @@ using UnityEngine;
 
 public class FadeObject : MonoBehaviour
 {
+    [Header("Fade Settings")]
     [SerializeField] private Renderer _targetRenderer;
     [SerializeField] private float _fadeDuration = 1f;
-    [SerializeField] AnimationCurve animationCurve;
+    [SerializeField] AnimationCurve _animationCurve;
+
+    [Header("Event Channels")]
+    [Tooltip("Configuration via code.")]
+    [SerializeField] VoidEventChannelSO _onFinishFade;
 
     private MaterialPropertyBlock _propertyBlock;
 
@@ -21,17 +26,28 @@ public class FadeObject : MonoBehaviour
         _propertyBlock = new MaterialPropertyBlock();
     }
 
-    public void PlayFade(float fadeDuration, float startFade, float endFade)
+    public void PlayFade(
+        float fadeDuration,
+        float startFade,
+        float endFade,
+        VoidEventChannelSO eventChannel = null)
     {
         _fadeDuration = fadeDuration > 0f ? fadeDuration : _fadeDuration;
+
+        _onFinishFade = eventChannel;
 
         StopAllCoroutines();
         StartCoroutine(Fade(startFade, endFade));
     }
 
-    public void PlayFade(float fadeDuration, float endFade)
+    public void PlayFade(
+        float fadeDuration,
+        float endFade,
+        VoidEventChannelSO eventChannel = null)
     {
         _fadeDuration = fadeDuration > 0f ? fadeDuration : _fadeDuration;
+
+        _onFinishFade = eventChannel;
 
         StopAllCoroutines();
         StartCoroutine(Fade(_currentFade, endFade));
@@ -52,7 +68,7 @@ public class FadeObject : MonoBehaviour
 
             float normalizedTime = Mathf.Clamp01(time / _fadeDuration);
 
-            float curveValue = animationCurve.Evaluate(normalizedTime);
+            float curveValue = _animationCurve.Evaluate(normalizedTime);
 
             float fade = Mathf.Lerp(startFade, endFade, curveValue);
 
@@ -61,6 +77,7 @@ public class FadeObject : MonoBehaviour
             yield return null;
         }
 
+        if (_onFinishFade != null) _onFinishFade?.Raise();
         SetFade(endFade);
     }
 

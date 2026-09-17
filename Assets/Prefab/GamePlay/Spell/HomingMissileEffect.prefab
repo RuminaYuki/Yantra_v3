@@ -45,11 +45,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d430012e075274645a35d85a18f2c67c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  effectAction: {fileID: -5378463168512532553, guid: 35845fe01580c41289b024647b1d1c53, type: 3}
+  effectAction: {fileID: 0}
   definition: {fileID: 11400000, guid: 4a8d5c1e7b2f4d9a8c6e0f1b3d5a7c90, type: 2}
   effectOrigin: {fileID: 1000000000000000001}
   effectDirection: {fileID: 1000000000000000001}
   destroyAfterFinished: 1
+  destroyDelayAfterUse: 2
+  finishedEventChannel: {fileID: 11400000, guid: a6c6e57fef32dcb48bda4838e8fdab90, type: 2}
+  forceEnabledEventChannel: {fileID: 11400000, guid: 2af626199a8cd8e428f546c312fcd348, type: 2}
+  remainingDuration: 10
 --- !u!1 &5830205724476910581
 GameObject:
   m_ObjectHideFlags: 0
@@ -94,3 +98,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29108145b263e724baa37fecdbfc909b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BulletSpawner
+  _prefab: {fileID: 0}
+  _startShooting: {fileID: 0}

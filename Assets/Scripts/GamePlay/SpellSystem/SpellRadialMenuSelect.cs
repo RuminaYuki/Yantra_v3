@@ -78,7 +78,6 @@ public class SpellRadialMenuSelect : MonoBehaviour
             SpellEffectSpawner effectSpawner = newTemplate.GetComponent<SpellEffectSpawner>();
             if (effectSpawner != null)
             {
-                Debug.Log("here");
                 effectSpawner.SetSpawnPoint(OwnerForEffect.transform != null ? OwnerForEffect.transform : transform);
             }
 

@@ -44,22 +44,19 @@ public sealed class HomingMissileEffect : IEffectExecutor
             return;
         }
 
-        if (!context.Definition.Animator)
+        Animator animator = context.Definition.Animator.Value;
+        if (animator == null) return;
+
+        VoidEventChannelSO eventChannel = animator.gameObject.GetComponent<HandleShoting>().GetEventChannel();
+        BulletSpawner[] spawners = context.EffectOwner.gameObject.GetComponentsInChildren<BulletSpawner>();
+        foreach (BulletSpawner spawn in spawners)
         {
-            Animator animator = context.Definition.Animator.Value;
-            if (animator == null) return;
+            spawn.SetSpawner(eventChannel, prefab);
+        }
 
-            VoidEventChannelSO eventChannel = animator.gameObject.GetComponent<HandleShoting>().GetEventChannel();
-            BulletSpawner[] spawners = context.EffectOwner.gameObject.GetComponentsInChildren<BulletSpawner>();
-            foreach (BulletSpawner spawn in spawners)
-            {
-                spawn.SetEventChannel(eventChannel);
-            }
-
-            if (!string.IsNullOrEmpty(context.Definition.AnimationName))
-            {
-                animator.CrossFade(context.Definition.AnimationName, 0.2f, context.Definition.LayerIndex);
-            }
+        if (!string.IsNullOrEmpty(context.Definition.AnimationName))
+        {
+            animator.CrossFade(context.Definition.AnimationName, 0.2f, context.Definition.LayerIndex);
         }
     }
 }
@@ -71,6 +68,16 @@ public sealed class RadialPushEffect : IEffectExecutor
         Collider[] colliders = Physics.OverlapSphere(
             context.Origin,
             context.Definition.Radius);
+
+        Animator animator = context.Definition.Animator.Value;
+        if (animator != null) 
+        { 
+            if (!string.IsNullOrEmpty(context.Definition.AnimationName))
+            {
+                animator.CrossFade(context.Definition.AnimationName, 0.2f, context.Definition.LayerIndex);
+            }
+        }
+
 
         foreach (Collider collider in colliders)
         {
@@ -104,6 +111,15 @@ public sealed class SelfHealEffect : IEffectExecutor
         if (health != null)
         {
             health.Heal(context.Definition.Power);
+        }
+
+        Animator animator = context.Definition.Animator.Value;
+        if (animator == null) return;
+
+        if (!string.IsNullOrEmpty(context.Definition.AnimationName))
+        {
+            Debug.Log("here");
+            animator.CrossFade(context.Definition.AnimationName, 0.2f, context.Definition.LayerIndex);
         }
     }
 }
