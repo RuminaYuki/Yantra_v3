@@ -48,7 +48,6 @@ public class SpellDrawAction : StateAction
     public override void OnStateEnter()
     {
         if (_spellController == null) return;
-        Debug.Log($"SpellDrawAction: Activating SpellController on {_spellController.gameObject.name}");
         _spellController.SetActive(true);
     }
     public override void OnUpdate(){}
@@ -56,7 +55,6 @@ public class SpellDrawAction : StateAction
     public override void OnStateExit()
     {
         if (_spellController == null) return;
-        Debug.Log($"SpellDrawAction: Deactivating SpellController on {_spellController.gameObject.name}");
         _spellController.SetActive(false);
     }
 }
