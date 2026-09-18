@@ -1,0 +1,45 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5492ed31ba40b643aaf3d94f1de0aa7, type: 3}
+  m_Name: PKa_TransitionTable
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
+  _initialState: {fileID: 11400000, guid: 686a7d6f310413640a444754bd35c865, type: 2}
+  _anyTransitions:
+  - ToState: {fileID: 11400000, guid: c607e5a44450dd942a91666619064d59, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 7fa7420e375fa1742a4abbabd7e6e94f, type: 2}
+        ExpectedResult: 0
+  - ToState: {fileID: 11400000, guid: 341b0775b33c457439987c301710e37d, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: de4a2ff3a75d3164584a30ed79d22307, type: 2}
+        ExpectedResult: 0
+  _transitions:
+  - FromState: {fileID: 11400000, guid: c607e5a44450dd942a91666619064d59, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: ac905eeab3e18ea47a16ed7106bcab10, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: 11400000, guid: 686a7d6f310413640a444754bd35c865, type: 2}
+  - FromState: {fileID: 11400000, guid: 341b0775b33c457439987c301710e37d, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: ac905eeab3e18ea47a16ed7106bcab10, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: 11400000, guid: 686a7d6f310413640a444754bd35c865, type: 2}
+  - FromState: {fileID: 11400000, guid: 686a7d6f310413640a444754bd35c865, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 79e2d82c24f6d5e498274fbf355add50, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: 11400000, guid: ad6c73c9368df2b4fa91d5f56a77465f, type: 2}

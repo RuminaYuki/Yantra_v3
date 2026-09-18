@@ -7,16 +7,45 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
     menuName = "YUKI Learning State Machine/StateMachine/Actions/Locomotion/Navigation/Set Random Position (Nav Radius)")]
 public class SetRandomPositionNavRadiusActionSO : StateActionSO
 {
-    [SerializeField] private TransformAnchor _targetAnchor;
+    [Header("This action will use Waypoint Root at Homepoint")]
     [SerializeField, Min(0.01f)] private float _radius = 5f;
     [SerializeField, Min(0.01f)] private float _minDistance = 1.5f;
     [SerializeField, Min(1)] private int _maxAttempts = 10;
     [SerializeField] private bool _requireNavMeshBaked = false;
 
+    public float Radius
+    {
+        get => _radius;
+        set
+        {
+           if (value < 0f)
+            {
+                Debug.LogWarning("radius cannot be negative. Setting to 0.");
+                _radius = 0f;
+                return;
+            }
+            _radius = value; 
+        }
+    }
+
+    public float MinDistance
+    {
+        get => _minDistance;
+        set
+        {
+           if (value < 0f)
+            {
+                Debug.LogWarning("minDistance cannot be negative. Setting to 0.");
+                _minDistance = 0f;
+                return;
+            }
+            _minDistance = value; 
+        }
+    }
+
     public override StateAction CreateAction(StateMachine stateMachine)
     {
         return new SetRandomPositionNavRadiusAction(
-            _targetAnchor,
             _radius,
             _minDistance,
             _maxAttempts,
@@ -26,7 +55,6 @@ public class SetRandomPositionNavRadiusActionSO : StateActionSO
 
 public class SetRandomPositionNavRadiusAction : StateAction
 {
-    private readonly TransformAnchor _targetAnchor;
     private readonly float _radius;
     private readonly float _minDistance;
     private readonly int _maxAttempts;
@@ -39,13 +67,11 @@ public class SetRandomPositionNavRadiusAction : StateAction
     private Transform _destination;
 
     public SetRandomPositionNavRadiusAction(
-        TransformAnchor targetAnchor,
         float radius,
         float minDistance,
         int maxAttempts,
         bool requireNavMeshBaked)
     {
-        _targetAnchor = targetAnchor;
         _radius = Mathf.Max(0.01f, radius);
         _minDistance = Mathf.Clamp(minDistance, 0.01f, _radius);
         _maxAttempts = Mathf.Max(1, maxAttempts);
@@ -137,10 +163,13 @@ public class SetRandomPositionNavRadiusAction : StateAction
     {
         target = null;
 
-        if (_targetAnchor == null || !_targetAnchor.IsSet)
-            return false;
+        if (_waypointPath.PathRoot == null)
+        {
+            target = _owner;
+            return target != null;
+        }
 
-        target = _targetAnchor.Value;
+        target = _waypointPath.PathRoot;
         return target != null;
     }
 }

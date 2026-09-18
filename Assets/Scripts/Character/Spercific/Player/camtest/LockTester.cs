@@ -8,7 +8,7 @@ public class LockTester : MonoBehaviour
 
     private void Start()
     {
-        _camera = FindFirstObjectByType<PlayerCameraController>();
+        _camera = FindAnyObjectByType<PlayerCameraController>();
 
         if (_camera == null)
             Debug.LogError("[LockTester] หา PlayerCameraController ไม่เจอ");

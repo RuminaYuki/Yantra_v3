@@ -323,7 +323,7 @@ MonoBehaviour:
   _aPD_SetEnable_AEC: {fileID: 11400000, guid: acd6a1d536bf6a54ead182646c6247c6, type: 2}
   _aPD_AEC: {fileID: 11400000, guid: c71c818643cfef64c8af8ee8b6ccf03e, type: 2}
   _layerIndex: 0
-  _animationName: Teamplat2
+  _animationName: SpellDraw_ArmClip
   _startTime: 0
   _endTime: 1
 --- !u!114 &8007950231040901240
@@ -341,7 +341,7 @@ MonoBehaviour:
   spellDrawFinished: {fileID: 11400000, guid: b60df277e448c304fa3652d66128c202, type: 2}
   effectPrefab: {fileID: 2000000000000000000, guid: 9d3f8a5b2c6e0f4a7b1d9e3c5f8a2b60, type: 3}
   spawnPoint: {fileID: 0}
-  spawnInMainCamara: 0
+  spawnInMainCamara: 1
   activateOnSpawn: 0
   destroySpawnerAfterSpawn: 0
   runtimeSpawnPoint: {fileID: 0}
@@ -359,7 +359,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FadeObject
   _targetRenderer: {fileID: 2101513698655708551}
   _fadeDuration: 1
-  animationCurve:
+  _animationCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -383,6 +383,7 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  _onFinishFade: {fileID: 0}
 --- !u!1 &2810672058488178110
 GameObject:
   m_ObjectHideFlags: 0
@@ -714,7 +715,7 @@ GameObject:
   - component: {fileID: 1488659531116833979}
   - component: {fileID: 2856517460322658921}
   m_Layer: 0
-  m_Name: Plane (2)
+  m_Name: Highlight
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -923,7 +924,7 @@ GameObject:
   - component: {fileID: 5933248346693077219}
   - component: {fileID: 5272489625838809182}
   m_Layer: 0
-  m_Name: Plane (3)
+  m_Name: Full
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -17,9 +17,11 @@ public class EditorOnlyButton : MonoBehaviour
 
     private void Awake()
     {
-#if !UNITY_EDITOR
-        if (!_allowInBuild) gameObject.SetActive(false);
-#endif
+        // ใช้ Application.isEditor แทน #if !UNITY_EDITOR เพื่อแก้ CS0414
+        if (!Application.isEditor && !_allowInBuild)
+        {
+            gameObject.SetActive(false);
+        }
     }
 
     /// <summary>ผูกกับ OnClick ของปุ่ม — เปิดหน้าเลือก scene</summary>

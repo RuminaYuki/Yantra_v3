@@ -3,7 +3,7 @@ using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
-    fileName = "FollowPathLocomotionAction",
+    fileName = "FollowPathLocomotion_Action",
     menuName = "YUKI Learning State Machine/StateMachine/Actions/Locomotion/Navigation/Follow Path Locomotion")]
 public class FollowPathLocomotionActionSO : StateActionSO
 {
