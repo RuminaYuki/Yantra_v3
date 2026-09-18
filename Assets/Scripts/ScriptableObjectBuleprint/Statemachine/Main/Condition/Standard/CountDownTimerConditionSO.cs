@@ -3,7 +3,7 @@ using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
-    fileName = "NewCountDownTimer_Condition",
+    fileName = "NewCDTimer_Condition",
     menuName = "YUKI Learning State Machine/StateMachine/Conditions/Standard/Count Down Timer")]
 public class CountDownTimerConditionSO : StateConditionSO
 {

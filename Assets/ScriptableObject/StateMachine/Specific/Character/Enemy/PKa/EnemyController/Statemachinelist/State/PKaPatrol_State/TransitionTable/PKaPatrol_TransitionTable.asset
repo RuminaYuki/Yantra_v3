@@ -13,7 +13,17 @@ MonoBehaviour:
   m_Name: PKaPatrol_TransitionTable
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
   _initialState: {fileID: 11400000, guid: 32eb09a882947e542b6c900d2dbdfd7d, type: 2}
-  _anyTransitions: []
+  _anyTransitions:
+  - ToState: {fileID: 11400000, guid: 225507eb8113a7c409789bb95982a94a, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 6452e5d69706ae84e848d34bb807cb89, type: 2}
+        ExpectedResult: 0
+  - ToState: {fileID: 11400000, guid: 3b0e1e62f0116e34cbce3552987e09c9, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 050498b63df71ca41a31fb81e4123b1f, type: 2}
+        ExpectedResult: 0
   _transitions:
   - FromState: {fileID: 11400000, guid: 32eb09a882947e542b6c900d2dbdfd7d, type: 2}
     ConditionGroups:

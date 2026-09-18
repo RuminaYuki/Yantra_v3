@@ -4,6 +4,7 @@ public class PathNavigator : MonoBehaviour
 {
     [SerializeField] private Transform _target;
     [SerializeField] private float _repathInterval = 0.25f;
+    [SerializeField] private float _slowDownRadius = 1.5f;
 
     private IPathfinder _pathfinder;
     private float _timer;
@@ -65,6 +66,10 @@ public class PathNavigator : MonoBehaviour
             _target.position = resolvedPosition;
         }
 
-        Direction = _pathfinder.GetDirection(transform.position);
+        Vector3 rawDirection = _pathfinder.GetDirection(transform.position);
+        float distanceToTarget = Vector3.Distance(transform.position, _target.position);
+        float speedScale = Mathf.Clamp01(distanceToTarget / _slowDownRadius);
+
+        Direction = rawDirection * speedScale;
     }
 }

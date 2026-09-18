@@ -27,6 +27,29 @@ public class AttackSphereCast : MonoBehaviour
     public event Action OnHit;
     #endregion
 
+    private AttackParameters _pendingParameters;
+    private DamageTypeID _pendingDamageType;
+
+    /// <summary>
+    /// Caches the attack parameters to be used by the next parameterless Execute() call.
+    /// Used to arm the attack ahead of time (e.g. on state enter) so an Animation Event
+    /// can trigger the actual sphere cast later, at the right frame.
+    /// </summary>
+    public void SetDamageParameter(AttackParameters parameters, DamageTypeID damageType = null)
+    {
+        _pendingParameters = parameters;
+        _pendingDamageType = damageType;
+    }
+
+    /// <summary>
+    /// Parameterless entry point for Animation Events - executes the attack using
+    /// whatever parameters were last set via SetDamageParameter.
+    /// </summary>
+    public void Execute()
+    {
+        TryToExecuteAttack(_pendingParameters, _pendingDamageType);
+    }
+
     /// <summary>
     /// Attempts to execute an attack using a sphere cast.
     /// </summary>

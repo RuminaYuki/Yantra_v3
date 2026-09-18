@@ -7,10 +7,11 @@ public class TestAttack : MonoBehaviour
     [SerializeField] private AttackSphereCast attackSphereCast;
     [SerializeField] private AttackParameters attackParameters;
     [SerializeField] private DamageTypeID damageType;
+    [SerializeField] private int mouseButton = 0;
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(mouseButton))
         {
             attackSphereCast.TryToExecuteAttack(attackParameters,damageType);
         }
