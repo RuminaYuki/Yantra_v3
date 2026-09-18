@@ -4027,6 +4027,7 @@ GameObject:
   - component: {fileID: 7434954710618316361}
   - component: {fileID: 639563021381163097}
   - component: {fileID: 8773688531908745627}
+  - component: {fileID: 7345476070486096563}
   - component: {fileID: 1388802737599980058}
   - component: {fileID: 2859177828134115449}
   - component: {fileID: 2908171340229848334}
@@ -4038,6 +4039,7 @@ GameObject:
   - component: {fileID: 7601510604297160759}
   - component: {fileID: 2024108307381222499}
   - component: {fileID: 872591524521023635}
+  - component: {fileID: 5199957577184454255}
   m_Layer: 6
   m_Name: PlayerController
   m_TagString: Player
@@ -4124,6 +4126,20 @@ MonoBehaviour:
   _transitionTables:
   - {fileID: 11400000, guid: c017d2454b7d5ae4ea1d4ca027ca8435, type: 2}
   - {fileID: 11400000, guid: 381c4937039a8bf45833bc015622b3db, type: 2}
+--- !u!114 &7345476070486096563
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8849103926970512020}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3b62f809a9c40c4a9f8e36828d69982, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Provider
+  Anchors:
+  - {fileID: 11400000, guid: 97cdc95b0c8756f4389de6d9da5b3c18, type: 2}
 --- !u!114 &1388802737599980058
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4205,10 +4221,10 @@ MonoBehaviour:
   maxHealth: 1000
   assignValue: 0
   <CurrentHP>k__BackingField: 0
-  OnDead: {fileID: 11400000, guid: 46885c84663e73e488762bc5783096e2, type: 2}
-  OnHealthChanged: {fileID: 0}
-  OnHurt: {fileID: 11400000, guid: ee1ecafd318ebcb418934a195cb0a628, type: 2}
-  OnHit: {fileID: 11400000, guid: e3452f38e0993a04ea066bb6815c43e6, type: 2}
+  OnDeadEventChannel: {fileID: 0}
+  OnHealthChangedEventChannel: {fileID: 0}
+  OnHurtEventChannel: {fileID: 0}
+  OnHitEventChannel: {fileID: 0}
 --- !u!114 &8004421902298451198
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4338,6 +4354,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameOverTrigger
   _onDead: {fileID: 11400000, guid: 46885c84663e73e488762bc5783096e2, type: 2}
+--- !u!114 &5199957577184454255
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8849103926970512020}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0fa7bc0b1a5e7d84fa24459b249a9c0c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AttackCoordinator
+  _maxAttackers: 2
 --- !u!1 &9126798675211712603
 GameObject:
   m_ObjectHideFlags: 0

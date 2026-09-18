@@ -34,10 +34,12 @@ public class SetPathNavigatorTargetAction : StateAction
         _pathNavigator = stateMachine.GetComponent<PathNavigator>();
 
         if (_pathNavigator == null)
+        {
             Debug.LogError("SetPathNavigatorTargetAction cannot find PathNavigator.");
+            return;
+        }
 
-        _offsetTarget = new GameObject("SetPathNavigatorTargetAction_OffsetTarget").transform;
-        _offsetTarget.SetParent(stateMachine.Owner.transform, false);
+        _offsetTarget = _pathNavigator.GetOrCreateOffsetTarget();
     }
 
     public override void OnStateEnter()

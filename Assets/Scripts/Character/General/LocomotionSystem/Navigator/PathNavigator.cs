@@ -8,6 +8,7 @@ public class PathNavigator : MonoBehaviour
 
     private IPathfinder _pathfinder;
     private float _timer;
+    private Transform _offsetTarget;
 
     public Vector3 Direction { get; private set; }
 
@@ -16,6 +17,17 @@ public class PathNavigator : MonoBehaviour
     private void Awake()
     {
         _pathfinder = new UnityNavMeshPathfinder();
+    }
+
+    public Transform GetOrCreateOffsetTarget()
+    {
+        if (_offsetTarget == null)
+        {
+            _offsetTarget = new GameObject("PathNavigator_OffsetTarget").transform;
+            _offsetTarget.SetParent(transform, false);
+        }
+
+        return _offsetTarget;
     }
 
     public bool TrySetTarget(Transform target)

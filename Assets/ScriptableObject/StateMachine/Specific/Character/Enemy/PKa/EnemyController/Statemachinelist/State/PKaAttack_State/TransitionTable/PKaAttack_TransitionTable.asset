@@ -13,7 +13,12 @@ MonoBehaviour:
   m_Name: PKaAttack_TransitionTable
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
   _initialState: {fileID: 11400000, guid: b290c9c257342e84eb85e8d933a54407, type: 2}
-  _anyTransitions: []
+  _anyTransitions:
+  - ToState: {fileID: 11400000, guid: 02efbda82f54f24448c0877f45e86760, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 7571cfe69c7839a4aa0bfaccbcfec114, type: 2}
+        ExpectedResult: 1
   _transitions:
   - FromState: {fileID: 11400000, guid: b290c9c257342e84eb85e8d933a54407, type: 2}
     ConditionGroups:
@@ -31,3 +36,15 @@ MonoBehaviour:
       - Condition: {fileID: 11400000, guid: 80b26a6f55acb4140872c450abf906bc, type: 2}
         ExpectedResult: 0
     ToState: {fileID: 11400000, guid: 15676382f80c4b8409dca12c7afa0c34, type: 2}
+  - FromState: {fileID: 11400000, guid: 15676382f80c4b8409dca12c7afa0c34, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: ac905eeab3e18ea47a16ed7106bcab10, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: 11400000, guid: 2aad6ef16c8fc284a9f71711a5bca407, type: 2}
+  - FromState: {fileID: 11400000, guid: 2aad6ef16c8fc284a9f71711a5bca407, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: fa6f131e5da878c4fac8dbf8dd093eb0, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: 11400000, guid: b290c9c257342e84eb85e8d933a54407, type: 2}
