@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "ClearMoveDirectionAction",
-    menuName = "YUKI Learning State Machine/StateMachine/Actions/Locomotion/Clear Move Direction")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Locomotion/Clear Move Direction")]
 public class ClearMoveDirectionActionSO : StateActionSO
 {
     public override StateAction CreateAction(StateMachine stateMachine)

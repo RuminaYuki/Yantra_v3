@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "LockMovementAction",
-    menuName = "YUKI Learning State Machine/StateMachine/Actions/Locomotion/Lock Movement")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Locomotion/Lock Movement")]
 public class LockMovementActionSO : StateActionSO
 {
     [SerializeField] private bool _resetMoveAnimation = true;

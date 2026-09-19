@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "Detect_Condition",
-    menuName = "YUKI Learning State Machine/StateMachine/Conditions/LineOfSight/Detect")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/LineOfSight/Detect")]
 public class DetectConditionSO : StateConditionSO
 {
     [Header("Notice Settings (overrides values on LineOfSight)")]
@@ -13,6 +13,65 @@ public class DetectConditionSO : StateConditionSO
     [SerializeField, Min(0f)] private float _maxTimeToNotice = 3f;
     [Tooltip("X = normalized distance (0 = closest, 1 = farthest), Y = 0-1 ratio between min-max")]
     [SerializeField] private AnimationCurve _noticeCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+
+    public float DetectRange
+    {
+        get => _detectRange;
+        set
+        {
+            if (value < 0f)
+            {
+                Debug.LogWarning("Detect range cannot be negative. Setting to 0.");
+                _detectRange = 0f;
+                return;
+            }
+            _detectRange = value;
+        }
+    }
+
+    public float MinTimeToNotice
+    {
+        get => _minTimeToNotice;
+        set
+        {
+            if (value < 0f)
+            {
+                Debug.LogWarning("Min time to notice cannot be negative. Setting to 0.");
+                _minTimeToNotice = 0f;
+                return;
+            }
+            _minTimeToNotice = value;
+        }
+    }
+
+    public float MaxTimeToNotice
+    {
+        get => _maxTimeToNotice;
+        set
+        {
+            if (value < 0f)
+            {
+                Debug.LogWarning("Max time to notice cannot be negative. Setting to 0.");
+                _maxTimeToNotice = 0f;
+                return;
+            }
+            _maxTimeToNotice = value;
+        }
+    }
+
+    public AnimationCurve NoticeCurve
+    {
+        get => _noticeCurve;
+        set
+        {
+            if (value == null)
+            {
+                Debug.LogWarning("Notice curve cannot be null. Ignoring.");
+                return;
+            }
+            _noticeCurve = value;
+        }
+    }
 
     public override Condition CreateCondition()
     {

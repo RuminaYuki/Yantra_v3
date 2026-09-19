@@ -4,11 +4,17 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "SetPathNavigatorTargetAction",
-    menuName = "YUKI Learning State Machine/StateMachine/Actions/Locomotion/Navigation/Set Target")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Locomotion/Navigation/Set Target")]
 public class SetPathNavigatorTargetActionSO : StateActionSO
 {
     [SerializeField] private TransformAnchor _targetAnchor;
     [SerializeField] private Vector3 _offset;
+
+    public Vector3 Offset
+    {
+        get => _offset;
+        set => _offset = value;
+    }
 
     public override StateAction CreateAction(StateMachine stateMachine)
     {

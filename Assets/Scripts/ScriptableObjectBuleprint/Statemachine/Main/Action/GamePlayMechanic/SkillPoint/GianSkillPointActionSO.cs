@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "GianSkillOnHitPointAction",
-    menuName = "YUKI Learning State Machine/StateMachine/Actions/GamePlayMechanic/SkillPoint/Gian Skill On Hit Point")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/GamePlayMechanic/SkillPoint/Gian Skill On Hit Point")]
 public class GianSkillOnHitPointActionSO : StateActionSO
 {
     [SerializeField] private float gianSkillPointAmount = 1f;

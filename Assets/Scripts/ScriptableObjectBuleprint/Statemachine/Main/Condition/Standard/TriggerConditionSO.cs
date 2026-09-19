@@ -5,7 +5,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "NewTrigger_Condition",
-    menuName = "YUKI Learning State Machine/StateMachine/Conditions/Standard/Trigger")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/Trigger")]
 public class TriggerConditionSO : StateConditionSO
 {
     private readonly List<TriggerCondition> _runtimeConditions = new();

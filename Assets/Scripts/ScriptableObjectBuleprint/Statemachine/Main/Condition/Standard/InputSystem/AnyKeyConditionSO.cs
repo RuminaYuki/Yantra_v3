@@ -7,7 +7,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "AnyKey_Condition",
-    menuName = "YUKI Learning State Machine/StateMachine/Conditions/Standard/InputSystem/Any Key")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/InputSystem/Any Key")]
 public class AnyKeyConditionSO : StateConditionSO
 {
     [SerializeField] private InputCheckType _checkType;

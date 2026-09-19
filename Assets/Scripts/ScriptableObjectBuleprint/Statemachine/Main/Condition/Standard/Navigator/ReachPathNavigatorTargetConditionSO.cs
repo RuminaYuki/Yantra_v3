@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "ReachPathNavigatorTarget_Condition",
-    menuName = "YUKI Learning State Machine/StateMachine/Conditions/Navigator/Reach Path Navigator Target")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Navigator/Reach Path Navigator Target")]
 public class ReachPathNavigatorTargetConditionSO : StateConditionSO
 {
     [SerializeField, Min(0.01f)] private float _arrivalDistance = 0.5f;

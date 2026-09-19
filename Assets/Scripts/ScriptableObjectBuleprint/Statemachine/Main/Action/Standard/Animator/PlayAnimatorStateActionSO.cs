@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "PlayAnimatorState_Action",
-    menuName = "YUKI Learning State Machine/StateMachine/Actions/Standard/Animator/PlayAnimatorState")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Standard/Animator/PlayAnimatorState")]
 public class PlayAnimatorStateActionSO : StateActionSO
 {
     [Header("Enter State")]

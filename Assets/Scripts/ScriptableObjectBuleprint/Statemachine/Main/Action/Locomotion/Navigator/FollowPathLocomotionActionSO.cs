@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "FollowPathLocomotion_Action",
-    menuName = "YUKI Learning State Machine/StateMachine/Actions/Locomotion/Navigation/Follow Path Locomotion")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Locomotion/Navigation/Follow Path Locomotion")]
 public class FollowPathLocomotionActionSO : StateActionSO
 {
     [SerializeField] private bool _updateFacing = true;

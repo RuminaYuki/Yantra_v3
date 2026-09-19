@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "ExecuteAttack_Action",
-    menuName = "YUKI Learning State Machine/StateMachine/Actions/Attack/Execute Attack")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Attack/Execute Attack")]
 public class ExecuteAttackActionSO : StateActionSO
 {
     

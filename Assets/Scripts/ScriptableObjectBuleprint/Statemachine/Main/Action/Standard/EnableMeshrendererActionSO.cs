@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "NewEnableMeshrenderer_Action",
-    menuName = "YUKI Learning State Machine/StateMachine/Actions/Standard/Enable Mesh Renderer")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Standard/Enable Mesh Renderer")]
 public class EnableMeshrendererActionSO : StateActionSO
 {
     [SerializeField] private bool value = true;

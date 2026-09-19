@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "SetGravityMultiplierAction",
-    menuName = "YUKI Learning State Machine/StateMachine/Actions/Locomotion/SetBaseLocomotionValue/Set Gravity Multiplier")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Locomotion/SetBaseLocomotionValue/Set Gravity Multiplier")]
 public class SetGravityMultiplierActionSO : StateActionSO
 {
     [SerializeField, Min(0f)] private float _multiplier = 1f;

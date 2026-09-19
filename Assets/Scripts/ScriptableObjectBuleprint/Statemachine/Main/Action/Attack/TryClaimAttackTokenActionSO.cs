@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "TryClaimAttackToken_Action",
-    menuName = "YUKI Learning State Machine/StateMachine/Actions/Attack/Token/Try Claim Attack Token")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Attack/Token/Try Claim Attack Token")]
 public class TryClaimAttackTokenActionSO : StateActionSO
 {
     public override StateAction CreateAction(StateMachine stateMachine)

@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "FaceTarget_Action",
-    menuName = "YUKI Learning State Machine/StateMachine/Actions/Locomotion/Navigation/Face Target")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Locomotion/Navigation/Face Target")]
 public class FaceTargetActionSO : StateActionSO
 {
     [SerializeField] private TransformAnchor _targetAnchor;

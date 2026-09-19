@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "SpellRadial_Action",
-    menuName = "YUKI Learning State Machine/StateMachine/Actions/GamePlayMechanic/Spell/SpellRadial")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/GamePlayMechanic/Spell/SpellRadial")]
 
 public class SpellRadialActionSO : StateActionSO
 {

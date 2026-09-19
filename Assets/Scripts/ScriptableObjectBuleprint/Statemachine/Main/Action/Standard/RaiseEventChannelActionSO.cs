@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "RaiseEventChannel_Action",
-    menuName = "YUKI Learning State Machine/StateMachine/Actions/Standard/Raise Event Channel")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Standard/Raise Event Channel")]
 public class RaiseEventChannelActionSO : StateActionSO
 {
     [SerializeField] private VoidEventChannelSO _eventChannel;

@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "Facing_Condition",
-    menuName = "YUKI Learning State Machine/StateMachine/Conditions/Navigator/Facing")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Navigator/Facing")]
 public class FacingConditionSO : StateConditionSO
 {
     [SerializeField] private TransformAnchor _targetAnchor;

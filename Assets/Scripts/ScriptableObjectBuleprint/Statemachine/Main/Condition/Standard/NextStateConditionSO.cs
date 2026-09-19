@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "NewNextState_Condition",
-    menuName = "YUKI Learning State Machine/StateMachine/Conditions/Standard/Next State")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/Next State")]
 public class NextStateConditionSO : StateConditionSO
 {
     public override Condition CreateCondition()

@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "NewFlag_Condition",
-    menuName = "YUKI Learning State Machine/StateMachine/Conditions/Standard/Check Flag")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/Check Flag")]
 public class FlagConditionSO : StateConditionSO
 {
     [SerializeField] private FlagSO flag;

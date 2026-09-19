@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class PlayerApplyAllStats : MonoBehaviour
 {
-    [SerializeField] PlayerStatsSO playerStatsSO;
+    [SerializeField] CharacterStatsSO playerStatsSO;
     void Awake()
     {
         playerStatsSO.ApplyStats();

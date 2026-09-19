@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "SetLocomotionMultiplier_Action",
-    menuName = "YUKI Learning State Machine/StateMachine/Actions/Locomotion/SetBaseLocomotionValue/Set Locomotion Multiplier")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Locomotion/SetBaseLocomotionValue/Set Locomotion Multiplier")]
 public class SetLocomotionMultiplierActionSO : StateActionSO
 {
     [SerializeField] private float _multiplier = 1f;

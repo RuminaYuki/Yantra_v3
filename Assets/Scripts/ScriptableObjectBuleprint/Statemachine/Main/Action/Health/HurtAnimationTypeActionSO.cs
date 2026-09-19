@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "HurtAnimationTypeAction",
-    menuName = "YUKI Learning State Machine/StateMachine/Actions/Health/HurtAnimationTypeAction")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Health/HurtAnimationTypeAction")]
 
 public class HurtAnimationTypeActionSO : StateActionSO
 {

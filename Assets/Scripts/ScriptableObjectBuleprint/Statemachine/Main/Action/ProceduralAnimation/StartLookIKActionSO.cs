@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "StartLookIK_Action",
-    menuName = "YUKI Learning State Machine/StateMachine/Actions/Procedural Animation/Head IK/Start Look IK")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Procedural Animation/Head IK/Start Look IK")]
 public class StartLookIKActionSO : StateActionSO
 {
     [SerializeField] private TransformAnchor _targetAnchor;

@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "NewAnimationFinished_Condition",
-    menuName = "YUKI Learning State Machine/StateMachine/Conditions/Standard/Animation Finished")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/Animation Finished")]
 public class AnimationFinishedConditionSO : StateConditionSO
 {
     [Header("If AnimatorAnchor has Set It will Check Target Instead")]

@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "NewOnDead_Condition",
-    menuName = "YUKI Learning State Machine/StateMachine/Conditions/Health/On Dead")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Health/On Dead")]
 public class OnDeadConditionSO : StateConditionSO
 {
     public override Condition CreateCondition()

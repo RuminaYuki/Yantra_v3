@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "HasAttackTokenCondition",
-    menuName = "YUKI Learning State Machine/StateMachine/Conditions/Attack/Attack Token/Has Attack Token")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Attack/Attack Token/Has Attack Token")]
 public class HasAttackTokenConditionSO : StateConditionSO
 {
     public override Condition CreateCondition()
