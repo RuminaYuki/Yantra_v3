@@ -7,30 +7,22 @@ public enum TargetLostBehaviour
     Destroy
 }
 
-public class HomingMissile : MonoBehaviour
+public class HomingMissile : BaseProjectileMovement
 {
-    [Header("Movement")]
-    [SerializeField] private float moveSpeed = 10f;
     [SerializeField] private float turnSpeed = 360f;
     [SerializeField] private float maxTrackingAngle = 100f;
-    [SerializeField] private float lifetime = 10f;
 
     [Header("Target")]
     [SerializeField] private TargetDetector targetDetector;
     [SerializeField] private TargetLostBehaviour targetLostBehaviour = TargetLostBehaviour.SearchAgain;
-    [SerializeField] private MissileDamageApplier damageApplier;
-
     [SerializeField] Transform target;
-    private float lifeTimer;
     private bool hadTarget;
     private bool targetLossHandled;
 
-    private void Awake()
+    protected override void Awake()
     {
         if (targetDetector == null)
             targetDetector = GetComponent<TargetDetector>();
-        if (damageApplier == null)
-            damageApplier = GetComponent<MissileDamageApplier>();
     }
 
     public void SetTarget(Transform target)
@@ -40,21 +32,8 @@ public class HomingMissile : MonoBehaviour
         targetLossHandled = false;
     }
 
-    public void SetOwner(Transform owner)
+    protected override void Update()
     {
-        if (damageApplier != null)
-            damageApplier.SetOwner(owner);
-    }
-
-    private void Update()
-    {
-        lifeTimer += Time.deltaTime;
-        if (lifetime > 0f && lifeTimer >= lifetime)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
         if (target == null)
         {
             if (!hadTarget && targetDetector != null)
@@ -137,10 +116,5 @@ public class HomingMissile : MonoBehaviour
     {
         transform.position +=
             transform.forward * moveSpeed * Time.deltaTime;
-    }
-
-    public void NotifyTargetHit()
-    {
-        Destroy(gameObject);
     }
 }

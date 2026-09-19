@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class MissileDamageApplier : MonoBehaviour
+public class ProjectileDamageApplier : MonoBehaviour
 {
     [SerializeField] private float damageAmount = 10f;
     [SerializeField] private Transform owner;
@@ -41,4 +41,6 @@ public class MissileDamageApplier : MonoBehaviour
 
         return null;
     }
+
+    public void SetDamge(float amount) => damageAmount = amount;
 }

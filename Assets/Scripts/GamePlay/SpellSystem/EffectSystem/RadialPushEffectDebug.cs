@@ -3,8 +3,7 @@ using UnityEngine;
 [ExecuteAlways]
 public sealed class RadialPushEffectDebug : MonoBehaviour
 {
-    [SerializeField] private EffectDefinition effectDefinition;
-    [SerializeField] private Transform effectOrigin;
+    /*[SerializeField] private Transform effectOrigin;
     [SerializeField] private Color radiusColor = new Color(1f, 0.65f, 0f, 0.9f);
     [SerializeField] private bool drawWhenNotSelected = true;
 
@@ -40,5 +39,5 @@ public sealed class RadialPushEffectDebug : MonoBehaviour
         Gizmos.color = radiusColor;
         Gizmos.DrawWireSphere(origin.position, effectDefinition.Radius);
         Gizmos.DrawSphere(origin.position, 0.12f);
-    }
+    }*/
 }
