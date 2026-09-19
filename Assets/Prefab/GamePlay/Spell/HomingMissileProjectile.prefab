@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &3000000000000000000
+--- !u!1 &887808973400919531
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,13 +8,11 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 3000000000000000001}
-  - component: {fileID: 3000000000000000002}
-  - component: {fileID: 3000000000000000003}
-  - component: {fileID: 3000000000000000004}
-  - component: {fileID: 3000000000000000005}
-  - component: {fileID: 3000000000000000006}
-  - component: {fileID: 6413678207997662850}
+  - component: {fileID: 2438599785541290143}
+  - component: {fileID: 3732167502124206358}
+  - component: {fileID: 2502075346117541949}
+  - component: {fileID: 2823700504443467567}
+  - component: {fileID: 351651873305751949}
   m_Layer: 0
   m_Name: HomingMissileProjectile
   m_TagString: Untagged
@@ -22,76 +20,54 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &3000000000000000001
+--- !u!4 &2438599785541290143
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3000000000000000000}
+  m_GameObject: {fileID: 887808973400919531}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: 0.09908662, z: -0, w: 0.99507886}
+  m_LocalPosition: {x: 1.48, y: 0.472, z: 5.81}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 386526750773817882}
+  - {fileID: 3830250545524614819}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!54 &3000000000000000002
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3000000000000000000}
-  serializedVersion: 5
-  m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_CenterOfMass: {x: 0, y: 0, z: 0}
-  m_InertiaTensor: {x: 1, y: 1, z: 1}
-  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ImplicitCom: 1
-  m_ImplicitTensor: 1
-  m_UseGravity: 0
-  m_IsKinematic: 1
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0
---- !u!114 &3000000000000000003
+  m_LocalEulerAnglesHint: {x: 0, y: 11.373, z: 0}
+--- !u!114 &3732167502124206358
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3000000000000000000}
+  m_GameObject: {fileID: 887808973400919531}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4d2b74773c8b86b4994cb88ab6d7aef7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HomingMissile
-  moveSpeed: 10
+  _lifeTime: 10
+  maxPenetrations: 1
+  destroyAfterPenetrationLimit: 1
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  damageApplier: {fileID: 2823700504443467567}
+  _moveSpeed: 10
   turnSpeed: 30
   maxTrackingAngle: 100
-  lifetime: 10
-  targetDetector: {fileID: 3000000000000000004}
+  targetDetector: {fileID: 2502075346117541949}
   targetLostBehaviour: 1
-  damageApplier: {fileID: 3000000000000000005}
   target: {fileID: 0}
---- !u!114 &3000000000000000004
+--- !u!114 &2502075346117541949
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3000000000000000000}
+  m_GameObject: {fileID: 887808973400919531}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9a4b8bcb6a3c4f7e8d1a2b3c4d5e6f70, type: 3}
@@ -112,46 +88,27 @@ MonoBehaviour:
   detectionColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   targetColor: {r: 0, g: 1, b: 0, a: 1}
   blockedColor: {r: 1, g: 0, b: 0, a: 1}
---- !u!114 &3000000000000000005
+--- !u!114 &2823700504443467567
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3000000000000000000}
+  m_GameObject: {fileID: 887808973400919531}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8b3c7d1e5a6f4b2c9d0e1f2a3b4c5d60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MissileDamageApplier
-  damageAmount: 10
+  damageAmount: 2
   owner: {fileID: 0}
---- !u!114 &3000000000000000006
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3000000000000000000}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7c2d6e9f1a4b5c8d0e3f2a6b7d9c1e50, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MissileHitDetector
-  maxPenetrations: 0
-  destroyAfterPenetrationLimit: 1
-  obstacleLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  damageApplier: {fileID: 3000000000000000005}
-  missile: {fileID: 3000000000000000003}
---- !u!135 &6413678207997662850
+--- !u!135 &351651873305751949
 SphereCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3000000000000000000}
+  m_GameObject: {fileID: 887808973400919531}
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -166,7 +123,7 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
---- !u!1 &7026512425515616638
+--- !u!1 &6444334217295086366
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -174,10 +131,10 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 386526750773817882}
-  - component: {fileID: 6091811146065999840}
-  - component: {fileID: 4969325883870208758}
-  - component: {fileID: 1593712288894143926}
+  - component: {fileID: 3830250545524614819}
+  - component: {fileID: 8179217387535698941}
+  - component: {fileID: 7470246542865108814}
+  - component: {fileID: 3938162880482624268}
   m_Layer: 0
   m_Name: Sphere
   m_TagString: Untagged
@@ -185,36 +142,36 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &386526750773817882
+--- !u!4 &3830250545524614819
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7026512425515616638}
+  m_GameObject: {fileID: 6444334217295086366}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 1
   m_Children: []
-  m_Father: {fileID: 3000000000000000001}
+  m_Father: {fileID: 2438599785541290143}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &6091811146065999840
+--- !u!33 &8179217387535698941
 MeshFilter:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7026512425515616638}
+  m_GameObject: {fileID: 6444334217295086366}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
---- !u!23 &4969325883870208758
+--- !u!23 &7470246542865108814
 MeshRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7026512425515616638}
+  m_GameObject: {fileID: 6444334217295086366}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
@@ -257,13 +214,13 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!135 &1593712288894143926
+--- !u!135 &3938162880482624268
 SphereCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7026512425515616638}
+  m_GameObject: {fileID: 6444334217295086366}
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2

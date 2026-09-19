@@ -1,24 +1,49 @@
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
-public class MissileHitDetector : MonoBehaviour
+public class BaseProjectileMovement : MonoBehaviour
 {
+    [Header("Life cycle")]
+    [SerializeField] private float _lifeTime = 10f;
+    protected float lifetime => _lifeTime;
+    private float _lifeTimer;
+    protected float lifeTimer 
+    {
+        get => _lifeTimer; set => _lifeTimer = value;
+    }
+
     [Header("Penetration")]
     [SerializeField, Min(0)] private int maxPenetrations;
     [SerializeField] private bool destroyAfterPenetrationLimit = true;
     [SerializeField] private LayerMask obstacleLayer;
-    [SerializeField] private MissileDamageApplier damageApplier;
-    [SerializeField] private HomingMissile missile;
+    [SerializeField] private ProjectileDamageApplier damageApplier;
+
+    [Header("Movement")]
+    [SerializeField] private float _moveSpeed = 10f;
+    protected float moveSpeed
+    {
+        get => _moveSpeed;
+        set => _moveSpeed = value;
+    }
 
     private readonly HashSet<IDamageable> hitTargets = new HashSet<IDamageable>();
     private int penetrationsUsed;
 
-    private void Awake()
+    protected virtual void Awake()
     {
         if (damageApplier == null)
-            damageApplier = GetComponent<MissileDamageApplier>();
-        if (missile == null)
-            missile = GetComponent<HomingMissile>();
+            damageApplier = GetComponent<ProjectileDamageApplier>();
+    }
+
+    protected virtual void Update()
+    {
+        lifeTimer += Time.deltaTime;
+        if (lifetime > 0f && lifeTimer >= lifetime)
+        {
+            Destroy(gameObject);
+            return;
+        }
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -53,10 +78,7 @@ public class MissileHitDetector : MonoBehaviour
 
         if (destroyAfterPenetrationLimit && penetrationsUsed > maxPenetrations)
         {
-            if (missile != null)
-                missile.NotifyTargetHit();
-            else
-                Destroy(gameObject);
+            NotifyTargetHit();
         }
     }
 
@@ -72,4 +94,11 @@ public class MissileHitDetector : MonoBehaviour
 
         return null;
     }
+
+    public void NotifyTargetHit()
+    {
+        Destroy(gameObject);
+    }
+
+    public void SetMoveSpeed(float speed) => moveSpeed = speed;
 }
