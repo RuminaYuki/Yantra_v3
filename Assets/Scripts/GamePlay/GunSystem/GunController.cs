@@ -38,6 +38,9 @@ public class GunController : MonoBehaviour
 
 
     private float currentDelay;
+    private bool isSpawnEventSubscribed;
+    private GunMode pendingShotMode;
+    private bool hasPendingShot;
 
     private void Awake()
     {
@@ -62,52 +65,76 @@ public class GunController : MonoBehaviour
     {
         if (currentDelay > 0) return false;
 
-        if (animator == null) return false;
-
         if (curentAmmo == 0) return false;
 
         switch (gunMode)
         {
             case GunMode.Normal:
+                pendingShotMode = GunMode.Normal;
+                hasPendingShot = true;
                 foreach (Spawner spawner in spawners)
                 {
+                    if (spawner == null)
+                    {
+                        Debug.LogWarning("GunController has a null spawner reference.", this);
+                        continue;
+                    }
                     spawner.SetPrefab(settingNormalMode.bulletPrefab);
                 }
-                if (string.IsNullOrEmpty(settingNormalMode.stateName))
+                if (string.IsNullOrEmpty(settingNormalMode.stateName) || animator == null)
                 {
                     Shoot();
+                    currentDelay = delayTime;
                     break;
                 }
                 animator.CrossFade(settingNormalMode.stateName, settingNormalMode.crossFade, settingNormalMode.layerIndex);    
+                currentDelay = delayTime;
                 break;
             case GunMode.Special:
-                if (!skillPoints.consume(settingSpecialMode.skillPointUsage)) return false;
+                if (skillPoints != null && !skillPoints.consume(settingSpecialMode.skillPointUsage)) return false;
+                pendingShotMode = GunMode.Special;
+                hasPendingShot = true;
                 foreach (Spawner spawner in spawners)
                 {
+                    if (spawner == null)
+                    {
+                        Debug.LogWarning("GunController has a null spawner reference.", this);
+                        continue;
+                    }
                     spawner.SetPrefab(settingSpecialMode.bulletPrefab);
                 }
-                if (!string.IsNullOrEmpty(settingSpecialMode.stateName))
+                if (string.IsNullOrEmpty(settingSpecialMode.stateName) || animator == null)
                 {
                     Shoot();
+                    currentDelay = delayTime;
                     break;
                 }
-                animator.CrossFade(settingSpecialMode.stateName, settingNormalMode.crossFade, settingNormalMode.layerIndex);
+                animator.CrossFade(settingSpecialMode.stateName, settingSpecialMode.crossFade, settingSpecialMode.layerIndex);
+                currentDelay = delayTime;
                 break;
         }
-        currentDelay = delayTime;
+
         return true;
     }
 
     private void Shoot()
     {
+        int amountBullet = 0;
+        GunMode shotMode = hasPendingShot ? pendingShotMode : gunMode;
         foreach (Spawner spawner in spawners)
         {
+            if (spawner == null)
+            {
+                Debug.LogWarning("GunController has a null spawner reference.", this);
+                continue;
+            }
             GameObject bullet = spawner.spawnObject();
             if (bullet == null) continue;
+            amountBullet += 1;
             //To do bullet setting
             BaseProjectileMovement baseProjectile = bullet.GetComponent<BaseProjectileMovement>();
             ProjectileDamageApplier damageApplier = bullet.GetComponent<ProjectileDamageApplier>();
-            switch (gunMode)
+            switch (shotMode)
             {
                 case GunMode.Normal:
                     if (!settingNormalMode.useThisSetting) break;
@@ -120,25 +147,29 @@ public class GunController : MonoBehaviour
                     if (damageApplier != null) damageApplier.SetDamge(settingSpecialMode.bulletDamage);
                     break;
             }
-            CurentAmmo -= 1;
         }
+        if (amountBullet != 0) CurentAmmo -= 1;
+        hasPendingShot = false;
     }
 
     public void SetEnabled(bool enabled)
     {
+        if (handleSpawnEvent == null)
+        {
+            return;
+        }
+
         if (enabled)
         {
-            if (handleSpawnEvent != null)
-            {
-                handleSpawnEvent.Raised += Shoot;
-            }
+            if (isSpawnEventSubscribed) return;
+            handleSpawnEvent.Raised += Shoot;
+            isSpawnEventSubscribed = true;
         }
         else
         {
-            if (handleSpawnEvent != null)
-            {
-                handleSpawnEvent.Raised -= Shoot;
-            }
+            if (!isSpawnEventSubscribed) return;
+            handleSpawnEvent.Raised -= Shoot;
+            isSpawnEventSubscribed = false;
         }
 
     }
@@ -151,16 +182,27 @@ public class GunController : MonoBehaviour
 
     //Max Ammo API
     public int GetMaxAmmo() => maxAmmo;
-        //For upgrade max-ammo
-    public int SetMaxAmmo(int value) => maxAmmo = value;
+    //For upgrade max-ammo
+    public int SetMaxAmmo(int value)
+    {
+        if (value <= 0)
+        {
+            Debug.LogWarning("Max ammo must be greater than zero.");
+            return maxAmmo;
+        }
 
+        maxAmmo = value;
+        CurentAmmo = Mathf.Min(CurentAmmo, maxAmmo);
+        return maxAmmo;
+    }
+
+    //Gun mode
     public GunMode GetGunMode() => gunMode;
     public void SwitchMode()
     {
         if (gunMode == GunMode.Normal) gunMode = GunMode.Special;
         else gunMode = GunMode.Normal;
     }
-
     #endregion
 }
 

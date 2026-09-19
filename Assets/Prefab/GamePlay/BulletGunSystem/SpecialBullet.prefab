@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2448380883380309998}
   - component: {fileID: 8477780483864509153}
   - component: {fileID: 2474891252089924897}
+  - component: {fileID: -5174923587579301629}
   m_Layer: 0
   m_Name: SpecialBullet
   m_TagString: Untagged
@@ -41,7 +42,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2573710482556640469}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 866311cde279af94e93fc1f66c5c80e4, type: 3}
   m_Name: 
@@ -61,7 +62,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2573710482556640469}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8b3c7d1e5a6f4b2c9d0e1f2a3b4c5d60, type: 3}
   m_Name: 
@@ -85,7 +86,32 @@ SphereCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Radius: 0.11
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &-5174923587579301629
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2573710482556640469}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e55499af33b2bb5438052edeba5233d3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitscanShooter
+  playOnAwake: 0
+  muzzle: {fileID: 0}
+  range: 100
+  hitMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  triggerInteraction: 1
+  ignoreRoot: {fileID: 0}
+  damage: 2
+  maxPenetrations: 1
+  damageRetainedPerPenetration: 1
+  drawDebugRay: 1
+  debugDuration: 1
