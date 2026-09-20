@@ -56,9 +56,10 @@ GameObject:
   - component: {fileID: 3722000600626199932}
   - component: {fileID: 1298072149758396325}
   - component: {fileID: 2999064993368223594}
+  - component: {fileID: 3117964211689334339}
   m_Layer: 0
   m_Name: EnemeyController
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -279,7 +280,7 @@ MonoBehaviour:
   targetAnchor: {fileID: 11400000, guid: 97cdc95b0c8756f4389de6d9da5b3c18, type: 2}
   target: {fileID: 0}
   viewpoint: {fileID: 1404947539947207792}
-  showGizmos: 1
+  showGizmos: 0
   detectRange: 10
   viewAngle: 115
   enableFOV: 1
@@ -333,7 +334,7 @@ MonoBehaviour:
   eyeOffset: {x: 0, y: 1.5, z: 0}
   maxLookWeight: 1
   smoothSpeed: 5
-  showGizmos: 1
+  showGizmos: 0
 --- !u!114 &1298072149758396325
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -361,6 +362,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AttackSphereCast
   attackOrigin: {fileID: 4408027185140303457}
+--- !u!114 &3117964211689334339
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1362228334903577606}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95f64f53f0ecfff46bf5c835423cae83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ApplyAllStats
+  CharacterStatsSO: {fileID: 11400000, guid: 66a0373b8e325d94ca65c6c93f774f26, type: 2}
 --- !u!1 &2032088470783747889
 GameObject:
   m_ObjectHideFlags: 0

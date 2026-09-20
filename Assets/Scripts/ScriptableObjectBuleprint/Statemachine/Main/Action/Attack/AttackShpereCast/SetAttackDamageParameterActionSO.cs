@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "SetAttackDamageParameter_Action",
-    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Attack/Set Attack Damage Parameter")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Attack/AttackShpereCast/Set Attack Damage Parameter")]
 public class SetAttackDamageParameterActionSO : StateActionSO
 {
     [SerializeField] private AttackParameters _attackParameters;

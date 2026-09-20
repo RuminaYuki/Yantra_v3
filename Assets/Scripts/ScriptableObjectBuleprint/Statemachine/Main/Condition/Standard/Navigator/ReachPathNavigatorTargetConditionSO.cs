@@ -9,6 +9,21 @@ public class ReachPathNavigatorTargetConditionSO : StateConditionSO
 {
     [SerializeField, Min(0.01f)] private float _arrivalDistance = 0.5f;
 
+    public float ArrivalDistance
+    {
+        get => _arrivalDistance;
+        set
+        {
+            if (value < 0.01f)
+            {
+                Debug.LogWarning("Arrival distance cannot be below 0.01. Setting to 0.01.");
+                _arrivalDistance = 0.01f;
+                return;
+            }
+            _arrivalDistance = value;
+        }
+    }
+
     public override Condition CreateCondition()
     {
         return new ReachPathNavigatorTargetCondition(_arrivalDistance);
