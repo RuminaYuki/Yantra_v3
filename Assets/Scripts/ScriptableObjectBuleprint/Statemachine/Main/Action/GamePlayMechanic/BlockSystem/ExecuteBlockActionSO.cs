@@ -3,7 +3,7 @@ using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 [CreateAssetMenu(
     fileName = "ExecuteBlock_Action",
-    menuName = "YUKI Learning State Machine/StateMachine/Actions/GamePlayMechanic/BlockSystem/Execute Block")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/GamePlayMechanic/BlockSystem/Execute Block")]
 public class ExecuteBlockActionSO : StateActionSO
 {
     [Tooltip("Whether the block action is enabled.")]

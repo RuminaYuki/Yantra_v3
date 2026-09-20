@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "SetEffectInputEnabled_Action",
-    menuName = "YUKI Learning State Machine/StateMachine/Actions/Spell/Set Effect Input Enabled")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Spell/Set Effect Input Enabled")]
 public class SetEffectInputEnabledActionSO : StateActionSO
 {
     [SerializeField] private bool enabledOnEnter = true;

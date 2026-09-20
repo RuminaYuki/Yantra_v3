@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "LookInputPlayerCamera_Action",
-    menuName = "YUKI Learning State Machine/StateMachine/Actions/Camera/LookInputPlayerCamera")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Camera/LookInputPlayerCamera")]
 
 public class LookInputPlayerCameraActionSO : StateActionSO
 {

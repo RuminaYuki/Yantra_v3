@@ -3,20 +3,31 @@ using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
-    fileName = "Distance_Condition",
-    menuName = "YUKI Learning State Machine/StateMachine/Conditions/Standard/Distance")]
+    fileName = "NewRange_Condition",
+    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/Distance")]
 public class DistanceConditionSO : StateConditionSO
 {
     [SerializeField] private TransformAnchor _targetAnchor;
-    [Header("if have FloatDataSO, it will override the value")]
-    [SerializeField, Min(0f)] private FloatDataSO _distanceData;
     [SerializeField, Min(0f)] private float _distance = 1f;
-    public float Distance => _distance;
+
+    public float Distance
+    {
+        get => _distance;
+        set
+        {
+            if (value < 0f)
+            {
+                Debug.LogWarning("Distance cannot be negative. Setting to 0.");
+                _distance = 0f;
+                return;
+            }
+            _distance = value;
+        }
+    }
 
     public override Condition CreateCondition()
     {
-        float distance = _distanceData != null ? _distanceData.Value : _distance;
-        return new DistanceCondition(_targetAnchor, distance);
+        return new DistanceCondition(_targetAnchor, _distance);
     }
 }
 

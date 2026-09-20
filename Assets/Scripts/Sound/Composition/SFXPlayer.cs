@@ -11,12 +11,22 @@ public class SFXPlayer : MonoBehaviour
 
     [HideInInspector] public string myPoolTag;
 
+    // [ADD] พูลเจ้าของลำโพงตัวนี้ — SoundPooler เซ็ตให้ตอนสร้าง
+    // ถ้าเป็น null แปลว่ามาจาก ObjectPooler กลางแบบเดิม (ของเก่ายังทำงานได้)
+    private SoundPooler ownerPool;
+
     private Transform targetToFollow;
 
     private int version = 0;
     public int Version => version;
 
     public bool IsPlaying => audioSource != null && audioSource.isPlaying;
+
+    /// <summary>เรียกโดย SoundPooler ตอนสร้างลำโพง — ไม่ต้องเรียกเอง</summary>
+    public void SetOwnerPool(SoundPooler pool)
+    {
+        ownerPool = pool;
+    }
 
     private void Awake()
     {
@@ -184,6 +194,13 @@ public class SFXPlayer : MonoBehaviour
         targetToFollow = null;
 
         if (!gameObject.activeInHierarchy) return;
+
+        if (ownerPool != null)
+        {
+            ownerPool.Return(this);
+            return;
+        }
+
         if (ObjectPooler.Instance != null && !string.IsNullOrEmpty(myPoolTag))
             ObjectPooler.Instance.ReturnToPool(myPoolTag, gameObject);
         else
@@ -192,8 +209,6 @@ public class SFXPlayer : MonoBehaviour
 
     private void OnDisable()
     {
-        // [NEW] กลับเข้าโกดัง = ใบเสร็จทุกใบที่ออกไปหมดอายุทันที
-        // จุดนี้สำคัญ เพราะทุกเส้นทางการคืนของจบที่ SetActive(false) เสมอ
         version++;
 
         targetToFollow = null;

@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5492ed31ba40b643aaf3d94f1de0aa7, type: 3}
+  m_Name: KrasueAttack_TransitionTable
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
+  _initialState: {fileID: 11400000, guid: ef3d5fc1b8f4e204a8b76f55d19b10c1, type: 2}
+  _anyTransitions:
+  - ToState: {fileID: 11400000, guid: 0f0ed8b9250b82f46830f20df04291c3, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 73792efb1f4d274438e890aa40aa01e1, type: 2}
+        ExpectedResult: 1
+  _transitions:
+  - FromState: {fileID: 11400000, guid: ef3d5fc1b8f4e204a8b76f55d19b10c1, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 4c2705aeb35f1a24a8f1239f4003cf46, type: 2}
+        ExpectedResult: 0
+      - Condition: {fileID: 11400000, guid: 4c27b769f4649984898ba52cb098356c, type: 2}
+        ExpectedResult: 0
+      - Condition: {fileID: 11400000, guid: 7bffa4ee31af1c140a9799282ee558f9, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: 11400000, guid: e05b5593296a5ea458865021729c0f79, type: 2}
+  - FromState: {fileID: 11400000, guid: e05b5593296a5ea458865021729c0f79, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: ac905eeab3e18ea47a16ed7106bcab10, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: 11400000, guid: 81897780a0f61d04f81ae42f9bc7d210, type: 2}
+  - FromState: {fileID: 11400000, guid: 81897780a0f61d04f81ae42f9bc7d210, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 21f57087a2c4048489bf3f274d707446, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: 11400000, guid: ef3d5fc1b8f4e204a8b76f55d19b10c1, type: 2}

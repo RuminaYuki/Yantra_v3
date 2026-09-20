@@ -6,7 +6,7 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
 {
     [CreateAssetMenu(
         fileName = "New_TransitionTable",
-        menuName = "YUKI Learning State Machine/StateMachine/Transition Table")]
+        menuName = "YUKI Learning State Machine/StateMachineList/Transition Table")]
     public class TransitionTableSO : ScriptableObject
     {
         [SerializeField]

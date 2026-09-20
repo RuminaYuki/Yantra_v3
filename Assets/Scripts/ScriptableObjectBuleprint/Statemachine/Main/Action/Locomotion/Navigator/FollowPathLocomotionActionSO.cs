@@ -4,19 +4,27 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "FollowPathLocomotion_Action",
-    menuName = "YUKI Learning State Machine/StateMachine/Actions/Locomotion/Navigation/Follow Path Locomotion")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Locomotion/Navigation/Follow Path Locomotion")]
 public class FollowPathLocomotionActionSO : StateActionSO
 {
+    [SerializeField] private bool _updateFacing = true;
+
     public override StateAction CreateAction(StateMachine stateMachine)
     {
-        return new FollowPathLocomotionAction();
+        return new FollowPathLocomotionAction(_updateFacing);
     }
 }
 
 public class FollowPathLocomotionAction : StateAction
 {
+    private readonly bool _updateFacing;
     private PathNavigator _pathNavigator;
     private BaseLocomotion _locomotion;
+
+    public FollowPathLocomotionAction(bool updateFacing)
+    {
+        _updateFacing = updateFacing;
+    }
 
     public override void Awake(StateMachine stateMachine)
     {
@@ -37,7 +45,9 @@ public class FollowPathLocomotionAction : StateAction
 
         Vector3 direction = _pathNavigator.Direction;
         _locomotion.SetMovementDirection(direction);
-        _locomotion.SetFacingDirection(direction);
+
+        if (_updateFacing)
+            _locomotion.SetFacingDirection(direction);
     }
 
     public override void OnStateExit()

@@ -4,25 +4,35 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "SetPathNavigatorTargetAction",
-    menuName = "YUKI Learning State Machine/StateMachine/Actions/Locomotion/Navigation/Set Target")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Locomotion/Navigation/Set Target")]
 public class SetPathNavigatorTargetActionSO : StateActionSO
 {
     [SerializeField] private TransformAnchor _targetAnchor;
+    [SerializeField] private Vector3 _offset;
+
+    public Vector3 Offset
+    {
+        get => _offset;
+        set => _offset = value;
+    }
 
     public override StateAction CreateAction(StateMachine stateMachine)
     {
-        return new SetPathNavigatorTargetAction(_targetAnchor);
+        return new SetPathNavigatorTargetAction(_targetAnchor, _offset);
     }
 }
 
 public class SetPathNavigatorTargetAction : StateAction
 {
     private readonly TransformAnchor _targetAnchor;
+    private readonly Vector3 _offset;
     private PathNavigator _pathNavigator;
+    private Transform _offsetTarget;
 
-    public SetPathNavigatorTargetAction(TransformAnchor targetAnchor)
+    public SetPathNavigatorTargetAction(TransformAnchor targetAnchor, Vector3 offset)
     {
         _targetAnchor = targetAnchor;
+        _offset = offset;
     }
 
     public override void Awake(StateMachine stateMachine)
@@ -30,7 +40,12 @@ public class SetPathNavigatorTargetAction : StateAction
         _pathNavigator = stateMachine.GetComponent<PathNavigator>();
 
         if (_pathNavigator == null)
+        {
             Debug.LogError("SetPathNavigatorTargetAction cannot find PathNavigator.");
+            return;
+        }
+
+        _offsetTarget = _pathNavigator.GetOrCreateOffsetTarget();
     }
 
     public override void OnStateEnter()
@@ -50,8 +65,15 @@ public class SetPathNavigatorTargetAction : StateAction
             return;
         }
 
-        _pathNavigator.Target = _targetAnchor.Value;
+        _offsetTarget.position = _targetAnchor.Value.TransformPoint(_offset);
+        _pathNavigator.Target = _offsetTarget;
     }
 
-    public override void OnUpdate() { }
+    public override void OnUpdate()
+    {
+        if (_pathNavigator == null || _targetAnchor == null || !_targetAnchor.IsSet)
+            return;
+
+        _offsetTarget.position = _targetAnchor.Value.TransformPoint(_offset);
+    }
 }

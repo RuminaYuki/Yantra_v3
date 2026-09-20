@@ -49,4 +49,16 @@ public class SkillPoints : MonoBehaviour
         return false;
     }
 
+    public bool TryConsume(float amount)
+    {
+        amount = amount < 0 ? -amount : amount;
+        float curent = _skillPoints;
+        if (curent >= amount)
+        {
+            curent -= amount;
+            curent = Mathf.Clamp(_skillPoints, 0f, _maxPoint);
+            return true;
+        }
+        return false;
+    }
 }

@@ -44,8 +44,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29108145b263e724baa37fecdbfc909b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BulletSpawner
-  _prefab: {fileID: 0}
-  _startShooting: {fileID: 0}
+  _prefab: {fileID: 4370089659096113426, guid: a855e17f688cc1c418e194179f7b51d9, type: 3}
 --- !u!1 &2000000000000000000
 GameObject:
   m_ObjectHideFlags: 0
@@ -57,6 +56,7 @@ GameObject:
   - component: {fileID: 2000000000000000001}
   - component: {fileID: 2000000000000000002}
   - component: {fileID: 2000000000000000003}
+  - component: {fileID: 830318997065806462}
   m_Layer: 0
   m_Name: RadialPushEffect
   m_TagString: Untagged
@@ -93,9 +93,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   effectAction: {fileID: 0}
-  definition: {fileID: 11400000, guid: 5b9e6d2f8c3a4e7b9d1f0a2c6e5b8d41, type: 2}
-  effectOrigin: {fileID: 2000000000000000001}
-  effectDirection: {fileID: 2000000000000000001}
+  activationMode: 0
+  duration: 0
+  cooldown: 0
   destroyAfterFinished: 1
   destroyDelayAfterUse: 1
   finishedEventChannel: {fileID: 11400000, guid: a6c6e57fef32dcb48bda4838e8fdab90, type: 2}
@@ -113,7 +113,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d31a9e6f4b2458cb8a4a6d1c9e2f507, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  effectDefinition: {fileID: 11400000, guid: 5b9e6d2f8c3a4e7b9d1f0a2c6e5b8d41, type: 2}
-  effectOrigin: {fileID: 2000000000000000001}
-  radiusColor: {r: 0.44700277, g: 0, b: 1, a: 1}
-  drawWhenNotSelected: 1
+--- !u!114 &830318997065806462
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2000000000000000000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 662ce060c9fb8864a9119ff382fc211b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RadialPushEffect
+  owner: {fileID: 0}
+  animatorAnchor: {fileID: 11400000, guid: 6dc3f03200b18494388337ab5bf989c2, type: 2}
+  animationName: SpellCast2_ArmClip
+  layerIndex: 0
+  prefab: {fileID: 4370089659096113426, guid: a855e17f688cc1c418e194179f7b51d9, type: 3}
+  spawners:
+  - {fileID: 6666565333369434577}
+  handleSpawnEvent: {fileID: 0}

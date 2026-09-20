@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "SetRandomPositionNavRadius_Action",
-    menuName = "YUKI Learning State Machine/StateMachine/Actions/Locomotion/Navigation/Set Random Position (Nav Radius)")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Locomotion/Navigation/Set Random Position (Nav Radius)")]
 public class SetRandomPositionNavRadiusActionSO : StateActionSO
 {
     [Header("This action will use Waypoint Root at Homepoint")]

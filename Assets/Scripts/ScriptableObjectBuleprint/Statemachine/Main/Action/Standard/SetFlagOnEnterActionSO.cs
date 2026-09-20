@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "NewSetFlagOnEnter_Action",
-    menuName = "YUKI Learning State Machine/StateMachine/Actions/Standard/Set Flag On Enter")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Standard/Set Flag On Enter")]
 public class SetFlagOnEnterActionSO : StateActionSO
 {
     [SerializeField] private FlagSO flag;

@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "NewVoidEventChannel_Condition",
-    menuName = "YUKI Learning State Machine/StateMachine/Conditions/Standard/Void Event Channel")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/Void Event Channel")]
 public class VoidEventChannelConditionSO : StateConditionSO
 {
     [SerializeField] private VoidEventChannelSO _eventChannel;

@@ -7,9 +7,9 @@ public class EffectController : MonoBehaviour
     [SerializeField] private InputActionReference effectAction;
 
     [Header("Effect")]
-    [SerializeField] private EffectDefinition definition;
-    [SerializeField] private Transform effectOrigin;
-    [SerializeField] private Transform effectDirection;
+    [SerializeField] private EffectActivationMode activationMode;
+    [SerializeField] private float duration;
+    [SerializeField] private float cooldown;
     [SerializeField] private bool destroyAfterFinished = true;
     [SerializeField] private float destroyDelayAfterUse = 0.5f;
 
@@ -46,16 +46,14 @@ public class EffectController : MonoBehaviour
 
     private void Awake()
     {
-        if (definition != null)
-        {
-            executor = CreateExecutor(definition.Type);
-        }
-
         if (effectAction == null)
         {
             generatedActions = new InputSystem_Actions();
         }
-
+        if (executor == null)
+        {
+            executor = GetComponent<IEffectExecutor>();
+        }
     }
 
     private void OnEnable()
@@ -99,8 +97,7 @@ public class EffectController : MonoBehaviour
         }
 
         remainingDuration = Mathf.Max(0f, remainingDuration - Time.deltaTime);
-        if (definition != null &&
-            definition.ActivationMode == EffectActivationMode.HoldRepeat &&
+        if (activationMode == EffectActivationMode.HoldRepeat &&
             isHeld)
         {
             ExecuteIfReady();
@@ -139,7 +136,7 @@ public class EffectController : MonoBehaviour
 
     public void OnInputStarted(InputAction.CallbackContext context)
     {
-        if (!isEnabled || definition == null)
+        if (!isEnabled)
         {
             return;
         }
@@ -148,7 +145,7 @@ public class EffectController : MonoBehaviour
         isHeld = true;
         hasExecuted = false;
 
-        switch (definition.ActivationMode)
+        switch (activationMode)
         {
             case EffectActivationMode.SingleUse:
                 ExecuteIfReady();
@@ -166,8 +163,7 @@ public class EffectController : MonoBehaviour
     public void OnInputPerformed(InputAction.CallbackContext context)
     {
         if (!isEnabled ||
-            definition == null ||
-            definition.ActivationMode != EffectActivationMode.RepeatDuringDuration)
+            activationMode != EffectActivationMode.RepeatDuringDuration)
         {
             return;
         }
@@ -177,13 +173,13 @@ public class EffectController : MonoBehaviour
 
     public void OnInputCanceled(InputAction.CallbackContext context)
     {
-        if (!isEnabled || definition == null)
+        if (!isEnabled)
         {
             return;
         }
 
         isHeld = false;
-        if (definition.ActivationMode == EffectActivationMode.HoldCommit)
+        if (activationMode == EffectActivationMode.HoldCommit)
         {
             remainingDuration = 0f;
             hasExecuted = false;
@@ -199,7 +195,7 @@ public class EffectController : MonoBehaviour
 
     public void ActivateFromSpawn()
     {
-        if (!isEnabled || definition == null)
+        if (!isEnabled)
         {
             return;
         }
@@ -208,7 +204,7 @@ public class EffectController : MonoBehaviour
         isHeld = true;
         hasExecuted = false;
 
-        switch (definition.ActivationMode)
+        switch (activationMode)
         {
             case EffectActivationMode.SingleUse:
                 ExecuteIfReady();
@@ -223,7 +219,7 @@ public class EffectController : MonoBehaviour
 
     private void BeginDuration()
     {
-        remainingDuration = definition.Duration;
+        remainingDuration = duration;
         hasExecuted = false;
         hasFinished = false;
         ExecuteIfReady();
@@ -231,43 +227,37 @@ public class EffectController : MonoBehaviour
 
     private void ExecuteIfReady()
     {
-        if (definition == null ||
-            executor == null ||
+        if (executor == null ||
             cooldownRemaining > 0f)
         {
             return;
         }
 
-        if (definition.ActivationMode == EffectActivationMode.SingleUse &&
+        if (activationMode == EffectActivationMode.SingleUse &&
             hasExecuted)
         {
             return;
         }
 
-        if (definition.ActivationMode == EffectActivationMode.RepeatDuringDuration &&
+        if (activationMode == EffectActivationMode.RepeatDuringDuration &&
             remainingDuration <= 0f)
         {
             return;
         }
 
-        if ((definition.ActivationMode == EffectActivationMode.HoldRepeat ||
-             definition.ActivationMode == EffectActivationMode.HoldCommit) &&
+        if ((activationMode == EffectActivationMode.HoldRepeat ||
+             activationMode == EffectActivationMode.HoldCommit) &&
             !isHeld)
         {
             return;
         }
 
-        executor.Execute(new EffectContext(
-            effectOwner != null ? effectOwner : gameObject,
-            this.gameObject,
-            GetOrigin(),
-            GetDirection(),
-            definition));
+        executor.Execute(effectOwner);
 
         hasExecuted = true;
-        cooldownRemaining = definition.Cooldown;
+        cooldownRemaining = cooldown;
 
-        if (definition.ActivationMode == EffectActivationMode.SingleUse)
+        if (activationMode == EffectActivationMode.SingleUse)
         {
             remainingDuration = 0f;
             FinishAndDestroy(destroyDelayAfterUse);
@@ -319,31 +309,4 @@ public class EffectController : MonoBehaviour
 
         return generatedActions?.Player.Effect;
     }
-
-    private Vector3 GetOrigin()
-    {
-        return effectOrigin != null ? effectOrigin.position : transform.position;
-    }
-
-    private Vector3 GetDirection()
-    {
-        return effectDirection != null ? effectDirection.forward : transform.forward;
-    }
-
-    private static IEffectExecutor CreateExecutor(EffectType type)
-    {
-        switch (type)
-        {
-            case EffectType.HomingMissile:
-                return new HomingMissileEffect();
-            case EffectType.RadialPush:
-                return new RadialPushEffect();
-            case EffectType.SelfHeal:
-                return new SelfHealEffect();
-            default:
-                Debug.LogError($"Unsupported effect type: {type}.");
-                return null;
-        }
-    }
-
 }

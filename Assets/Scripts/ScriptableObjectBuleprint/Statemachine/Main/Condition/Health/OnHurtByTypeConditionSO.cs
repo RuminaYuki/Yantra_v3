@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "OnHurtByType_Condition",
-    menuName = "YUKI Learning State Machine/StateMachine/Conditions/Health/OnHurtByType")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Health/OnHurtByType")]
 public class OnHurtByTypeConditionSO : StateConditionSO
 {
     [SerializeField] private DamageTypeID damageTypeID;

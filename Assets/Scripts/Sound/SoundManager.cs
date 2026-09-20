@@ -7,11 +7,16 @@ public class SoundManager : Singleton<SoundManager>
 {
     [SerializeField] private SoundTable soundTable;
 
-    [Header("SFX")]
-    [SerializeField] private string audioPoolTag = "SFXsource";
-
     [Header("BGM")]
     [SerializeField] private AudioSource bgmSource;
+
+    [Tooltip("ลำโพงเพลงตัวที่ 2 ใช้สลับตอน crossfade\n" +
+        "เว้นว่างได้ จะสร้างให้เองตอนรัน แล้วตั้งค่าตามตัวแรกอัตโนมัติ")]
+    [SerializeField] private AudioSource bgmSourceB;
+
+    [Tooltip("ใช้เวลากี่วินาทีไล่เพลงเก่าออกพร้อมดันเพลงใหม่เข้า\n" +
+        "สั้นไปจะรู้สึกเหมือนตัดดิบ ยาวไปจะรู้สึกว่าเพลงรบมาช้า — 1.5 ถึง 3 กำลังดี")]
+    [Range(0.05f, 8f)][SerializeField] private float bgmCrossfadeTime = 2f;
 
     [Header("Voice System")]
     private AudioSource _voiceSource;
@@ -49,12 +54,24 @@ public class SoundManager : Singleton<SoundManager>
     [Range(-80f, 20f)][SerializeField] private float voiceBaseDb = 0f;
     [Range(-80f, 20f)][SerializeField] private float uiBaseDb = 0f;
 
+    [Header("Debug")]
+    [Tooltip("เตือนใน Console เมื่อฉากนี้ไม่มี SoundPooler แล้วต้องสร้างให้เอง")]
+    [SerializeField] private bool warnOnAutoCreatePooler = true;
+
     private SoundID currentBgmId;
     private Dictionary<SoundID, SoundData> soundsById;
 
-    private float bgmBaseVolume = 1f;
+    // ---------- สถานะ BGM ----------
+    private AudioSource activeBgm;      // ตัวที่ถือเพลงปัจจุบัน
+    private AudioSource standbyBgm;     // ตัวที่ว่าง รอรับเพลงถัดไป
+    private float bgmBaseVolume = 1f;   // ความดังของเพลง ตามที่ตั้งไว้ใน SoundData
+    private float duckMultiplier = 1f;  // 1 = ปกติ / 0.35 = หรี่อยู่ตอนมีบทพูด
+    private Coroutine bgmFadeRoutine;
+
     private Coroutine duckRoutine;
     private bool duckHold;
+
+    private SoundPooler cachedPooler;
 
     protected override bool UseDontDestroyOnLoad => false;
 
@@ -112,7 +129,7 @@ public class SoundManager : Singleton<SoundManager>
         if (soundsById.TryGetValue(id, out data)) return true;
 
 #if UNITY_EDITOR
-        // [ADD] เดิมจุดนี้ return false เงียบๆ ทำให้หาสาเหตุ 'ไม่มีเสียง' ยากมาก
+        // เดิมจุดนี้ return false เงียบๆ ทำให้หาสาเหตุ 'ไม่มีเสียง' ยากมาก
         // สาเหตุที่พบบ่อยที่สุดคือลืมลาก SoundLibrary เข้า SoundTable
         Debug.LogWarning($"[SoundManager] ไม่พบ '{id.name}' ใน SoundTable\n" +
             "เช็ค: SoundData ที่มี Id นี้อยู่ในไลบรารีไหน และไลบรารีนั้นถูกลากเข้า SoundTable แล้วหรือยัง", id);
@@ -142,7 +159,7 @@ public class SoundManager : Singleton<SoundManager>
     }
 
     // ==========================================
-    // SFX (Loop) — [CHANGED] คืน SFXHandle แทน SFXPlayer
+    // SFX (Loop) — คืน SFXHandle แทน SFXPlayer
     // ==========================================
     public SFXHandle PlayLoopSFX(SoundID id, Vector3 position, float duration)
     {
@@ -162,7 +179,7 @@ public class SoundManager : Singleton<SoundManager>
         return new SFXHandle(player, player.Version);
     }
 
-    // [ADD] เสียงติดตามแบบยิงครั้งเดียว แต่คืน handle ไว้สั่งหยุดกลางคันได้
+    // เสียงติดตามแบบยิงครั้งเดียว แต่คืน handle ไว้สั่งหยุดกลางคันได้
     // ใช้กับเสียงพูดที่ต้องตัดคิวกันได้ เช่นเสียงกรี๊ดต้องแทรกประโยคที่พูดค้างอยู่
     public SFXHandle PlaySFXAttachedTracked(SoundID id, Transform target, out float duration)
     {
@@ -177,7 +194,7 @@ public class SoundManager : Singleton<SoundManager>
         return new SFXHandle(player, player.Version);
     }
 
-    // [ADD] เสียงลูปที่ 'วิ่งตาม' วัตถุ — จำเป็นสำหรับผีที่ลอยไปมา
+    // เสียงลูปที่ 'วิ่งตาม' วัตถุ — จำเป็นสำหรับผีที่ลอยไปมา
     // ของเดิม PlayLoopSFXForever ปักเสียงไว้กับที่ พอผีลอยไป เสียงจะค้างอยู่จุดเดิม
     public SFXHandle PlayLoopSFXForeverAttached(SoundID id, Transform target)
     {
@@ -191,26 +208,39 @@ public class SoundManager : Singleton<SoundManager>
         return new SFXHandle(player, player.Version);
     }
 
+    // ==========================================
+    // พูลลำโพง
+    // ==========================================
+
+    private SoundPooler GetPooler()
+    {
+        if (cachedPooler != null) return cachedPooler;
+
+        if (SoundPooler.Instance != null)
+        {
+            cachedPooler = SoundPooler.Instance;
+            return cachedPooler;
+        }
+
+        GameObject obj = new GameObject("SoundPooler (Auto)");
+        cachedPooler = obj.AddComponent<SoundPooler>();
+
+#if UNITY_EDITOR
+        if (warnOnAutoCreatePooler)
+            Debug.LogWarning("[SoundManager] ฉากนี้ไม่มี SoundPooler — สร้างให้อัตโนมัติแล้ว\n" +
+                "เสียงดังปกติ แต่ปรับขนาดพูลให้เหมาะกับฉากไม่ได้ " +
+                "ถ้าอยากปรับ ให้ลาก prefab SoundPooler เข้ามาวางในฉาก", this);
+#endif
+
+        return cachedPooler;
+    }
+
     private SFXPlayer SpawnPlayer(SoundID id, Vector3 position, out SoundData data)
     {
         if (!TryGetData(id, out data)) return null;
 
-        if (ObjectPooler.Instance == null) return null;
-
-        SFXPlayer result = null;
-        GameObject audioObject = ObjectPooler.Instance.SpawnFromPool(
-            audioPoolTag, position, Quaternion.identity,
-            (obj) =>
-            {
-                if (obj.TryGetComponent(out SFXPlayer p))
-                {
-                    p.myPoolTag = audioPoolTag;
-                    result = p;
-                }
-            }
-        );
-
-        return result;
+        SoundPooler pooler = GetPooler();
+        return pooler != null ? pooler.Get(position) : null;
     }
 
     public void PlayEventSFX(SoundID id) => PlaySFX(id, GetListenerPosition());
@@ -255,11 +285,6 @@ public class SoundManager : Singleton<SoundManager>
         if (duckBgmDuringVoice) StartDuck(false);
     }
 
-    /// <summary>
-    /// ล็อกการหรี่เพลงไว้ตลอดบทสนทนา
-    /// ระบบ Subtitle เรียก true ตอนเริ่มชุด และ false ตอนจบ
-    /// ทำให้เพลงหรี่ค้างตลอด ไม่กระเพื่อมขึ้นลงตามช่องว่างระหว่างประโยค
-    /// </summary>
     public void SetVoiceDuckHold(bool hold)
     {
         duckHold = hold;
@@ -268,15 +293,14 @@ public class SoundManager : Singleton<SoundManager>
 
     private void StartDuck(bool ducked)
     {
-        if (bgmSource == null) return;
         if (duckRoutine != null) StopCoroutine(duckRoutine);
         duckRoutine = StartCoroutine(DuckRoutine(ducked));
     }
 
     private IEnumerator DuckRoutine(bool ducked)
     {
-        float target = ducked ? bgmBaseVolume * duckedBgmMultiplier : bgmBaseVolume;
-        yield return FadeBgmTo(target);
+        float target = ducked ? Mathf.Clamp01(duckedBgmMultiplier) : 1f;
+        yield return FadeDuckTo(target);
 
         if (!ducked)
         {
@@ -284,7 +308,7 @@ public class SoundManager : Singleton<SoundManager>
             yield break;
         }
 
-        // ตอนนี้จะรอให้เงียบครบ duckReleaseDelay ก่อน ถ้าประโยคใหม่มาก่อนก็รอต่อ
+        // รอให้เงียบครบ duckReleaseDelay ก่อน ถ้าประโยคใหม่มาก่อนก็รอต่อ
         while (true)
         {
             while (IsVoicePlaying || duckHold) yield return null;
@@ -309,52 +333,169 @@ public class SoundManager : Singleton<SoundManager>
         duckRoutine = StartCoroutine(DuckRoutine(false));
     }
 
-    private IEnumerator FadeBgmTo(float target)
+    private IEnumerator FadeDuckTo(float targetMultiplier)
     {
-        float start = bgmSource.volume;
+        float start = duckMultiplier;
+        float fadeTime = Mathf.Max(0.01f, duckFadeTime);
         float t = 0f;
 
-        while (t < duckFadeTime)
+        while (t < fadeTime)
         {
             t += Time.unscaledDeltaTime;
-            bgmSource.volume = Mathf.Lerp(start, target, t / duckFadeTime);
+            duckMultiplier = Mathf.Lerp(start, targetMultiplier, t / fadeTime);
+            ApplyBgmVolume();
             yield return null;
         }
 
-        bgmSource.volume = target;
+        duckMultiplier = targetMultiplier;
+        ApplyBgmVolume();
+    }
+
+    private float TargetBgmVolume() => bgmBaseVolume * duckMultiplier;
+
+    private void ApplyBgmVolume()
+    {
+        // ระหว่าง crossfade ปล่อยให้ routine นั้นคุมความดังเอง
+        // มันอ่าน TargetBgmVolume() ทุกเฟรมอยู่แล้ว การหรี่จึงมีผลด้วย
+        if (bgmFadeRoutine != null) return;
+
+        if (activeBgm != null) activeBgm.volume = TargetBgmVolume();
     }
 
     // ==========================================
     // BGM
     // ==========================================
+
     public void PlayBGM(SoundID id)
     {
-        if (bgmSource == null) return;
+        if (!EnsureBgmSources()) return;
         if (!TryGetData(id, out SoundData data)) return;
 
         AudioClip clipToPlay = data.GetClip();
         if (clipToPlay == null) return;
 
-        if (currentBgmId == id && bgmSource.isPlaying) return;
+        if (currentBgmId == id && activeBgm != null && activeBgm.isPlaying) return;
 
         currentBgmId = id;
         bgmBaseVolume = data.volume;
 
-        bgmSource.clip = clipToPlay;
-        bgmSource.volume = IsVoicePlaying && duckBgmDuringVoice ? bgmBaseVolume * duckedBgmMultiplier : bgmBaseVolume;
-        bgmSource.loop = true;
-        bgmSource.spatialBlend = 0f;
+        // เพลงแรกของฉาก ไม่มีอะไรให้ไล่ออก เปิดตรงๆ เลย
+        bool nothingPlaying = !activeBgm.isPlaying || activeBgm.clip == null;
+
+        if (nothingPlaying)
+        {
+            if (bgmFadeRoutine != null) { StopCoroutine(bgmFadeRoutine); bgmFadeRoutine = null; }
+
+            SetupBgmSource(activeBgm, clipToPlay, data);
+            activeBgm.volume = TargetBgmVolume();
+            activeBgm.Play();
+            return;
+        }
+
+        SetupBgmSource(standbyBgm, clipToPlay, data);
+        standbyBgm.volume = 0f;
+        standbyBgm.Play();
+
+        if (bgmFadeRoutine != null) StopCoroutine(bgmFadeRoutine);
+        bgmFadeRoutine = StartCoroutine(CrossfadeRoutine());
+    }
+
+    private void SetupBgmSource(AudioSource source, AudioClip clip, SoundData data)
+    {
+        source.clip = clip;
+        source.loop = true;
+        source.pitch = 1f;
+        source.spatialBlend = 0f;
 
         if (data.mixerGroup != null)
-            bgmSource.outputAudioMixerGroup = data.mixerGroup;
+            source.outputAudioMixerGroup = data.mixerGroup;
+    }
 
-        bgmSource.Play();
+    private IEnumerator CrossfadeRoutine()
+    {
+        AudioSource fadeIn = standbyBgm;
+        AudioSource fadeOut = activeBgm;
+
+        // สลับบทบาทตั้งแต่ต้น เผื่อมีคนสั่ง PlayBGM ซ้ำระหว่างที่ยัง fade ไม่จบ
+        // จะได้เห็นค่าถูกต้องว่าตอนนี้ใครถือเพลงอยู่
+        activeBgm = fadeIn;
+        standbyBgm = fadeOut;
+
+        float fadeTime = Mathf.Max(0.01f, bgmCrossfadeTime);
+        float fadeOutStart = fadeOut != null ? fadeOut.volume : 0f;
+        float t = 0f;
+
+        while (t < fadeTime)
+        {
+            t += Time.unscaledDeltaTime;   // unscaled เพราะเพลงต้องไหลต่อตอนเกมหยุด
+            float k = Mathf.Clamp01(t / fadeTime);
+
+            fadeIn.volume = TargetBgmVolume() * k;
+            if (fadeOut != null) fadeOut.volume = fadeOutStart * (1f - k);
+
+            yield return null;
+        }
+
+        fadeIn.volume = TargetBgmVolume();
+
+        if (fadeOut != null)
+        {
+            fadeOut.Stop();
+            fadeOut.clip = null;
+            fadeOut.volume = 0f;
+        }
+
+        bgmFadeRoutine = null;
     }
 
     public void StopBGM()
     {
         currentBgmId = null;
-        if (bgmSource != null) bgmSource.Stop();
+
+        if (bgmFadeRoutine != null) { StopCoroutine(bgmFadeRoutine); bgmFadeRoutine = null; }
+
+        if (bgmSource != null) { bgmSource.Stop(); bgmSource.clip = null; bgmSource.volume = 0f; }
+        if (bgmSourceB != null) { bgmSourceB.Stop(); bgmSourceB.clip = null; bgmSourceB.volume = 0f; }
+    }
+
+    /// <summary>เตรียมลำโพงเพลงให้ครบ 2 ตัว — ตัวที่ 2 สร้างเองได้ถ้าไม่ได้ใส่มา</summary>
+    private bool EnsureBgmSources()
+    {
+        if (bgmSource == null)
+        {
+#if UNITY_EDITOR
+            Debug.LogWarning("[SoundManager] ไม่มี Bgm Source — เพลงจะไม่ดัง\n" +
+                "สร้าง GameObject ใส่ Audio Source แล้วลากเข้าช่อง Bgm Source", this);
+#endif
+            return false;
+        }
+
+        if (bgmSourceB == null)
+            bgmSourceB = CreateBgmSourceLike(bgmSource, "BGM Source B");
+
+        if (activeBgm == null)
+        {
+            activeBgm = bgmSource;
+            standbyBgm = bgmSourceB;
+        }
+
+        return true;
+    }
+
+    private AudioSource CreateBgmSourceLike(AudioSource template, string objectName)
+    {
+        GameObject obj = new GameObject(objectName);
+        obj.transform.SetParent(transform, false);
+
+        AudioSource source = obj.AddComponent<AudioSource>();
+        source.playOnAwake = false;
+        source.loop = true;
+        source.spatialBlend = 0f;
+        source.volume = 0f;
+        source.priority = template.priority;
+        source.outputAudioMixerGroup = template.outputAudioMixerGroup;
+
+        return source;
     }
 
     // ==========================================

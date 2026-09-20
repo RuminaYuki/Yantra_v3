@@ -3,7 +3,7 @@ using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 [CreateAssetMenu(
     fileName = "ExecuteParry_Action",
-    menuName = "YUKI Learning State Machine/StateMachine/Actions/GamePlayMechanic/BlockSystem/Execute Parry")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/GamePlayMechanic/BlockSystem/Execute Parry")]
 public class ExecuteParryActionSO : StateActionSO
 {
     [Tooltip("Whether the parry action is enabled.")]

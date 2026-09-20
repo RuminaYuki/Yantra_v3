@@ -4,10 +4,25 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "ReachPathNavigatorTarget_Condition",
-    menuName = "YUKI Learning State Machine/StateMachine/Conditions/Navigator/Reach Path Navigator Target")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Navigator/Reach Path Navigator Target")]
 public class ReachPathNavigatorTargetConditionSO : StateConditionSO
 {
     [SerializeField, Min(0.01f)] private float _arrivalDistance = 0.5f;
+
+    public float ArrivalDistance
+    {
+        get => _arrivalDistance;
+        set
+        {
+            if (value < 0.01f)
+            {
+                Debug.LogWarning("Arrival distance cannot be below 0.01. Setting to 0.01.");
+                _arrivalDistance = 0.01f;
+                return;
+            }
+            _arrivalDistance = value;
+        }
+    }
 
     public override Condition CreateCondition()
     {

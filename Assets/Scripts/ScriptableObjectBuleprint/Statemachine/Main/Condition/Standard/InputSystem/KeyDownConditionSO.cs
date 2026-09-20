@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine;
 
 [CreateAssetMenu(
     fileName = "KeyDown_Condition",
-    menuName = "YUKI Learning State Machine/StateMachine/Conditions/Standard/InputSystem/Key Down")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/InputSystem/Key Down")]
 public class KeyDownConditionSO : StateConditionSO
 {
     [SerializeField] private KeyCode _keyCode = KeyCode.Alpha1;
