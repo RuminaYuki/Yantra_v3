@@ -9,6 +9,8 @@ public class LevelAudioManager : MonoBehaviour
     public static bool IsCutsceneActive = false;
 
     [Header("เพลงประกอบฉาก (BGM)")]
+    [Tooltip("เพลงประจำฉากนี้\n" +
+        "ถ้าฉากมี BattleMusicController มันจะเอาเพลงนี้ไปใช้เป็นเพลงตอนไม่รบให้เอง")]
     [SerializeField] private SoundID sceneBGM;
 
     [Header("Debug")]
@@ -26,16 +28,22 @@ public class LevelAudioManager : MonoBehaviour
     [Header("เสียงบรรยากาศภายนอก (Outside Ambient)")]
     [SerializeField] private SoundID[] outsideAmbientSounds;
 
-    // [CHANGED] เก็บ "ใบเสร็จ" แทนตัวลำโพงจริง
+    // เก็บ "ใบเสร็จ" แทนตัวลำโพงจริง
     private List<SFXHandle> activeOutsideAmbients = new List<SFXHandle>();
 
-    // [ADD] แยกความดังเป็น 2 ชั้นคูณกัน
-    //   zoneMultiplier    = เข้า/ออกบ้าน (สั่งจาก AmbientZoneTrigger)
+    // แยกความดังเป็น 2 ชั้นคูณกัน
+    //   zoneMultiplier     = เข้า/ออกบ้าน (สั่งจาก AmbientZoneTrigger)
     //   cutsceneMultiplier = หรี่ตอนคัตซีน
     // ถ้าเขียนทับกันตรงๆ พอคัตซีนจบ ambient จะดันกลับเป็น 1.0
     // ทั้งที่ตัวละครยังอยู่ในบ้าน — หลักการเดียวกับ crossfade x duck ใน BGM
     private float zoneMultiplier = 1f;
     private float cutsceneMultiplier = 1f;
+
+    /// <summary>
+    /// เพลงประจำฉาก — BattleMusicController มาอ่านไปใช้เป็นเพลงตอนไม่รบ
+    /// ถ้าช่อง Idle Music ของมันเว้นว่างไว้
+    /// </summary>
+    public SoundID SceneBGM => sceneBGM;
 
     private void Awake()
     {
@@ -44,7 +52,7 @@ public class LevelAudioManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        // [ADD] เคลียร์ static ตอนเปลี่ยนฉาก
+        // เคลียร์ static ตอนเปลี่ยนฉาก
         // ไม่งั้นฉากใหม่จะเห็น Instance ค้างเป็นตัวเก่าที่ถูก Destroy ไปแล้ว
         if (Instance == this) Instance = null;
     }
@@ -82,21 +90,51 @@ public class LevelAudioManager : MonoBehaviour
     {
         if (SoundManager.Instance == null) return;
 
-        if (sceneBGM != null)
-            SoundManager.Instance.PlayBGM(sceneBGM);
+        StartSceneBgm();
+        StartOutsideAmbients();
+    }
 
-        if (outsideAmbientSounds != null)
+    /// <summary>
+    /// เปิดเพลงประจำฉาก — ยกเว้นเมื่อมีคนอื่นคุมเพลงอยู่แล้ว
+    /// </summary>
+    private void StartSceneBgm()
+    {
+        if (sceneBGM == null) return;
+
+        // ฉากที่มีระบบรบ ปล่อยให้ BattleMusicController คุมเพลงคนเดียว
+        // มันจะหยิบ sceneBGM ไปใช้เป็นเพลงตอนไม่รบเองผ่าน property SceneBGM
+        if (HasBattleMusicController())
         {
-            foreach (var ambient in outsideAmbientSounds)
-            {
-                if (ambient == null) continue;
-
-                SFXHandle handle = SoundManager.Instance.PlayLoopSFXForever(ambient, transform.position);
-
-                // [CHANGED] เช็คใบเสร็จว่าใช้ได้จริงก่อนเก็บ
-                if (handle.IsValid) activeOutsideAmbients.Add(handle);
-            }
+#if UNITY_EDITOR
+            Debug.Log("[LevelAudio] ฉากนี้มี BattleMusicController — ส่งต่อให้มันคุมเพลงแทน\n" +
+                $"'{sceneBGM.name}' จะถูกใช้เป็นเพลงตอนไม่รบ", this);
+#endif
+            return;
         }
+
+        SoundManager.Instance.PlayBGM(sceneBGM);
+    }
+
+    private void StartOutsideAmbients()
+    {
+        if (outsideAmbientSounds == null) return;
+
+        foreach (var ambient in outsideAmbientSounds)
+        {
+            if (ambient == null) continue;
+
+            SFXHandle handle = SoundManager.Instance.PlayLoopSFXForever(ambient, transform.position);
+
+            // เช็คใบเสร็จว่าใช้ได้จริงก่อนเก็บ
+            if (handle.IsValid) activeOutsideAmbients.Add(handle);
+        }
+    }
+
+    private bool HasBattleMusicController()
+    {
+        // เรียกครั้งเดียวตอนเริ่มฉาก ไม่ได้อยู่ใน Update เลยไม่กระทบเฟรมเรต
+        // Exclude = ไม่นับตัวที่ปิด active ไว้ เพราะมันจะไม่ทำงานอยู่แล้ว
+        return Object.FindAnyObjectByType<BattleMusicController>(FindObjectsInactive.Exclude) != null;
     }
 
     public void MuffleOutsideAmbients(float targetMultiplier, float fadeTime)

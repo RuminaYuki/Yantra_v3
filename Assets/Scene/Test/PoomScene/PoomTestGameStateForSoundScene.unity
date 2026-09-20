@@ -446,8 +446,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BattleMusicController
   _onEnterBattle: {fileID: 11400000, guid: b8ce22274883fd844a112f11326fa3cb, type: 2}
   _onEnterIdle: {fileID: 11400000, guid: 70924c209c91e1e48ae830155e5500e6, type: 2}
-  _idleMusic: {fileID: 0}
-  _battleMusic: {fileID: 0}
+  _idleMusic: {fileID: 11400000, guid: b2904c775a07d9c4294c73e9a6ec5f03, type: 2}
+  _battleMusic: {fileID: 11400000, guid: 0bfbaa566dda148489993cb9e9097a84, type: 2}
   _playIdleOnStart: 1
   _logStateChange: 1
 --- !u!4 &1071699056
@@ -460,6 +460,61 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.25088, y: -0, z: 8.4835}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1097301704
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1097301706}
+  - component: {fileID: 1097301705}
+  m_Layer: 0
+  m_Name: RandomAmbient
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1097301705
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1097301704}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2d11e12877538c4a8d5c77fbaf593b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RandomAmbientSequencer
+  _sounds: []
+  _minInterval: 12
+  _maxInterval: 35
+  _startDelay: 8
+  _positionAroundListener: 1
+  _minDistance: 6
+  _maxDistance: 18
+  _heightVariation: 2
+  _skipDuringCutscene: 1
+  _avoidRepeat: 1
+  _logPlays: 0
+--- !u!4 &1097301706
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1097301704}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.39821, y: -0, z: -3.23043}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -928,6 +983,55 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BattleStateTriggerEvent
   battleStateTriggerEventChannel: {fileID: 11400000, guid: b8ce22274883fd844a112f11326fa3cb, type: 2}
+--- !u!1 &1613717361
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1613717363}
+  - component: {fileID: 1613717362}
+  m_Layer: 0
+  m_Name: LevelAudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1613717362
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1613717361}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19f8d0478e10dad40858b38539d4c088, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LevelAudioManager
+  sceneBGM: {fileID: 0}
+  logMuffleCalls: 0
+  cutsceneAmbientMultiplier: 0.4
+  cutsceneFadeTime: 1
+  outsideAmbientSounds: []
+--- !u!4 &1613717363
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1613717361}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -6.45947, y: 0, z: -3.95559}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1853368931
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1085,3 +1189,5 @@ SceneRoots:
   - {fileID: 1071699056}
   - {fileID: 1258486093}
   - {fileID: 275577639}
+  - {fileID: 1097301706}
+  - {fileID: 1613717363}
