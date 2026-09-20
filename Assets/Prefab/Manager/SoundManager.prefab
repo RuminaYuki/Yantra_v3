@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 6565398419557146733}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 879.19104, y: 440.9966, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -45,8 +45,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SoundManager
   soundTable: {fileID: 11400000, guid: 1131b1be245de6f42817490cf2385117, type: 2}
-  audioPoolTag: SFXsource
   bgmSource: {fileID: 0}
+  bgmSourceB: {fileID: 0}
+  bgmCrossfadeTime: 2
   voiceSource: {fileID: 0}
   voiceMixerGroup: {fileID: 2432979055273420014, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
   duckBgmDuringVoice: 1
@@ -64,3 +65,4 @@ MonoBehaviour:
   bgmBaseDb: 0
   voiceBaseDb: 0
   uiBaseDb: 0
+  warnOnAutoCreatePooler: 1

@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 4137304567859450840}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 879.19104, y: 440.9966, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -46,5 +46,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObjectPooler
   poolTable: {fileID: 0}
   useScriptableObject: 1
-  pools: []
+  pools:
+  - tag: KrasueProjectileBullet
+    prefab: {fileID: 8224104884699167713, guid: af2c64ce52198d041a69f4d97bda43f4, type: 3}
+    size: 10
   groupUnderContainer: 1
