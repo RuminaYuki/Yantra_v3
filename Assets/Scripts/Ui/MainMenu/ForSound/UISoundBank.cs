@@ -60,7 +60,7 @@ public class UISoundBank : MonoBehaviour
             added++;
         }
 
-        Debug.Log($"[UISoundBank] แปะเสียงให้ {added} ปุ่ม (ทั้งหมด {selectables.Length})", this);
+        //Debug.Log($"[UISoundBank] แปะเสียงให้ {added} ปุ่ม (ทั้งหมด {selectables.Length})", this);
     }
 
     // ---------- เรียกโดย UISoundEmitter ----------
