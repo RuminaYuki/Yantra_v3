@@ -1,0 +1,122 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1000000000000000000
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1000000000000000001}
+  - component: {fileID: 1000000000000000002}
+  - component: {fileID: 7132259246202164039}
+  m_Layer: 0
+  m_Name: HomingMissileEffect
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1000000000000000001
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1000000000000000000}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1915308936059935495}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1000000000000000002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1000000000000000000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d430012e075274645a35d85a18f2c67c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  effectAction: {fileID: -5378463168512532553, guid: 35845fe01580c41289b024647b1d1c53, type: 3}
+  activationMode: 0
+  duration: 0
+  cooldown: 0
+  destroyAfterFinished: 1
+  destroyDelayAfterUse: 2
+  finishedEventChannel: {fileID: 11400000, guid: a6c6e57fef32dcb48bda4838e8fdab90, type: 2}
+  forceEnabledEventChannel: {fileID: 11400000, guid: 2af626199a8cd8e428f546c312fcd348, type: 2}
+  remainingDuration: 10
+--- !u!114 &7132259246202164039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1000000000000000000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1dee6fb4170aa7a48a6066a248cc7d1c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HomingMissileEffect
+  owner: {fileID: 0}
+  animatorAnchor: {fileID: 11400000, guid: 6dc3f03200b18494388337ab5bf989c2, type: 2}
+  animationName: SpellCast2_ArmClip
+  layerIndex: 0
+  gameObjectPrefab: {fileID: 887808973400919531, guid: 6f5f8d5b4e1b4d21a7c2e3f4b5d6a701, type: 3}
+  spawners:
+  - {fileID: 2648723491680359916}
+  handleSpawnEvent: {fileID: 0}
+--- !u!1 &5830205724476910581
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1915308936059935495}
+  - component: {fileID: 2648723491680359916}
+  m_Layer: 0
+  m_Name: Spawn Point
+  m_TagString: Untagged
+  m_Icon: {fileID: 7174288486110832750, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1915308936059935495
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5830205724476910581}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0.948}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1000000000000000001}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2648723491680359916
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5830205724476910581}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29108145b263e724baa37fecdbfc909b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BulletSpawner
+  _prefab: {fileID: 887808973400919531, guid: 6f5f8d5b4e1b4d21a7c2e3f4b5d6a701, type: 3}

@@ -1,0 +1,361 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccd93381a6a2f664ba0f5731b83f0ecc, type: 3}
+  m_Name: Lib_PKa_Voice
+  m_EditorClassIdentifier: Assembly-CSharp::SoundLibrary
+  sounds:
+  - idName: ID_PKa_Poom_Moan
+    id: {fileID: 11400000, guid: c6aedd8fe61e5534cb01aeb126bd02f5, type: 2}
+    mixerGroup: {fileID: -5337501770083687080, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df,
+      type: 2}
+    priority: 128
+    useRandomClips: 1
+    randomChance: 50
+    clip: {fileID: 8300000, guid: 84a9aa1684130544d8bf03f74f2000d7, type: 3}
+    clips:
+    - {fileID: 8300000, guid: bc64f60c2b1c4984da7aac8f5eb9b247, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.85
+    maxPitch: 1.15
+    useRandomVolume: 0
+    minVolume: 0
+    maxVolume: 0
+    volume: 0.5
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 12
+  - idName: ID_PKa_Poom_Attack
+    id: {fileID: 11400000, guid: 292d65f663429db4cacbc1f4822dc595, type: 2}
+    mixerGroup: {fileID: -5337501770083687080, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df,
+      type: 2}
+    priority: 128
+    useRandomClips: 1
+    randomChance: 50
+    clip: {fileID: 8300000, guid: 7154acf871014734c8e54bef5af4deba, type: 3}
+    clips:
+    - {fileID: 8300000, guid: 0d26771198b570d4fabd2e1fea0c8421, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.85
+    maxPitch: 1.15
+    useRandomVolume: 0
+    minVolume: 0
+    maxVolume: 0
+    volume: 0.5
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 12
+  - idName: ID_PKa_Poom_Death
+    id: {fileID: 11400000, guid: 49c0ec1a3ba7fb84a85176c1d75a4a81, type: 2}
+    mixerGroup: {fileID: -5337501770083687080, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df,
+      type: 2}
+    priority: 128
+    useRandomClips: 1
+    randomChance: 30
+    clip: {fileID: 8300000, guid: 0d26771198b570d4fabd2e1fea0c8421, type: 3}
+    clips:
+    - {fileID: 8300000, guid: fdb63aac796213643b01531b70dbe384, type: 3}
+    - {fileID: 8300000, guid: bc64f60c2b1c4984da7aac8f5eb9b247, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.85
+    maxPitch: 1.15
+    useRandomVolume: 0
+    minVolume: 0
+    maxVolume: 0
+    volume: 0.5
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 12
+  - idName: ID_PKa_Ice_Moan
+    id: {fileID: 11400000, guid: 9260484f0335cb646ac1dac18454e243, type: 2}
+    mixerGroup: {fileID: -5337501770083687080, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df,
+      type: 2}
+    priority: 128
+    useRandomClips: 0
+    randomChance: 30
+    clip: {fileID: 8300000, guid: 7f48a07335604ab4ba5b68f814fc8e0a, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.85
+    maxPitch: 1.15
+    useRandomVolume: 0
+    minVolume: 0
+    maxVolume: 0
+    volume: 0.05
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 12
+  - idName: ID_PKa_Ice_Attack
+    id: {fileID: 11400000, guid: a6457b91bf5d32743a86e420887e3002, type: 2}
+    mixerGroup: {fileID: -5337501770083687080, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df,
+      type: 2}
+    priority: 128
+    useRandomClips: 0
+    randomChance: 30
+    clip: {fileID: 8300000, guid: 401051684a1560a47b9a9b77bae4e32c, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.85
+    maxPitch: 1.15
+    useRandomVolume: 0
+    minVolume: 0
+    maxVolume: 0
+    volume: 0.05
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 12
+  - idName: ID_PKa_Ice_Death
+    id: {fileID: 11400000, guid: a58678e5c4b1ed74f9fcc00ced9a4078, type: 2}
+    mixerGroup: {fileID: -5337501770083687080, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df,
+      type: 2}
+    priority: 128
+    useRandomClips: 1
+    randomChance: 30
+    clip: {fileID: 8300000, guid: a70be06d1b3028b47a472cf93de4987e, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.85
+    maxPitch: 1.12
+    useRandomVolume: 0
+    minVolume: 0
+    maxVolume: 0
+    volume: 0.05
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 12
+  - idName: ID_PKa_Nat_Moan
+    id: {fileID: 11400000, guid: 3e9ac381a2ad1044e88cd8f8c91ff328, type: 2}
+    mixerGroup: {fileID: -5337501770083687080, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df,
+      type: 2}
+    priority: 128
+    useRandomClips: 0
+    randomChance: 30
+    clip: {fileID: 8300000, guid: 1dc69b2972696734eb9c7ef1aa7b606e, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 0
+    minPitch: 0.85
+    maxPitch: 1.15
+    useRandomVolume: 0
+    minVolume: 0
+    maxVolume: 0
+    volume: 0.5
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 12
+  - idName: ID_PKa_Nat_Attack
+    id: {fileID: 11400000, guid: a8843f74d6901ea47a6303f71ce79a16, type: 2}
+    mixerGroup: {fileID: -5337501770083687080, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df,
+      type: 2}
+    priority: 128
+    useRandomClips: 1
+    randomChance: 30
+    clip: {fileID: 8300000, guid: 349e46ef316b85b46b84f86a52b4b9ce, type: 3}
+    clips:
+    - {fileID: 8300000, guid: 3c139aedfba6f0f47aaf220a39483303, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.85
+    maxPitch: 1.15
+    useRandomVolume: 0
+    minVolume: 0
+    maxVolume: 0
+    volume: 0.5
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 12
+  - idName: ID_PKa_Nat_Death
+    id: {fileID: 11400000, guid: 5035dae53df38d7498fa254bdd34fe87, type: 2}
+    mixerGroup: {fileID: -5337501770083687080, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df,
+      type: 2}
+    priority: 128
+    useRandomClips: 1
+    randomChance: 50
+    clip: {fileID: 8300000, guid: a70be06d1b3028b47a472cf93de4987e, type: 3}
+    clips:
+    - {fileID: 8300000, guid: ecc8ef189f49c8e47b59df61b7c57d61, type: 3}
+    - {fileID: 8300000, guid: 842a382826799c64bb4872c40b4597e3, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.85
+    maxPitch: 1.15
+    useRandomVolume: 0
+    minVolume: 0
+    maxVolume: 0
+    volume: 0.5
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 12
+  - idName: ID_PKa_Palm_Moan
+    id: {fileID: 11400000, guid: 734094174e375ec4884a0e2395bd5784, type: 2}
+    mixerGroup: {fileID: -5337501770083687080, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df,
+      type: 2}
+    priority: 128
+    useRandomClips: 1
+    randomChance: 50
+    clip: {fileID: 8300000, guid: 9403b6866875206429cfcb8fa5d53833, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.85
+    maxPitch: 1.15
+    useRandomVolume: 0
+    minVolume: 0
+    maxVolume: 0
+    volume: 0.5
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 12
+  - idName: ID_PKa_Palm_Attack
+    id: {fileID: 11400000, guid: 558ceb2344b95e747b44302207b9b866, type: 2}
+    mixerGroup: {fileID: -5337501770083687080, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df,
+      type: 2}
+    priority: 128
+    useRandomClips: 1
+    randomChance: 50
+    clip: {fileID: 8300000, guid: 4b48689622d360f42b7e3e3c435d5d4a, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.85
+    maxPitch: 1.15
+    useRandomVolume: 0
+    minVolume: 0
+    maxVolume: 0
+    volume: 0.5
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 12
+  - idName: ID_PKa_Palm_Death
+    id: {fileID: 11400000, guid: 3d08c003a6502094589766a0e302966b, type: 2}
+    mixerGroup: {fileID: -5337501770083687080, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df,
+      type: 2}
+    priority: 128
+    useRandomClips: 1
+    randomChance: 50
+    clip: {fileID: 8300000, guid: 98464ecdb6e5b0e44ac58297c1e30285, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.85
+    maxPitch: 1.15
+    useRandomVolume: 0
+    minVolume: 0
+    maxVolume: 0
+    volume: 0.5
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 12
+  - idName: ID_PKa_IceFun_Moan
+    id: {fileID: 11400000, guid: cd48fd15a2edfe94ca585083ac01ea69, type: 2}
+    mixerGroup: {fileID: -5337501770083687080, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df,
+      type: 2}
+    priority: 128
+    useRandomClips: 1
+    randomChance: 50
+    clip: {fileID: 8300000, guid: ebd73625f8872d54caab8c405d60bf81, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.85
+    maxPitch: 1.15
+    useRandomVolume: 0
+    minVolume: 0
+    maxVolume: 0
+    volume: 0.5
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 12
+  - idName: ID_PKa_IceFun_Attack
+    id: {fileID: 11400000, guid: cc6b748bc9e04e94599d90c1c68863e0, type: 2}
+    mixerGroup: {fileID: -5337501770083687080, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df,
+      type: 2}
+    priority: 128
+    useRandomClips: 1
+    randomChance: 50
+    clip: {fileID: 8300000, guid: 1a1c5e529c3cc454aa95231ccc703c7e, type: 3}
+    clips:
+    - {fileID: 8300000, guid: c4a325d60f15a5242ad838f02b22f9e4, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.85
+    maxPitch: 1.15
+    useRandomVolume: 0
+    minVolume: 0
+    maxVolume: 0
+    volume: 0.5
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 12
+  - idName: ID_PKa_IceFun_Death
+    id: {fileID: 11400000, guid: da0694bcd9e49f346a7281581f3a2a48, type: 2}
+    mixerGroup: {fileID: -5337501770083687080, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df,
+      type: 2}
+    priority: 128
+    useRandomClips: 1
+    randomChance: 50
+    clip: {fileID: 8300000, guid: c4a325d60f15a5242ad838f02b22f9e4, type: 3}
+    clips:
+    - {fileID: 8300000, guid: c4a325d60f15a5242ad838f02b22f9e4, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.85
+    maxPitch: 1.15
+    useRandomVolume: 0
+    minVolume: 0
+    maxVolume: 0
+    volume: 0.5
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 12
+  - idName: ID_PKa_Poom_Eating
+    id: {fileID: 11400000, guid: f685110250674cd4a9c88107dfaf087b, type: 2}
+    mixerGroup: {fileID: 9183250927903690338, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df,
+      type: 2}
+    priority: 50
+    useRandomClips: 1
+    randomChance: 50
+    clip: {fileID: 8300000, guid: 0dbcd32705a8f6e43ab1d659e1d7ed35, type: 3}
+    clips:
+    - {fileID: 8300000, guid: 0ed68f41a720d8043afd82af15c36073, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 0
+    minPitch: 0.85
+    maxPitch: 1.15
+    useRandomVolume: 0
+    minVolume: 0
+    maxVolume: 0
+    volume: 0.5
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 30

@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5492ed31ba40b643aaf3d94f1de0aa7, type: 3}
+  m_Name: PKaPatrol_TransitionTable
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
+  _initialState: {fileID: 11400000, guid: 32eb09a882947e542b6c900d2dbdfd7d, type: 2}
+  _anyTransitions:
+  - ToState: {fileID: 11400000, guid: 225507eb8113a7c409789bb95982a94a, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 6452e5d69706ae84e848d34bb807cb89, type: 2}
+        ExpectedResult: 0
+  - ToState: {fileID: 11400000, guid: 3b0e1e62f0116e34cbce3552987e09c9, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 050498b63df71ca41a31fb81e4123b1f, type: 2}
+        ExpectedResult: 0
+  _transitions:
+  - FromState: {fileID: 11400000, guid: 32eb09a882947e542b6c900d2dbdfd7d, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 2694bdd4e0c1aa04e8b8373dc6844cc9, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: 11400000, guid: dfbcb747b517f9042931edc0e6db07f6, type: 2}
+  - FromState: {fileID: 11400000, guid: dfbcb747b517f9042931edc0e6db07f6, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: aee9765dbe0f2d94d97b9d23fcd10ea9, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: 11400000, guid: 32eb09a882947e542b6c900d2dbdfd7d, type: 2}

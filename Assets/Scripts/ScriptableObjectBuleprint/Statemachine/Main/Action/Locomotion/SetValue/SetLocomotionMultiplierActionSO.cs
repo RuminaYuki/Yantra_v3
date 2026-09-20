@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "SetLocomotionMultiplier_Action",
-    menuName = "YUKI Learning State Machine/StateMachine/Actions/Locomotion/SetBaseLocomotionValue/Set Locomotion Multiplier")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Locomotion/SetBaseLocomotionValue/Set Locomotion Multiplier")]
 public class SetLocomotionMultiplierActionSO : StateActionSO
 {
     [SerializeField] private float _multiplier = 1f;
@@ -59,7 +59,11 @@ public class SetLocomotionMultiplierAction : StateAction
         if (_locomotion == null || !_isApplied)
             return;
 
-        if (_resetOnStateExit)
+        // Another concurrent state machine (e.g. a combat state) may have
+        // overwritten the multiplier since OnStateEnter. Only restore our
+        // previous value if it's still the one we set, so we don't clobber
+        // a value some other action applied in the meantime.
+        if (_resetOnStateExit && Mathf.Approximately(_locomotion.GetMoveMultiply(), _multiplier))
             _locomotion.SetMoveMultiply(_previousMultiplier);
 
         _isApplied = false;

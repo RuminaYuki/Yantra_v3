@@ -1,0 +1,129 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccd93381a6a2f664ba0f5731b83f0ecc, type: 3}
+  m_Name: Lib_PTani_Voice
+  m_EditorClassIdentifier: Assembly-CSharp::SoundLibrary
+  sounds:
+  - idName: ID_PTani_IdleMoan
+    id: {fileID: 11400000, guid: 4e58c0a2c171e8f40b9a78ea10742d44, type: 2}
+    mixerGroup: {fileID: -5337501770083687080, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df,
+      type: 2}
+    priority: 90
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 0}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0
+    useRandomPitch: 1
+    minPitch: 0.85
+    maxPitch: 0.95
+    useRandomVolume: 0
+    minVolume: 0
+    maxVolume: 0
+    volume: 0.4
+    spatialBlend: 1
+    minDistance: 2
+    maxDistance: 12
+  - idName: ID_PTani_Search
+    id: {fileID: 11400000, guid: f71a73a42e2f2544d8bc0dc9a828ba15, type: 2}
+    mixerGroup: {fileID: -5337501770083687080, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df,
+      type: 2}
+    priority: 70
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 8300000, guid: 6e4a9ed7e1bcb2f42924a083dfd480b4, type: 3}
+    clips:
+    - {fileID: 8300000, guid: 975fdea4e8da2514b8f62cf26ac61d86, type: 3}
+    - {fileID: 8300000, guid: ce9ef20e52eb51948b6cbe5d2c204f92, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0
+    useRandomPitch: 1
+    minPitch: 0.85
+    maxPitch: 0.92
+    useRandomVolume: 0
+    minVolume: 0
+    maxVolume: 0
+    volume: 0.3
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 50
+  - idName: ID_PTani_Chase
+    id: {fileID: 11400000, guid: a0e35a3badb4c8042a4c54a81ed9251d, type: 2}
+    mixerGroup: {fileID: -5337501770083687080, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df,
+      type: 2}
+    priority: 50
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 8300000, guid: 8628f696d4fa23c428e9d7105b563273, type: 3}
+    clips:
+    - {fileID: 8300000, guid: 1eceb978cfd430d45aae519ca366bd94, type: 3}
+    - {fileID: 8300000, guid: 4da5dc8d293f8334eaba0e3dd29f811b, type: 3}
+    - {fileID: 8300000, guid: aa89817f8df780b458ce67d62d5a3203, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 0
+    minVolume: 0
+    maxVolume: 0
+    volume: 0.85
+    spatialBlend: 1
+    minDistance: 3
+    maxDistance: 20
+  - idName: ID_PTani_Attack
+    id: {fileID: 11400000, guid: fac15d52fa745a746902117920d1e062, type: 2}
+    mixerGroup: {fileID: -5337501770083687080, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df,
+      type: 2}
+    priority: 20
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 8300000, guid: 8580265ddf2d17f4397aab43d6037963, type: 3}
+    clips:
+    - {fileID: 8300000, guid: 08fd6e8a3db91524c9a4d0b5fdc0a7ca, type: 3}
+    - {fileID: 8300000, guid: 7f0b8d2de869082488ef885279829b2c, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0
+    useRandomPitch: 0
+    minPitch: 0
+    maxPitch: 0
+    useRandomVolume: 0
+    minVolume: 0
+    maxVolume: 0
+    volume: 1
+    spatialBlend: 1
+    minDistance: 3
+    maxDistance: 25
+  - idName: ID_PTani_Screech
+    id: {fileID: 11400000, guid: 1ddf3e58b6c37954886bcebed26a0374, type: 2}
+    mixerGroup: {fileID: -5337501770083687080, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df,
+      type: 2}
+    priority: 20
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 8300000, guid: 8580265ddf2d17f4397aab43d6037963, type: 3}
+    clips:
+    - {fileID: 8300000, guid: 08fd6e8a3db91524c9a4d0b5fdc0a7ca, type: 3}
+    - {fileID: 8300000, guid: 7f0b8d2de869082488ef885279829b2c, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0
+    useRandomPitch: 0
+    minPitch: 0
+    maxPitch: 0
+    useRandomVolume: 0
+    minVolume: 0
+    maxVolume: 0
+    volume: 1
+    spatialBlend: 1
+    minDistance: 3
+    maxDistance: 25

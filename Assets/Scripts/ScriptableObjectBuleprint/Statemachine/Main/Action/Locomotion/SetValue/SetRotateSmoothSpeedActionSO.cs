@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "SetTurnSmoothSpeedAction",
-    menuName = "YUKI Learning State Machine/StateMachine/Actions/Locomotion/SetBaseLocomotionValue/Set Turn Smooth Speed")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Locomotion/SetBaseLocomotionValue/Set Turn Smooth Speed")]
 public class SetRotateSmoothSpeedActionSO : StateActionSO
 {
     [SerializeField, Min(0f)] private float _rotateSmoothSpeed = 1f;

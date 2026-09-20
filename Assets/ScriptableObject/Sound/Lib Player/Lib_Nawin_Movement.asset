@@ -1,0 +1,163 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccd93381a6a2f664ba0f5731b83f0ecc, type: 3}
+  m_Name: Lib_Nawin_Movement
+  m_EditorClassIdentifier: Assembly-CSharp::SoundLibrary
+  sounds:
+  - idName: ID_Nawin_Crouch
+    id: {fileID: 11400000, guid: 54dcc49494528ee4482b8fc18c45dcaa, type: 2}
+    mixerGroup: {fileID: -2596695242772225098, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df,
+      type: 2}
+    priority: 128
+    useRandomClips: 0
+    randomChance: 40
+    clip: {fileID: 8300000, guid: eb62d95ed1d4c6644adc30f5cd6e9330, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 0
+    minVolume: 0.7
+    maxVolume: 0.9
+    volume: 0.75
+    spatialBlend: 0.4
+    minDistance: 1
+    maxDistance: 6
+  - idName: ID_Nawin_WalkWood
+    id: {fileID: 11400000, guid: 2b4cf4415bade6e47acad67d93238e23, type: 2}
+    mixerGroup: {fileID: -2596695242772225098, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df,
+      type: 2}
+    priority: 128
+    useRandomClips: 1
+    randomChance: 1
+    clip: {fileID: 8300000, guid: a4a43b45fc8c5104993fb49fc8f89859, type: 3}
+    clips:
+    - {fileID: 8300000, guid: dd03fcb7ad8ce024b8811c87ec1166ee, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 0
+    minVolume: 0.7
+    maxVolume: 0.9
+    volume: 0.75
+    spatialBlend: 0.4
+    minDistance: 1
+    maxDistance: 6
+  - idName: ID_Nawin_WalkMud
+    id: {fileID: 11400000, guid: c59767ae35d612d4e9c58519fe985c4a, type: 2}
+    mixerGroup: {fileID: -2596695242772225098, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df,
+      type: 2}
+    priority: 128
+    useRandomClips: 1
+    randomChance: 10
+    clip: {fileID: 8300000, guid: c20ab9670af312546bf349275f0339ef, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 0
+    minVolume: 0.7
+    maxVolume: 0.9
+    volume: 0.75
+    spatialBlend: 0.4
+    minDistance: 1
+    maxDistance: 6
+  - idName: ID_Nawin_WalkRock
+    id: {fileID: 11400000, guid: 03ee2a30cee3b274dbae9ec05888646a, type: 2}
+    mixerGroup: {fileID: -2596695242772225098, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df,
+      type: 2}
+    priority: 128
+    useRandomClips: 1
+    randomChance: 10
+    clip: {fileID: 8300000, guid: fcaf053a2f0a44f4fa2c067aaadfcc79, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 0
+    minVolume: 0.7
+    maxVolume: 0.9
+    volume: 0.75
+    spatialBlend: 0.4
+    minDistance: 1
+    maxDistance: 6
+  - idName: ID_Nawin_WalkDirt
+    id: {fileID: 11400000, guid: 9f17a5de0185a21468859f9be378ecbc, type: 2}
+    mixerGroup: {fileID: -2596695242772225098, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df,
+      type: 2}
+    priority: 128
+    useRandomClips: 1
+    randomChance: 10
+    clip: {fileID: 8300000, guid: eb62d95ed1d4c6644adc30f5cd6e9330, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 0
+    minVolume: 0.7
+    maxVolume: 0.9
+    volume: 0.75
+    spatialBlend: 0.4
+    minDistance: 1
+    maxDistance: 6
+  - idName: ID_Nawin_WalkGrass
+    id: {fileID: 11400000, guid: 92686bf818070ad42ba079ee3d141ce5, type: 2}
+    mixerGroup: {fileID: -2596695242772225098, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df,
+      type: 2}
+    priority: 128
+    useRandomClips: 1
+    randomChance: 10
+    clip: {fileID: 8300000, guid: e0bc1e86db031bf448e3c058ad21e119, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 0
+    minVolume: 0.7
+    maxVolume: 0.9
+    volume: 0.75
+    spatialBlend: 0.4
+    minDistance: 1
+    maxDistance: 6
+  - idName: ID_Nawin_WalkDefault
+    id: {fileID: 11400000, guid: 8442d2cb80c62f44a823853449f2384c, type: 2}
+    mixerGroup: {fileID: -2596695242772225098, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df,
+      type: 2}
+    priority: 128
+    useRandomClips: 1
+    randomChance: 10
+    clip: {fileID: 8300000, guid: 60a377049cdbc26468d75a1065cf5e05, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 0
+    minVolume: 0.7
+    maxVolume: 0.9
+    volume: 0.75
+    spatialBlend: 0.4
+    minDistance: 1
+    maxDistance: 6
