@@ -34,6 +34,7 @@ public class HomingMissile : BaseProjectileMovement
 
     protected override void Update()
     {
+        base.Update();
         if (target == null)
         {
             if (!hadTarget && targetDetector != null)

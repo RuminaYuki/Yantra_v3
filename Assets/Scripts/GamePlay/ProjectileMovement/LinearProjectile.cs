@@ -4,6 +4,7 @@ public class LinearProjectile : BaseProjectileMovement
 {
     protected override void Update()
     {
+        base.Update();
         MoveForward();
     }
 
