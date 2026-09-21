@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class TargetDetector : MonoBehaviour
@@ -17,6 +20,7 @@ public class TargetDetector : MonoBehaviour
     [SerializeField] private Color targetColor = Color.green;
     [SerializeField] private Color blockedColor = Color.red;
 
+    private List<Func<Transform, Transform>> _modifiers = new();
     private float scanTimer;
     private Transform cachedTarget;
 
@@ -44,7 +48,7 @@ public class TargetDetector : MonoBehaviour
             QueryTriggerInteraction.Ignore);
 
         Transform nearestTarget = null;
-        float nearestDistanceSqr = float.PositiveInfinity;
+        float bestDistanceSqr = float.PositiveInfinity;
 
         foreach (Collider candidate in candidates)
         {
@@ -55,10 +59,10 @@ public class TargetDetector : MonoBehaviour
             Transform candidateTarget = ((Component)damageable).transform;
             Vector3 direction = candidateTarget.position - origin.position;
             float distanceSqr = direction.sqrMagnitude;
-            if (distanceSqr <= 0.001f ||
-                Vector3.Angle(origin.forward, direction) > detectionAngle * 0.5f ||
-                distanceSqr >= nearestDistanceSqr)
-                continue;
+            float angle = Vector3.Angle(origin.forward, direction);
+
+            /*if (distanceSqr <= 0.001f || angle > detectionAngle * 0.5f)
+                continue;*/
 
             if (requireLineOfSight &&
                 Physics.Raycast(origin.position, direction.normalized, out RaycastHit hit,
@@ -67,11 +71,20 @@ public class TargetDetector : MonoBehaviour
                 hit.transform != candidateTarget)
                 continue;
 
-            nearestTarget = candidateTarget;
-            nearestDistanceSqr = distanceSqr;
+            if (distanceSqr < bestDistanceSqr)
+            {
+                nearestTarget = candidateTarget;
+                bestDistanceSqr = distanceSqr;
+            }
         }
 
         cachedTarget = nearestTarget;
+
+        foreach (var modifier in _modifiers)
+        {
+            cachedTarget = modifier(cachedTarget);
+        }
+
         DrawRuntimeDetection(origin, cachedTarget);
         return cachedTarget;
     }
@@ -143,5 +156,10 @@ public class TargetDetector : MonoBehaviour
     {
         Vector3 edgeDirection = Quaternion.AngleAxis(angle, transform.up) * direction;
         Gizmos.DrawLine(origin, origin + edgeDirection.normalized * length);
+    }
+
+    public void AddModifier(Func<Transform, Transform> modifier)
+    {
+        _modifiers.Add(modifier);
     }
 }
