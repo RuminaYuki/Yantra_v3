@@ -3,8 +3,8 @@ using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
-    fileName = "RaiseEventChannel_Action",
-    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Standard/Raise Event Channel")]
+    fileName = "NewRBEC_Action",
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Standard/EventChanel/RaiseVoidEventChannel")]
 public class RaiseEventChannelActionSO : StateActionSO
 {
     [SerializeField] private VoidEventChannelSO _eventChannel;

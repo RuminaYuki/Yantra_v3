@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 300150838680985564}
   - component: {fileID: 24345925225265526}
+  - component: {fileID: 8270307916980508119}
   m_Layer: 0
   m_Name: Spawn Point
   m_TagString: Untagged
@@ -26,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 4550438804359467309}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.2316, z: 0.372}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -45,6 +46,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Spawner
   _prefab: {fileID: 0}
+--- !u!114 &8270307916980508119
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4550438804359467309}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fab0758a429da6245962670922244bf1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Follow3D
+  _target: {fileID: 0}
+  _targetAnchor: {fileID: 11400000, guid: 18e1dadc9e9035a419abbef8cdeb3b0c, type: 2}
+  _constrainPosition: 1
+  _constrainRotation: 1
+  _maintainOffset: 0
+  _positionOffset: {x: 0, y: 0, z: 1}
+  _rotationOffset: {x: 0, y: 0, z: 0}
+  _positionLerpSpeed: 0
+  _rotationLerpSpeed: 0
 --- !u!1 &6148217924338067294
 GameObject:
   m_ObjectHideFlags: 0
@@ -97,13 +119,13 @@ MonoBehaviour:
   gunMode: 0
   curentAmmo: 0
   maxAmmo: 2
-  delayTime: 0.5
+  delayTime: 1
   handleSpawnEvent: {fileID: 11400000, guid: 0601cb40d77a7d84da4856f221cdc24f, type: 2}
   animator: {fileID: 0}
   settingNormalMode:
-    bulletPrefab: {fileID: 2573710482556640469, guid: 1e811355f646a894eada40e26770a762, type: 3}
-    useThisSetting: 0
-    bulletDamage: 0
+    bulletPrefab: {fileID: 2573710482556640469, guid: c0fb23ec7efd7ba429b9edd9d08fcefc, type: 3}
+    useThisSetting: 1
+    bulletDamage: 1
     bulletSpeed: 10
     stateName: 
     layerIndex: 0
@@ -127,15 +149,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 770f2047933a63f4c9af3d57bc873c0f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 770f2047933a63f4c9af3d57bc873c0f, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -0.131
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 770f2047933a63f4c9af3d57bc873c0f, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 0.117
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 770f2047933a63f4c9af3d57bc873c0f, type: 3}
       propertyPath: m_LocalRotation.w

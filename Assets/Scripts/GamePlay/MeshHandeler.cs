@@ -1,19 +1,27 @@
 using UnityEngine;
 
-public class MeshHandeler : MonoBehaviour
+public class GameObjectHandeler : MonoBehaviour
 {
-    [SerializeField] private MeshRendererAnchor _meshRenderer;
-    void Awake() { 
+    [SerializeField] private GameObject _gameObject;
+    [SerializeField] private bool _enableDebug = false;
+    void Awake()
+    {
+        if (_gameObject == null)
+        {
+            Debug.LogWarning("_gameObject reference has not been assigned.");
+        }
     }
 
     public void EnableMesh()
     {
-        Debug.Log("Enable");
-        _meshRenderer.Value.enabled = true;
+        if(_enableDebug)
+            Debug.Log("Enable");
+        _gameObject.SetActive(true);
     }
     public void DisableMesh()
     {
-        Debug.Log("Disable");
-        _meshRenderer.Value.enabled = false;
+        if(_enableDebug)
+            Debug.Log("Disable");
+        _gameObject.SetActive(false);
     }
 }
