@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -27,6 +28,8 @@ public class EffectController : MonoBehaviour
     private bool hasExecuted;
     private bool hasFinished;
     private bool hasStarted;
+
+    private Coroutine destroyCoroutine;
 
     public bool IsEnabled => isEnabled;
     public bool IsActive => remainingDuration > 0f;
@@ -272,13 +275,19 @@ public class EffectController : MonoBehaviour
         }
 
         hasFinished = true;
-        finishedEventChannel?.Raise();
 
         if (!destroyAfterFinished)
         {
             return;
         }
-        Destroy(gameObject, Delay);
+
+        if (destroyCoroutine != null)
+        {
+            StopCoroutine(destroyCoroutine);
+            destroyCoroutine = null;
+        }
+
+        destroyCoroutine = StartCoroutine(DestroyDelay(Delay));
     }
 
     private void HandleForceEnabled(bool enabled)
@@ -308,5 +317,12 @@ public class EffectController : MonoBehaviour
         }
 
         return generatedActions?.Player.Effect;
+    }
+
+    IEnumerator DestroyDelay(float Delay = 0)
+    {
+        yield return new WaitForSeconds(Delay);
+        finishedEventChannel?.Raise();
+        Destroy(gameObject);
     }
 }
