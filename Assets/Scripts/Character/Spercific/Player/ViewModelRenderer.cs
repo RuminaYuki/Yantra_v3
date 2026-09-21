@@ -24,6 +24,7 @@ public class ViewModelRenderer : MonoBehaviour
     [Header("ปลายทาง")]
     [Tooltip("RawImage เต็มจอที่จะเอาภาพแขนไปแปะ\nอยู่ใน Canvas แบบ Screen Space - Overlay")]
     [SerializeField] private RawImage _output;
+    [SerializeField] private CanvasGroup _viewModeRenderercanvasGroup;
 
     [Header("เลนส์ของกล้องแขน")]
     [Tooltip("FOV ของแขนอย่างเดียว ไม่เกี่ยวกับกล้องหลัก\n" +
@@ -65,6 +66,7 @@ public class ViewModelRenderer : MonoBehaviour
     private void Awake()
     {
         _camera = GetComponent<Camera>();
+        _viewModeRenderercanvasGroup.alpha = 1;
         ApplyLens();
     }
 
