@@ -92,6 +92,7 @@ public class ViewModelRenderer : MonoBehaviour
     {
         if (_camera == null) return;
 
+        _camera.enabled = true;
         _camera.fieldOfView = _fieldOfView;
         _camera.nearClipPlane = _nearClip;
         _camera.farClipPlane = _farClip;
