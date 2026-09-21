@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// ¬‘ß·∫∫ hitscan √Õß√—∫°“√∑–≈ÿ "‡©æ“–»—µ√Ÿ (IDamageable)"
-/// «—µ∂ÿÕ◊Ëπ ‡™Ëπ °”·æß/æ◊Èπ ®–À¬ÿ¥°√– ÿπ∑—π∑’
+/// ‡∏¢‡∏¥‡∏á‡πÅ‡∏ö‡∏ö hitscan ‡∏£‡∏≠‡∏á‡∏£‡∏±‡∏ö‡∏Å‡∏≤‡∏£‡∏ó‡∏∞‡∏•‡∏∏ "‡πÄ‡∏â‡∏û‡∏≤‡∏∞‡∏®‡∏±‡∏ï‡∏£‡∏π (IDamageable)"
+/// ‡∏ß‡∏±‡∏ï‡∏ñ‡∏∏‡∏≠‡∏∑‡πà‡∏ô ‡πÄ‡∏ä‡πà‡∏ô ‡∏Å‡∏≥‡πÅ‡∏û‡∏á/‡∏û‡∏∑‡πâ‡∏ô ‡∏à‡∏∞‡∏´‡∏¢‡∏∏‡∏î‡∏Å‡∏£‡∏∞‡∏™‡∏∏‡∏ô‡∏ó‡∏±‡∏ô‡∏ó‡∏µ
 /// </summary>
 public class HitscanShooter : MonoBehaviour
 {
@@ -12,27 +12,28 @@ public class HitscanShooter : MonoBehaviour
     [Header("Ray")]
     [SerializeField] private Transform muzzle;
     [SerializeField] private float range = 100f;
-    [Tooltip("µÈÕß√«¡∑—Èß layer ¢Õß»—µ√Ÿ·≈– layer ¢Õß°”·æß/æ◊Èπ")]
+    [Tooltip("‡∏ï‡πâ‡∏≠‡∏á‡∏£‡∏ß‡∏°‡∏ó‡∏±‡πâ‡∏á layer ‡∏Ç‡∏≠‡∏á‡∏®‡∏±‡∏ï‡∏£‡∏π‡πÅ‡∏•‡∏∞ layer ‡∏Ç‡∏≠‡∏á‡∏Å‡∏≥‡πÅ‡∏û‡∏á/‡∏û‡∏∑‡πâ‡∏ô")]
     [SerializeField] private LayerMask hitMask = ~0;
     [SerializeField] private QueryTriggerInteraction triggerInteraction = QueryTriggerInteraction.Ignore;
-    [Tooltip("Root ¢ÕßºŸÈ¬‘ß ®–‰¡Ë¬‘ß‚¥πµ—«‡Õß")]
+    [Tooltip("Root ‡∏Ç‡∏≠‡∏á‡∏ú‡∏π‡πâ‡∏¢‡∏¥‡∏á ‡∏à‡∏∞‡πÑ‡∏°‡πà‡∏¢‡∏¥‡∏á‡πÇ‡∏î‡∏ô‡∏ï‡∏±‡∏ß‡πÄ‡∏≠‡∏á")]
     [SerializeField] private Transform ignoreRoot;
 
     [Header("Damage")]
     [SerializeField] private float damage = 25f;
 
     [Header("Penetration")]
-    [Tooltip("®”π«π»—µ√Ÿ∑’Ë∑–≈ÿ‰¥È‡æ‘Ë¡®“°µ—«·√° ‡™Ëπ 1 = ‚¥π‰¥È 2 µ—«, 2 = ‚¥π‰¥È 3 µ—«, 0 = µ—«‡¥’¬«")]
+    [Tooltip("‡∏à‡∏≥‡∏ô‡∏ß‡∏ô‡∏®‡∏±‡∏ï‡∏£‡∏π‡∏ó‡∏µ‡πà‡∏ó‡∏∞‡∏•‡∏∏‡πÑ‡∏î‡πâ‡πÄ‡∏û‡∏¥‡πà‡∏°‡∏à‡∏≤‡∏Å‡∏ï‡∏±‡∏ß‡πÅ‡∏£‡∏Å ‡πÄ‡∏ä‡πà‡∏ô 1 = ‡πÇ‡∏î‡∏ô‡πÑ‡∏î‡πâ 2 ‡∏ï‡∏±‡∏ß, 2 = ‡πÇ‡∏î‡∏ô‡πÑ‡∏î‡πâ 3 ‡∏ï‡∏±‡∏ß, 0 = ‡∏ï‡∏±‡∏ß‡πÄ‡∏î‡∏µ‡∏¢‡∏ß")]
     [Min(0)][SerializeField] private int maxPenetrations = 1;
-    [Tooltip("¥“‡¡®∑’Ë‡À≈◊ÕÀ≈—ß∑–≈ÿ·µË≈–µ—« (0.7 = ‡À≈◊Õ 70%)")]
+    [Tooltip("‡∏î‡∏≤‡πÄ‡∏°‡∏à‡∏ó‡∏µ‡πà‡πÄ‡∏´‡∏•‡∏∑‡∏≠‡∏´‡∏•‡∏±‡∏á‡∏ó‡∏∞‡∏•‡∏∏‡πÅ‡∏ï‡πà‡∏•‡∏∞‡∏ï‡∏±‡∏ß (0.7 = ‡πÄ‡∏´‡∏•‡∏∑‡∏≠ 70%)")]
     [Range(0f, 1f)][SerializeField] private float damageRetainedPerPenetration = 0.7f;
 
     [Header("Debug")]
     [SerializeField] private bool drawDebugRay = true;
     [SerializeField] private float debugDuration = 1f;
 
-    /// <summary>‡√’¬°∑ÿ°§√—Èß∑’Ë°√– ÿπ‚¥πÕ–‰√ —°Õ¬Ë“ß (»—µ√ŸÀ√◊Õ°”·æß) „™È spawn VFX/‡ ’¬ß</summary>
+    /// <summary>‡πÄ‡∏£‡∏µ‡∏¢‡∏Å‡∏ó‡∏∏‡∏Å‡∏Ñ‡∏£‡∏±‡πâ‡∏á‡∏ó‡∏µ‡πà‡∏Å‡∏£‡∏∞‡∏™‡∏∏‡∏ô‡πÇ‡∏î‡∏ô‡∏≠‡∏∞‡πÑ‡∏£‡∏™‡∏±‡∏Å‡∏≠‡∏¢‡πà‡∏≤‡∏á (‡∏®‡∏±‡∏ï‡∏£‡∏π‡∏´‡∏£‡∏∑‡∏≠‡∏Å‡∏≥‡πÅ‡∏û‡∏á) ‡πÉ‡∏ä‡πâ spawn VFX/‡πÄ‡∏™‡∏µ‡∏¢‡∏á</summary>
     public event Action<RaycastHit, int> HitRegistered;
+    public event Action<Vector3, Vector3> ShotCompleted;
 
     private const int MaxHitsPerShot = 32;
     private readonly RaycastHit[] _hits = new RaycastHit[MaxHitsPerShot];
@@ -63,7 +64,7 @@ public class HitscanShooter : MonoBehaviour
         Vector3 rangeEnd = origin + direction * range;
 
         int count = Physics.RaycastNonAlloc(origin, direction, _hits, range, hitMask, triggerInteraction);
-        Array.Sort(_hits, 0, count, ByDistance); // Unity ‰¡Ë√—∫ª√–°—π≈”¥—∫ µÈÕß‡√’¬ß‡Õß
+        Array.Sort(_hits, 0, count, ByDistance); // Unity ‡πÑ‡∏°‡πà‡∏£‡∏±‡∏ö‡∏õ‡∏£‡∏∞‡∏Å‡∏±‡∏ô‡∏•‡∏≥‡∏î‡∏±‡∏ö ‡∏ï‡πâ‡∏≠‡∏á‡πÄ‡∏£‡∏µ‡∏¢‡∏á‡πÄ‡∏≠‡∏á
 
         int penetrationsLeft = maxPenetrations;
         float currentDamage = damage;
@@ -81,7 +82,7 @@ public class HitscanShooter : MonoBehaviour
 
             IDamageable damageable = hit.collider.GetComponentInParent<IDamageable>();
 
-            // ‰¡Ë„™Ë»—µ√Ÿ (°”·æß/æ◊Èπ/Õ◊ËπÊ) -> °√– ÿπÀ¬ÿ¥∑’Ëπ’Ë
+            // ‡πÑ‡∏°‡πà‡πÉ‡∏ä‡πà‡∏®‡∏±‡∏ï‡∏£‡∏π (‡∏Å‡∏≥‡πÅ‡∏û‡∏á/‡∏û‡∏∑‡πâ‡∏ô/‡∏≠‡∏∑‡πà‡∏ô‡πÜ) -> ‡∏Å‡∏£‡∏∞‡∏™‡∏∏‡∏ô‡∏´‡∏¢‡∏∏‡∏î‡∏ó‡∏µ‡πà‡∏ô‡∏µ‡πà
             if (damageable == null)
             {
                 HitRegistered?.Invoke(hit, hitIndex);
@@ -90,7 +91,7 @@ public class HitscanShooter : MonoBehaviour
                 break;
             }
 
-            // »—µ√Ÿµ—«‡¥‘¡∑’Ë¡’À≈“¬ collider (ragdoll) π—∫§√—Èß‡¥’¬«
+            // ‡∏®‡∏±‡∏ï‡∏£‡∏π‡∏ï‡∏±‡∏ß‡πÄ‡∏î‡∏¥‡∏°‡∏ó‡∏µ‡πà‡∏°‡∏µ‡∏´‡∏•‡∏≤‡∏¢ collider (ragdoll) ‡∏ô‡∏±‡∏ö‡∏Ñ‡∏£‡∏±‡πâ‡∏á‡πÄ‡∏î‡∏µ‡∏¢‡∏ß
             if (!_alreadyHit.Add(damageable))
                 continue;
 
@@ -102,7 +103,7 @@ public class HitscanShooter : MonoBehaviour
             if (drawDebugRay)
                 Debug.DrawRay(hit.point, hit.normal * 0.3f, Color.cyan, debugDuration);
 
-            // ∑–≈ÿÀ¡¥·≈È« -> À¬ÿ¥∑’Ë»—µ√Ÿµ—«π’È
+            // ‡∏ó‡∏∞‡∏•‡∏∏‡∏´‡∏°‡∏î‡πÅ‡∏•‡πâ‡∏ß -> ‡∏´‡∏¢‡∏∏‡∏î‡∏ó‡∏µ‡πà‡∏®‡∏±‡∏ï‡∏£‡∏π‡∏ï‡∏±‡∏ß‡∏ô‡∏µ‡πâ
             if (penetrationsLeft <= 0)
             {
                 stopped = true;
@@ -111,11 +112,13 @@ public class HitscanShooter : MonoBehaviour
 
             penetrationsLeft--;
             currentDamage *= damageRetainedPerPenetration;
+
+            ShotCompleted?.Invoke(origin, endPoint);
         }
 
         if (drawDebugRay)
         {
-            // ·¥ß =  Ë«π∑’Ë°√– ÿπ«‘Ëß®√‘ß, ‡∑“ =  Ë«π∑’Ë°√– ÿπ‰¡Ë‰ª∂÷ß
+            // ‡πÅ‡∏î‡∏á = ‡∏™‡πà‡∏ß‡∏ô‡∏ó‡∏µ‡πà‡∏Å‡∏£‡∏∞‡∏™‡∏∏‡∏ô‡∏ß‡∏¥‡πà‡∏á‡∏à‡∏£‡∏¥‡∏á, ‡πÄ‡∏ó‡∏≤ = ‡∏™‡πà‡∏ß‡∏ô‡∏ó‡∏µ‡πà‡∏Å‡∏£‡∏∞‡∏™‡∏∏‡∏ô‡πÑ‡∏°‡πà‡πÑ‡∏õ‡∏ñ‡∏∂‡∏á
             Debug.DrawLine(origin, endPoint, Color.red, debugDuration);
             if (stopped)
                 Debug.DrawLine(endPoint, rangeEnd, Color.gray, debugDuration);
