@@ -15,7 +15,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4038954800132673139
 Transform:
   m_ObjectHideFlags: 0
@@ -57,6 +57,8 @@ GameObject:
   - component: {fileID: 1298072149758396325}
   - component: {fileID: 2999064993368223594}
   - component: {fileID: 3117964211689334339}
+  - component: {fileID: 7536221892418918656}
+  - component: {fileID: 4361828618637776244}
   m_Layer: 0
   m_Name: EnemeyController
   m_TagString: Enemy
@@ -375,6 +377,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ApplyAllStats
   CharacterStatsSO: {fileID: 11400000, guid: 66a0373b8e325d94ca65c6c93f774f26, type: 2}
+--- !u!114 &7536221892418918656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1362228334903577606}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4902d47e3be31334186dd31438c7f216, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterControllerKnockbackReceiver
+  playerVelocity: {x: 0, y: 0, z: 0}
+  gravityValue: -2
+  knockbackDeceleration: 5
+--- !u!114 &4361828618637776244
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1362228334903577606}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79759dfc8c63c05429d2f4bff73e2eb1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PrefabIdentity
+  prefabId: PKa
 --- !u!1 &2032088470783747889
 GameObject:
   m_ObjectHideFlags: 0
