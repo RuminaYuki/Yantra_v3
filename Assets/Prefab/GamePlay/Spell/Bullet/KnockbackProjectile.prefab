@@ -10,8 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7033732717833618920}
   - component: {fileID: 7663817535120078233}
-  - component: {fileID: -1562946538619595294}
-  - component: {fileID: 2558329016751735216}
+  - component: {fileID: -3832470986068482893}
   m_Layer: 0
   m_Name: KnockbackProjectile
   m_TagString: Untagged
@@ -58,7 +57,7 @@ MonoBehaviour:
       m_Bits: 129
     ForceMode: 1
   playOnAwaken: 1
---- !u!114 &-1562946538619595294
+--- !u!114 &-3832470986068482893
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -67,23 +66,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 4370089659096113426}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4cdc644275f2f904e9822f3ac1b3b86c, type: 3}
+  m_Script: {fileID: 11500000, guid: 3189746df5fc4344d9bb77a0fb410b18, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AttackSphereCast
-  attackOrigin: {fileID: 7033732717833618920}
---- !u!114 &2558329016751735216
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4370089659096113426}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cd84e5e3b2f60ef4bbde686cc35fe48f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AttackSphereCastPlayOnAwake
+  m_EditorClassIdentifier: Assembly-CSharp::SphereDamageApplier
+  projectileMovement: {fileID: 0}
+  damageAmount: 5
+  owner: {fileID: 0}
+  tragetLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  obstructionLayer:
+    serializedVersion: 2
+    m_Bits: 512
   parameters:
-    damageAmount: 1
+    damageAmount: 0
     attackRange: 0
     attackRadius: 5

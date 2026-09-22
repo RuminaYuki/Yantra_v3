@@ -12,7 +12,7 @@ public class GunController : MonoBehaviour
     }
 
     [Header("References")]
-
+    [SerializeField] GameObject PlayerController;
     [SerializeField] SkillPoints skillPoints;
     [SerializeField] List<Spawner> spawners = new();
 
@@ -34,8 +34,6 @@ public class GunController : MonoBehaviour
     [SerializeField] Animator animator;
     [SerializeField] GunNormalModeSetting settingNormalMode;
     [SerializeField] GunSpecialModeSetting settingSpecialMode;
-
-
 
     private float currentDelay;
     private bool isSpawnEventSubscribed;
@@ -134,17 +132,28 @@ public class GunController : MonoBehaviour
             //To do bullet setting
             BaseProjectileMovement baseProjectile = bullet.GetComponent<BaseProjectileMovement>();
             ProjectileDamageApplier damageApplier = bullet.GetComponent<ProjectileDamageApplier>();
+            if (damageApplier != null) damageApplier.SetOwner(PlayerController.transform);
             switch (shotMode)
             {
                 case GunMode.Normal:
                     if (!settingNormalMode.useThisSetting) break;
                     if (baseProjectile != null) baseProjectile.SetMoveSpeed(settingNormalMode.bulletSpeed);
                     if (damageApplier != null) damageApplier.SetDamge(settingNormalMode.bulletDamage);
+
+                    if (baseProjectile is HitscanShooter hitscan)
+                    {
+                        hitscan.Fire();
+                    }
                     break;
                 case GunMode.Special:
                     if (!settingSpecialMode.useThisSetting) break;
                     if (baseProjectile != null) baseProjectile.SetMoveSpeed(settingSpecialMode.bulletSpeed);
                     if (damageApplier != null) damageApplier.SetDamge(settingSpecialMode.bulletDamage);
+
+                    if (baseProjectile is HitscanShooter hitscanS)
+                    {
+                        hitscanS.Fire();
+                    }
                     break;
             }
         }

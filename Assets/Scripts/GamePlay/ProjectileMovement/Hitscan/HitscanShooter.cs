@@ -6,9 +6,8 @@ using UnityEngine;
 /// ยิงแบบ hitscan รองรับการทะลุ "เฉพาะศัตรู (IDamageable)"
 /// วัตถุอื่น เช่น กำแพง/พื้น จะหยุดกระสุนทันที
 /// </summary>
-public class HitscanShooter : MonoBehaviour
+public class HitscanShooter : BaseProjectileMovement
 {
-    [SerializeField] bool playOnAwake = false;
     [Header("Ray")]
     [SerializeField] private Transform muzzle;
     [SerializeField] private float range = 100f;
@@ -18,22 +17,13 @@ public class HitscanShooter : MonoBehaviour
     [Tooltip("Root ของผู้ยิง จะไม่ยิงโดนตัวเอง")]
     [SerializeField] private Transform ignoreRoot;
 
-    [Header("Damage")]
-    [SerializeField] private float damage = 25f;
-
-    [Header("Penetration")]
-    [Tooltip("จำนวนศัตรูที่ทะลุได้เพิ่มจากตัวแรก เช่น 1 = โดนได้ 2 ตัว, 2 = โดนได้ 3 ตัว, 0 = ตัวเดียว")]
-    [Min(0)][SerializeField] private int maxPenetrations = 1;
-    [Tooltip("ดาเมจที่เหลือหลังทะลุแต่ละตัว (0.7 = เหลือ 70%)")]
-    [Range(0f, 1f)][SerializeField] private float damageRetainedPerPenetration = 0.7f;
-
     [Header("Debug")]
     [SerializeField] private bool drawDebugRay = true;
     [SerializeField] private float debugDuration = 1f;
 
     /// <summary>เรียกทุกครั้งที่กระสุนโดนอะไรสักอย่าง (ศัตรูหรือกำแพง) ใช้ spawn VFX/เสียง</summary>
-    public event Action<RaycastHit, int> HitRegistered;
-    public event Action<Vector3, Vector3> ShotCompleted;
+    public event Action<RaycastHit> raycastHit;
+    public event Action<Vector3, Vector3> ShootCompleted; 
 
     private const int MaxHitsPerShot = 32;
     private readonly RaycastHit[] _hits = new RaycastHit[MaxHitsPerShot];
@@ -41,15 +31,9 @@ public class HitscanShooter : MonoBehaviour
     private static readonly Comparer<RaycastHit> ByDistance =
         Comparer<RaycastHit>.Create((a, b) => a.distance.CompareTo(b.distance));
 
-    public int MaxPenetrations
+    protected override void Awake()
     {
-        get => maxPenetrations;
-        set => maxPenetrations = Mathf.Max(0, value);
-    }
-
-    private void Awake()
-    {
-        if (playOnAwake) Fire();
+        base.Awake();
     }
 
     public void Fire()
@@ -66,8 +50,7 @@ public class HitscanShooter : MonoBehaviour
         int count = Physics.RaycastNonAlloc(origin, direction, _hits, range, hitMask, triggerInteraction);
         Array.Sort(_hits, 0, count, ByDistance); // Unity ไม่รับประกันลำดับ ต้องเรียงเอง
 
-        int penetrationsLeft = maxPenetrations;
-        float currentDamage = damage;
+        int penetrationsLeft = MaxPenetrations;
         int hitIndex = 0;
         bool stopped = false;
         Vector3 endPoint = rangeEnd;
@@ -85,7 +68,8 @@ public class HitscanShooter : MonoBehaviour
             // ไม่ใช่ศัตรู (กำแพง/พื้น/อื่นๆ) -> กระสุนหยุดที่นี่
             if (damageable == null)
             {
-                HitRegistered?.Invoke(hit, hitIndex);
+                raycastHit?.Invoke(hit);
+                HitRegisteredRaise(hit.collider);
                 endPoint = hit.point;
                 stopped = true;
                 break;
@@ -95,8 +79,8 @@ public class HitscanShooter : MonoBehaviour
             if (!_alreadyHit.Add(damageable))
                 continue;
 
-            damageable.TakeDamage(currentDamage);
-            HitRegistered?.Invoke(hit, hitIndex);
+            raycastHit?.Invoke(hit);
+            HitRegisteredRaise(hit.collider);
             hitIndex++;
             endPoint = hit.point;
 
@@ -111,9 +95,8 @@ public class HitscanShooter : MonoBehaviour
             }
 
             penetrationsLeft--;
-            currentDamage *= damageRetainedPerPenetration;
 
-            ShotCompleted?.Invoke(origin, endPoint);
+            ShootCompleted?.Invoke(origin, endPoint);
         }
 
         if (drawDebugRay)

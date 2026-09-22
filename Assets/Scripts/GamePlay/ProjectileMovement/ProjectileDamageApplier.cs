@@ -2,25 +2,37 @@ using UnityEngine;
 
 public class ProjectileDamageApplier : MonoBehaviour
 {
+    [SerializeField] BaseProjectileMovement projectileMovement;
     [SerializeField] private float damageAmount = 10f;
-    [SerializeField] private Transform owner;
+    [SerializeField] protected Transform owner;
+
+    private void OnEnable()
+    {
+        if (projectileMovement != null)
+            projectileMovement._hitRegistered += ApplyDamage;
+    }
+
+    private void OnDisable()
+    {
+        if (projectileMovement != null)
+            projectileMovement._hitRegistered -= ApplyDamage;
+    }
 
     public void SetOwner(Transform newOwner)
     {
         owner = newOwner;
     }
 
-    public bool ApplyDamage(Collider hitCollider)
+    public void ApplyDamage(Collider hitCollider)
     {
         if (hitCollider == null || IsOwner(hitCollider.transform))
-            return false;
+            return;
 
         IDamageable damageable = FindDamageable(hitCollider);
         if (damageable == null)
-            return false;
+            return;
 
         damageable.TakeDamage(damageAmount);
-        return true;
     }
 
     private bool IsOwner(Transform hitTransform)
@@ -42,5 +54,8 @@ public class ProjectileDamageApplier : MonoBehaviour
         return null;
     }
 
-    public void SetDamge(float amount) => damageAmount = amount;
+    public void SetDamge(float amount)
+    {
+        damageAmount = amount;
+    }
 }

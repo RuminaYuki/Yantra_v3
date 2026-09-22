@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
@@ -12,12 +13,23 @@ public class BaseProjectileMovement : MonoBehaviour
 
     [Header("Penetration")]
     [SerializeField, Min(0)] private int maxPenetrations;
+    protected int MaxPenetrations
+    {
+        get => maxPenetrations;
+        set => maxPenetrations = value;
+    }
     [SerializeField] private bool destroyAfterPenetrationLimit = true;
     [SerializeField] private LayerMask obstacleLayer;
-    [SerializeField] private ProjectileDamageApplier damageApplier;
 
     [Header("Movement")]
     [SerializeField] private float _moveSpeed = 10f;
+
+    public event Action<Collider> _hitRegistered;
+    protected void HitRegisteredRaise(Collider go)
+    {
+        _hitRegistered?.Invoke(go);
+    }
+
     protected float moveSpeed
     {
         get => _moveSpeed;
@@ -29,8 +41,7 @@ public class BaseProjectileMovement : MonoBehaviour
 
     protected virtual void Awake()
     {
-        if (damageApplier == null)
-            damageApplier = GetComponent<ProjectileDamageApplier>();
+
     }
 
     protected virtual void Update()
@@ -60,15 +71,11 @@ public class BaseProjectileMovement : MonoBehaviour
             Destroy(gameObject);
         }
 
-        if (damageApplier == null)
-            return;
-
         IDamageable damageable = FindDamageable(hitCollider);
         if (damageable == null || hitTargets.Contains(damageable))
             return;
 
-        if (!damageApplier.ApplyDamage(hitCollider))
-            return;
+        HitRegisteredRaise(hitCollider);
 
         hitTargets.Add(damageable);
         penetrationsUsed++;

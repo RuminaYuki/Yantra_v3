@@ -19,12 +19,12 @@ public class HitscanVFX : MonoBehaviour
 
     private void OnEnable()
     {
-        hitscan.ShotCompleted += SpawnVFX;
+        hitscan.ShootCompleted += SpawnVFX;
     }
 
     private void OnDisable()
     {
-        hitscan.ShotCompleted -= SpawnVFX;
+        hitscan.ShootCompleted -= SpawnVFX;
     }
 
     private void SpawnVFX(Vector3 origin, Vector3 endPoint)
