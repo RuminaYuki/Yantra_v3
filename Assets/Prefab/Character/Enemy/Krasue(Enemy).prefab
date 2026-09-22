@@ -902,6 +902,8 @@ GameObject:
   - component: {fileID: 8267875909656261439}
   - component: {fileID: 2920149308482320272}
   - component: {fileID: 1602908658639240925}
+  - component: {fileID: 2911086634674529745}
+  - component: {fileID: 5259888117518558591}
   m_Layer: 0
   m_Name: EnemeyController
   m_TagString: Enemy
@@ -1230,6 +1232,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ApplyAllStats
   CharacterStatsSO: {fileID: 11400000, guid: 710050635f3403243bbd0f058836f8cd, type: 2}
+--- !u!114 &2911086634674529745
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3067078080897093266}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4902d47e3be31334186dd31438c7f216, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CharacterControllerKnockbackReceiver
+  playerVelocity: {x: 0, y: 0, z: 0}
+  gravityValue: -2
+  knockbackDeceleration: 5
+--- !u!114 &5259888117518558591
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3067078080897093266}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79759dfc8c63c05429d2f4bff73e2eb1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PrefabIdentity
+  prefabId: Krasue
 --- !u!1 &3078383868426858583
 GameObject:
   m_ObjectHideFlags: 0

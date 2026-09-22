@@ -8,13 +8,18 @@ public class PlayerSoundController : MonoBehaviour
         AnimationEvent
     }
 
+    public enum VocalTriggerMode
+    {
+        EventChannel,
+        AnimationEvent
+    }
+
     [System.Serializable]
     public struct SurfaceSound
     {
         [Tooltip("Surface Tag name (e.g. Wood, Grass, Dirt)")]
         public string surfaceTag;
 
-        public SoundID crouchSound;
         public SoundID walkSound;
         public SoundID runSound;
     }
@@ -28,7 +33,6 @@ public class PlayerSoundController : MonoBehaviour
         [Tooltip("ใส่ Terrain Layer ได้หลายอันเลย (ยัดหญ้าทุกแบบเข้ามาในช่องนี้ได้เลย)")]
         public TerrainLayer[] terrainLayers;
 
-        public SoundID crouchSound;
         public SoundID walkSound;
         public SoundID runSound;
     }
@@ -40,13 +44,10 @@ public class PlayerSoundController : MonoBehaviour
     [SerializeField] private TerrainSound[] terrainSounds;
 
     [Header("Default Sounds (Fallback)")]
-    [SerializeField] private SoundID defaultCrouchID;
     [SerializeField] private SoundID defaultWalkID;
-    [SerializeField] private SoundID defaultRunID;
 
-    [Header("Item Sounds")]
-    [SerializeField] private SoundID flashlightToggleID;
-    [SerializeField] private SoundID openNotebookID;
+    [Tooltip("เว้นว่างได้ จะใช้เสียงเดินแทน")]
+    [SerializeField] private SoundID defaultRunID;
 
     // ==========================================
     // Player Vocals & Actions
@@ -58,8 +59,29 @@ public class PlayerSoundController : MonoBehaviour
     [Tooltip("เสียงตอนตาย (เช่น ท่า PlayerDead)")]
     [SerializeField] private SoundID deathSound;
 
-    [Tooltip("กระเป๋าเสียงเผื่อไว้ใช้กับท่าอื่นๆ เช่น 0=ใช้ยันต์, 1=โดนผีจับ")]
+    [Tooltip("กระเป๋าเสียงสำหรับ Animation Event เรียกด้วย PlayActionSound(index)\n" +
+        "เช่น 0=โดนผีจับ, 1=สะดุดล้ม\n" +
+        "ถ้าท่านั้นเป็น state ใน state machine อยู่แล้ว ใช้ PlaySoundActionSO จะสะดวกกว่า")]
     [SerializeField] private SoundID[] actionSounds;
+
+    // ==========================================
+    // Vocal Trigger — ใครเป็นคนสั่งเสียงร้อง
+    // ==========================================
+    [Header("Vocal Trigger")]
+    [Tooltip("EventChannel = เกาะ Health เอง ใช้ได้เลยไม่ต้องรออนิเมชัน\n" +
+        "AnimationEvent = รอให้ Animation Event เรียก PlayHurtSound() / PlayDeathSound()")]
+    [SerializeField] private VocalTriggerMode vocalMode = VocalTriggerMode.EventChannel;
+
+    [Tooltip("ลาก event channel ตัวเดียวกับที่ Health ของตัวนี้ใช้\nใช้เฉพาะโหมด EventChannel")]
+    [SerializeField] private VoidEventChannelSO onHurtChannel;
+    [SerializeField] private VoidEventChannelSO onDeadChannel;
+
+    [Tooltip("เว้นอย่างน้อยกี่วินาทีระหว่างเสียงร้อง\n" +
+        "กันเสียงกรี๊ดซ้อนกันเป็นพรืดตอนโดนรัวๆ ซึ่งฟังแล้วพังมาก")]
+    [SerializeField] private float minVocalInterval = 0.15f;
+
+    [Tooltip("ตายแล้วห้ามมีเสียงโดนตีอีก — กันเคสศพยังโดนตีต่อแล้วยังร้องอยู่")]
+    [SerializeField] private bool silenceHurtAfterDeath = true;
 
     // ==========================================
     // Foley Sounds (เสียงประกอบกริยา)
@@ -72,9 +94,9 @@ public class PlayerSoundController : MonoBehaviour
     [Tooltip("ปิดถ้าไม่อยากให้มีเสียงเสื้อผ้าตามการเคลื่อนไหว")]
     [SerializeField] private bool enableMovementFoley = true;
 
-    [Tooltip("ถ้ามีไฟล์เดียว ใส่ SoundID ตัวเดียวกันทั้ง 3 ช่องได้เลย")]
-    [SerializeField] private SoundID foleyCrouchID;
     [SerializeField] private SoundID foleyWalkID;
+
+    [Tooltip("เว้นว่างได้ จะใช้เสียงผ้าตอนเดินแทน")]
     [SerializeField] private SoundID foleyRunID;
 
     [Tooltip("เยื้องจังหวะจากฝีเท้า / 0.5 = ตกกลางระหว่างก้าวพอดี (กันเสียงกลบกัน)")]
@@ -104,13 +126,11 @@ public class PlayerSoundController : MonoBehaviour
     [SerializeField] private FootstepMode mode = FootstepMode.DistanceBased;
 
     [Header("Distance Mode Settings (Meters)")]
-    [SerializeField] private float crouchStrideLength = 1.0f;
     [SerializeField] private float walkStrideLength = 1.6f;
     [SerializeField] private float runStrideLength = 2.4f;
 
     [Header("Movement Speed Thresholds")]
     [SerializeField] private float minMoveSpeed = 0.15f;
-    [SerializeField] private float walkSpeedThreshold = 1.5f;
     [SerializeField] private float runSpeedThreshold = 3.5f;
 
     [Header("Ground Detection & Cooldown")]
@@ -120,6 +140,9 @@ public class PlayerSoundController : MonoBehaviour
 
     [Header("Debug")]
     [SerializeField] private bool logFootsteps = false;
+
+    [Tooltip("ขึ้น log ตอนเสียงร้องถูกสั่ง บอกด้วยว่ามาจากทางไหน")]
+    [SerializeField] private bool logVocals = false;
 
     private CharacterController charController;
     private float lastStepTime = -999f;
@@ -132,15 +155,56 @@ public class PlayerSoundController : MonoBehaviour
     private float foleyTargetStride = -1f;
     private Vector3 currentMoveDir = Vector3.forward;
 
+    // สถานะเสียงร้อง
+    private float lastVocalTime = -999f;
+    private bool isDead;
+
     public float CurrentSpeed => measuredSpeed;
     public bool IsRunning => measuredSpeed >= runSpeedThreshold;
-    public bool IsCrouching => measuredSpeed >= minMoveSpeed && measuredSpeed < walkSpeedThreshold;
 
     private void Awake()
     {
         charController = GetComponent<CharacterController>();
         lastPosition = transform.position;
     }
+
+    // ==========================================
+    // เกาะ Health โดยตรง
+    // ==========================================
+    private void OnEnable()
+    {
+        // เกิดใหม่จากพูลหรือรีสตาร์ทด่าน ต้องล้างสถานะเดิมทิ้ง
+        // ไม่งั้นตัวที่เคยตายแล้วถูกปั๊มกลับมา จะไม่มีเสียงโดนตีตลอดกาล
+        isDead = false;
+        lastVocalTime = -999f;
+
+        if (vocalMode != VocalTriggerMode.EventChannel) return;
+
+        if (onHurtChannel != null) onHurtChannel.Raised += HandleHurtEvent;
+        if (onDeadChannel != null) onDeadChannel.Raised += HandleDeadEvent;
+
+#if UNITY_EDITOR
+        if (onHurtChannel == null && onDeadChannel == null)
+            Debug.LogWarning("[PlayerSound] โหมด EventChannel แต่ยังไม่ได้ลาก channel มาใส่ — " +
+                "จะไม่มีเสียงร้องเลย", this);
+#endif
+    }
+
+    /// <summary>
+    /// ถอดออกให้ครบเสมอ
+    ///
+    /// โปรเจกต์เราปิด Domain Reload ไว้ (Enter Play Mode Settings)
+    /// event ที่อยู่ใน ScriptableObject จึงไม่ถูกล้างตอนกด Stop
+    /// ถ้าไม่ถอด กด Play รอบสองจะมีตัวสมัครค้างจากรอบแรก เสียงร้องจะดัง 2 ครั้งซ้อน
+    /// </summary>
+    private void OnDisable()
+    {
+        if (onHurtChannel != null) onHurtChannel.Raised -= HandleHurtEvent;
+        if (onDeadChannel != null) onDeadChannel.Raised -= HandleDeadEvent;
+    }
+
+    private void HandleHurtEvent() => TriggerHurtVocal("EventChannel");
+    private void HandleDeadEvent() => TriggerDeathVocal("EventChannel");
 
     private void Update()
     {
@@ -165,6 +229,9 @@ public class PlayerSoundController : MonoBehaviour
         UpdateMovementFoley(distanceThisFrame);
     }
 
+    /// <summary>ระยะก้าวตอนนี้ — วิ่งจะก้าวยาวกว่าเดิน</summary>
+    private float CurrentStride => IsRunning ? runStrideLength : walkStrideLength;
+
     private void UpdateDistanceFootstep(float distanceThisFrame)
     {
         if (measuredSpeed < minMoveSpeed || !IsGrounded())
@@ -175,9 +242,7 @@ public class PlayerSoundController : MonoBehaviour
 
         distanceAccumulated += distanceThisFrame;
 
-        float stride = walkStrideLength;
-        if (IsRunning) stride = runStrideLength;
-        else if (IsCrouching) stride = crouchStrideLength;
+        float stride = CurrentStride;
 
         if (distanceAccumulated >= stride)
         {
@@ -201,11 +266,7 @@ public class PlayerSoundController : MonoBehaviour
             return;
         }
 
-        float stride = walkStrideLength;
-        if (IsRunning) stride = runStrideLength;
-        else if (IsCrouching) stride = crouchStrideLength;
-
-        stride /= Mathf.Max(0.1f, foleyPerStride);
+        float stride = CurrentStride / Mathf.Max(0.1f, foleyPerStride);
 
         if (!wasMovingForFoley)
         {
@@ -238,17 +299,13 @@ public class PlayerSoundController : MonoBehaviour
 
     private void TriggerFoley()
     {
-
         if (Time.time < foleyBusyUntil) return;
 
         // ไม่ดังทุกครั้ง — ผ้าจริงบางก้าวก็เงียบ
         // การขาดหายแบบสุ่มคือตัวทำลาย pattern ที่ได้ผลที่สุด และลดจำนวนเสียงรวมไปในตัว
         if (Random.Range(0f, 100f) > foleyPlayChance) return;
 
-        SoundID idToPlay = foleyWalkID;
-
-        if (IsRunning) idToPlay = foleyRunID != null ? foleyRunID : foleyWalkID;
-        else if (IsCrouching) idToPlay = foleyCrouchID != null ? foleyCrouchID : foleyWalkID;
+        SoundID idToPlay = IsRunning && foleyRunID != null ? foleyRunID : foleyWalkID;
 
         if (idToPlay == null || SoundManager.Instance == null) return;
 
@@ -271,7 +328,6 @@ public class PlayerSoundController : MonoBehaviour
         if (Time.time - lastStepTime < minStepInterval) return;
         lastStepTime = Time.time;
 
-        SoundID crouchToPlay = defaultCrouchID;
         SoundID walkToPlay = defaultWalkID;
         SoundID runToPlay = defaultRunID;
         string hitTag = "Untagged";
@@ -299,7 +355,6 @@ public class PlayerSoundController : MonoBehaviour
                         {
                             if (layer == dominantLayer)
                             {
-                                crouchToPlay = tSound.crouchSound;
                                 walkToPlay = tSound.walkSound;
                                 runToPlay = tSound.runSound;
                                 foundMatch = true;
@@ -317,7 +372,6 @@ public class PlayerSoundController : MonoBehaviour
                 {
                     if (surface.surfaceTag == hitTag)
                     {
-                        crouchToPlay = surface.crouchSound;
                         walkToPlay = surface.walkSound;
                         runToPlay = surface.runSound;
                         break;
@@ -334,13 +388,10 @@ public class PlayerSoundController : MonoBehaviour
             idToPlay = runToPlay != null ? runToPlay : walkToPlay;
             moveState = "Run";
         }
-        else if (IsCrouching)
-        {
-            idToPlay = crouchToPlay != null ? crouchToPlay : walkToPlay;
-            moveState = "Crouch";
-        }
 
-        if (idToPlay == null) return;
+        // [FIX] เดิมเช็คแค่ idToPlay ทำให้ซีนที่ไม่มี SoundManager พังทุกก้าวที่เดิน
+        // เมธอดอื่นในไฟล์นี้เช็คกันหมดแล้ว ขาดแค่ตรงนี้
+        if (idToPlay == null || SoundManager.Instance == null) return;
 
         if (logFootsteps)
             Debug.Log($"Footstep: [{moveState}] on surface [{hitTag}], speed = {measuredSpeed:F2}");
@@ -383,14 +434,6 @@ public class PlayerSoundController : MonoBehaviour
         return null;
     }
 
-    public void PlaySneakSound()
-    {
-        if (mode != FootstepMode.AnimationEvent) return;
-        if (measuredSpeed < (minMoveSpeed * 1.5f)) return;
-        if (!IsGrounded()) return;
-        TriggerFootstep();
-    }
-
     public void PlayFootstepSound()
     {
         if (mode != FootstepMode.AnimationEvent) return;
@@ -399,29 +442,47 @@ public class PlayerSoundController : MonoBehaviour
         TriggerFootstep();
     }
 
-    public void PlayFlashlightSound()
-    {
-        if (flashlightToggleID != null)
-            SoundManager.Instance.PlaySFX(flashlightToggleID, transform.position);
-    }
-
-    public void PlayNotebookSound()
-    {
-        if (openNotebookID != null)
-            SoundManager.Instance.PlaySFX(openNotebookID, transform.position);
-    }
-
     // ==========================================
     // Vocals & Actions Methods
     // ==========================================
+
+    /// <summary>เรียกจาก Animation Event — ทำงานเฉพาะโหมด AnimationEvent</summary>
     public void PlayHurtSound()
     {
+        if (vocalMode != VocalTriggerMode.AnimationEvent) return;
+        TriggerHurtVocal("AnimationEvent");
+    }
+
+    /// <summary>เรียกจาก Animation Event — ทำงานเฉพาะโหมด AnimationEvent</summary>
+    public void PlayDeathSound()
+    {
+        if (vocalMode != VocalTriggerMode.AnimationEvent) return;
+        TriggerDeathVocal("AnimationEvent");
+    }
+
+    // ---------- ตัวเล่นจริง ใช้ร่วมกันทั้ง 2 โหมด ----------
+
+    private void TriggerHurtVocal(string source)
+    {
+        if (silenceHurtAfterDeath && isDead) return;
+        if (Time.time - lastVocalTime < minVocalInterval) return;
+        lastVocalTime = Time.time;
+
+        if (logVocals)
+            Debug.Log($"[PlayerSound] Hurt ← {source}  ({(hurtSound != null ? hurtSound.name : "ยังไม่ได้ใส่เสียง")})", this);
+
         if (hurtSound != null && SoundManager.Instance != null)
             SoundManager.Instance.PlaySFX(hurtSound, transform.position);
     }
 
-    public void PlayDeathSound()
+    private void TriggerDeathVocal(string source)
     {
+        isDead = true;
+        lastVocalTime = Time.time;
+
+        if (logVocals)
+            Debug.Log($"[PlayerSound] Death ← {source}  ({(deathSound != null ? deathSound.name : "ยังไม่ได้ใส่เสียง")})", this);
+
         if (deathSound != null && SoundManager.Instance != null)
             SoundManager.Instance.PlaySFX(deathSound, transform.position);
     }
@@ -436,13 +497,9 @@ public class PlayerSoundController : MonoBehaviour
 
     public void PlayActionSound(int index)
     {
-        if (actionSounds != null && index >= 0 && index < actionSounds.Length)
-        {
-            if (actionSounds[index] != null && SoundManager.Instance != null)
-            {
-                SoundManager.Instance.PlaySFX(actionSounds[index], transform.position);
-            }
-        }
-    }
+        if (actionSounds == null || index < 0 || index >= actionSounds.Length) return;
+        if (actionSounds[index] == null || SoundManager.Instance == null) return;
 
+        SoundManager.Instance.PlaySFX(actionSounds[index], transform.position);
+    }
 }

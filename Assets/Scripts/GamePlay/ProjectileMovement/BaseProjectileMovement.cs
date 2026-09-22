@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.PlayerLoop;
 
 public class BaseProjectileMovement : MonoBehaviour
 {
@@ -8,10 +9,6 @@ public class BaseProjectileMovement : MonoBehaviour
     [SerializeField] private float _lifeTime = 10f;
     protected float lifetime => _lifeTime;
     private float _lifeTimer;
-    protected float lifeTimer 
-    {
-        get => _lifeTimer; set => _lifeTimer = value;
-    }
 
     [Header("Penetration")]
     [SerializeField, Min(0)] private int maxPenetrations;
@@ -38,8 +35,8 @@ public class BaseProjectileMovement : MonoBehaviour
 
     protected virtual void Update()
     {
-        lifeTimer += Time.deltaTime;
-        if (lifetime > 0f && lifeTimer >= lifetime)
+        _lifeTimer += Time.deltaTime;
+        if (_lifeTimer > 0f && _lifeTimer >= lifetime)
         {
             Destroy(gameObject);
             return;

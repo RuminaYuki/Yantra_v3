@@ -1,10 +1,16 @@
 using UnityEngine;
 
+[RequireComponent(typeof(Animator))]
 public class AnimationProgressDriver : MonoBehaviour
 {
     [SerializeField] Animator _animator;
     [SerializeField] BoolEventChannelSO _aPD_SetEnable_AEC;
     [SerializeField] AnimationProgressDriverAdvEventChannal _aPD_AEC;
+
+    private void Awake()
+    {
+        _animator = GetComponent<Animator>();
+    }
 
     private void OnEnable()
     {

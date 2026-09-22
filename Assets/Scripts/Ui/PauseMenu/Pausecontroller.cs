@@ -121,7 +121,7 @@ public class PauseController : MonoBehaviour
     {
         if (!PausePressed()) return;
 
-        Debug.Log($"ESC | CanPause={CanPause()} | IsPaused={IsPaused} | HasAnyOpen={UIManager.Instance?.HasAnyOpen}");
+        //Debug.Log($"ESC | CanPause={CanPause()} | IsPaused={IsPaused} | HasAnyOpen={UIManager.Instance?.HasAnyOpen}");
 
         // ถ้ามีหน้าจออื่นซ้อนอยู่บน Pause (เช่น Settings) ให้ย้อนกลับแทน
         var ui = UIManager.Instance;

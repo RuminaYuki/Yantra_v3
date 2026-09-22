@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 8477780483864509153}
   - component: {fileID: 2474891252089924897}
   - component: {fileID: -5174923587579301629}
+  - component: {fileID: -5523588076003030981}
+  - component: {fileID: -2240895711353591139}
   m_Layer: 0
   m_Name: SpecialBullet
   m_TagString: Untagged
@@ -102,7 +104,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e55499af33b2bb5438052edeba5233d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitscanShooter
-  playOnAwake: 0
+  playOnAwake: 1
   muzzle: {fileID: 0}
   range: 100
   hitMask:
@@ -110,8 +112,37 @@ MonoBehaviour:
     m_Bits: 4294967295
   triggerInteraction: 1
   ignoreRoot: {fileID: 0}
-  damage: 2
+  damage: 0
   maxPenetrations: 1
   damageRetainedPerPenetration: 1
   drawDebugRay: 1
   debugDuration: 1
+--- !u!114 &-5523588076003030981
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2573710482556640469}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5054eab1490aef43a87b7fd7a0e864b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitscanVFX
+  _poolTag: 
+--- !u!114 &-2240895711353591139
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2573710482556640469}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3cad6a9473e2ca447aae904fe858a113, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlaySoundOnSpawn
+  _sound: {fileID: 11400000, guid: 7c5ec307030d4ee46a97aef3977527eb, type: 2}
+  _followObject: 0
+  _customOrigin: {fileID: 0}
+  _logPlay: 0

@@ -4,6 +4,8 @@ public class Follow3D : MonoBehaviour
 {
     [Header("Target")]
     [SerializeField] private Transform _target;
+    [Tooltip("if targetAnchor have value will use targetAnchor instead")]
+    [SerializeField] private TransformAnchor _targetAnchor;
 
     [Header("Constraint")]
     [SerializeField] private bool _constrainPosition = true;
@@ -22,6 +24,13 @@ public class Follow3D : MonoBehaviour
 
     private Vector3 _maintainedPositionOffset;
     private Quaternion _maintainedRotationOffset = Quaternion.identity;
+    private void Awake()
+    {
+        if(_targetAnchor != null)
+        {
+            _target = _targetAnchor.Value;
+        }
+    }
 
     private void Start()
     {
