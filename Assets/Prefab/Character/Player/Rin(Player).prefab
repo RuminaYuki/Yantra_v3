@@ -4145,6 +4145,8 @@ GameObject:
   - component: {fileID: 872591524521023635}
   - component: {fileID: 5199957577184454255}
   - component: {fileID: 5627116737697343536}
+  - component: {fileID: 3346568480411799174}
+  - component: {fileID: 5069392904444183860}
   m_Layer: 6
   m_Name: PlayerController
   m_TagString: Player
@@ -4487,6 +4489,69 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ApplyAllStats
   CharacterStatsSO: {fileID: 11400000, guid: a807632b99cedc146accb0be0043b9d4, type: 2}
+--- !u!114 &3346568480411799174
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8849103926970512020}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48b5f1980b52eda44bd98af690fcc652, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AttackSoundPlayer
+  _attack: {fileID: 0}
+  _impactSound: {fileID: 11400000, guid: 70b41465b7548854087d2e9608f2ef3e, type: 2}
+  _playAtAttackOrigin: 1
+  _minInterval: 0.05
+  _logPlays: 0
+--- !u!114 &5069392904444183860
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8849103926970512020}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c9c68a79594f9a4e934f08eb4802952, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerSoundController
+  surfaceSounds: []
+  terrainSounds: []
+  defaultWalkID: {fileID: 11400000, guid: fa1eb04d56e45e84fabfcd73f375d923, type: 2}
+  defaultRunID: {fileID: 0}
+  hurtSound: {fileID: 11400000, guid: 649b87b33957fbb48adc8bdd3d05ee7f, type: 2}
+  deathSound: {fileID: 11400000, guid: 97d12ab35b791814aa425d6080263d1c, type: 2}
+  actionSounds: []
+  vocalMode: 0
+  onHurtChannel: {fileID: 11400000, guid: ee1ecafd318ebcb418934a195cb0a628, type: 2}
+  onDeadChannel: {fileID: 11400000, guid: 46885c84663e73e488762bc5783096e2, type: 2}
+  minVocalInterval: 0.15
+  silenceHurtAfterDeath: 1
+  foleySounds: []
+  enableMovementFoley: 1
+  foleyWalkID: {fileID: 0}
+  foleyRunID: {fileID: 0}
+  foleyPhaseOffset: 0.5
+  foleyHeightOffset: 1
+  foleyPerStride: 2
+  foleyRetriggerGuard: 0.25
+  foleyStrideJitter: 0.25
+  foleyPlayChance: 75
+  mode: 0
+  walkStrideLength: 1.6
+  runStrideLength: 2.4
+  minMoveSpeed: 0.15
+  runSpeedThreshold: 3.5
+  minStepInterval: 0.15
+  requireGrounded: 1
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  logFootsteps: 0
+  logVocals: 0
 --- !u!1 &9126798675211712603
 GameObject:
   m_ObjectHideFlags: 0
