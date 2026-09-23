@@ -49,7 +49,7 @@ public class SelfHealEffect : BaseEffectClass, IEffectExecutor
 
     private void Heal()
     {
-        IHeal heal = owner.GetComponent<IHeal>();
+        IHeal heal = owner.GetComponentInChildren<IHeal>();
         if (heal == null) return;
 
         heal.Heal(healAmount);

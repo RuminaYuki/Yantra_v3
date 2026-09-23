@@ -1,37 +1,44 @@
 using UnityEngine;
 
 [System.Serializable]
-public struct SceneReference : ISerializationCallbackReceiver
+public struct SceneReference
 {
 #if UNITY_EDITOR
+    [Tooltip("ลากไฟล์ scene จากหน้าต่าง Project มาใส่ตรงนี้")]
     [SerializeField] private UnityEditor.SceneAsset _sceneAsset;
 #endif
 
     [SerializeField, HideInInspector] private string _sceneName;
     [SerializeField, HideInInspector] private string _scenePath;
 
+    /// <summary>ชื่อ scene สำหรับส่งให้ SceneManager.LoadScene</summary>
     public string SceneName => _sceneName;
+
+    /// <summary>พาธเต็มของไฟล์ — ใช้ตอน debug</summary>
     public string ScenePath => _scenePath;
+
+    /// <summary>มีการใส่ scene ไว้จริงไหม</summary>
     public bool IsValid => !string.IsNullOrEmpty(_sceneName);
 
-    public void OnBeforeSerialize()
-    {
-#if UNITY_EDITOR
-        // ดึงชื่อจาก asset ทุกครั้งที่เซฟ — ถ้ามีคนเปลี่ยนชื่อ scene จะตามอัตโนมัติ
-        if (_sceneAsset != null)
-        {
-            _scenePath = UnityEditor.AssetDatabase.GetAssetPath(_sceneAsset);
-            _sceneName = System.IO.Path.GetFileNameWithoutExtension(_scenePath);
-        }
-        else
-        {
-            _scenePath = string.Empty;
-            _sceneName = string.Empty;
-        }
-#endif
-    }
-
-    public void OnAfterDeserialize() { }
-
     public static implicit operator string(SceneReference reference) => reference._sceneName;
+
+#if UNITY_EDITOR
+
+    public bool SyncFromAsset()
+    {
+        string newPath = _sceneAsset != null
+            ? UnityEditor.AssetDatabase.GetAssetPath(_sceneAsset)
+            : string.Empty;
+
+        string newName = string.IsNullOrEmpty(newPath)
+            ? string.Empty
+            : System.IO.Path.GetFileNameWithoutExtension(newPath);
+
+        if (newPath == _scenePath && newName == _sceneName) return false;
+
+        _scenePath = newPath;
+        _sceneName = newName;
+        return true;
+    }
+#endif
 }

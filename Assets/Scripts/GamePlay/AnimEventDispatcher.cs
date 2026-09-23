@@ -8,7 +8,11 @@ public class SerializableAction
     public event Action ActionEvent;
 
     public void Invoke() => ActionEvent?.Invoke();
-    public void AddListener(Action listener) => ActionEvent += listener;
+    public void AddListener(Action listener)
+    {
+        ActionEvent -= listener;
+        ActionEvent += listener;
+    }
     public void RemoveListener(Action listener) => ActionEvent -= listener;
 }
 
@@ -20,7 +24,10 @@ public class AnimEventDispatcher : MonoBehaviour
     public void OnSpawnEvent(string key)
     {
         if (events.TryGetValue(key, out var evt))
+        {
+            Debug.Log(key);
             evt.Invoke();
+        }
         else
             Debug.LogWarning($"[AnimEventDispatcher] ไม่มีใครซับ key: {key}");
     }
