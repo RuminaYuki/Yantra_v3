@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class RadialButton : MonoBehaviour
@@ -10,13 +9,20 @@ public class RadialButton : MonoBehaviour
     [SerializeField] GameObject _pivot;
     [SerializeField] GameObject _sprintIcon;
     [SerializeField] Image thisImage;
-    [FormerlySerializedAs("_sprintIcon")]
     [SerializeField] float _angleOffset = 15f;
+    [SerializeField] float _selectedScale = 1.1f; // ขนาดตอนถูกเลือก (ปรับใน Inspector)
     float _angleThreshold = 15f;
     [SerializeField] IntEventChannelSO _radialIntID_IEC;
     [SerializeField] VoidEventChannelSO _onSelected;
 
+    private Vector3 _normalScale;
     private RadialManuController _radialManu;
+
+    private void Awake()
+    {
+        _normalScale = transform.localScale;
+    }
+
     private void OnEnable()
     {
         if (_radialIntID_IEC != null)
@@ -27,13 +33,13 @@ public class RadialButton : MonoBehaviour
 
     private void OnDisable()
     {
-        if(_radialIntID_IEC != null)
+        if (_radialIntID_IEC != null)
         {
             _radialIntID_IEC.Raised -= HandleThisIsSelect;
         }
     }
 
-    public void SetClass(float fillAmount, int Id, RadialManuController radialManu)
+    public void SetClass(float fillAmount, int Id, RadialManuController radialManu, RadialMenuButtonData dataSO)
     {
         _buttonID = Id;
         _radialManu = radialManu;
@@ -42,18 +48,16 @@ public class RadialButton : MonoBehaviour
         float angle = fillAmount * 360f;
         _angleThreshold = angle + _angleOffset;
         _pivot.transform.localRotation = Quaternion.Euler(0f, 0f, -angle);
+
+        RawImage _sprintImage = _sprintIcon.GetComponent<RawImage>();
+        _sprintImage.texture = dataSO.buttonIcon;
     }
 
     private void HandleThisIsSelect(int Id)
     {
-        if (_buttonID == Id)
-        {
-            thisImage.color = Color.green;
-        }
-        else
-        {
-            thisImage.color = Color.white;
-        }
+        transform.localScale = _buttonID == Id
+            ? _normalScale * _selectedScale
+            : _normalScale;
     }
 
     private void Update()
@@ -66,6 +70,7 @@ public class RadialButton : MonoBehaviour
         {
             Debug.LogWarning($"Wait what {this.gameObject.name} มายังไง??");
         }
+
         if (Mouse.current != null)
         {
             HandleStroke(Mouse.current.delta.ReadValue());
