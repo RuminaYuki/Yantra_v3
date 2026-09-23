@@ -73,10 +73,67 @@ public class SceneCatalog : ScriptableObject
     public IReadOnlyList<NamedScene> AdditionalScenes => _additionalScenes;
 
 #if UNITY_EDITOR
-    /// <summary>
-    /// ตรวจให้ตั้งแต่ตอนแก้ใน Editor ไม่ต้องรอไปเจอตอนรัน
-    /// </summary>
+
+
     private void OnValidate()
+    {
+
+        // ลบก่อนเพิ่มเพื่อกันคิวซ้อน — OnValidate ยิงรัวได้ตอนลากค่า
+        UnityEditor.EditorApplication.delayCall -= SyncAndValidate;
+        UnityEditor.EditorApplication.delayCall += SyncAndValidate;
+    }
+
+    private void SyncAndValidate()
+    {
+        // ระหว่างรอคิว ไฟล์อาจถูกลบไปแล้ว
+        if (this == null) return;
+
+        if (SyncAllSceneNames())
+            UnityEditor.EditorUtility.SetDirty(this);
+
+        WarnAboutProblems();
+    }
+
+    /// <summary>คืน true ถ้ามีชื่อไหนเปลี่ยนจริง</summary>
+    private bool SyncAllSceneNames()
+    {
+        bool changed = false;
+
+        changed |= _mainMenu.SyncFromAsset();
+        changed |= _gameplay.SyncFromAsset();
+        changed |= _testGameplay.SyncFromAsset();
+
+        foreach (var entry in _additionalScenes)
+        {
+            if (entry == null) continue;
+            changed |= entry.scene.SyncFromAsset();
+        }
+
+        return changed;
+    }
+
+    /// <summary>
+    /// ปุ่มฉุกเฉิน — คลิกขวาที่หัวไฟล์นี้ใน Inspector แล้วเลือก
+    /// ใช้ตอนสงสัยว่าชื่อไม่ตรง หรือหลังดึงไฟล์จาก Unity VCS มาใหม่
+    /// </summary>
+    [ContextMenu("ซิงค์ชื่อ Scene ใหม่")]
+    private void ForceSync()
+    {
+        SyncAllSceneNames();
+        UnityEditor.EditorUtility.SetDirty(this);
+        UnityEditor.AssetDatabase.SaveAssetIfDirty(this);
+
+        Debug.Log(
+            $"[{name}] ซิงค์แล้ว — " +
+            $"เมนูหลัก: '{_mainMenu.SceneName}' | " +
+            $"เกม: '{_gameplay.SceneName}' | " +
+            $"เทส: '{_testGameplay.SceneName}'", this);
+
+        WarnAboutProblems();
+    }
+
+    /// <summary>ตรวจให้ตั้งแต่ตอนแก้ใน Editor ไม่ต้องรอไปเจอตอนรัน</summary>
+    private void WarnAboutProblems()
     {
         if (!_mainMenu.IsValid)
             Debug.LogWarning($"[{name}] ยังไม่ได้ใส่ scene เมนูหลัก", this);
