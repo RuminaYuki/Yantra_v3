@@ -46,6 +46,8 @@ public class CountDownTimerConditionSO : StateConditionSO
     public float Duration => _condition.Duration;
     public float Remaining => _condition.Remaining;
 
+    public void ResetTimer() => _condition?.OnStateEnter();
+
     private CountDownTimerCondition _condition;
     public override Condition CreateCondition()
     {

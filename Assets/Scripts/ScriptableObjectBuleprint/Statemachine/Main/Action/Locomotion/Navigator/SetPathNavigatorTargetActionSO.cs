@@ -10,6 +10,10 @@ public class SetPathNavigatorTargetActionSO : StateActionSO
     [SerializeField] private TransformAnchor _targetAnchor;
     [SerializeField] private Vector3 _offset;
 
+    public Transform TargetTransform
+    {
+        get => _targetAnchor.Value;
+    }
     public Vector3 Offset
     {
         get => _offset;

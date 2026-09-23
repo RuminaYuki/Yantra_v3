@@ -33,6 +33,11 @@ public class LineOfSight : MonoBehaviour
     public float TimeSinceLastSeen => timeSinceLastSeen;
 
     // --- API ให้คลาสภายนอกกำหนดค่าได้ ---
+    public bool ShowGizmos
+    {
+        get => showGizmos;
+        set => showGizmos = value;
+    }
     public float DetectRange
     {
         get => detectRange;
@@ -154,7 +159,7 @@ public class LineOfSight : MonoBehaviour
 
         return true;
     }
-    private void OnDrawGizmosSelected()
+    private void OnDrawGizmos()
     {
         if(!showGizmos) return;
         if (target == null) return;
