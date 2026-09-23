@@ -7,6 +7,12 @@ public enum TargetLostBehaviour
     Destroy
 }
 
+public enum HitTargetBehaviour
+{
+    RetargetHitTarget,
+    IgnoreHitTarget
+}
+
 public class HomingMissile : BaseProjectileMovement
 {
     [SerializeField] private float turnSpeed = 360f;
@@ -15,6 +21,7 @@ public class HomingMissile : BaseProjectileMovement
     [Header("Target")]
     [SerializeField] private TargetDetector targetDetector;
     [SerializeField] private TargetLostBehaviour targetLostBehaviour = TargetLostBehaviour.SearchAgain;
+    [SerializeField] private HitTargetBehaviour hitTargetBehaviour = HitTargetBehaviour.IgnoreHitTarget;
     [SerializeField] Transform target;
     private bool hadTarget;
     private bool targetLossHandled;
@@ -23,6 +30,13 @@ public class HomingMissile : BaseProjectileMovement
     {
         if (targetDetector == null)
             targetDetector = GetComponent<TargetDetector>();
+
+        _hitRegistered += HandleHit;
+    }
+
+    private void OnDestroy()
+    {
+        _hitRegistered -= HandleHit;
     }
 
     public void SetTarget(Transform target)
@@ -89,6 +103,31 @@ public class HomingMissile : BaseProjectileMovement
                 }
                 break;
         }
+    }
+
+    private void HandleHit(Collider hitCollider)
+    {
+        if (hitTargetBehaviour != HitTargetBehaviour.IgnoreHitTarget ||
+            hitCollider == null)
+            return;
+
+        IDamageable damageable = hitCollider.GetComponentInParent<IDamageable>();
+        Component damageableComponent = damageable as Component;
+        Transform hitTarget = damageableComponent != null
+            ? damageableComponent.transform
+            : null;
+
+        if (hitTarget == null)
+            return;
+
+        if (target == hitTarget ||
+            (target != null &&
+             (target.IsChildOf(hitTarget) || hitTarget.IsChildOf(target))))
+            target = null;
+
+        targetDetector?.IgnoreTarget(hitTarget);
+        hadTarget = true;
+        targetLossHandled = false;
     }
 
     private bool CanTrackTarget(Transform candidate)

@@ -2,30 +2,56 @@ using UnityEngine;
 
 public class SelfHealEffect : BaseEffectClass, IEffectExecutor
 {
+    [Header("Heal")]
     [SerializeField] float healAmount;
 
     public void Execute(GameObject owner)
     {
         base.owner = owner;
 
-        if (owner == null)
+        if (useAnimation)
         {
-            return;
-        }
+            Animator animator = animatorAnchor.Value;
+            if (animator == null) return;
 
-        Health health = owner.GetComponentInChildren<Health>();
-        if (health != null)
+            animEvent = animator.gameObject.GetComponent<AnimEventDispatcher>();
+            if (animEvent == null) return;
+
+            if (!string.IsNullOrEmpty(eventKey))
+                animEvent.GetEvent(eventKey).AddListener(Heal);
+
+            SetEnabled(true);
+
+            if (!string.IsNullOrEmpty(animationName))
+            {
+                animator.CrossFade(animationName, 0.2f, layerIndex);
+            }
+        }
+    }
+
+    public override void SetEnabled(bool enabled)
+    {
+        if (enabled)
         {
-            health.Heal(healAmount);
+            if (animEvent != null)
+            {
+                animEvent.GetEvent(eventKey).AddListener(Heal);
+            }
         }
-
-        Animator animator = animatorAnchor.Value;
-        if (animator == null) return;
-
-        if (!string.IsNullOrEmpty(animationName))
+        else
         {
-            Debug.Log("here");
-            animator.CrossFade(animationName, 0.2f, layerIndex);
+            if (animEvent != null)
+            {
+                animEvent.GetEvent(eventKey).RemoveListener(Heal);
+            }
         }
+    }
+
+    private void Heal()
+    {
+        IHeal heal = owner.GetComponent<IHeal>();
+        if (heal == null) return;
+
+        heal.Heal(healAmount);
     }
 }
