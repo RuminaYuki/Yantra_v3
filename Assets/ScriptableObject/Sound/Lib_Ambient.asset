@@ -15,12 +15,14 @@ MonoBehaviour:
   sounds:
   - idName: ID_AmbientForest
     id: {fileID: 11400000, guid: cdff1f107d41ab64191bd624db954c84, type: 2}
-    mixerGroup: {fileID: 9183250927903690338, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df,
-      type: 2}
+    mixerGroup: {fileID: 9183250927903690338, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 128
     useRandomClips: 0
     randomChance: 0
     clip: {fileID: 8300000, guid: 6f9241b8c3899c945bb96737d5af4437, type: 3}
     clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
     useRandomPitch: 0
     minPitch: 0
     maxPitch: 0
@@ -33,12 +35,14 @@ MonoBehaviour:
     maxDistance: 15
   - idName: ID_IndoorAmbient
     id: {fileID: 11400000, guid: d193e8fe0e0ff664eaeeede979a9c55d, type: 2}
-    mixerGroup: {fileID: 9183250927903690338, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df,
-      type: 2}
+    mixerGroup: {fileID: 9183250927903690338, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 128
     useRandomClips: 0
     randomChance: 0
     clip: {fileID: 8300000, guid: 2cb938a75c47c1845af86be0d4bac56f, type: 3}
     clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
     useRandomPitch: 0
     minPitch: 0
     maxPitch: 0
@@ -47,5 +51,86 @@ MonoBehaviour:
     maxVolume: 0
     volume: 1
     spatialBlend: 0
+    minDistance: 1
+    maxDistance: 15
+  - idName: ID_AmbientCreakingWood
+    id: {fileID: 11400000, guid: bee03ee04fa73b84db1c74568234ae0f, type: 2}
+    mixerGroup: {fileID: 9183250927903690338, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 128
+    useRandomClips: 1
+    randomChance: 0
+    clip: {fileID: 8300000, guid: eba65b2fad35e7e41b944f7d6651980c, type: 3}
+    clips:
+    - {fileID: 8300000, guid: 71fcc906942ba6b4a96588ddd329f158, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 0
+    minPitch: 0
+    maxPitch: 0
+    useRandomVolume: 0
+    minVolume: 0
+    maxVolume: 0
+    volume: 1
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 15
+  - idName: ID_AmbientCricket
+    id: {fileID: 11400000, guid: fc14dc5f1119afa42a9704603a8d1191, type: 2}
+    mixerGroup: {fileID: 9183250927903690338, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 128
+    useRandomClips: 0
+    randomChance: 0
+    clip: {fileID: 8300000, guid: 70837d54559c46a429204670a2201ab2, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 0
+    minPitch: 0
+    maxPitch: 0
+    useRandomVolume: 0
+    minVolume: 0
+    maxVolume: 0
+    volume: 1
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 15
+  - idName: ID_AmbientOwl
+    id: {fileID: 11400000, guid: a378433d39d3fa7429a3cad4f67a86a9, type: 2}
+    mixerGroup: {fileID: 9183250927903690338, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 128
+    useRandomClips: 0
+    randomChance: 0
+    clip: {fileID: 8300000, guid: ae451a210337c6c4abd880cd452da806, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 0
+    minPitch: 0.1
+    maxPitch: 0.1
+    useRandomVolume: 0
+    minVolume: 0
+    maxVolume: 0
+    volume: 1
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 15
+  - idName: ID_AmbientFrog
+    id: {fileID: 11400000, guid: 0a13969328008ca429d8effea485175c, type: 2}
+    mixerGroup: {fileID: 9183250927903690338, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 128
+    useRandomClips: 0
+    randomChance: 0
+    clip: {fileID: 8300000, guid: 4ec85d3b5f945f4428ecc5d328ab1197, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 0
+    minPitch: 0
+    maxPitch: 0
+    useRandomVolume: 0
+    minVolume: 0
+    maxVolume: 0
+    volume: 1
+    spatialBlend: 1
     minDistance: 1
     maxDistance: 15

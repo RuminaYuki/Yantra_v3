@@ -53,8 +53,51 @@ MonoBehaviour:
     spatialBlend: 0.4
     minDistance: 1
     maxDistance: 6
+  - idName: ID_PlayerPunchWhoosh
+    id: {fileID: 11400000, guid: 98e2fde46eba9634c9a7d64552297f27, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 128
+    useRandomClips: 1
+    randomChance: 30
+    clip: {fileID: 8300000, guid: 58007d1439cb28c498adf124b4199362, type: 3}
+    clips:
+    - {fileID: 8300000, guid: b55a16cdc6dcc45449dfc18c63266d81, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.9
+    maxPitch: 1
+    useRandomVolume: 0
+    minVolume: 0.3
+    maxVolume: 0.3
+    volume: 0.2
+    spatialBlend: 0.4
+    minDistance: 1
+    maxDistance: 6
   - idName: ID_PlayerPunch
     id: {fileID: 11400000, guid: 70b41465b7548854087d2e9608f2ef3e, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 128
+    useRandomClips: 1
+    randomChance: 30
+    clip: {fileID: 8300000, guid: 0245761bb41319841aec385c5bf90c81, type: 3}
+    clips:
+    - {fileID: 8300000, guid: 97c2e7c42a05a31478feccbff7d6aacf, type: 3}
+    - {fileID: 8300000, guid: 9d55def3e2a67a84280e3c629038f7b5, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.9
+    maxPitch: 1
+    useRandomVolume: 0
+    minVolume: 0.3
+    maxVolume: 0.3
+    volume: 0.1
+    spatialBlend: 0.4
+    minDistance: 1
+    maxDistance: 6
+  - idName: ID_PlayerPunchCrack
+    id: {fileID: 11400000, guid: 8c175eb0933c5f34aa0389bc3b85c6ce, type: 2}
     mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
     priority: 128
     useRandomClips: 0
@@ -73,13 +116,253 @@ MonoBehaviour:
     spatialBlend: 0.4
     minDistance: 1
     maxDistance: 6
-  - idName: ID_GunFIre
+  - idName: ID_PlayerBlockHit
+    id: {fileID: 11400000, guid: 582f76754d3bdfc4985f4eeb3539088a, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 128
+    useRandomClips: 0
+    randomChance: 30
+    clip: {fileID: 8300000, guid: 69c46c016f2c1cf4b97b610af3473f8d, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.9
+    maxPitch: 1
+    useRandomVolume: 0
+    minVolume: 0.3
+    maxVolume: 0.3
+    volume: 0.2
+    spatialBlend: 0.4
+    minDistance: 1
+    maxDistance: 6
+  - idName: ID_PlayerBlockRaise
+    id: {fileID: 11400000, guid: 2be3e77112cd9b6418603d3bd3752fb5, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 128
+    useRandomClips: 0
+    randomChance: 30
+    clip: {fileID: 8300000, guid: 744c6c7c990d0ad4c988492ec56574a3, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.9
+    maxPitch: 1
+    useRandomVolume: 0
+    minVolume: 0.3
+    maxVolume: 0.3
+    volume: 0.2
+    spatialBlend: 0.4
+    minDistance: 1
+    maxDistance: 6
+  - idName: ID_PlayerBlockLoop
+    id: {fileID: 11400000, guid: 6b0e00e4c2643ca47a27304054da423b, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 128
+    useRandomClips: 0
+    randomChance: 30
+    clip: {fileID: 8300000, guid: 222f7da8ce7183c4cbb31f81b9419281, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.9
+    maxPitch: 1
+    useRandomVolume: 0
+    minVolume: 0.3
+    maxVolume: 0.3
+    volume: 0.2
+    spatialBlend: 0.4
+    minDistance: 1
+    maxDistance: 6
+  - idName: ID_PlayerBlockRelease
+    id: {fileID: 11400000, guid: 61e030be950207e4f8f62e34faad3b16, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 128
+    useRandomClips: 0
+    randomChance: 30
+    clip: {fileID: 8300000, guid: 4ef5d68b287383a47b4ee53d39488103, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 0
+    minPitch: 0.44
+    maxPitch: 0.38
+    useRandomVolume: 0
+    minVolume: 0.3
+    maxVolume: 0.3
+    volume: 0.2
+    spatialBlend: 0.4
+    minDistance: 1
+    maxDistance: 6
+  - idName: ID_PlayerParry
+    id: {fileID: 11400000, guid: 734e289a4326c6f4b94c9b85e91099b7, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 128
+    useRandomClips: 0
+    randomChance: 30
+    clip: {fileID: 8300000, guid: ad979b9e84c8e3f40ae77ea3bb8f106b, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 0
+    minPitch: 1
+    maxPitch: 1
+    useRandomVolume: 0
+    minVolume: 0.3
+    maxVolume: 0.3
+    volume: 0.2
+    spatialBlend: 0.4
+    minDistance: 1
+    maxDistance: 6
+  - idName: ID_PlayerYantraPunchCast2
+    id: {fileID: 11400000, guid: 961cbf69897bc9041b09b888fa9567ef, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 128
+    useRandomClips: 0
+    randomChance: 30
+    clip: {fileID: 8300000, guid: f66847499fadcae43ba057dfd5904033, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 0
+    minPitch: 1
+    maxPitch: 1
+    useRandomVolume: 0
+    minVolume: 0.3
+    maxVolume: 0.3
+    volume: 0.2
+    spatialBlend: 0.4
+    minDistance: 1
+    maxDistance: 6
+  - idName: ID_PlayerYantraPunchCast3
+    id: {fileID: 11400000, guid: 8d90d77ebc82f1c47bcd2d9766a16f51, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 128
+    useRandomClips: 0
+    randomChance: 30
+    clip: {fileID: 8300000, guid: 13986c8bd6b6c4e4488ba28a3ed9484a, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 0
+    minPitch: 1
+    maxPitch: 1
+    useRandomVolume: 0
+    minVolume: 0.3
+    maxVolume: 0.3
+    volume: 0.2
+    spatialBlend: 0.4
+    minDistance: 1
+    maxDistance: 6
+  - idName: ID_PlayerYantraPunchCast4
+    id: {fileID: 11400000, guid: c597c329aa74f08498ad79114a00562d, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 128
+    useRandomClips: 0
+    randomChance: 30
+    clip: {fileID: 8300000, guid: 8a8fa6450120e9d4a99059addc1d0303, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 0
+    minPitch: 1
+    maxPitch: 1
+    useRandomVolume: 0
+    minVolume: 0.3
+    maxVolume: 0.3
+    volume: 0.2
+    spatialBlend: 0.4
+    minDistance: 1
+    maxDistance: 6
+  - idName: ID_PlayerYantraPunchCastFinal
+    id: {fileID: 11400000, guid: 8da37ff783c7ee34882a5791d8b3bc47, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 128
+    useRandomClips: 0
+    randomChance: 30
+    clip: {fileID: 8300000, guid: 301e7375961f5404fbd3124f206c5a93, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 0
+    minPitch: 1
+    maxPitch: 1
+    useRandomVolume: 0
+    minVolume: 0.3
+    maxVolume: 0.3
+    volume: 0.2
+    spatialBlend: 0.4
+    minDistance: 1
+    maxDistance: 6
+  - idName: ID_PlayerYantraPunchCastFinal2
+    id: {fileID: 11400000, guid: 1f8bcd395488db1409fa5c80079fb329, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 128
+    useRandomClips: 0
+    randomChance: 30
+    clip: {fileID: 8300000, guid: b54655c2ea464974091d5b08e252c3de, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 0
+    minPitch: 1
+    maxPitch: 1
+    useRandomVolume: 0
+    minVolume: 0.3
+    maxVolume: 0.3
+    volume: 0.2
+    spatialBlend: 0.4
+    minDistance: 1
+    maxDistance: 6
+  - idName: ID_GunUltiFIre
     id: {fileID: 11400000, guid: 7c5ec307030d4ee46a97aef3977527eb, type: 2}
     mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
     priority: 128
     useRandomClips: 0
     randomChance: 30
-    clip: {fileID: 8300000, guid: bf00785342f334e478060c845f75642a, type: 3}
+    clip: {fileID: 8300000, guid: 32321f1657a0fa14ea55eba81cc68450, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 0
+    minPitch: 0.9
+    maxPitch: 1
+    useRandomVolume: 0
+    minVolume: 0.3
+    maxVolume: 0.3
+    volume: 0.1
+    spatialBlend: 0.4
+    minDistance: 1
+    maxDistance: 6
+  - idName: ID_GunUltiFIre 1
+    id: {fileID: 11400000, guid: 4c19835b11861c04699c367d2d6ede6e, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 128
+    useRandomClips: 0
+    randomChance: 30
+    clip: {fileID: 8300000, guid: 91adfce943121db46b352e2050a4843f, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 0
+    minPitch: 0.9
+    maxPitch: 1
+    useRandomVolume: 0
+    minVolume: 0.3
+    maxVolume: 0.3
+    volume: 0.1
+    spatialBlend: 0.4
+    minDistance: 1
+    maxDistance: 6
+  - idName: ID_GunUltiFIre 2
+    id: {fileID: 11400000, guid: 264a08cca04622d42903cf7766410216, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 128
+    useRandomClips: 0
+    randomChance: 30
+    clip: {fileID: 8300000, guid: d58c4d0b06af92344ad79e0df3815aa6, type: 3}
     clips: []
     useRandomStartOffset: 0
     maxStartOffsetPercent: 0.5
