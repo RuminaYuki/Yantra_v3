@@ -144,6 +144,12 @@ public class EffectController : MonoBehaviour
             return;
         }
 
+        if (activationMode == EffectActivationMode.SingleUse &&
+            (hasStarted || hasExecuted || hasFinished))
+        {
+            return;
+        }
+
         hasStarted = true;
         isHeld = true;
         hasExecuted = false;
@@ -198,7 +204,9 @@ public class EffectController : MonoBehaviour
 
     public void ActivateFromSpawn()
     {
-        if (!isEnabled)
+        if (!isEnabled ||
+            (activationMode == EffectActivationMode.SingleUse &&
+             (hasStarted || hasExecuted || hasFinished)))
         {
             return;
         }
@@ -258,6 +266,7 @@ public class EffectController : MonoBehaviour
         executor.Execute(effectOwner);
 
         hasExecuted = true;
+        Debug.Log(hasExecuted);
         cooldownRemaining = cooldown;
 
         if (activationMode == EffectActivationMode.SingleUse)
