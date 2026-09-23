@@ -21,6 +21,7 @@ public class TargetDetector : MonoBehaviour
     [SerializeField] private Color blockedColor = Color.red;
 
     private List<Func<Transform, Transform>> _modifiers = new();
+    private readonly HashSet<Transform> ignoredTargets = new();
     private float scanTimer;
     private Transform cachedTarget;
 
@@ -57,6 +58,9 @@ public class TargetDetector : MonoBehaviour
                 continue;
 
             Transform candidateTarget = ((Component)damageable).transform;
+            if (ignoredTargets.Contains(candidateTarget))
+                continue;
+
             Vector3 direction = candidateTarget.position - origin.position;
             float distanceSqr = direction.sqrMagnitude;
             float angle = Vector3.Angle(origin.forward, direction);
@@ -114,6 +118,24 @@ public class TargetDetector : MonoBehaviour
     {
         cachedTarget = null;
         scanTimer = 0f;
+    }
+
+    public void IgnoreTarget(Transform target)
+    {
+        if (target == null)
+            return;
+
+        ignoredTargets.Add(target);
+        if (cachedTarget == target ||
+            (cachedTarget != null &&
+             (cachedTarget.IsChildOf(target) || target.IsChildOf(cachedTarget))))
+            ClearTarget();
+    }
+
+    public void ClearIgnoredTargets()
+    {
+        ignoredTargets.Clear();
+        ClearTarget();
     }
 
     private void DrawRuntimeDetection(Transform origin, Transform target)

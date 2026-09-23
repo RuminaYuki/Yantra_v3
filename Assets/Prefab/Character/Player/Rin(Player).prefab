@@ -2961,7 +2961,7 @@ GameObject:
   - component: {fileID: 4438593126699860127}
   - component: {fileID: 1886807415981922025}
   - component: {fileID: 8636793298182785553}
-  - component: {fileID: 1556051593091316127}
+  - component: {fileID: 4509149362283433533}
   m_Layer: 0
   m_Name: ArmController
   m_TagString: Untagged
@@ -3071,7 +3071,7 @@ MonoBehaviour:
   _animator: {fileID: 3970455072621369329}
   _aPD_SetEnable_AEC: {fileID: 11400000, guid: acd6a1d536bf6a54ead182646c6247c6, type: 2}
   _aPD_AEC: {fileID: 11400000, guid: c71c818643cfef64c8af8ee8b6ccf03e, type: 2}
---- !u!114 &1556051593091316127
+--- !u!114 &4509149362283433533
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3080,10 +3080,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 5440435801676738965}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 87666c3b2a23f764c9611cc8991ff8a7, type: 3}
+  m_Script: {fileID: 11500000, guid: ef16dc72c1be5654db353f62022007cf, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HandleShoting
-  _startSpawn: {fileID: 11400000, guid: 0601cb40d77a7d84da4856f221cdc24f, type: 2}
+  m_EditorClassIdentifier: Assembly-CSharp::AnimEventDispatcher
+  events: []
 --- !u!1 &5472536402564424402
 GameObject:
   m_ObjectHideFlags: 0
@@ -6084,9 +6084,6 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 6148217924338067294, guid: 6f12d16457b937543b20182206489919, type: 3}
       insertIndex: 1
-      addedObject: {fileID: 2678259943650629147}
-    - targetCorrespondingSourceObject: {fileID: 6148217924338067294, guid: 6f12d16457b937543b20182206489919, type: 3}
-      insertIndex: 2
       addedObject: {fileID: 1862860732343866059}
     - targetCorrespondingSourceObject: {fileID: 4550438804359467309, guid: 6f12d16457b937543b20182206489919, type: 3}
       insertIndex: -1
@@ -6133,20 +6130,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 6148217924338067294, guid: 6f12d16457b937543b20182206489919, type: 3}
   m_PrefabInstance: {fileID: 3676078919092606504}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2678259943650629147
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7374316651586335094}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c3b62f809a9c40c4a9f8e36828d69982, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Provider
-  Anchors:
-  - {fileID: 11400000, guid: 7604516d935ffbe43b174fac67b9bbf1, type: 2}
 --- !u!114 &1862860732343866059
 MonoBehaviour:
   m_ObjectHideFlags: 0
