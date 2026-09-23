@@ -33,5 +33,5 @@ public class RadialMenuButtonData
     public int ID;
 
     public string buttonName;
-    public Sprite buttonIcon;
+    public Texture buttonIcon;
 }
