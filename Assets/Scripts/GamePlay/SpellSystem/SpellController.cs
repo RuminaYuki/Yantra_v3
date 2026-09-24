@@ -135,6 +135,7 @@ public class SpellController : MonoBehaviour
     public void SetActive(bool value) => _isActive = value;
 
     public void AddProgress() => splineToLineRenderer.AddProgress();
+    public bool GetHaveTemplat => splineToLineRenderer != null;
 
     private void LockCursorForSpell()
     {
