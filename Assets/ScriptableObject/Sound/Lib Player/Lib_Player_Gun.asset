@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ccd93381a6a2f664ba0f5731b83f0ecc, type: 3}
-  m_Name: Lib_Nawin_Action
+  m_Name: Lib_Player_Gun
   m_EditorClassIdentifier: Assembly-CSharp::SoundLibrary
   sounds:
-  - idName: ID_PlayerGethit
-    id: {fileID: 11400000, guid: 649b87b33957fbb48adc8bdd3d05ee7f, type: 2}
+  - idName: ID_GunFIre
+    id: {fileID: 11400000, guid: d37ceb61d800c0642be586511fc48aa3, type: 2}
     mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
     priority: 128
     useRandomClips: 0
     randomChance: 30
-    clip: {fileID: 8300000, guid: e7171db2e30d01a409ce6ff989de2b9b, type: 3}
+    clip: {fileID: 8300000, guid: db97e552a4319b74c97cf551de8b3c0c, type: 3}
     clips: []
     useRandomStartOffset: 0
     maxStartOffsetPercent: 0.5
@@ -33,60 +33,17 @@ MonoBehaviour:
     spatialBlend: 0.4
     minDistance: 1
     maxDistance: 6
-  - idName: ID_PlayerDead
-    id: {fileID: 11400000, guid: 97d12ab35b791814aa425d6080263d1c, type: 2}
+  - idName: ID_GunUltiFIre
+    id: {fileID: 11400000, guid: 7c5ec307030d4ee46a97aef3977527eb, type: 2}
     mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
     priority: 128
     useRandomClips: 0
     randomChance: 30
-    clip: {fileID: 8300000, guid: 00e44ec86f3f7004388fdc7c9fccd8e8, type: 3}
+    clip: {fileID: 8300000, guid: 32321f1657a0fa14ea55eba81cc68450, type: 3}
     clips: []
     useRandomStartOffset: 0
     maxStartOffsetPercent: 0.5
     useRandomPitch: 0
-    minPitch: 0.9
-    maxPitch: 1
-    useRandomVolume: 0
-    minVolume: 0.3
-    maxVolume: 0.3
-    volume: 0.2
-    spatialBlend: 0.4
-    minDistance: 1
-    maxDistance: 6
-  - idName: ID_PlayerPunchWhoosh
-    id: {fileID: 11400000, guid: 98e2fde46eba9634c9a7d64552297f27, type: 2}
-    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
-    priority: 128
-    useRandomClips: 1
-    randomChance: 30
-    clip: {fileID: 8300000, guid: 58007d1439cb28c498adf124b4199362, type: 3}
-    clips:
-    - {fileID: 8300000, guid: b55a16cdc6dcc45449dfc18c63266d81, type: 3}
-    useRandomStartOffset: 0
-    maxStartOffsetPercent: 0.5
-    useRandomPitch: 1
-    minPitch: 0.9
-    maxPitch: 1
-    useRandomVolume: 0
-    minVolume: 0.3
-    maxVolume: 0.3
-    volume: 0.2
-    spatialBlend: 0.4
-    minDistance: 1
-    maxDistance: 6
-  - idName: ID_PlayerPunch
-    id: {fileID: 11400000, guid: 70b41465b7548854087d2e9608f2ef3e, type: 2}
-    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
-    priority: 128
-    useRandomClips: 1
-    randomChance: 30
-    clip: {fileID: 8300000, guid: 0245761bb41319841aec385c5bf90c81, type: 3}
-    clips:
-    - {fileID: 8300000, guid: 97c2e7c42a05a31478feccbff7d6aacf, type: 3}
-    - {fileID: 8300000, guid: 9d55def3e2a67a84280e3c629038f7b5, type: 3}
-    useRandomStartOffset: 0
-    maxStartOffsetPercent: 0.5
-    useRandomPitch: 1
     minPitch: 0.9
     maxPitch: 1
     useRandomVolume: 0
@@ -96,223 +53,223 @@ MonoBehaviour:
     spatialBlend: 0.4
     minDistance: 1
     maxDistance: 6
-  - idName: ID_PlayerPunchCrack
-    id: {fileID: 11400000, guid: 8c175eb0933c5f34aa0389bc3b85c6ce, type: 2}
+  - idName: ID_GunUltiFIre 1
+    id: {fileID: 11400000, guid: 4c19835b11861c04699c367d2d6ede6e, type: 2}
     mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
     priority: 128
     useRandomClips: 0
     randomChance: 30
-    clip: {fileID: 8300000, guid: 198db817ba479e2439a357be5accde89, type: 3}
+    clip: {fileID: 8300000, guid: 91adfce943121db46b352e2050a4843f, type: 3}
     clips: []
     useRandomStartOffset: 0
     maxStartOffsetPercent: 0.5
-    useRandomPitch: 1
+    useRandomPitch: 0
     minPitch: 0.9
     maxPitch: 1
     useRandomVolume: 0
     minVolume: 0.3
     maxVolume: 0.3
-    volume: 0.2
+    volume: 0.1
     spatialBlend: 0.4
     minDistance: 1
     maxDistance: 6
-  - idName: ID_PlayerBlockHit
-    id: {fileID: 11400000, guid: 582f76754d3bdfc4985f4eeb3539088a, type: 2}
+  - idName: ID_GunUltiFIre 2
+    id: {fileID: 11400000, guid: 264a08cca04622d42903cf7766410216, type: 2}
     mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
     priority: 128
     useRandomClips: 0
     randomChance: 30
-    clip: {fileID: 8300000, guid: 69c46c016f2c1cf4b97b610af3473f8d, type: 3}
+    clip: {fileID: 8300000, guid: d58c4d0b06af92344ad79e0df3815aa6, type: 3}
     clips: []
     useRandomStartOffset: 0
     maxStartOffsetPercent: 0.5
-    useRandomPitch: 1
+    useRandomPitch: 0
     minPitch: 0.9
     maxPitch: 1
     useRandomVolume: 0
     minVolume: 0.3
     maxVolume: 0.3
-    volume: 0.2
+    volume: 0.1
     spatialBlend: 0.4
     minDistance: 1
     maxDistance: 6
-  - idName: ID_PlayerBlockRaise
-    id: {fileID: 11400000, guid: 2be3e77112cd9b6418603d3bd3752fb5, type: 2}
+  - idName: ID_GunReloadHandle
+    id: {fileID: 11400000, guid: f22684b1b37c66f43ba2c9ae0b7ba3e6, type: 2}
     mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
     priority: 128
     useRandomClips: 0
     randomChance: 30
-    clip: {fileID: 8300000, guid: 744c6c7c990d0ad4c988492ec56574a3, type: 3}
+    clip: {fileID: 8300000, guid: f130b31ea738fe542860c2c8414f6ebd, type: 3}
     clips: []
     useRandomStartOffset: 0
     maxStartOffsetPercent: 0.5
-    useRandomPitch: 1
+    useRandomPitch: 0
     minPitch: 0.9
     maxPitch: 1
     useRandomVolume: 0
     minVolume: 0.3
     maxVolume: 0.3
-    volume: 0.2
+    volume: 1
     spatialBlend: 0.4
     minDistance: 1
     maxDistance: 6
-  - idName: ID_PlayerBlockLoop
-    id: {fileID: 11400000, guid: 6b0e00e4c2643ca47a27304054da423b, type: 2}
+  - idName: ID_GunReloadHandle 1
+    id: {fileID: 11400000, guid: 8d58449000274ff4cbdee3bf309b5add, type: 2}
     mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
     priority: 128
     useRandomClips: 0
     randomChance: 30
-    clip: {fileID: 8300000, guid: 222f7da8ce7183c4cbb31f81b9419281, type: 3}
+    clip: {fileID: 8300000, guid: 85c1e230b11cc4048b614847734ff908, type: 3}
     clips: []
     useRandomStartOffset: 0
     maxStartOffsetPercent: 0.5
-    useRandomPitch: 1
+    useRandomPitch: 0
     minPitch: 0.9
     maxPitch: 1
     useRandomVolume: 0
     minVolume: 0.3
     maxVolume: 0.3
-    volume: 0.2
+    volume: 1
     spatialBlend: 0.4
     minDistance: 1
     maxDistance: 6
-  - idName: ID_PlayerBlockRelease
-    id: {fileID: 11400000, guid: 61e030be950207e4f8f62e34faad3b16, type: 2}
+  - idName: ID_GunReloadHandle 2
+    id: {fileID: 11400000, guid: e1d9b1d21ae862246bb1dfd4028c2b28, type: 2}
     mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
     priority: 128
     useRandomClips: 0
     randomChance: 30
-    clip: {fileID: 8300000, guid: 4ef5d68b287383a47b4ee53d39488103, type: 3}
+    clip: {fileID: 8300000, guid: 802189eb01280db4c8c577877811dd48, type: 3}
     clips: []
     useRandomStartOffset: 0
     maxStartOffsetPercent: 0.5
     useRandomPitch: 0
-    minPitch: 0.44
-    maxPitch: 0.38
-    useRandomVolume: 0
-    minVolume: 0.3
-    maxVolume: 0.3
-    volume: 0.2
-    spatialBlend: 0.4
-    minDistance: 1
-    maxDistance: 6
-  - idName: ID_PlayerParry
-    id: {fileID: 11400000, guid: 734e289a4326c6f4b94c9b85e91099b7, type: 2}
-    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
-    priority: 128
-    useRandomClips: 0
-    randomChance: 30
-    clip: {fileID: 8300000, guid: ad979b9e84c8e3f40ae77ea3bb8f106b, type: 3}
-    clips: []
-    useRandomStartOffset: 0
-    maxStartOffsetPercent: 0.5
-    useRandomPitch: 0
-    minPitch: 1
+    minPitch: 0.9
     maxPitch: 1
     useRandomVolume: 0
     minVolume: 0.3
     maxVolume: 0.3
-    volume: 0.2
+    volume: 0.1
     spatialBlend: 0.4
     minDistance: 1
     maxDistance: 6
-  - idName: ID_PlayerYantraPunchCast2
-    id: {fileID: 11400000, guid: 961cbf69897bc9041b09b888fa9567ef, type: 2}
+  - idName: ID_GunReloadPowder
+    id: {fileID: 11400000, guid: de22bcdfac6374a44a4515ac609d2c24, type: 2}
     mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
     priority: 128
     useRandomClips: 0
     randomChance: 30
-    clip: {fileID: 8300000, guid: f66847499fadcae43ba057dfd5904033, type: 3}
+    clip: {fileID: 8300000, guid: 9a5cbfd3df5cc3e4b8730b213c31cb78, type: 3}
     clips: []
     useRandomStartOffset: 0
     maxStartOffsetPercent: 0.5
     useRandomPitch: 0
-    minPitch: 1
+    minPitch: 0.9
     maxPitch: 1
     useRandomVolume: 0
     minVolume: 0.3
     maxVolume: 0.3
-    volume: 0.2
+    volume: 1
     spatialBlend: 0.4
     minDistance: 1
     maxDistance: 6
-  - idName: ID_PlayerYantraPunchCast3
-    id: {fileID: 11400000, guid: 8d90d77ebc82f1c47bcd2d9766a16f51, type: 2}
+  - idName: ID_GunReloadCock
+    id: {fileID: 11400000, guid: 190b3cfbea939fd40892e77f9b916415, type: 2}
     mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
     priority: 128
     useRandomClips: 0
     randomChance: 30
-    clip: {fileID: 8300000, guid: 13986c8bd6b6c4e4488ba28a3ed9484a, type: 3}
+    clip: {fileID: 8300000, guid: d7460034a7e4d1e4eaa98529416e6486, type: 3}
     clips: []
     useRandomStartOffset: 0
     maxStartOffsetPercent: 0.5
     useRandomPitch: 0
-    minPitch: 1
+    minPitch: 0.9
     maxPitch: 1
     useRandomVolume: 0
     minVolume: 0.3
     maxVolume: 0.3
-    volume: 0.2
+    volume: 1
     spatialBlend: 0.4
     minDistance: 1
     maxDistance: 6
-  - idName: ID_PlayerYantraPunchCast4
-    id: {fileID: 11400000, guid: c597c329aa74f08498ad79114a00562d, type: 2}
+  - idName: ID_GunReloadCock 1
+    id: {fileID: 11400000, guid: 4c5e3073f1c1a334794e8da9ddb67586, type: 2}
     mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
     priority: 128
     useRandomClips: 0
     randomChance: 30
-    clip: {fileID: 8300000, guid: 8a8fa6450120e9d4a99059addc1d0303, type: 3}
+    clip: {fileID: 8300000, guid: 219a244bcfe17cf4693fa9235071bbe9, type: 3}
     clips: []
     useRandomStartOffset: 0
     maxStartOffsetPercent: 0.5
     useRandomPitch: 0
-    minPitch: 1
+    minPitch: 0.9
     maxPitch: 1
     useRandomVolume: 0
     minVolume: 0.3
     maxVolume: 0.3
-    volume: 0.2
+    volume: 1
     spatialBlend: 0.4
     minDistance: 1
     maxDistance: 6
-  - idName: ID_PlayerYantraPunchCastFinal
-    id: {fileID: 11400000, guid: 8da37ff783c7ee34882a5791d8b3bc47, type: 2}
+  - idName: ID_GunReloadRam
+    id: {fileID: 11400000, guid: 1009d0c0f5a0e9d4e9285766cc65d04c, type: 2}
     mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
     priority: 128
     useRandomClips: 0
     randomChance: 30
-    clip: {fileID: 8300000, guid: 301e7375961f5404fbd3124f206c5a93, type: 3}
+    clip: {fileID: 8300000, guid: d1642671c92d42c4cbb6452e82c2b284, type: 3}
     clips: []
     useRandomStartOffset: 0
     maxStartOffsetPercent: 0.5
     useRandomPitch: 0
-    minPitch: 1
+    minPitch: 0.9
     maxPitch: 1
     useRandomVolume: 0
     minVolume: 0.3
     maxVolume: 0.3
-    volume: 0.2
+    volume: 1
     spatialBlend: 0.4
     minDistance: 1
     maxDistance: 6
-  - idName: ID_PlayerYantraPunchCastFinal2
-    id: {fileID: 11400000, guid: 1f8bcd395488db1409fa5c80079fb329, type: 2}
+  - idName: ID_GunReloadRam 1
+    id: {fileID: 11400000, guid: e43f1bf529271aa43a54a541c530a38d, type: 2}
     mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
     priority: 128
     useRandomClips: 0
     randomChance: 30
-    clip: {fileID: 8300000, guid: b54655c2ea464974091d5b08e252c3de, type: 3}
+    clip: {fileID: 8300000, guid: 9063e8e9815edc24fa8edb40ac8df55f, type: 3}
     clips: []
     useRandomStartOffset: 0
     maxStartOffsetPercent: 0.5
     useRandomPitch: 0
-    minPitch: 1
+    minPitch: 0.9
     maxPitch: 1
     useRandomVolume: 0
     minVolume: 0.3
     maxVolume: 0.3
-    volume: 0.2
+    volume: 1
+    spatialBlend: 0.4
+    minDistance: 1
+    maxDistance: 6
+  - idName: ID_GunReloadRam 2
+    id: {fileID: 11400000, guid: 6b8a59bb95979694c8a5a03f1231fb87, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 128
+    useRandomClips: 0
+    randomChance: 30
+    clip: {fileID: 8300000, guid: 109d650cd078a104486c3ef2a6a4c321, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 0
+    minPitch: 0.9
+    maxPitch: 1
+    useRandomVolume: 0
+    minVolume: 0.3
+    maxVolume: 0.3
+    volume: 1
     spatialBlend: 0.4
     minDistance: 1
     maxDistance: 6
