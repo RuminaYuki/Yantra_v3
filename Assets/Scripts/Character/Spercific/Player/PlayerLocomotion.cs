@@ -92,8 +92,8 @@ public class PlayerLocomotion : BaseLocomotion
     }
     private void PlayerVelocityLogic(Vector3 direction)
     {
-        if(!IsMovementLocked)
-            CharacterController.Move(direction * _currentspeed * Time.deltaTime);
+        Vector3 movement = !IsMovementLocked ? direction * _currentspeed * Time.deltaTime : Vector3.zero;
+        CharacterController.Move(movement + Gravity.Gravity());
     }
 
     #region SetAnimation
