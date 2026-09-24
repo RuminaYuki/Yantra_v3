@@ -6,7 +6,6 @@ using UnityEngine.InputSystem;
 public class PlayerLocomotion : BaseLocomotion
 {
     private Vector3 _directionMove;
-
     
     [Header("Player Input")]
     private InputSystem_Actions _playerInput;
@@ -30,6 +29,7 @@ public class PlayerLocomotion : BaseLocomotion
     [Header("Turn Logic Setting")]
     [SerializeField] private bool _turnbyCamera;
     [SerializeField] private float _angleTurnExit = 10f;
+    
 
     private int _turnAngleHash;
     private int _isTurningHash;
@@ -73,6 +73,8 @@ public class PlayerLocomotion : BaseLocomotion
 
         if (_turnbyCamera)
             UpdateTurnByCamera(direction);
+
+        PlayerVelocityLogic(direction);
     }
 
     private void OnMovePerformed(InputAction.CallbackContext ctx)
@@ -82,6 +84,16 @@ public class PlayerLocomotion : BaseLocomotion
     private void OnMoveCanceled(InputAction.CallbackContext ctx)
     {
         _directionMove = Vector3.zero;
+    }
+    protected override void OnAnimatorMove()
+    {
+        if (_rootMotionEnabled && IsMovementLocked)
+            transform.rotation *= Animator.deltaRotation;
+    }
+    private void PlayerVelocityLogic(Vector3 direction)
+    {
+        if(!IsMovementLocked)
+            CharacterController.Move(direction * _currentspeed * Time.deltaTime);
     }
 
     #region SetAnimation
@@ -179,7 +191,7 @@ public class PlayerLocomotion : BaseLocomotion
         return flatForward.normalized;
     }
     #endregion
-    #region //API
+    #region API
     // Direction
     public void SetDirection(Vector3 direction) => _directionMove = direction;
     public Vector3 GetDirection() => _directionMove;
@@ -188,6 +200,5 @@ public class PlayerLocomotion : BaseLocomotion
     // Get,Set TurnbyCamera
     public bool GetTurnByCamera() => _turnbyCamera;
     public void SetTurnByCamera(bool value) => _turnbyCamera = value;
-
     #endregion
 }
