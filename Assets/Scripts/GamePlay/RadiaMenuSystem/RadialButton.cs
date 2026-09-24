@@ -69,9 +69,10 @@ public class RadialButton : MonoBehaviour
         else
         {
             Debug.LogWarning($"Wait what {this.gameObject.name} มายังไง??");
+            return;
         }
 
-        if (Mouse.current != null)
+        if (_radialManu.IsSystemEnabled() && Mouse.current != null)
         {
             HandleStroke(Mouse.current.delta.ReadValue());
         }
@@ -94,10 +95,13 @@ public class RadialButton : MonoBehaviour
             float angleDifference =
                 Mathf.Abs(Mathf.DeltaAngle(mouseAngle, splineAngle));
 
-            if (angleDifference < _angleThreshold)
+            if (angleDifference < _angleThreshold &&
+                _radialManu.GetActive() &&
+                _radialIntID_IEC != null)
             {
                 _radialIntID_IEC.Raise(_buttonID);
-                _onSelected.Raise();
+                if (_onSelected != null)
+                    _onSelected.Raise();
             }
         }
     }

@@ -1,9 +1,12 @@
-﻿using System.Collections;
+using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class SpellController : MonoBehaviour
 {
+    public event Action SpellFinished;
+
     [Header("Player Input")]
     private InputSystem_Actions playerInput;
 
@@ -119,6 +122,7 @@ public class SpellController : MonoBehaviour
         }
 
         FinishedSpell.Raise();
+        SpellFinished?.Invoke();
         Destroy(splineToLineRenderer.gameObject);
     }
 

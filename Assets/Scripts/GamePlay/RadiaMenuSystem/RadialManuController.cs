@@ -10,7 +10,7 @@ public class RadialManuController : MonoBehaviour
     [SerializeField] GameObject _circleUIPrefab;
     [SerializeField] TMP_Text _centerLabel;
     [SerializeField] BoolRadialSOAdvEventChannal _boolRadialSOAdvEventChannal;
-    [SerializeField] IntEventChannelSO _radialIntID_IEC; // ãªé channel à´ÕÂÇ¡Ñº·Õè RadialButton ãªé
+    [SerializeField] IntEventChannelSO _radialIntID_IEC; // ï¿½ï¿½ channel ï¿½ï¿½ï¿½Ç¡Ñºï¿½ï¿½ï¿½ RadialButton ï¿½ï¿½
 
     [Header("Radial Menu Settings")]
     [SerializeField] float _fillAmountOffeset = 0.001f;
@@ -18,7 +18,7 @@ public class RadialManuController : MonoBehaviour
     [Header("Debug")]
     [SerializeField] int _countOfButtons = 6;
 
-    // pool: »ØèÁ·Õèà¤ÂÊÃéÒ§äÇé·Ñé§ËÁ´ (·Ñé§·Õèà»Ô´áÅÐ»Ô´ÍÂÙè)
+    // pool: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½é§·ï¿½ï¿½ï¿½Ô´ï¿½ï¿½Ð»Ô´ï¿½ï¿½ï¿½ï¿½)
     readonly List<GameObject> _radialMenuButtons = new();
     readonly List<Image> _buttonImages = new();
     readonly List<RadialButton> _radialButtons = new();
@@ -27,6 +27,7 @@ public class RadialManuController : MonoBehaviour
     int _hoveredId = -1;
 
     public bool _isActive;
+    bool _systemEnabled = true;
 
     private void Awake()
     {
@@ -36,7 +37,7 @@ public class RadialManuController : MonoBehaviour
         if (_centerLabel != null)
             _centerLabel.text = "";
 
-        SetVisible(false); // á¤è«èÍ¹ äÁèµéÍ§ÊÃéÒ§»ØèÁ
+        SetVisible(false); // ï¿½ï¿½ï¿½Í¹ ï¿½ï¿½ï¿½ï¿½Í§ï¿½ï¿½ï¿½Ò§ï¿½ï¿½ï¿½ï¿½
     }
 
     private void OnEnable()
@@ -59,19 +60,43 @@ public class RadialManuController : MonoBehaviour
 
     public void OpenRadialManu(bool value, RadialMenuDataSO Data = null)
     {
+        if (value && !_systemEnabled)
+            return;
+
         if (value)
         {
             _currentData = Data;
             _countOfButtons = Data != null ? Data.GetListData().Count : _countOfButtons;
             RefreshRadialMenu();
 
-            // ÅéÒ§Ê¶Ò¹Ð hover ¤éÒ§¨Ò¡ÃÍº¡èÍ¹ (»ØèÁ¡ÅÑº scale »¡µÔ + label ÇèÒ§)
+            // ï¿½ï¿½Ò§Ê¶Ò¹ï¿½ hover ï¿½ï¿½Ò§ï¿½Ò¡ï¿½Íºï¿½ï¿½Í¹ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñº scale ï¿½ï¿½ï¿½ï¿½ + label ï¿½ï¿½Ò§)
             if (_radialIntID_IEC != null)
                 _radialIntID_IEC.Raise(-1);
         }
 
         SetVisible(value);
     }
+
+    public void SetSystemEnabled(bool enabled)
+    {
+        _systemEnabled = enabled;
+
+        if (enabled)
+            return;
+
+        _hoveredId = -1;
+        if (_centerLabel != null)
+            _centerLabel.text = "";
+
+        if (_radialIntID_IEC != null)
+            _radialIntID_IEC.Raise(-1);
+
+        SetVisible(false);
+    }
+
+    public void EnableSystem() => SetSystemEnabled(true);
+
+    public void DisableSystem() => SetSystemEnabled(false);
 
     private void SetVisible(bool value)
     {
@@ -86,11 +111,11 @@ public class RadialManuController : MonoBehaviour
         float fillAmount = (1f / _countOfButtons) - _fillAmountOffeset;
         float angle = 360f / _countOfButtons;
 
-        // 1) à¾ÔèÁ»ØèÁã¹ pool à©¾ÒÐµÍ¹·ÕèäÁè¾Í
+        // 1) ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ pool à©¾ï¿½ÐµÍ¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         while (_radialMenuButtons.Count < _countOfButtons)
             CreateButton();
 
-        // 2) à»Ô´à©¾ÒÐ»ØèÁ·ÕèµéÍ§ãªé ·ÕèàËÅ×Í»Ô´
+        // 2) ï¿½Ô´à©¾ï¿½Ð»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í§ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í»Ô´
         for (int i = 0; i < _radialMenuButtons.Count; i++)
         {
             bool inUse = i < _countOfButtons;
@@ -123,7 +148,7 @@ public class RadialManuController : MonoBehaviour
 
     private void HandleHover(int id)
     {
-        // channel ¶Ù¡ Raise ·Ø¡à¿ÃÁ·ÕèàÁÒÊì¢ÂÑº ¡Ñ¹à«çµ text «éÓ
+        // channel ï¿½Ù¡ Raise ï¿½Ø¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñº ï¿½Ñ¹ï¿½ï¿½ text ï¿½ï¿½ï¿½
         if (id == _hoveredId) return;
 
         _hoveredId = id;
@@ -142,5 +167,7 @@ public class RadialManuController : MonoBehaviour
         return id < list.Count ? list[id].buttonName : "";
     }
 
-    public bool GetActive() => _isActive;
+    public bool GetActive() => _isActive && _systemEnabled;
+
+    public bool IsSystemEnabled() => _systemEnabled;
 }
