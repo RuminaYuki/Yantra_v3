@@ -9,7 +9,14 @@ public class StateMachineController : MonoBehaviour
     public event Action<string, string> MainStateChanged;
     public event Action<string, string> ChildStateChanged;
 
+    // หยุด StateMachineController ทุกตัวในเกม (ใช้คู่กับ Time.timeScale = 0 เพื่อหยุด Animator/ฟิสิกส์)
+    public static bool IsPaused { get; set; }
+
     private StateMachine[] _stateMachines;
+
+    // รีเซ็ตทุกครั้งที่กด Play กันค่าค้างข้าม session เมื่อปิด Domain Reload
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatics() => IsPaused = false;
 
     private void Start()
     {
@@ -23,7 +30,7 @@ public class StateMachineController : MonoBehaviour
 
     private void Update()
     {
-        if (_stateMachines == null)
+        if (IsPaused || _stateMachines == null)
         {
             return;
         }
@@ -36,7 +43,7 @@ public class StateMachineController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (_stateMachines == null)
+        if (IsPaused || _stateMachines == null)
         {
             return;
         }
