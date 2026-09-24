@@ -3123,6 +3123,7 @@ MonoBehaviour:
   _animator: {fileID: 3970455072621369329}
   _aPD_SetEnable_AEC: {fileID: 11400000, guid: acd6a1d536bf6a54ead182646c6247c6, type: 2}
   _aPD_AEC: {fileID: 11400000, guid: c71c818643cfef64c8af8ee8b6ccf03e, type: 2}
+  speedMultiple: 1
 --- !u!114 &4509149362283433533
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3908,6 +3909,7 @@ MonoBehaviour:
   _frequency: 22
   _traumaDecay: 1.6
   _traumaExponent: 2
+  _kickStepTime: 0.035
   _useUnscaledTime: 0
   _globalMultiplier: 1
 --- !u!1 &7611354474083587279
@@ -4196,6 +4198,7 @@ GameObject:
   - component: {fileID: 282391915052615432}
   - component: {fileID: 4975974270336258790}
   - component: {fileID: 8312917654190980340}
+  - component: {fileID: 5335832071207356501}
   m_Layer: 6
   m_Name: PlayerController
   m_TagString: Player
@@ -4328,7 +4331,6 @@ MonoBehaviour:
   _maxTurnAngleForSpeed: 90
   _turnbyCamera: 1
   _angleTurnExit: 10
-  _currentspeed: 10
 --- !u!114 &2859177828134115449
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4685,7 +4687,9 @@ MonoBehaviour:
   _effekseerEffect: {fileID: 0}
   _vfxPrefab: {fileID: 8305671009596730349, guid: a71a37e351077924a939b91cde8c4ff4, type: 3}
   _followOrigin: 1
-  _lifetime: 1
+  _duration: 1
+  _speed: 1
+  _fadeOut: 1
   _origin: {fileID: 8732579922464794826}
   _worldOffset: {x: 0, y: 0, z: 0}
   _rotationMode: 2
@@ -4732,7 +4736,9 @@ MonoBehaviour:
   _effekseerEffect: {fileID: 0}
   _vfxPrefab: {fileID: 6451059781093660165, guid: dbb8924ac73f3694a8f9d66747eccbdd, type: 3}
   _followOrigin: 1
-  _lifetime: 1
+  _duration: 1
+  _speed: 1
+  _fadeOut: 1
   _origin: {fileID: 7011208611220036430}
   _worldOffset: {x: 0, y: 0, z: 0}
   _rotationMode: 2
@@ -4758,6 +4764,25 @@ MonoBehaviour:
   _playerTag: Player
   _onParrySuccess: {fileID: 11400000, guid: 7df8b0117f7c8b64fb93ef2085387ba2, type: 2}
   _logDetection: 1
+--- !u!114 &5335832071207356501
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8849103926970512020}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f63943489227efc4db8e73d3bfb0b484, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AttackHitFeedback
+  _attack: {fileID: 0}
+  _hitStopDuration: 0.05
+  _shakeRadius: 0.06
+  _shakeDuration: 0.18
+  _shakeTilt: 1.5
+  _minInterval: 0.05
+  _logPlays: 0
 --- !u!1 &9126798675211712603
 GameObject:
   m_ObjectHideFlags: 0
