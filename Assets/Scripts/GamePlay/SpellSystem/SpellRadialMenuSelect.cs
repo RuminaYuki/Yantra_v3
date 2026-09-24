@@ -51,6 +51,8 @@ public class SpellRadialMenuSelect : MonoBehaviour
 
     public void HandleOpenRadial()
     {
+        if (_spellController.GetHaveTemplat) return;
+
         _Id = -1;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = false;
