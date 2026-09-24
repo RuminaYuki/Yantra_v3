@@ -14,6 +14,7 @@ public class SerializableAction
         ActionEvent += listener;
     }
     public void RemoveListener(Action listener) => ActionEvent -= listener;
+    public int ListenerCount => ActionEvent?.GetInvocationList().Length ?? 0;
 }
 
 public class AnimEventDispatcher : MonoBehaviour
@@ -25,7 +26,6 @@ public class AnimEventDispatcher : MonoBehaviour
     {
         if (events.TryGetValue(key, out var evt))
         {
-            Debug.Log(key);
             evt.Invoke();
         }
         else
@@ -39,7 +39,6 @@ public class AnimEventDispatcher : MonoBehaviour
         {
             evt = new SerializableAction();
             events[key] = evt;
-            Debug.Log("new SerializableAction");
         }
         return evt;
     }

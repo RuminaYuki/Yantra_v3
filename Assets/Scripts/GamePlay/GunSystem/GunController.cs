@@ -15,6 +15,9 @@ public class GunController : MonoBehaviour
     [SerializeField] GameObject PlayerController;
     [SerializeField] SkillPoints skillPoints;
     [SerializeField] List<Spawner> spawners = new();
+    [SerializeField] private Transform muzzle;
+    [SerializeField] AnimEventDispatcher dispatcher;
+    [SerializeField] protected string eventKey = string.Empty;
 
     [Header("Settings")]
     [SerializeField] GunMode gunMode = GunMode.Normal;
@@ -31,7 +34,6 @@ public class GunController : MonoBehaviour
     [SerializeField] int maxAmmo = 2;
     [SerializeField] float delayTime = 0.5f;
     [SerializeField] VoidEventChannelSO handleSpawnEvent;
-    [SerializeField] Animator animator;
     [SerializeField] GunNormalModeSetting settingNormalMode;
     [SerializeField] GunSpecialModeSetting settingSpecialMode;
 
@@ -43,6 +45,11 @@ public class GunController : MonoBehaviour
     private void Awake()
     {
         CurentAmmo = maxAmmo;
+
+        if (dispatcher != null && !string.IsNullOrEmpty(eventKey))
+        {
+            dispatcher.GetEvent(eventKey).AddListener(Shoot);
+        }
     }
 
     private void Update()
@@ -54,6 +61,15 @@ public class GunController : MonoBehaviour
         }
     }
 
+    private void OnEnable()
+    {
+        SetEnabled(true);
+    }
+
+    private void OnDisable()
+    {
+        SetEnabled(false);
+    }
     private void OnDestroy()
     {
         SetEnabled(false);
@@ -79,13 +95,6 @@ public class GunController : MonoBehaviour
                     }
                     spawner.SetPrefab(settingNormalMode.bulletPrefab);
                 }
-                if (string.IsNullOrEmpty(settingNormalMode.stateName) || animator == null)
-                {
-                    Shoot();
-                    currentDelay = delayTime;
-                    break;
-                }
-                animator.CrossFade(settingNormalMode.stateName, settingNormalMode.crossFade, settingNormalMode.layerIndex);    
                 currentDelay = delayTime;
                 break;
             case GunMode.Special:
@@ -101,13 +110,7 @@ public class GunController : MonoBehaviour
                     }
                     spawner.SetPrefab(settingSpecialMode.bulletPrefab);
                 }
-                if (string.IsNullOrEmpty(settingSpecialMode.stateName) || animator == null)
-                {
-                    Shoot();
-                    currentDelay = delayTime;
-                    break;
-                }
-                animator.CrossFade(settingSpecialMode.stateName, settingSpecialMode.crossFade, settingSpecialMode.layerIndex);
+               
                 currentDelay = delayTime;
                 break;
         }
@@ -142,7 +145,7 @@ public class GunController : MonoBehaviour
 
                     if (baseProjectile is HitscanShooter hitscan)
                     {
-                        hitscan.Fire();
+                        hitscan.Fire(muzzle.position, muzzle.forward);
                     }
                     break;
                 case GunMode.Special:
@@ -152,7 +155,7 @@ public class GunController : MonoBehaviour
 
                     if (baseProjectile is HitscanShooter hitscanS)
                     {
-                        hitscanS.Fire();
+                        hitscanS.Fire(muzzle.position, muzzle.forward);
                     }
                     break;
             }
@@ -163,24 +166,20 @@ public class GunController : MonoBehaviour
 
     public void SetEnabled(bool enabled)
     {
-        if (handleSpawnEvent == null)
-        {
-            return;
-        }
-
         if (enabled)
         {
-            if (isSpawnEventSubscribed) return;
-            handleSpawnEvent.Raised += Shoot;
-            isSpawnEventSubscribed = true;
+            if (dispatcher != null)
+            {
+                dispatcher.GetEvent(eventKey).AddListener(Shoot);
+            }
         }
         else
         {
-            if (!isSpawnEventSubscribed) return;
-            handleSpawnEvent.Raised -= Shoot;
-            isSpawnEventSubscribed = false;
+            if (dispatcher != null)
+            {
+                dispatcher.GetEvent(eventKey).RemoveListener(Shoot);
+            }
         }
-
     }
 
     #region API
@@ -223,11 +222,7 @@ public struct GunNormalModeSetting
     public bool useThisSetting;
     public float bulletDamage;
     public float bulletSpeed;
-
-    [Header("Animator")]
-    public string stateName;
-    public int layerIndex;
-    public float crossFade;
+   
 }
 
 [Serializable]
@@ -242,8 +237,4 @@ public struct GunSpecialModeSetting
     public float bulletDamage;
     public float bulletSpeed;
 
-    [Header("Animator")]
-    public string stateName;
-    public int layerIndex;
-    public float crossFade;
 }

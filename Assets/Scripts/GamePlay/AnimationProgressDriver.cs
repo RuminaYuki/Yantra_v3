@@ -1,11 +1,19 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 [RequireComponent(typeof(Animator))]
 public class AnimationProgressDriver : MonoBehaviour
 {
+    
     [SerializeField] Animator _animator;
     [SerializeField] BoolEventChannelSO _aPD_SetEnable_AEC;
     [SerializeField] AnimationProgressDriverAdvEventChannal _aPD_AEC;
+
+    [Header("Setting")]
+    [SerializeField] float speedMultiple = 1f;
+    private int _layerIndex;
+    private bool _active = false;
+    private float _progress = 0;
+    AnimatorStateInfo stateInfo;
 
     private void Awake()
     {
@@ -36,30 +44,45 @@ public class AnimationProgressDriver : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        if (!_active) return;
+
+        SetProgress();
+    }
+
+    private void SetProgress()
+    {
+        stateInfo = _animator.GetCurrentAnimatorStateInfo(_layerIndex); // อ่านสดทุก frame
+        float animProgress = stateInfo.normalizedTime;
+        _animator.speed = CalculatSpeed(animProgress);
+    }
+
+    private float CalculatSpeed(float animProgress)
+    {
+        float diff = _progress - animProgress;
+        float speed = Mathf.Max(diff, 0f) * speedMultiple; // เดินไปข้างหน้าอย่างเดียว ไม่ถอย
+        return speed;
+    }
+
     private void HandleSetEnable(bool enable)
     {
-        //Debug.Log($"APD {enable}");
-        if (enable)
-        {
-            _animator.speed = 0f;
-        }
-        else
-        {
-            _animator.speed = 1f;
-        }
+        _active = enable;
     }
 
     private void HandleSetProgress(
-        string animationName,
+        string stateName,
         int layerIndex,
         float progress,
         float normalizedStart,
         float normalizedEnd)
     {
-        if (!_animator.HasState(0, Animator.StringToHash(animationName)))
+        if (!_active) return;
+
+        if (!_animator.HasState(0, Animator.StringToHash(stateName)))
         {
             Debug.LogWarning(
-                $"Animation state '{animationName}' was not found.",
+                $"Animation state '{stateName}' was not found.",
                 this
             );
 
@@ -68,7 +91,9 @@ public class AnimationProgressDriver : MonoBehaviour
             return;
         }
 
-        normalizedStart = Mathf.Clamp01(normalizedStart);
+        _layerIndex = layerIndex;
+
+        /*normalizedStart = Mathf.Clamp01(normalizedStart);
         normalizedEnd = Mathf.Clamp01(normalizedEnd);
 
         float normalizedTime = Mathf.Lerp(
@@ -79,6 +104,19 @@ public class AnimationProgressDriver : MonoBehaviour
 
 
         _animator.Play(animationName, layerIndex, normalizedTime);
-        _animator.Update(0f);
+        _animator.Update(0f);*/
+
+        stateInfo = _animator.GetCurrentAnimatorStateInfo(layerIndex);
+        if (stateInfo.IsName(stateName))
+        {
+            _progress = progress;
+        }
+        else
+        {
+            _animator.Play(stateName, layerIndex);
+            _animator.Update(0);
+            _animator.speed = 0;
+            _progress = 0;
+        }
     }
 }

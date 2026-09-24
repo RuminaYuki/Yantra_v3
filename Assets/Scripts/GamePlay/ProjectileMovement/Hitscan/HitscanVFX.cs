@@ -3,14 +3,20 @@ using UnityEngine.VFX;
 
 
 /// <summary>
-/// ãªéÊÃéÒ§ VFX µÒÁàÊé¹ (ÂÑ§äÁèàÊÃç¨)
+/// ï¿½ï¿½ï¿½ï¿½ï¿½Ò§ VFX ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ (ï¿½Ñ§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
 /// </summary>
 [RequireComponent(typeof(HitscanShooter))]
 public class HitscanVFX : MonoBehaviour
 {
     [Tooltip("Path-following VFX")]
-    [SerializeField] string _poolTag = string.Empty;
+    //[SerializeField] string _poolTag = string.Empty;
+    [SerializeField] GameObject prefabVFX;
     HitscanShooter hitscan;
+
+    private static readonly int endPointID =
+    Shader.PropertyToID("EndPoint");
+    private static readonly int startPointID =
+    Shader.PropertyToID("StartPoint");
 
     private void Awake()
     {
@@ -27,17 +33,18 @@ public class HitscanVFX : MonoBehaviour
         hitscan.ShootCompleted -= SpawnVFX;
     }
 
-    private void SpawnVFX(Vector3 origin, Vector3 endPoint)
+    private void SpawnVFX(Vector3 _, Vector3 endPoint)
     {
-        GameObject vfx = SpawnFromPool(transform.position, transform.rotation);
-        if (vfx != null)
+        GameObject vfx = Instantiate(prefabVFX, transform.position, Quaternion.identity);
+        if (vfx.TryGetComponent(out VisualEffect effect))
         {
-            VisualEffect effect = vfx.GetComponent<VisualEffect>();
-            //To do add position to VFX
+            effect.Reinit();
+            effect.SetVector3(startPointID, vfx.transform.position);
+            effect.SetVector3(endPointID, endPoint);
         }
     }
 
-    private GameObject SpawnFromPool(Vector3 position, Quaternion rotation)
+    /*private GameObject SpawnFromPool(Vector3 position, Quaternion rotation)
     {
         GameObject result = null;
 
@@ -50,5 +57,5 @@ public class HitscanVFX : MonoBehaviour
         });
 
         return result;
-    }
+    }*/
 }

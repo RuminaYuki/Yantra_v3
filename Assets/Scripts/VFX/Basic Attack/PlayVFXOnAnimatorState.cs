@@ -22,7 +22,7 @@ public class PlayVFXOnAnimatorState : StateMachineBehaviour
     /// </summary>
     public enum OffsetSpace
     {
-        /// <summary>อิงตัวละคร — Y ขึ้นบน, Z ไปทางที่ตัวละครหัน (เข้าใจง่ายสุด)</summary>
+        /// <summary>อิงตัวที่มี Animator — แขน FPS หันตามกล้อง offset ก็ก้มเงยตามกล้องด้วย</summary>
         Character,
 
         /// <summary>อิงกระดูก — หมุนตามมือ แกนเป็นไปตามที่คนทำ rig วางไว้</summary>
@@ -68,11 +68,19 @@ public class PlayVFXOnAnimatorState : StateMachineBehaviour
     [FormerlySerializedAs("_parentPrefabToOrigin")]   // ชื่อเดิม — กันค่าที่ติ๊กไว้หาย
     [SerializeField] private bool _followOrigin = false;
 
-    [Tooltip("ลบทิ้งหลังกี่วินาที — ต้องยาวกว่าตัวเอฟเฟกต์\n" +
-        "Prefab: 0 = ไม่ลบให้ / Effekseer ที่ติ๊กวิ่งตาม: 0 = 5 วินาที\n" +
+    [Header("ระยะเวลาและความเร็ว")]
+    [Tooltip("เล่นนานกี่วินาที แล้วค่อยๆ จางหาย\n" +
+        "0 = เล่นจนจบตามความยาวของเอฟเฟกต์เอง\n" +
         "โหมด Hold ไม่ใช้ช่องนี้")]
-    [FormerlySerializedAs("_prefabLifetime")]
-    [SerializeField] private float _lifetime = 3f;
+    [FormerlySerializedAs("_lifetime")]
+    [FormerlySerializedAs("_prefabLifetime")]   // ชื่อเก่า — กันค่าที่ตั้งไว้หาย
+    [SerializeField] private float _duration = 0f;
+
+    [Tooltip("ความเร็ว — 2 = เร็วสองเท่า (สั้นลงครึ่งนึงแต่เห็นครบทุกช่วง) / 0.5 = ช้าลงครึ่งนึง")]
+    [SerializeField] private float _speed = 1f;
+
+    [Tooltip("หลังหยุดพ่นแล้ว ให้เวลาจางหายกี่วินาทีก่อนลบทิ้ง")]
+    [SerializeField] private float _fadeOut = 1f;
 
     [Header("โหมด Hold")]
     [Tooltip("ปล่อยปุ่มแล้วรอกี่วินาทีถึงลบโล่ทิ้ง\n\n" +
@@ -106,6 +114,18 @@ public class PlayVFXOnAnimatorState : StateMachineBehaviour
 
     [Tooltip("ระยะที่จะขยับ ตามแกนของ Offset Space (เมตร ปรับทีละ 0.1)")]
     [SerializeField] private Vector3 _offset = Vector3.zero;
+
+    [Header("ติดพื้น")]
+    [Tooltip("ยิงลงไปหาพื้นใต้จุดกำเนิด แล้ววางเอฟเฟกต์ไว้บนพื้น (เช่นวงเวทฮีล)\n" +
+        "ก้มเงยยังไงก็อยู่บนพื้นและนอนราบเสมอ\n" +
+        "เปิดแล้วจะไม่วิ่งตาม — Follow Origin ไม่มีผล")]
+    [SerializeField] private bool _snapToGround = false;
+
+    [Tooltip("หาพื้นลึกสุดกี่เมตร")]
+    [SerializeField] private float _groundCheckDistance = 5f;
+
+    [Tooltip("เลเยอร์ที่นับเป็นพื้น — ปล่อย Everything ได้ ตัวเราถูกกรองออกให้อัตโนมัติ")]
+    [SerializeField] private LayerMask _groundMask = ~0;
 
     [Header("ทิศทาง")]
     [Tooltip("เริ่มจาก None ดูท่าเดิมก่อน แล้วค่อยลองโหมดอื่น")]
@@ -201,13 +221,19 @@ public class PlayVFXOnAnimatorState : StateMachineBehaviour
         Vector3 position = origin.position + ResolveOffset(animator, origin);
         Quaternion rotation = BuildRotation(origin);
 
+        bool grounded = _snapToGround && TrySnapToGround(animator, position, out position);
+
+        // ของติดพื้นห้ามเกาะแขน ไม่งั้นก้มเงยทีเอฟเฟกต์จะเอียงตามกล้อง
+        Transform parent = _followOrigin && !_snapToGround ? origin : null;
+
         if (_logPlay)
         {
             Debug.Log(
                 $"[AnimVFX] {_playMode} @ {_triggerAt:P0} — จาก '{origin.name}' | " +
                 $"Effekseer: {(_effekseerEffect != null ? _effekseerEffect.name : "-")} | " +
                 $"Prefab: {(_vfxPrefab != null ? _vfxPrefab.name : "-")} | " +
-                $"ตาม: {(_followOrigin ? "✓" : "✗")}", animator);
+                $"ตาม: {(parent != null ? "✓" : "✗")}" +
+                (_snapToGround ? $" | ติดพื้น: {(grounded ? "✓" : "✗ หาพื้นไม่เจอ")}" : ""), animator);
         }
 
         if (_drawDebugPoint)
@@ -217,11 +243,38 @@ public class PlayVFXOnAnimatorState : StateMachineBehaviour
             Debug.DrawLine(position + Vector3.forward * 0.15f, position - Vector3.forward * 0.15f, Color.yellow, 2f);
         }
 
-        PlayEffekseer(origin, position, rotation);
-        SpawnPrefab(origin, position, rotation);
+        PlayEffekseer(parent, position, rotation);
+        SpawnPrefab(parent, position, rotation);
     }
 
-    private void PlayEffekseer(Transform origin, Vector3 position, Quaternion rotation)
+    // ยิงลงตรงๆ ตามแกนโลก ไม่สนว่ากล้องก้มเงยแค่ไหน
+    private bool TrySnapToGround(Animator animator, Vector3 from, out Vector3 groundPoint)
+    {
+        groundPoint = from;
+
+        RaycastHit[] hits = Physics.RaycastAll(
+            from + Vector3.up * 0.1f, Vector3.down, _groundCheckDistance,
+            _groundMask, QueryTriggerInteraction.Ignore);
+
+        Transform self = animator.transform.root;
+        float nearest = float.MaxValue;
+        bool found = false;
+
+        foreach (RaycastHit hit in hits)
+        {
+            // ลำแสงผ่านตัวเราก่อนถึงพื้น ต้องข้าม
+            if (hit.collider.transform.IsChildOf(self)) continue;
+            if (hit.distance >= nearest) continue;
+
+            nearest = hit.distance;
+            groundPoint = hit.point + Vector3.up * 0.02f;   // ยกนิดนึงกันจมพื้นแล้วกระพริบ
+            found = true;
+        }
+
+        return found;
+    }
+
+    private void PlayEffekseer(Transform parent, Vector3 position, Quaternion rotation)
     {
         if (_effekseerEffect == null) return;
 
@@ -234,22 +287,15 @@ public class PlayVFXOnAnimatorState : StateMachineBehaviour
 #endif
         }
 
-        if (_followOrigin)
-        {
-            EffekseerAttach.Play(_effekseerEffect, origin, position, rotation, _lifetime);
-            return;
-        }
-
-        var handle = EffekseerSystem.PlayEffect(_effekseerEffect, position);
-        handle.SetRotation(rotation);
+        VFXPlayback.PlayEffekseer(_effekseerEffect, parent, position, rotation, _duration, _speed, _fadeOut);
     }
 
-    private void SpawnPrefab(Transform origin, Vector3 position, Quaternion rotation)
+    private void SpawnPrefab(Transform parent, Vector3 position, Quaternion rotation)
     {
         if (_vfxPrefab == null) return;
 
-        GameObject spawned = _followOrigin
-            ? Object.Instantiate(_vfxPrefab, position, rotation, origin)
+        GameObject spawned = parent != null
+            ? Object.Instantiate(_vfxPrefab, position, rotation, parent)
             : Object.Instantiate(_vfxPrefab, position, rotation);
 
         if (_playMode == PlayMode.HoldWhileInState)
@@ -263,12 +309,11 @@ public class PlayVFXOnAnimatorState : StateMachineBehaviour
                 _heldKeepAlive = spawned.AddComponent<VFXKeepAlive>();
 
             _heldKeepAlive.Configure(_holdGraceSeconds, _holdTailSeconds);
+            VFXPlayback.SetSpeed(spawned, _speed);
             return;
         }
 
-        // ไม่ทำลายให้ = prefab ต้องลบตัวเอง ไม่งั้นมันจะกองสะสมทุกครั้งที่เล่นท่า
-        if (_lifetime > 0f)
-            Object.Destroy(spawned, _lifetime);
+        VFXPlayback.Manage(spawned, _duration, _speed, _fadeOut);
     }
 
     /// <summary>
@@ -313,6 +358,10 @@ public class PlayVFXOnAnimatorState : StateMachineBehaviour
                 baseRotation = Quaternion.identity;
                 break;
         }
+
+        // ของติดพื้นเก็บแค่การหันซ้ายขวา ตัดการก้มเงยทิ้ง — วงเวทจะนอนราบกับพื้นเสมอ
+        if (_snapToGround)
+            baseRotation = Quaternion.Euler(0f, baseRotation.eulerAngles.y, 0f);
 
         return baseRotation * Quaternion.Euler(_rotationOffset);
     }

@@ -5,6 +5,8 @@ using UnityEngine.Serialization;
 [RequireComponent(typeof(CharacterController),typeof(Animator))]
 public class BaseLocomotion : MonoBehaviour,ILocomotionLock,IRootMotionControl
 {
+    [Header("Velocity Logic")]
+    [SerializeField] protected float _currentspeed = 5;
     [Header("Locomotion")]
     [SerializeField] private float _dampTime = 0.25f;
     [SerializeField] private float _multiply = 1f;
@@ -35,7 +37,7 @@ public class BaseLocomotion : MonoBehaviour,ILocomotionLock,IRootMotionControl
 
     private Vector3 _movementDirection;
     private Vector3 _facingDirection;
-    private bool _rootMotionEnabled = true;
+    protected bool _rootMotionEnabled = true;
 
     public bool IsMovementLocked => _movementLockOwners.Count > 0;
     public bool ShouldResetMoveAnimation => _moveAnimationResetOwners.Count > 0;
@@ -113,6 +115,7 @@ public class BaseLocomotion : MonoBehaviour,ILocomotionLock,IRootMotionControl
         _moveAnimationResetOwners.Remove(owner);
     }
 
+    #region API
     public void SetRootMotionEnabled(bool enabled) => _rootMotionEnabled = enabled;
     public float GetMoveMultiply() => LocomotionAnim.Multiply;
     public void SetMoveMultiply(float multiply) => LocomotionAnim.Multiply = multiply;
@@ -120,6 +123,19 @@ public class BaseLocomotion : MonoBehaviour,ILocomotionLock,IRootMotionControl
     public void SetRotateSmoothSpeed(float value) => Rotation.Speed = value;
     public float GetGravityMultiplier() => Gravity._GravityMultiplier;
     public void SetGravityMultiplier(float value) => Gravity._GravityMultiplier = value;
+    public float CurrentSpeed
+    {
+        get => _currentspeed;
+        set
+        {
+            if(value < 0)
+            {
+                Debug.LogWarning("currentspeed value cant below zero");
+                return;
+            }
+            _currentspeed = value;
+        }
+    }
 
     private void ResetLockedMovement()
     {
@@ -140,4 +156,5 @@ public class BaseLocomotion : MonoBehaviour,ILocomotionLock,IRootMotionControl
         _debugRotateSpeed = Rotation.Speed;
 #endif
     }
+    #endregion
 }

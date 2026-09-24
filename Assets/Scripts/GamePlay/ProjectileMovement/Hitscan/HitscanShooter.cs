@@ -95,9 +95,9 @@ public class HitscanShooter : BaseProjectileMovement
             }
 
             penetrationsLeft--;
-
-            ShootCompleted?.Invoke(origin, endPoint);
         }
+        Debug.Log(endPoint);
+        ShootCompleted?.Invoke(origin, endPoint);
 
         if (drawDebugRay)
         {
