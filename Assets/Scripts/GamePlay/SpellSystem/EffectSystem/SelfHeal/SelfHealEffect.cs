@@ -54,4 +54,18 @@ public class SelfHealEffect : BaseEffectClass, IEffectExecutor
 
         heal.Heal(healAmount);
     }
+
+    private void OnEnable()
+    {
+        SetEnabled(true);
+    }
+
+    private void OnDisable()
+    {
+        SetEnabled(false);
+    }
+    private void OnDestroy()
+    {
+        SetEnabled(false);
+    }
 }
