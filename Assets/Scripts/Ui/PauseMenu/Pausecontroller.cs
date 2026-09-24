@@ -57,7 +57,11 @@ public class PauseController : MonoBehaviour
         if (Instance == this) Instance = null;
 
         // กันเกมค้างแข็งถ้า object นี้หายไปตอน pause อยู่
-        if (IsPaused) Time.timeScale = 1f;
+        if (IsPaused)
+        {
+            Time.timeScale = 1f;
+            StateMachineController.IsPaused = false;
+        }
     }
 
     /// <summary>ตอนนี้กด pause ได้ไหม — ที่เดียวที่ตัดสินใจ</summary>
@@ -91,6 +95,10 @@ public class PauseController : MonoBehaviour
         IsPaused = true;
         Time.timeScale = 0f;
 
+        // timeScale = 0 หยุด Update ไม่ได้ state machine ยังอ่านปุ่มอยู่
+        // ต้องสั่งหยุดเอง ไม่งั้นคลิกปุ่มในเมนู pause แล้วตัวละครต่อยตาม
+        StateMachineController.IsPaused = true;
+
         if (_cameraController != null) _cameraController.IsPaused = true;
 
         UIManager.Instance?.Open(ScreenId.Pause);
@@ -103,6 +111,7 @@ public class PauseController : MonoBehaviour
 
         IsPaused = false;
         Time.timeScale = 1f;
+        StateMachineController.IsPaused = false;
 
         if (_cameraController != null) _cameraController.IsPaused = false;
 
@@ -115,6 +124,7 @@ public class PauseController : MonoBehaviour
     {
         IsPaused = false;
         Time.timeScale = 1f;
+        StateMachineController.IsPaused = false;
     }
 
     private void Update()
