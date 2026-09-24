@@ -13,10 +13,29 @@ public class LookAtIKController : MonoBehaviour
     [Tooltip("จุดยิงแสงระดับสายตา (แกน Y แนะนำที่ 1.5)")]
     public Vector3 eyeOffset = new Vector3(0, 1.5f, 0);
 
+    [Header("จุดที่มอง")]
+    [Tooltip("ยกจุดมองขึ้นจากเป้ากี่เมตร\n" +
+             "เป้าเป็นตัว Player (จุดอยู่ที่เท้า) → ใส่ Y ประมาณ 1.6 ให้มองที่หน้า\n" +
+             "เป้าเป็นกล้อง → ใส่ 0")]
+    public Vector3 targetOffset = Vector3.zero;
+
     [Header("ตั้งค่าความสมูท")]
     [Tooltip("น้ำหนักการมองสูงสุด (1 = มองเต็มที่)")]
     [Range(0f, 1f)] public float maxLookWeight = 1f;
     public float smoothSpeed = 5f;
+
+    [Header("แบ่งการหมุนให้แต่ละส่วน")]
+    [Tooltip("ตัวช่วยหมุนแค่ไหน — ยิ่งมาก คอยิ่งไม่ต้องบิดคนเดียว\nค่าเดิม 0.1 = คอรับเกือบหมด เลยบิดจนดูเหมือนคอหัก")]
+    [Range(0f, 1f)] public float bodyWeight = 0.3f;
+
+    [Tooltip("หัวหันแค่ไหน")]
+    [Range(0f, 1f)] public float headWeight = 0.6f;
+
+    [Tooltip("ตาหันแค่ไหน (มีผลเฉพาะโมเดลที่มีกระดูกตา)")]
+    [Range(0f, 1f)] public float eyesWeight = 1f;
+
+    [Tooltip("จำกัดองศา — 0 = หันได้ไม่จำกัด / 1 = หันไม่ได้เลย\nค่าเดิม 0.5 หันได้เกือบ 90° ต่อข้าง ยิ่งมากยิ่งหันได้น้อยลง")]
+    [Range(0f, 1f)] public float clampWeight = 0.7f;
 
     [Header("🛠️ Debug Tools")]
     [Tooltip("เปิด-ปิด การแสดงเส้น Gizmos ในหน้า Scene")]
@@ -29,6 +48,9 @@ public class LookAtIKController : MonoBehaviour
     private Animator _animator;
     private float _currentWeight = 0f;
     private float _targetWeight = 0f;
+
+    // จุดที่มองจริง — ใช้ทั้งตอนเช็คกำแพงและตอนหันหัว จะได้ตรงกัน
+    private Vector3 LookPoint => _targetToLookAt.position + targetOffset;
 
     private void Start()
     {
@@ -73,7 +95,7 @@ public class LookAtIKController : MonoBehaviour
             bool isBlocked = false;
             Vector3 startPos = transform.position + eyeOffset;
 
-            if (Physics.Linecast(startPos, _targetToLookAt.position, out RaycastHit hit, obstacleMask))
+            if (Physics.Linecast(startPos, LookPoint, out RaycastHit hit, obstacleMask))
             {
                 isBlocked = true;
             }
@@ -101,8 +123,8 @@ public class LookAtIKController : MonoBehaviour
 
         if (_currentWeight > 0.01f && _targetToLookAt != null)
         {
-            _animator.SetLookAtWeight(_currentWeight, 0.1f, 0.8f, 1.0f, 0.5f);
-            _animator.SetLookAtPosition(_targetToLookAt.position);
+            _animator.SetLookAtWeight(_currentWeight, bodyWeight, headWeight, eyesWeight, clampWeight);
+            _animator.SetLookAtPosition(LookPoint);
         }
         else
         {
@@ -121,7 +143,7 @@ public class LookAtIKController : MonoBehaviour
         if (_targetToLookAt != null)
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawLine(transform.position + eyeOffset, _targetToLookAt.position);
+            Gizmos.DrawLine(transform.position + eyeOffset, LookPoint);
         }
     }
 }
