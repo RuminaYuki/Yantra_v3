@@ -183,6 +183,16 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""priority"": 0
                 },
                 {
+                    ""name"": ""Shot"",
+                    ""type"": ""Button"",
+                    ""id"": ""9261ac99-299e-4605-a993-e30eb9bb60a7"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false,
+                    ""priority"": 0
+                },
+                {
                     ""name"": ""Reload"",
                     ""type"": ""Button"",
                     ""id"": ""2122e89e-b54c-4048-8fa1-16ea07c25b4c"",
@@ -659,6 +669,17 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": "";Keyboard&Mouse"",
                     ""action"": ""DrawYant"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""c002bff0-a9c9-4218-be50-a17427c8993e"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Shot"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1265,6 +1286,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         m_Player_Effect = m_Player.FindAction("Effect", throwIfNotFound: true);
         m_Player_Block = m_Player.FindAction("Block", throwIfNotFound: true);
         m_Player_EquipGun = m_Player.FindAction("EquipGun", throwIfNotFound: true);
+        m_Player_Shot = m_Player.FindAction("Shot", throwIfNotFound: true);
         m_Player_Reload = m_Player.FindAction("Reload", throwIfNotFound: true);
         m_Player_Look = m_Player.FindAction("Look", throwIfNotFound: true);
         m_Player_Interact = m_Player.FindAction("Interact", throwIfNotFound: true);
@@ -1373,6 +1395,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Effect;
     private readonly InputAction m_Player_Block;
     private readonly InputAction m_Player_EquipGun;
+    private readonly InputAction m_Player_Shot;
     private readonly InputAction m_Player_Reload;
     private readonly InputAction m_Player_Look;
     private readonly InputAction m_Player_Interact;
@@ -1426,6 +1449,10 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Player/EquipGun".
         /// </summary>
         public InputAction @EquipGun => m_Wrapper.m_Player_EquipGun;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/Shot".
+        /// </summary>
+        public InputAction @Shot => m_Wrapper.m_Player_Shot;
         /// <summary>
         /// Provides access to the underlying input action "Player/Reload".
         /// </summary>
@@ -1503,6 +1530,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @EquipGun.started += instance.OnEquipGun;
             @EquipGun.performed += instance.OnEquipGun;
             @EquipGun.canceled += instance.OnEquipGun;
+            @Shot.started += instance.OnShot;
+            @Shot.performed += instance.OnShot;
+            @Shot.canceled += instance.OnShot;
             @Reload.started += instance.OnReload;
             @Reload.performed += instance.OnReload;
             @Reload.canceled += instance.OnReload;
@@ -1559,6 +1589,9 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
             @EquipGun.started -= instance.OnEquipGun;
             @EquipGun.performed -= instance.OnEquipGun;
             @EquipGun.canceled -= instance.OnEquipGun;
+            @Shot.started -= instance.OnShot;
+            @Shot.performed -= instance.OnShot;
+            @Shot.canceled -= instance.OnShot;
             @Reload.started -= instance.OnReload;
             @Reload.performed -= instance.OnReload;
             @Reload.canceled -= instance.OnReload;
@@ -1940,6 +1973,13 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnEquipGun(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Shot" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnShot(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "Reload" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
