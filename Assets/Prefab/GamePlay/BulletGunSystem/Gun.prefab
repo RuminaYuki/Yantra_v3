@@ -79,7 +79,7 @@ Transform:
   m_GameObject: {fileID: 4550438804359467309}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.076, z: 0.524}
+  m_LocalPosition: {x: 0.1971982, y: 0.0178, z: 0.51793545}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -165,29 +165,24 @@ MonoBehaviour:
   spawners:
   - {fileID: 24345925225265526}
   muzzle: {fileID: 1622159430807902402}
+  dispatcher: {fileID: 0}
+  eventKey: GunShooting
   gunMode: 0
   curentAmmo: 0
   maxAmmo: 2
   delayTime: 1
   handleSpawnEvent: {fileID: 11400000, guid: 0601cb40d77a7d84da4856f221cdc24f, type: 2}
-  animator: {fileID: 0}
   settingNormalMode:
     bulletPrefab: {fileID: 2573710482556640469, guid: c0fb23ec7efd7ba429b9edd9d08fcefc, type: 3}
     useThisSetting: 1
     bulletDamage: 0
     bulletSpeed: 10
-    stateName: 
-    layerIndex: 0
-    crossFade: 0
   settingSpecialMode:
     skillPointUsage: 10
     bulletPrefab: {fileID: 2573710482556640469, guid: c0fb23ec7efd7ba429b9edd9d08fcefc, type: 3}
     useThisSetting: 1
     bulletDamage: 1
     bulletSpeed: 10
-    stateName: 
-    layerIndex: 0
-    crossFade: 0
 --- !u!1001 &8975717100137393786
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -254,7 +249,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 770f2047933a63f4c9af3d57bc873c0f, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 972784320295901664, guid: 770f2047933a63f4c9af3d57bc873c0f, type: 3}
       propertyPath: m_Layer

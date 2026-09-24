@@ -8,7 +8,6 @@ public class Spawner : MonoBehaviour
     {
         if (_prefab == null) return null;
         GameObject newBullet = null;
-        Debug.Log("here");
         return newBullet = Instantiate(_prefab, transform.position, transform.rotation);
     }
 
