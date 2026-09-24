@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 using Effekseer;
 
 public class PlayVFXOnEventChannel : MonoBehaviour
@@ -61,14 +62,18 @@ public class PlayVFXOnEventChannel : MonoBehaviour
         "ใช้กับ VFX ที่คนในทีมทำในยูนิตี้เอง เช่น VFX โล่")]
     [SerializeField] private GameObject _vfxPrefab;
 
-    [Tooltip("ทำลาย prefab ทิ้งหลังกี่วินาที\n" +
-        "0 = ไม่ทำลายให้ (ใช้เมื่อ prefab จัดการลบตัวเองอยู่แล้ว เช่นติ๊ก Stop Action = Destroy)\n" +
-        "ถ้าไม่แน่ใจใส่ 3 ไว้ก่อน ปล่อยไว้จะกองสะสมจนเกมหน่วง")]
-    [SerializeField] private float _prefabLifetime = 3f;
+    [Header("ใช้ได้ทั้ง Effekseer และ Prefab")]
+    [Tooltip("ติ๊ก = ติดไปกับจุดกำเนิด วิ่งตามตัวละคร (เอฟเฟกต์ที่ห่อตัว เช่นโล่)\n" +
+        "ไม่ติ๊ก = ค้างอยู่ที่เดิมในโลก (เอฟเฟกต์ปักที่ เช่นกระเด็น)")]
+    [FormerlySerializedAs("_parentPrefabToOrigin")]   // ชื่อเดิม — กันค่าที่ติ๊กไว้หาย
+    [SerializeField] private bool _followOrigin = false;
 
-    [Tooltip("ให้ prefab เป็นลูกของจุดกำเนิด = วิ่งตามตัวละคร\n" +
-        "เปิดสำหรับเอฟเฟกต์ที่ห่อตัว (โล่) / ปิดสำหรับเอฟเฟกต์ปักที่ (กระเด็น)")]
-    [SerializeField] private bool _parentPrefabToOrigin = false;
+    [Tooltip("ลบทิ้งหลังกี่วินาที — ต้องยาวกว่าตัวเอฟเฟกต์\n" +
+        "Prefab: 0 = ไม่ลบให้ (ใช้เมื่อ prefab ลบตัวเองอยู่แล้ว)\n" +
+        "Effekseer ที่ติ๊กวิ่งตาม: 0 = 5 วินาที\n" +
+        "ถ้าไม่แน่ใจใส่ 3 ไว้ก่อน ปล่อยไว้จะกองสะสมจนเกมหน่วง")]
+    [FormerlySerializedAs("_prefabLifetime")]
+    [SerializeField] private float _lifetime = 3f;
 
     [Header("ตำแหน่งและทิศทาง")]
     [Tooltip("เว้นว่าง = ใช้ตำแหน่งของ GameObject นี้")]
@@ -176,13 +181,19 @@ public class PlayVFXOnEventChannel : MonoBehaviour
                 $"Prefab: {(_vfxPrefab != null ? _vfxPrefab.name : "-")}", this);
         }
 
-        PlayEffekseer(position, rotation);
+        PlayEffekseer(origin, position, rotation);
         SpawnPrefab(origin, position, rotation);
     }
 
-    private void PlayEffekseer(Vector3 position, Quaternion rotation)
+    private void PlayEffekseer(Transform origin, Vector3 position, Quaternion rotation)
     {
         if (_effekseerEffect == null) return;
+
+        if (_followOrigin)
+        {
+            EffekseerAttach.Play(_effekseerEffect, origin, position, rotation, _lifetime);
+            return;
+        }
 
         var handle = EffekseerSystem.PlayEffect(_effekseerEffect, position);
         handle.SetRotation(rotation);
@@ -192,13 +203,13 @@ public class PlayVFXOnEventChannel : MonoBehaviour
     {
         if (_vfxPrefab == null) return;
 
-        GameObject spawned = _parentPrefabToOrigin
+        GameObject spawned = _followOrigin
             ? Instantiate(_vfxPrefab, position, rotation, origin)
             : Instantiate(_vfxPrefab, position, rotation);
 
         // ไม่ทำลายให้ = prefab ต้องลบตัวเอง ไม่งั้นมันจะกองสะสมทุกครั้งที่ event ยิง
-        if (_prefabLifetime > 0f)
-            Destroy(spawned, _prefabLifetime);
+        if (_lifetime > 0f)
+            Destroy(spawned, _lifetime);
     }
 
     private Quaternion BuildRotation(Transform origin)
