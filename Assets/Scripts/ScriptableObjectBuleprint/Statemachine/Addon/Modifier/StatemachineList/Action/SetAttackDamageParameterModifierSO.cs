@@ -1,7 +1,7 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "NewAttackDamageParameter_Modifier",
-    menuName = "YUKI Learning State Machine/StatsParameter/Modifiers/StatemachineList/Action/Set Attack Damage Parameter")]
+[CreateAssetMenu(fileName = "NewSetADParameter_Modifier",
+    menuName = "YUKI Learning State Machine/StatsParameter/Modifiers/StatemachineList/Action/SetAttackDamageParameter")]
 public class SetAttackDamageParameterModifierSO : ScriptableObject, IStatModifier, IGizmoModule
 {
     [SerializeField] private SetAttackDamageParameterActionSO _target;

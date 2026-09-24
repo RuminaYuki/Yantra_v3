@@ -1,5 +1,23 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8851655129870646122
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 266737b1b0751bc44b58a35a880d3433, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlaySoundOnAnimatorState
+  _sound: {fileID: 11400000, guid: 98e2fde46eba9634c9a7d64552297f27, type: 2}
+  _triggerAt: 0.3
+  _followTarget: 1
+  _retriggerOnLoop: 0
+  _minInterval: 0
+  _logPlay: 0
 --- !u!1101 &-8755519043280552350
 AnimatorStateTransition:
   m_ObjectHideFlags: 1
@@ -33,7 +51,7 @@ AnimatorStateMachine:
   m_ChildStates:
   - serializedVersion: 1
     m_State: {fileID: -94957225370211973}
-    m_Position: {x: 490, y: 110, z: 0}
+    m_Position: {x: 940, y: 110, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -7827106320181405876}
     m_Position: {x: 270, y: 170, z: 0}
@@ -54,37 +72,43 @@ AnimatorStateMachine:
     m_Position: {x: 270, y: 470, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -4443072084461457818}
-    m_Position: {x: 710, y: 110, z: 0}
+    m_Position: {x: 500, y: 110, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 9025897287268938033}
-    m_Position: {x: 710, y: 290, z: 0}
+    m_Position: {x: 500, y: 290, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 1844959231488540143}
-    m_Position: {x: 710, y: 170, z: 0}
+    m_Position: {x: 500, y: 170, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 5299719274395203870}
-    m_Position: {x: 710, y: 350, z: 0}
+    m_Position: {x: 500, y: 350, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -6509862746684984242}
-    m_Position: {x: 710, y: 230, z: 0}
+    m_Position: {x: 500, y: 230, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 2713779456817061556}
-    m_Position: {x: 930, y: 110, z: 0}
+    m_Position: {x: 720, y: 110, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -5842708923283922499}
-    m_Position: {x: 930, y: 170, z: 0}
+    m_Position: {x: 720, y: 170, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -8361746566493572583}
-    m_Position: {x: 930, y: 230, z: 0}
+    m_Position: {x: 720, y: 230, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 4645610648200594993}
-    m_Position: {x: 490, y: 230, z: 0}
-  - serializedVersion: 1
-    m_State: {fileID: -1179306020855885219}
-    m_Position: {x: 490, y: 170, z: 0}
+    m_Position: {x: 940, y: 170, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 4930786782291783603}
     m_Position: {x: 270, y: 110, z: 0}
+  - serializedVersion: 1
+    m_State: {fileID: 1635678415782092458}
+    m_Position: {x: 940, y: 410, z: 0}
+  - serializedVersion: 1
+    m_State: {fileID: 4041812056098379810}
+    m_Position: {x: 940, y: 290, z: 0}
+  - serializedVersion: 1
+    m_State: {fileID: 2804158643011651527}
+    m_Position: {x: 940, y: 350, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions: []
   m_EntryTransitions: []
@@ -148,6 +172,83 @@ AnimatorState:
   m_MirrorParameter: 
   m_CycleOffsetParameter: 
   m_TimeParameter: 
+--- !u!114 &-7741475506854349549
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbfbd891fc38d534fbefa0f7a5af971c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayLoopSoundOnAnimatorState
+  _enterSound: {fileID: 11400000, guid: 2be3e77112cd9b6418603d3bd3752fb5, type: 2}
+  _enterMinInterval: 0.25
+  _loopSound: {fileID: 11400000, guid: 6b0e00e4c2643ca47a27304054da423b, type: 2}
+  _minHoldForLoop: 0.3
+  _loopFadeOut: 0.2
+  _exitSound: {fileID: 11400000, guid: 61e030be950207e4f8f62e34faad3b16, type: 2}
+  _originName: 
+  _graceSeconds: 0.15
+  _logPlay: 0
+--- !u!114 &-7337420824510628492
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 267fd074e90bf00428e4a1b608bb6e3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayVFXOnAnimatorState
+  _playMode: 0
+  _effekseerEffect: {fileID: 11400000, guid: 3904e9aa5a191a74db3e8a764a356ed1, type: 2}
+  _vfxPrefab: {fileID: 0}
+  _followOrigin: 1
+  _lifetime: 3
+  _holdGraceSeconds: 0.15
+  _holdTailSeconds: 1.5
+  _triggerAt: 0.1
+  _originName: hand.r
+  _offsetSpace: 0
+  _offset: {x: 0, y: 0, z: 0.3}
+  _rotationMode: 2
+  _rotationOffset: {x: 180, y: 0, z: 0}
+  _retriggerOnLoop: 0
+  _logPlay: 0
+  _drawDebugPoint: 0
+--- !u!114 &-6650808765790558661
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 267fd074e90bf00428e4a1b608bb6e3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayVFXOnAnimatorState
+  _playMode: 1
+  _effekseerEffect: {fileID: 0}
+  _vfxPrefab: {fileID: 8779488452984677657, guid: 6e28f8197d711c445b230c508ec43566, type: 3}
+  _followOrigin: 1
+  _lifetime: 3
+  _holdGraceSeconds: 0.05
+  _holdTailSeconds: 0.4
+  _triggerAt: 0
+  _originName: 
+  _offsetSpace: 0
+  _offset: {x: 0, y: 0, z: 1}
+  _rotationMode: 2
+  _rotationOffset: {x: 0, y: 0, z: 0}
+  _retriggerOnLoop: 0
+  _logPlay: 0
+  _drawDebugPoint: 0
 --- !u!1102 &-6509862746684984242
 AnimatorState:
   serializedVersion: 6
@@ -195,12 +296,58 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: bd5c74048c1eb2148a46e0a7b7a6127a, type: 2}
+  m_Motion: {fileID: -3293130894942948741, guid: 681c694a895532e48bc234a518ee99d6, type: 3}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
   m_CycleOffsetParameter: 
   m_TimeParameter: 
+--- !u!114 &-4994572431521067857
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 266737b1b0751bc44b58a35a880d3433, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlaySoundOnAnimatorState
+  _sound: {fileID: 11400000, guid: f12c14701b0f171428e2a1aae79ed0e8, type: 2}
+  _triggerAt: 0.3
+  _followTarget: 1
+  _retriggerOnLoop: 0
+  _minInterval: 0
+  _logPlay: 0
+--- !u!114 &-4668562533946536952
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 267fd074e90bf00428e4a1b608bb6e3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayVFXOnAnimatorState
+  _playMode: 0
+  _effekseerEffect: {fileID: 11400000, guid: 38279cce5f85061419bbc69a97b8f4b7, type: 2}
+  _vfxPrefab: {fileID: 0}
+  _followOrigin: 1
+  _lifetime: 1
+  _holdGraceSeconds: 0.15
+  _holdTailSeconds: 1.5
+  _triggerAt: 0.1
+  _originName: 
+  _offsetSpace: 0
+  _offset: {x: 0, y: -1.5, z: 0.5}
+  _rotationMode: 2
+  _rotationOffset: {x: 0, y: 0, z: 0}
+  _retriggerOnLoop: 0
+  _logPlay: 0
+  _drawDebugPoint: 0
 --- !u!1101 &-4533940751741849518
 AnimatorStateTransition:
   m_ObjectHideFlags: 1
@@ -270,38 +417,194 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: -4651003908818579055, guid: 681c694a895532e48bc234a518ee99d6, type: 3}
+  m_Motion: {fileID: 3014803322540027997, guid: 681c694a895532e48bc234a518ee99d6, type: 3}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
   m_CycleOffsetParameter: 
   m_TimeParameter: 
---- !u!1102 &-1179306020855885219
-AnimatorState:
-  serializedVersion: 6
+--- !u!114 &-4037691598809920825
+MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: SpellCast_ArmClip
-  m_Speed: 1
-  m_CycleOffset: 0
-  m_Transitions: []
-  m_StateMachineBehaviours: []
-  m_Position: {x: 50, y: 50, z: 0}
-  m_IKOnFeet: 0
-  m_WriteDefaultValues: 1
-  m_Mirror: 0
-  m_SpeedParameterActive: 0
-  m_MirrorParameterActive: 0
-  m_CycleOffsetParameterActive: 0
-  m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: 65b3f857001e2b54e92933e572e6f6f6, type: 2}
-  m_Tag: 
-  m_SpeedParameter: 
-  m_MirrorParameter: 
-  m_CycleOffsetParameter: 
-  m_TimeParameter: 
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 266737b1b0751bc44b58a35a880d3433, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlaySoundOnAnimatorState
+  _sound: {fileID: 11400000, guid: c64a224d1f85fc440b2caa784a1cfdd6, type: 2}
+  _triggerAt: 0.3
+  _followTarget: 1
+  _retriggerOnLoop: 0
+  _minInterval: 0
+  _logPlay: 0
+--- !u!114 &-3927578396587140828
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 266737b1b0751bc44b58a35a880d3433, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlaySoundOnAnimatorState
+  _sound: {fileID: 11400000, guid: 447d77082d6efb14787831dcb972f0b2, type: 2}
+  _triggerAt: 0.3
+  _followTarget: 1
+  _retriggerOnLoop: 0
+  _minInterval: 0
+  _logPlay: 0
+--- !u!114 &-3641521287645187656
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 267fd074e90bf00428e4a1b608bb6e3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayVFXOnAnimatorState
+  _playMode: 0
+  _effekseerEffect: {fileID: 11400000, guid: 548863cfc98747a49b18c3cf18f03700, type: 2}
+  _vfxPrefab: {fileID: 0}
+  _followOrigin: 0
+  _lifetime: 3
+  _holdGraceSeconds: 0.15
+  _holdTailSeconds: 1.5
+  _triggerAt: 0.1
+  _originName: 
+  _offsetSpace: 0
+  _offset: {x: 0, y: 0, z: 0.5}
+  _rotationMode: 2
+  _rotationOffset: {x: 0, y: 0, z: 0}
+  _retriggerOnLoop: 0
+  _logPlay: 0
+  _drawDebugPoint: 0
+--- !u!114 &-2610974595645596908
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 266737b1b0751bc44b58a35a880d3433, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlaySoundOnAnimatorState
+  _sound: {fileID: 11400000, guid: 98e2fde46eba9634c9a7d64552297f27, type: 2}
+  _triggerAt: 0.3
+  _followTarget: 1
+  _retriggerOnLoop: 0
+  _minInterval: 0
+  _logPlay: 0
+--- !u!114 &-1503741819138580699
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 266737b1b0751bc44b58a35a880d3433, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlaySoundOnAnimatorState
+  _sound: {fileID: 11400000, guid: 1f8bcd395488db1409fa5c80079fb329, type: 2}
+  _triggerAt: 0
+  _followTarget: 1
+  _retriggerOnLoop: 0
+  _minInterval: 0
+  _logPlay: 0
+--- !u!114 &-1013914063480010774
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 267fd074e90bf00428e4a1b608bb6e3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayVFXOnAnimatorState
+  _playMode: 0
+  _effekseerEffect: {fileID: 11400000, guid: 3904e9aa5a191a74db3e8a764a356ed1, type: 2}
+  _vfxPrefab: {fileID: 0}
+  _followOrigin: 1
+  _lifetime: 3
+  _holdGraceSeconds: 0.15
+  _holdTailSeconds: 1.5
+  _triggerAt: 0.3
+  _originName: hand.l
+  _offsetSpace: 0
+  _offset: {x: 0, y: 0, z: 0.3}
+  _rotationMode: 2
+  _rotationOffset: {x: 180, y: 0, z: 0}
+  _retriggerOnLoop: 0
+  _logPlay: 0
+  _drawDebugPoint: 0
+--- !u!114 &-938632099313577347
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 266737b1b0751bc44b58a35a880d3433, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlaySoundOnAnimatorState
+  _sound: {fileID: 11400000, guid: 456ca5ee503e9864aba68459f941a249, type: 2}
+  _triggerAt: 0.1
+  _followTarget: 1
+  _retriggerOnLoop: 0
+  _minInterval: 0.3
+  _logPlay: 1
+--- !u!114 &-754117090925594185
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 266737b1b0751bc44b58a35a880d3433, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlaySoundOnAnimatorState
+  _sound: {fileID: 11400000, guid: 8686be204d57e96479af4bc2fac39ebe, type: 2}
+  _triggerAt: 0.3
+  _followTarget: 1
+  _retriggerOnLoop: 0
+  _minInterval: 0
+  _logPlay: 0
+--- !u!114 &-370430691792795288
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 266737b1b0751bc44b58a35a880d3433, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlaySoundOnAnimatorState
+  _sound: {fileID: 11400000, guid: addcb97cf9e5cb9419135c031ad5bfd1, type: 2}
+  _triggerAt: 0.3
+  _followTarget: 1
+  _retriggerOnLoop: 0
+  _minInterval: 0
+  _logPlay: 0
 --- !u!1101 &-98149907392762411
 AnimatorStateTransition:
   m_ObjectHideFlags: 1
@@ -405,7 +708,9 @@ AnimatorState:
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions: []
-  m_StateMachineBehaviours: []
+  m_StateMachineBehaviours:
+  - {fileID: -6650808765790558661}
+  - {fileID: -7741475506854349549}
   m_Position: {x: 50, y: 50, z: 0}
   m_IKOnFeet: 0
   m_WriteDefaultValues: 1
@@ -415,6 +720,91 @@ AnimatorState:
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
   m_Motion: {fileID: 9033839076204413655, guid: fabf7cac234a60940a23147bc1e5af8c, type: 3}
+  m_Tag: 
+  m_SpeedParameter: 
+  m_MirrorParameter: 
+  m_CycleOffsetParameter: 
+  m_TimeParameter: 
+--- !u!114 &562722111429834553
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 266737b1b0751bc44b58a35a880d3433, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlaySoundOnAnimatorState
+  _sound: {fileID: 11400000, guid: 22406305b87993a43866c1d51fcffd50, type: 2}
+  _triggerAt: 0.3
+  _followTarget: 1
+  _retriggerOnLoop: 0
+  _minInterval: 0
+  _logPlay: 0
+--- !u!114 &1112612901405331330
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 266737b1b0751bc44b58a35a880d3433, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlaySoundOnAnimatorState
+  _sound: {fileID: 11400000, guid: 8da37ff783c7ee34882a5791d8b3bc47, type: 2}
+  _triggerAt: 0
+  _followTarget: 1
+  _retriggerOnLoop: 0
+  _minInterval: 0
+  _logPlay: 0
+--- !u!114 &1145747656946987823
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 266737b1b0751bc44b58a35a880d3433, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlaySoundOnAnimatorState
+  _sound: {fileID: 11400000, guid: 8b8b2d65ad2fa684faffebed5573adf2, type: 2}
+  _triggerAt: 0.3
+  _followTarget: 1
+  _retriggerOnLoop: 0
+  _minInterval: 0
+  _logPlay: 0
+--- !u!1102 &1635678415782092458
+AnimatorState:
+  serializedVersion: 6
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: HomingMissleCast
+  m_Speed: 1
+  m_CycleOffset: 0
+  m_Transitions: []
+  m_StateMachineBehaviours:
+  - {fileID: -3641521287645187656}
+  - {fileID: 562722111429834553}
+  - {fileID: -370430691792795288}
+  - {fileID: 6879753809197137562}
+  - {fileID: 1145747656946987823}
+  m_Position: {x: 50, y: 50, z: 0}
+  m_IKOnFeet: 0
+  m_WriteDefaultValues: 1
+  m_Mirror: 0
+  m_SpeedParameterActive: 0
+  m_MirrorParameterActive: 0
+  m_CycleOffsetParameterActive: 0
+  m_TimeParameterActive: 0
+  m_Motion: {fileID: 7400000, guid: c078bdf7dd026814387ab07e8c1974b2, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -447,6 +837,52 @@ AnimatorState:
   m_MirrorParameter: 
   m_CycleOffsetParameter: 
   m_TimeParameter: 
+--- !u!114 &2043975222335195203
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 267fd074e90bf00428e4a1b608bb6e3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayVFXOnAnimatorState
+  _playMode: 0
+  _effekseerEffect: {fileID: 11400000, guid: a2458abc4d90e5343b30103c7c0d1739, type: 2}
+  _vfxPrefab: {fileID: 0}
+  _followOrigin: 1
+  _lifetime: 3
+  _holdGraceSeconds: 0.15
+  _holdTailSeconds: 1.5
+  _triggerAt: 0.2
+  _originName: 
+  _offsetSpace: 0
+  _offset: {x: 0.15, y: 0.05, z: 0.4}
+  _rotationMode: 2
+  _rotationOffset: {x: 110, y: 0, z: 0}
+  _retriggerOnLoop: 0
+  _logPlay: 0
+  _drawDebugPoint: 0
+--- !u!114 &2446463771416279787
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 266737b1b0751bc44b58a35a880d3433, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlaySoundOnAnimatorState
+  _sound: {fileID: 11400000, guid: 26666a49b4cd04d488ae9c52625f4134, type: 2}
+  _triggerAt: 0.3
+  _followTarget: 1
+  _retriggerOnLoop: 0
+  _minInterval: 0
+  _logPlay: 0
 --- !u!1102 &2713779456817061556
 AnimatorState:
   serializedVersion: 6
@@ -470,6 +906,36 @@ AnimatorState:
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
   m_Motion: {fileID: 7701538275488990058, guid: 681c694a895532e48bc234a518ee99d6, type: 3}
+  m_Tag: 
+  m_SpeedParameter: 
+  m_MirrorParameter: 
+  m_CycleOffsetParameter: 
+  m_TimeParameter: 
+--- !u!1102 &2804158643011651527
+AnimatorState:
+  serializedVersion: 6
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: SelfHealEffectCast
+  m_Speed: 1
+  m_CycleOffset: 0
+  m_Transitions: []
+  m_StateMachineBehaviours:
+  - {fileID: -938632099313577347}
+  - {fileID: -4668562533946536952}
+  - {fileID: 6224760913447916926}
+  - {fileID: 2446463771416279787}
+  m_Position: {x: 50, y: 50, z: 0}
+  m_IKOnFeet: 0
+  m_WriteDefaultValues: 1
+  m_Mirror: 0
+  m_SpeedParameterActive: 0
+  m_MirrorParameterActive: 0
+  m_CycleOffsetParameterActive: 0
+  m_TimeParameterActive: 0
+  m_Motion: {fileID: 7400000, guid: ab63cfa3b3d5e0a4ca5fa718f212500e, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -500,6 +966,24 @@ AnimatorStateTransition:
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 1
+--- !u!114 &3402013774589414025
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 266737b1b0751bc44b58a35a880d3433, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlaySoundOnAnimatorState
+  _sound: {fileID: 11400000, guid: 98e2fde46eba9634c9a7d64552297f27, type: 2}
+  _triggerAt: 0.3
+  _followTarget: 1
+  _retriggerOnLoop: 0
+  _minInterval: 0
+  _logPlay: 0
 --- !u!1101 &3642559305417465146
 AnimatorStateTransition:
   m_ObjectHideFlags: 1
@@ -536,7 +1020,11 @@ AnimatorState:
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions: []
-  m_StateMachineBehaviours: []
+  m_StateMachineBehaviours:
+  - {fileID: -8851655129870646122}
+  - {fileID: 2043975222335195203}
+  - {fileID: 1112612901405331330}
+  - {fileID: -1503741819138580699}
   m_Position: {x: 50, y: 50, z: 0}
   m_IKOnFeet: 0
   m_WriteDefaultValues: 1
@@ -562,7 +1050,9 @@ AnimatorState:
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions: []
-  m_StateMachineBehaviours: []
+  m_StateMachineBehaviours:
+  - {fileID: -2610974595645596908}
+  - {fileID: -7337420824510628492}
   m_Position: {x: 50, y: 50, z: 0}
   m_IKOnFeet: 0
   m_WriteDefaultValues: 1
@@ -572,6 +1062,39 @@ AnimatorState:
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
   m_Motion: {fileID: -6678395353367970532, guid: fabf7cac234a60940a23147bc1e5af8c, type: 3}
+  m_Tag: 
+  m_SpeedParameter: 
+  m_MirrorParameter: 
+  m_CycleOffsetParameter: 
+  m_TimeParameter: 
+--- !u!1102 &4041812056098379810
+AnimatorState:
+  serializedVersion: 6
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: RadialPushEffectCast
+  m_Speed: 1
+  m_CycleOffset: 0
+  m_Transitions: []
+  m_StateMachineBehaviours:
+  - {fileID: 5979510377056391746}
+  - {fileID: 6867404370604035558}
+  - {fileID: -754117090925594185}
+  - {fileID: -3927578396587140828}
+  - {fileID: -4994572431521067857}
+  - {fileID: 6919886971825535289}
+  - {fileID: -4037691598809920825}
+  m_Position: {x: 50, y: 50, z: 0}
+  m_IKOnFeet: 0
+  m_WriteDefaultValues: 1
+  m_Mirror: 0
+  m_SpeedParameterActive: 0
+  m_MirrorParameterActive: 0
+  m_CycleOffsetParameterActive: 0
+  m_TimeParameterActive: 0
+  m_Motion: {fileID: 7400000, guid: 8486c12ec6ba3184786ceb41d25194c5, type: 2}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -624,7 +1147,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: cfbbdaaeefb7b064fabbfb64be8134d6, type: 2}
+  m_Motion: {fileID: 4732089799691882376, guid: fabf7cac234a60940a23147bc1e5af8c, type: 3}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -667,7 +1190,9 @@ AnimatorState:
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions: []
-  m_StateMachineBehaviours: []
+  m_StateMachineBehaviours:
+  - {fileID: 3402013774589414025}
+  - {fileID: -1013914063480010774}
   m_Position: {x: 50, y: 50, z: 0}
   m_IKOnFeet: 0
   m_WriteDefaultValues: 1
@@ -682,6 +1207,52 @@ AnimatorState:
   m_MirrorParameter: 
   m_CycleOffsetParameter: 
   m_TimeParameter: 
+--- !u!114 &5979510377056391746
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 267fd074e90bf00428e4a1b608bb6e3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayVFXOnAnimatorState
+  _playMode: 0
+  _effekseerEffect: {fileID: 11400000, guid: e5c682349ea71664ab1eb79498cb36c6, type: 2}
+  _vfxPrefab: {fileID: 0}
+  _followOrigin: 0
+  _lifetime: 3
+  _holdGraceSeconds: 0.15
+  _holdTailSeconds: 1.5
+  _triggerAt: 0.1
+  _originName: 
+  _offsetSpace: 0
+  _offset: {x: 0, y: -0.6, z: 0}
+  _rotationMode: 0
+  _rotationOffset: {x: 0, y: 0, z: 0}
+  _retriggerOnLoop: 0
+  _logPlay: 0
+  _drawDebugPoint: 0
+--- !u!114 &6224760913447916926
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 266737b1b0751bc44b58a35a880d3433, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlaySoundOnAnimatorState
+  _sound: {fileID: 11400000, guid: 7886a773db5312a40ad5c45772641ee0, type: 2}
+  _triggerAt: 0.3
+  _followTarget: 1
+  _retriggerOnLoop: 0
+  _minInterval: 0
+  _logPlay: 0
 --- !u!1101 &6235148853198754685
 AnimatorStateTransition:
   m_ObjectHideFlags: 1
@@ -732,6 +1303,60 @@ AnimatorStateTransition:
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
   m_CanTransitionToSelf: 1
+--- !u!114 &6867404370604035558
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 266737b1b0751bc44b58a35a880d3433, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlaySoundOnAnimatorState
+  _sound: {fileID: 11400000, guid: 0d714593ac394484f875c2c2b03a5f3c, type: 2}
+  _triggerAt: 0.3
+  _followTarget: 1
+  _retriggerOnLoop: 0
+  _minInterval: 0
+  _logPlay: 0
+--- !u!114 &6879753809197137562
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 266737b1b0751bc44b58a35a880d3433, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlaySoundOnAnimatorState
+  _sound: {fileID: 11400000, guid: 9b73ffa4d3f0c6449a485f556825b72b, type: 2}
+  _triggerAt: 0.3
+  _followTarget: 1
+  _retriggerOnLoop: 0
+  _minInterval: 0
+  _logPlay: 0
+--- !u!114 &6919886971825535289
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 266737b1b0751bc44b58a35a880d3433, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlaySoundOnAnimatorState
+  _sound: {fileID: 11400000, guid: bacbde31e3fc70f4887d84740005f6e4, type: 2}
+  _triggerAt: 0.3
+  _followTarget: 1
+  _retriggerOnLoop: 0
+  _minInterval: 0
+  _logPlay: 0
 --- !u!1102 &7789785423878401411
 AnimatorState:
   serializedVersion: 6
@@ -743,7 +1368,9 @@ AnimatorState:
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions: []
-  m_StateMachineBehaviours: []
+  m_StateMachineBehaviours:
+  - {fileID: 7861010148650444715}
+  - {fileID: 8133669272072277900}
   m_Position: {x: 50, y: 50, z: 0}
   m_IKOnFeet: 0
   m_WriteDefaultValues: 1
@@ -758,6 +1385,52 @@ AnimatorState:
   m_MirrorParameter: 
   m_CycleOffsetParameter: 
   m_TimeParameter: 
+--- !u!114 &7861010148650444715
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 266737b1b0751bc44b58a35a880d3433, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlaySoundOnAnimatorState
+  _sound: {fileID: 11400000, guid: 98e2fde46eba9634c9a7d64552297f27, type: 2}
+  _triggerAt: 0.3
+  _followTarget: 1
+  _retriggerOnLoop: 0
+  _minInterval: 0
+  _logPlay: 0
+--- !u!114 &8133669272072277900
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 267fd074e90bf00428e4a1b608bb6e3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayVFXOnAnimatorState
+  _playMode: 0
+  _effekseerEffect: {fileID: 11400000, guid: 3904e9aa5a191a74db3e8a764a356ed1, type: 2}
+  _vfxPrefab: {fileID: 0}
+  _followOrigin: 1
+  _lifetime: 3
+  _holdGraceSeconds: 0.15
+  _holdTailSeconds: 1.5
+  _triggerAt: 0.05
+  _originName: c_forearm_stretch.l
+  _offsetSpace: 0
+  _offset: {x: 0, y: 0.1, z: 0.3}
+  _rotationMode: 2
+  _rotationOffset: {x: 170, y: 0, z: 0}
+  _retriggerOnLoop: 0
+  _logPlay: 0
+  _drawDebugPoint: 0
 --- !u!1102 &9025897287268938033
 AnimatorState:
   serializedVersion: 6
@@ -778,7 +1451,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-  m_Motion: {fileID: 7400000, guid: cefcc3853d663a74ab393484da8210e7, type: 2}
+  m_Motion: {fileID: -5227231375216724099, guid: e3c2d9d007f62d74b8eb0c888ebed81a, type: 3}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
