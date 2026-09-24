@@ -31,7 +31,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 598e2d32e2c7b0c418e030c3236d663a, type: 3}
   m_Name: ChromaticAberration
   m_EditorClassIdentifier: Unity.RenderPipelines.HighDefinition.Runtime::UnityEngine.Rendering.HighDefinition.ChromaticAberration
-  active: 1
+  active: 0
   quality:
     m_OverrideState: 0
     m_Value: 1
@@ -56,7 +56,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9008a067f4d626c4d8bc4bc48f04bb89, type: 3}
   m_Name: ScreenSpaceAmbientOcclusion
   m_EditorClassIdentifier: Unity.RenderPipelines.HighDefinition.Runtime::UnityEngine.Rendering.HighDefinition.ScreenSpaceAmbientOcclusion
-  active: 1
+  active: 0
   quality:
     m_OverrideState: 0
     m_Value: 1
@@ -323,8 +323,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.RenderPipelines.HighDefinition.Runtime::UnityEngine.Rendering.HighDefinition.DepthOfField
   active: 1
   quality:
-    m_OverrideState: 0
-    m_Value: 1
+    m_OverrideState: 1
+    m_Value: 3
   focusMode:
     m_OverrideState: 1
     m_Value: 1
@@ -332,8 +332,8 @@ MonoBehaviour:
     m_OverrideState: 0
     m_Value: 10
   focusDistanceMode:
-    m_OverrideState: 0
-    m_Value: 0
+    m_OverrideState: 1
+    m_Value: 1
   nearFocusStart:
     m_OverrideState: 0
     m_Value: 0
@@ -347,31 +347,31 @@ MonoBehaviour:
     m_OverrideState: 0
     m_Value: 20
   m_NearSampleCount:
-    m_OverrideState: 0
-    m_Value: 5
+    m_OverrideState: 1
+    m_Value: 8
   m_NearMaxBlur:
-    m_OverrideState: 0
-    m_Value: 4
+    m_OverrideState: 1
+    m_Value: 2
   m_FarSampleCount:
-    m_OverrideState: 0
-    m_Value: 7
+    m_OverrideState: 1
+    m_Value: 16
   m_FarMaxBlur:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: 8
   m_Resolution:
-    m_OverrideState: 0
-    m_Value: 2
+    m_OverrideState: 1
+    m_Value: 1
   m_HighQualityFiltering:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: 1
   m_PhysicallyBased:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: 0
   m_AdaptiveSamplingWeight:
     m_OverrideState: 0
     m_Value: 0.75
   m_LimitManualRangeNearBlur:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: 0
   coCStabilization:
     m_OverrideState: 0
@@ -391,13 +391,13 @@ MonoBehaviour:
   active: 1
   shadows:
     m_OverrideState: 1
-    m_Value: {x: 0.93559396, y: 1, z: 0.94757676, w: 0}
+    m_Value: {x: 0.94, y: 1, z: 0.951, w: 0}
   midtones:
     m_OverrideState: 0
-    m_Value: {x: 1, y: 0.960723, z: 0.96072334, w: 0}
+    m_Value: {x: 1, y: 0.96, z: 0.96, w: 0}
   highlights:
     m_OverrideState: 1
-    m_Value: {x: 1, y: 0.9409259, z: 0.80396295, w: 0}
+    m_Value: {x: 1, y: 0.94, z: 0.8, w: 0}
   shadowsStart:
     m_OverrideState: 0
     m_Value: 0
@@ -509,7 +509,7 @@ MonoBehaviour:
   active: 1
   rotation:
     m_OverrideState: 1
-    m_Value: 100
+    m_Value: 330
   skyIntensityMode:
     m_OverrideState: 0
     m_Value: 0
@@ -521,10 +521,10 @@ MonoBehaviour:
     m_Value: 1
   upperHemisphereLuxValue:
     m_OverrideState: 1
-    m_Value: 4.450972
+    m_Value: 4.4509907
   upperHemisphereLuxColor:
     m_OverrideState: 1
-    m_Value: {x: 0.4831374, y: 0.5, z: 0.4747314}
+    m_Value: {x: 0.4831378, y: 0.5, z: 0.47473094}
   desiredLuxValue:
     m_OverrideState: 0
     m_Value: 20000
@@ -578,10 +578,10 @@ MonoBehaviour:
       multiplyValue: 1
   sunInitialRotation:
     m_OverrideState: 0
-    m_Value: -Infinity
+    m_Value: -330
   lockSun:
-    m_OverrideState: 0
-    m_Value: 0
+    m_OverrideState: 1
+    m_Value: 1
   enableBackplate:
     m_OverrideState: 0
     m_Value: 0
@@ -790,7 +790,7 @@ MonoBehaviour:
     m_Value: -0.3
   contrast:
     m_OverrideState: 1
-    m_Value: -9
+    m_Value: 3
   colorFilter:
     m_OverrideState: 1
     m_Value: {r: 1, g: 1, b: 1, a: 1}

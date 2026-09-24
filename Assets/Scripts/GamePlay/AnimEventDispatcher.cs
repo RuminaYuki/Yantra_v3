@@ -39,7 +39,6 @@ public class AnimEventDispatcher : MonoBehaviour
         {
             evt = new SerializableAction();
             events[key] = evt;
-            Debug.Log("new SerializableAction");
         }
         return evt;
     }
