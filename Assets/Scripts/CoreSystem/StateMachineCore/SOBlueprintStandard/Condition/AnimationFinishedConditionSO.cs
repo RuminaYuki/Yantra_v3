@@ -3,7 +3,7 @@ using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
-    fileName = "NewAnimationFinished_Condition",
+    fileName = "NewAnimFin_Condition",
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/Animation Finished")]
 public class AnimationFinishedConditionSO : StateConditionSO
 {
