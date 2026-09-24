@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 using Effekseer;
 
 public class PlayVFXOnSpawn : MonoBehaviour
@@ -23,15 +24,16 @@ public class PlayVFXOnSpawn : MonoBehaviour
     [Tooltip("Prefab ที่มี ParticleSystem หรือ VFX Graph อยู่ข้างใน")]
     [SerializeField] private GameObject _vfxPrefab;
 
-    [Tooltip("ทำลาย prefab หลังกี่วินาที (0 = ไม่ทำลายให้ ต้องให้มันลบตัวเอง)\n" +
-        "ไฟปากกระบอกสั้นมาก ใส่ 1 พอ")]
-    [SerializeField] private float _prefabLifetime = 1f;
-
-    [Header("Options")]
+    [Header("Options (ใช้ได้ทั้ง Effekseer และ Prefab)")]
     [Tooltip("ให้ VFX วิ่งตามของชิ้นนี้\n\n" +
         "ไฟปากกระบอก: **ปิด** — แสงควรค้างอยู่ที่ปากกระบอก ไม่วิ่งตามกระสุนไป\n" +
         "เอฟเฟกต์ที่ห่อตัวกระสุน (หางไฟ): เปิด")]
     [SerializeField] private bool _followObject = false;
+
+    [Tooltip("ลบทิ้งหลังกี่วินาที — ต้องยาวกว่าตัวเอฟเฟกต์\n" +
+        "Prefab: 0 = ไม่ลบให้ / Effekseer ที่ติ๊กวิ่งตาม: 0 = 5 วินาที")]
+    [FormerlySerializedAs("_prefabLifetime")]   // ชื่อเดิม — กันค่าที่ตั้งไว้หาย
+    [SerializeField] private float _lifetime = 1f;
 
     [Tooltip("ใช้ตำแหน่งนี้แทนตำแหน่งตัวเอง — เว้นว่างได้")]
     [SerializeField] private Transform _customOrigin;
@@ -63,13 +65,19 @@ public class PlayVFXOnSpawn : MonoBehaviour
         Vector3 position = origin.position + origin.rotation * _localOffset;
         Quaternion rotation = BuildRotation(origin);
 
-        PlayEffekseer(position, rotation);
+        PlayEffekseer(origin, position, rotation);
         SpawnPrefab(origin, position, rotation);
     }
 
-    private void PlayEffekseer(Vector3 position, Quaternion rotation)
+    private void PlayEffekseer(Transform origin, Vector3 position, Quaternion rotation)
     {
         if (_effekseerEffect == null) return;
+
+        if (_followObject)
+        {
+            EffekseerAttach.Play(_effekseerEffect, origin, position, rotation, _lifetime);
+            return;
+        }
 
         var handle = EffekseerSystem.PlayEffect(_effekseerEffect, position);
         handle.SetRotation(rotation);
@@ -83,8 +91,8 @@ public class PlayVFXOnSpawn : MonoBehaviour
             ? Instantiate(_vfxPrefab, position, rotation, origin)
             : Instantiate(_vfxPrefab, position, rotation);
 
-        if (_prefabLifetime > 0f)
-            Destroy(spawned, _prefabLifetime);
+        if (_lifetime > 0f)
+            Destroy(spawned, _lifetime);
     }
 
     private Quaternion BuildRotation(Transform origin)

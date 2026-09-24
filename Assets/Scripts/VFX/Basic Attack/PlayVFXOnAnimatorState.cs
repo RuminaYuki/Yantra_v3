@@ -62,21 +62,26 @@ public class PlayVFXOnAnimatorState : StateMachineBehaviour
         "เช่น prefab Block / Block Hit / Parry ที่ทำในยูนิตี้")]
     [SerializeField] private GameObject _vfxPrefab;
 
-    [Tooltip("โหมด OneShot: ทำลาย prefab หลังกี่วินาที (0 = ไม่ทำลายให้)\n" +
-        "โหมด Hold: ไม่ใช้ช่องนี้ เพราะลบตอนออกจาก state อยู่แล้ว")]
-    [SerializeField] private float _prefabLifetime = 3f;
+    [Header("ใช้ได้ทั้ง Effekseer และ Prefab")]
+    [Tooltip("ติ๊ก = ติดไปกับจุดกำเนิด ขยับตามทุกเฟรม (ลมหมัด โล่ ไฟปากกระบอก)\n" +
+        "ไม่ติ๊ก = ค้างอยู่ที่เดิมในโลก (ประกายตอนโดน ฝุ่น)")]
+    [FormerlySerializedAs("_parentPrefabToOrigin")]   // ชื่อเดิม — กันค่าที่ติ๊กไว้หาย
+    [SerializeField] private bool _followOrigin = false;
 
-    [Tooltip("ให้ prefab เป็นลูกของจุดกำเนิด = วิ่งตามมือ/ตัวละคร\n" +
-        "โหมด Hold ควรเปิดไว้ ไม่งั้นโล่จะค้างอยู่กับที่ตอนเดิน")]
-    [SerializeField] private bool _parentPrefabToOrigin = false;
+    [Tooltip("ลบทิ้งหลังกี่วินาที — ต้องยาวกว่าตัวเอฟเฟกต์\n" +
+        "Prefab: 0 = ไม่ลบให้ / Effekseer ที่ติ๊กวิ่งตาม: 0 = 5 วินาที\n" +
+        "โหมด Hold ไม่ใช้ช่องนี้")]
+    [FormerlySerializedAs("_prefabLifetime")]
+    [SerializeField] private float _lifetime = 3f;
 
-    [Tooltip("โหมด Hold เท่านั้น — ปล่อยปุ่มแล้วรอกี่วินาทีถึงลบโล่ทิ้ง\n\n" +
+    [Header("โหมด Hold")]
+    [Tooltip("ปล่อยปุ่มแล้วรอกี่วินาทีถึงลบโล่ทิ้ง\n\n" +
         "ระบบบล็อกสั่งเข้า state ซ้ำทุกเฟรม ทำให้ Unity ยิง Exit/Enter สลับกันรัวๆ\n" +
         "ถ้าลบทันทีที่ออกจาก state โล่จะกระพริบ ค่านี้คือช่วงผ่อนผันให้มันอยู่ข้ามจังหวะสะดุดไปได้\n" +
         "สั้นเกิน = กระพริบ / ยาวเกิน = โล่ค้างหลังปล่อยปุ่ม")]
     [SerializeField] private float _holdGraceSeconds = 0.15f;
 
-    [Tooltip("โหมด Hold เท่านั้น — หลังสั่งหยุดพ่นอนุภาคแล้ว รออีกกี่วินาทีถึงลบทิ้ง\n\n" +
+    [Tooltip("หลังสั่งหยุดพ่นอนุภาคแล้ว รออีกกี่วินาทีถึงลบทิ้ง\n\n" +
         "เราไม่ลบทันทีเพราะภาพจะหายวับ ทั้งที่ตอนขึ้นมามันค่อยๆ ก่อตัว\n" +
         "สั่งหยุดพ่นแล้วปล่อยให้อนุภาคที่ออกมาแล้วเล่นจนจบ = ได้ fade out ตามที่คนทำ VFX ออกแบบไว้\n" +
         "ตั้งให้ยาวพอๆ กับอายุอนุภาคที่ยาวที่สุดในเอฟเฟกต์นั้น")]
@@ -99,7 +104,7 @@ public class PlayVFXOnAnimatorState : StateMachineBehaviour
     [Tooltip("ขยับจากจุดกำเนิด — อิงแกนตาม Offset Space ข้างล่าง")]
     [SerializeField] private OffsetSpace _offsetSpace = OffsetSpace.Character;
 
-    [Tooltip("ระยะที่จะขยับ ตามแกนของ Offset Space")]
+    [Tooltip("ระยะที่จะขยับ ตามแกนของ Offset Space (เมตร ปรับทีละ 0.1)")]
     [SerializeField] private Vector3 _offset = Vector3.zero;
 
     [Header("ทิศทาง")]
@@ -201,7 +206,8 @@ public class PlayVFXOnAnimatorState : StateMachineBehaviour
             Debug.Log(
                 $"[AnimVFX] {_playMode} @ {_triggerAt:P0} — จาก '{origin.name}' | " +
                 $"Effekseer: {(_effekseerEffect != null ? _effekseerEffect.name : "-")} | " +
-                $"Prefab: {(_vfxPrefab != null ? _vfxPrefab.name : "-")}", animator);
+                $"Prefab: {(_vfxPrefab != null ? _vfxPrefab.name : "-")} | " +
+                $"ตาม: {(_followOrigin ? "✓" : "✗")}", animator);
         }
 
         if (_drawDebugPoint)
@@ -211,11 +217,11 @@ public class PlayVFXOnAnimatorState : StateMachineBehaviour
             Debug.DrawLine(position + Vector3.forward * 0.15f, position - Vector3.forward * 0.15f, Color.yellow, 2f);
         }
 
-        PlayEffekseer(position, rotation);
+        PlayEffekseer(origin, position, rotation);
         SpawnPrefab(origin, position, rotation);
     }
 
-    private void PlayEffekseer(Vector3 position, Quaternion rotation)
+    private void PlayEffekseer(Transform origin, Vector3 position, Quaternion rotation)
     {
         if (_effekseerEffect == null) return;
 
@@ -228,6 +234,12 @@ public class PlayVFXOnAnimatorState : StateMachineBehaviour
 #endif
         }
 
+        if (_followOrigin)
+        {
+            EffekseerAttach.Play(_effekseerEffect, origin, position, rotation, _lifetime);
+            return;
+        }
+
         var handle = EffekseerSystem.PlayEffect(_effekseerEffect, position);
         handle.SetRotation(rotation);
     }
@@ -236,7 +248,7 @@ public class PlayVFXOnAnimatorState : StateMachineBehaviour
     {
         if (_vfxPrefab == null) return;
 
-        GameObject spawned = _parentPrefabToOrigin
+        GameObject spawned = _followOrigin
             ? Object.Instantiate(_vfxPrefab, position, rotation, origin)
             : Object.Instantiate(_vfxPrefab, position, rotation);
 
@@ -255,8 +267,8 @@ public class PlayVFXOnAnimatorState : StateMachineBehaviour
         }
 
         // ไม่ทำลายให้ = prefab ต้องลบตัวเอง ไม่งั้นมันจะกองสะสมทุกครั้งที่เล่นท่า
-        if (_prefabLifetime > 0f)
-            Object.Destroy(spawned, _prefabLifetime);
+        if (_lifetime > 0f)
+            Object.Destroy(spawned, _lifetime);
     }
 
     /// <summary>
