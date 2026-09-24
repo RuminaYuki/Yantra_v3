@@ -15,6 +15,7 @@ public class GunController : MonoBehaviour
     [SerializeField] GameObject PlayerController;
     [SerializeField] SkillPoints skillPoints;
     [SerializeField] List<Spawner> spawners = new();
+    [SerializeField] private Transform muzzle;
 
     [Header("Settings")]
     [SerializeField] GunMode gunMode = GunMode.Normal;
@@ -142,7 +143,7 @@ public class GunController : MonoBehaviour
 
                     if (baseProjectile is HitscanShooter hitscan)
                     {
-                        hitscan.Fire();
+                        hitscan.Fire(muzzle.position, muzzle.forward);
                     }
                     break;
                 case GunMode.Special:
@@ -152,7 +153,7 @@ public class GunController : MonoBehaviour
 
                     if (baseProjectile is HitscanShooter hitscanS)
                     {
-                        hitscanS.Fire();
+                        hitscanS.Fire(muzzle.position, muzzle.forward);
                     }
                     break;
             }

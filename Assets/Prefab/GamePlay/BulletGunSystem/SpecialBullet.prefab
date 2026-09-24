@@ -66,11 +66,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitscanShooter
   _lifeTime: 5
-  maxPenetrations: 2
+  maxPenetrations: 1
   destroyAfterPenetrationLimit: 0
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 512
+  hitTargetRepeatMode: 0
+  repeatDamageInterval: 0.2
   _moveSpeed: 0
   muzzle: {fileID: 0}
   range: 100
@@ -80,7 +82,7 @@ MonoBehaviour:
   triggerInteraction: 1
   ignoreRoot: {fileID: 0}
   drawDebugRay: 1
-  debugDuration: 1
+  debugDuration: 10
 --- !u!114 &-5523588076003030981
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -93,7 +95,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5054eab1490aef43a87b7fd7a0e864b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitscanVFX
-  _poolTag: 
+  prefabVFX: {fileID: 2174810163026289987, guid: bee14371b89bc484293b9755546a3ddb, type: 3}
 --- !u!114 &-2240895711353591139
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -124,8 +126,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayVFXOnSpawn
   _effekseerEffect: {fileID: 0}
   _vfxPrefab: {fileID: 7325989998224651030, guid: 11283086341a5d849b3648b8ea1c42e4, type: 3}
-  _prefabLifetime: 5
   _followObject: 0
+  _duration: 5
+  _speed: 1
+  _fadeOut: 1
   _customOrigin: {fileID: 0}
   _localOffset: {x: 0, y: 0, z: 0.1}
   _rotationMode: 0
