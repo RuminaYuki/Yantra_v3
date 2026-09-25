@@ -92,7 +92,8 @@ public class PlayerLocomotion : BaseLocomotion
     }
     private void PlayerVelocityLogic(Vector3 direction)
     {
-        Vector3 movement = !IsMovementLocked ? direction * _currentspeed * Time.deltaTime : Vector3.zero;
+        Vector3 clampedDirection = Vector3.ClampMagnitude(direction, 1f);
+        Vector3 movement = !IsMovementLocked ? clampedDirection * _currentspeed * Time.deltaTime : Vector3.zero;
         CharacterController.Move(movement + Gravity.Gravity());
     }
 
