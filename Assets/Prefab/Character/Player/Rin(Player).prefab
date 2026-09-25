@@ -1260,13 +1260,13 @@ GameObject:
   m_Component:
   - component: {fileID: 8092750434130808451}
   - component: {fileID: 2295840317291766614}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: ViewModelVolume
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &8092750434130808451
 Transform:
   m_ObjectHideFlags: 0
@@ -1295,7 +1295,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.RenderPipelines.Core.Runtime::UnityEngine.Rendering.Volume
   m_IsGlobal: 1
-  priority: 0
+  priority: 1
   blendDistance: 0
   weight: 1
   sharedProfile: {fileID: 11400000, guid: 8230cd75e3b453646897d66508b30ada, type: 2}
@@ -1940,7 +1940,7 @@ Transform:
   m_GameObject: {fileID: 3970923857070277191}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: -0.00000040233135}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1981,7 +1981,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.01
-  far clip plane: 600
+  far clip plane: 150
   field of view: 60.000004
   orthographic: 0
   orthographic size: 5
@@ -4502,6 +4502,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpellRadialMenuSelect
   _spellController: {fileID: 5961984159641964894}
+  _playerCameraController: {fileID: 0}
   _dataSO: {fileID: 11400000, guid: eb868a75d494ccd4f88ea6dcf34d4909, type: 2}
   PositionReferences: {fileID: 8511398325305958148}
   OwnerForEffect: {fileID: 998187679989262526}
