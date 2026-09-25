@@ -31,6 +31,6 @@ public class SpellRadialAction : StateAction
     public override void OnStateExit()
     {
         if (_spellRadialMenuSelect == null) return;
-        _spellRadialMenuSelect.HandleCloseRadial();
+        _spellRadialMenuSelect.HandleStateExit();
     }
 }
