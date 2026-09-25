@@ -6,7 +6,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
     fileName = "SpellDraw_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/GamePlayMechanic/Spell/SpellDraw")]
 
-public class SpellDrawActionSo : StateActionSO
+public class SpellDrawActionSO : StateActionSO
 {
     [SerializeField] private GameObjectAnchor _spellDrawAnchor;
     public override StateAction CreateAction(StateMachine stateMachine)
