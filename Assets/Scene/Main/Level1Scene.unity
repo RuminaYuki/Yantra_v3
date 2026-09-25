@@ -2272,6 +2272,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 3581172093159188504, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: _attack
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3581172093159188504, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: _logPlays
       value: 0
       objectReference: {fileID: 0}
@@ -11155,6 +11159,56 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 777a677026287794c836349a288e0995, type: 3}
+--- !u!1 &1506745209
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1506745211}
+  - component: {fileID: 1506745210}
+  m_Layer: 0
+  m_Name: LevelAudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1506745210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1506745209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19f8d0478e10dad40858b38539d4c088, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LevelAudioManager
+  sceneBGM: {fileID: 0}
+  logMuffleCalls: 1
+  cutsceneAmbientMultiplier: 0.4
+  cutsceneFadeTime: 1
+  outsideAmbientSounds:
+  - {fileID: 11400000, guid: cdff1f107d41ab64191bd624db954c84, type: 2}
+--- !u!4 &1506745211
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1506745209}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -6.45947, y: 0, z: -3.95559}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1512811263
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -28403,6 +28457,7 @@ SceneRoots:
   - {fileID: 1512811263}
   - {fileID: 921674442}
   - {fileID: 336621291}
+  - {fileID: 1506745211}
   - {fileID: 40398652}
   - {fileID: 1659947041}
   - {fileID: 1978137756}
