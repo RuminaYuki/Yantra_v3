@@ -5,6 +5,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 [CreateAssetMenu(
     fileName = "MovementStuck_Condition",
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Navigator/Movement Stuck")]
+//ยังไม่พร้อมให้ใช้งาน
 public class MovementStuckConditionSO : StateConditionSO
 {
     [Tooltip("Speed (units/sec) below which the owner is considered not moving.")]
@@ -35,7 +36,8 @@ public class MovementStuckCondition : Condition
     private readonly float _stuckDuration;
 
     private Transform _owner;
-    private Vector3 _lastPosition;
+    private Vector3 _windowStartPosition;
+    private float _windowElapsed;
 
     public float StuckTimer { get; private set; }
 
@@ -48,15 +50,16 @@ public class MovementStuckCondition : Condition
     public override void Awake(StateMachine stateMachine)
     {
         _owner = stateMachine.Owner.transform;
-        _lastPosition = _owner.position;
+        _windowStartPosition = _owner.position;
     }
 
     public override void OnStateEnter()
     {
         if (_owner != null)
         {
-            _lastPosition = _owner.position;
+            _windowStartPosition = _owner.position;
         }
+        _windowElapsed = 0f;
         StuckTimer = 0f;
     }
 
@@ -67,15 +70,25 @@ public class MovementStuckCondition : Condition
             return false;
         }
 
-        Vector3 delta = _owner.position - _lastPosition;
-        delta.y = 0f;
+        _windowElapsed += Time.deltaTime;
 
-        float speed = delta.magnitude / Mathf.Max(Time.deltaTime, 0.0001f);
-        _lastPosition = _owner.position;
+        Vector3 totalDelta = _owner.position - _windowStartPosition;
+        totalDelta.y = 0f;
 
-        StuckTimer = speed < _minMoveSpeed
-            ? StuckTimer + Time.deltaTime
-            : 0f;
+        float averageSpeed = totalDelta.magnitude / Mathf.Max(_windowElapsed, 0.0001f);
+
+        if (averageSpeed < _minMoveSpeed)
+        {
+            StuckTimer = _windowElapsed;
+        }
+        else
+        {
+            // Moved too far this window - restart the window from here instead of the raw per-frame speed,
+            // so a single jittery frame (collision push, rotation offset) doesn't reset progress to 0.
+            _windowStartPosition = _owner.position;
+            _windowElapsed = 0f;
+            StuckTimer = 0f;
+        }
 
         return StuckTimer >= _stuckDuration;
     }
