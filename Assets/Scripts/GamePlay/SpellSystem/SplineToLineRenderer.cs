@@ -10,8 +10,7 @@ public class SplineToLineRenderer : MonoBehaviour
     [SerializeField] LineRenderer lineRenderer;
 
     [Header("Settings")]
-    [Range(10, 100)]
-    [SerializeField] int resolutions = 30;
+    [SerializeField, Min(10f)] int resolutions = 30;
     [Range(0.01f, 100f)]
     [SerializeField] float nextKnotProgressDelta = 0.01f;
     [SerializeField] float offset = 0f;
