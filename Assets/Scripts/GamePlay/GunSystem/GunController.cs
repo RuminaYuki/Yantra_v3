@@ -98,7 +98,7 @@ public class GunController : MonoBehaviour
                 currentDelay = delayTime;
                 break;
             case GunMode.Special:
-                if (skillPoints != null && !skillPoints.consume(settingSpecialMode.skillPointUsage)) return false;
+                if (skillPoints != null && !skillPoints.TryConsume(settingSpecialMode.skillPointUsage)) return false;
                 pendingShotMode = GunMode.Special;
                 hasPendingShot = true;
                 foreach (Spawner spawner in spawners)
@@ -150,6 +150,11 @@ public class GunController : MonoBehaviour
                     break;
                 case GunMode.Special:
                     if (!settingSpecialMode.useThisSetting) break;
+                    if (skillPoints != null && !skillPoints.consume(settingSpecialMode.skillPointUsage)) 
+                    {
+                        gunMode = GunMode.Normal;
+                        return;
+                    }
                     if (baseProjectile != null) baseProjectile.SetMoveSpeed(settingSpecialMode.bulletSpeed);
                     if (damageApplier != null) damageApplier.SetDamge(settingSpecialMode.bulletDamage);
 
