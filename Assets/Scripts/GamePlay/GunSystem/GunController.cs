@@ -145,6 +145,7 @@ public class GunController : MonoBehaviour
 
                     if (baseProjectile is HitscanShooter hitscan)
                     {
+                        hitscan.SetIgnoreRoot(PlayerController.transform);
                         hitscan.Fire(muzzle.position, muzzle.forward);
                     }
                     break;
@@ -160,6 +161,7 @@ public class GunController : MonoBehaviour
 
                     if (baseProjectile is HitscanShooter hitscanS)
                     {
+                        hitscanS.SetIgnoreRoot(PlayerController.transform);
                         hitscanS.Fire(muzzle.position, muzzle.forward);
                     }
                     break;

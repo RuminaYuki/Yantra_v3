@@ -65,20 +65,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e55499af33b2bb5438052edeba5233d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitscanShooter
-  _lifeTime: 0.1
-  maxPenetrations: 0
+  _lifeTime: 5
+  maxPenetrations: 1
   destroyAfterPenetrationLimit: 0
   obstacleLayer:
     serializedVersion: 2
     m_Bits: 512
-  hitTargetRepeatMode: 0
+  hitTargetRepeatMode: 1
   repeatDamageInterval: 0.2
   _moveSpeed: 0
   muzzle: {fileID: 0}
   range: 100
+  radius: 0.3
   hitMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 128
+  ignoredLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  nonPenetrableLayer:
+    serializedVersion: 2
+    m_Bits: 512
   triggerInteraction: 1
   ignoreRoot: {fileID: 0}
   drawDebugRay: 1

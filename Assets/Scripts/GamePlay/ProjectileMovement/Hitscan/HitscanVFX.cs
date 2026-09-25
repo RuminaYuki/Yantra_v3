@@ -35,7 +35,7 @@ public class HitscanVFX : MonoBehaviour
 
     private void SpawnVFX(Vector3 _, Vector3 endPoint)
     {
-        GameObject vfx = Instantiate(prefabVFX, transform.position, Quaternion.identity);
+        GameObject vfx = Instantiate(prefabVFX, transform.position, Quaternion.identity, transform);
         if (vfx.TryGetComponent(out VisualEffect effect))
         {
             effect.Reinit();
