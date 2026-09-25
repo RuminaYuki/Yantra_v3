@@ -6,7 +6,9 @@ public class AttackSphereCast : MonoBehaviour
     // Default values for the attack parameters
     [Header("Attack Parameters")]
     [SerializeField] private Transform attackOrigin;
-    
+    [Tooltip("Extra layers to ignore, on top of this GameObject's own layer.")]
+    [SerializeField] private LayerMask ignoreLayers = 1 << 11;
+
 
     #region Properties
 
@@ -55,7 +57,7 @@ public class AttackSphereCast : MonoBehaviour
     /// </summary>
     public bool TryToExecuteAttack(AttackParameters parameters, DamageTypeID damageType = null)
     {
-        int layerMask = ~(1 << gameObject.layer);
+        int layerMask = ~(1 << gameObject.layer) & ~ignoreLayers.value;
 
         Collider[] overlaps = Physics.OverlapSphere(attackOrigin.position, parameters.attackRadius, layerMask);
         foreach (Collider col in overlaps)
