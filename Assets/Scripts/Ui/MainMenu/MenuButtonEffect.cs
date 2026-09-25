@@ -2,15 +2,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-/// <summary>
-/// เอฟเฟกต์ปุ่มเมนูตอนเมาส์ชี้หรือ gamepad เลือก
-/// แปะบน GameObject ของปุ่มเอง — ใช้ได้กับทุกปุ่ม ไม่ต้องตั้งค่าอะไรเพิ่ม
-///
-/// แยก 2 สถานะอิสระ: เมาส์อยู่บนปุ่ม / gamepad เลือกปุ่มนี้
-/// สว่างเมื่ออย่างใดอย่างหนึ่งเป็นจริง เมาส์ออกก็ดับทันที
-///
-/// ใช้ unscaled time เลยทำงานได้แม้ตอน Time.timeScale = 0
-/// </summary>
 public class MenuButtonEffect : MonoBehaviour,
     IPointerEnterHandler, IPointerExitHandler,
     ISelectHandler, IDeselectHandler
@@ -36,7 +27,11 @@ public class MenuButtonEffect : MonoBehaviour,
     private TMP_Text _label;
     private RectTransform _rect;
     private Vector3 _baseScale;
+
+    // ตำแหน่งปุ่มเป็นของ Layout Group — เราแค่ยืมไปเลื่อนตอนถูกเลือก แล้วคืนให้
     private Vector2 _basePosition;
+    private float _slide;
+    private int _enabledFrame;
 
     private bool _pointerInside;
     private bool _isSelected;
@@ -46,11 +41,7 @@ public class MenuButtonEffect : MonoBehaviour,
     {
         _rect = GetComponent<RectTransform>();
         _label = GetComponentInChildren<TMP_Text>();
-
         _baseScale = _rect.localScale;
-        _basePosition = _rect.anchoredPosition;
-
-        if (_label != null) _label.color = _normalColor;
     }
 
     private void OnEnable()
@@ -61,8 +52,17 @@ public class MenuButtonEffect : MonoBehaviour,
         _isHighlighted = false;
 
         _rect.localScale = _baseScale;
-        _rect.anchoredPosition = _basePosition;
         if (_label != null) _label.color = _normalColor;
+
+        _slide = 0f;
+        _enabledFrame = Time.frameCount;
+    }
+
+    private void OnDisable()
+    {
+        // ปิดหน้าตอนปุ่มยังเลื่อนค้าง — คืนที่เดิมก่อน ไม่งั้นเปิดรอบหน้าปุ่มจะเบี้ยว
+        if (_slide != 0f) _rect.anchoredPosition = _basePosition;
+        _slide = 0f;
     }
 
     private void Update()
@@ -77,12 +77,33 @@ public class MenuButtonEffect : MonoBehaviour,
 
         _rect.localScale = Vector3.Lerp(_rect.localScale, _baseScale * targetScale, t);
 
-        Vector2 targetPos = _basePosition;
-        if (_isHighlighted) targetPos.x += _slideDistance;
-        _rect.anchoredPosition = Vector2.Lerp(_rect.anchoredPosition, targetPos, t);
-
         if (_label != null)
             _label.color = Color.Lerp(_label.color, _isHighlighted ? _hoverColor : _normalColor, t);
+
+        UpdateSlide(t);
+    }
+
+    private void UpdateSlide(float t)
+    {
+        // Layout Group จัดตำแหน่งตอนท้ายเฟรม เฟรมแรกหลังเปิดค่ายังไม่ถูก รอไปก่อน
+        if (Time.frameCount <= _enabledFrame) return;
+
+        if (!_isHighlighted && _slide < 0.01f)
+        {
+            // กลับถึงที่แล้ว ปล่อยตำแหน่งคืนให้ Layout Group ไม่ไปแตะอีก
+            if (_slide != 0f)
+            {
+                _rect.anchoredPosition = _basePosition;
+                _slide = 0f;
+            }
+            return;
+        }
+
+        // เพิ่งเริ่มเลื่อน — จำจุดตั้งต้นจากที่ Layout Group วางไว้ตอนนี้
+        if (_slide == 0f) _basePosition = _rect.anchoredPosition;
+
+        _slide = Mathf.Lerp(_slide, _isHighlighted ? _slideDistance : 0f, t);
+        _rect.anchoredPosition = _basePosition + new Vector2(_slide, 0f);
     }
 
     // ---------- เมาส์ ----------
