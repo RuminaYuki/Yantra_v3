@@ -963,7 +963,7 @@ Animator:
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: ae850af15fc18654a8e828b23e372160, type: 3}
   m_Controller: {fileID: 9100000, guid: 1da03afe17f939849955924bc3ff246b, type: 2}
-  m_CullingMode: 0
+  m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
@@ -1014,6 +1014,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3838071263c05654fb503af7be281184, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BaseLocomotion
+  _currentspeed: 5
   _dampTime: 0.25
   _multiply: 1
   _nameParameterMoveZ: VelocityZ
@@ -1178,8 +1179,13 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   eyeOffset: {x: 0, y: 1.5, z: 0}
+  targetOffset: {x: 0, y: 0, z: 0}
   maxLookWeight: 1
   smoothSpeed: 5
+  bodyWeight: 0.3
+  headWeight: 0.6
+  eyesWeight: 1
+  clampWeight: 0.7
   showGizmos: 0
 --- !u!114 &8267875909656261439
 MonoBehaviour:
