@@ -8,6 +8,8 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 public class ReachPathNavigatorTargetConditionSO : StateConditionSO
 {
     [SerializeField, Min(0.01f)] private float _arrivalDistance = 0.5f;
+    [Header("Randomize arrival distance (+-range) each time the state is entered")]
+    [SerializeField, Min(0f)] private float _randomArrivalRange = 0f;
 
     public float ArrivalDistance
     {
@@ -23,23 +25,32 @@ public class ReachPathNavigatorTargetConditionSO : StateConditionSO
             _arrivalDistance = value;
         }
     }
+    public float RandomArrivalRange
+    {
+        get => _randomArrivalRange;
+        set => _randomArrivalRange = Mathf.Max(0f, value);
+    }
 
     public override Condition CreateCondition()
     {
-        return new ReachPathNavigatorTargetCondition(_arrivalDistance);
+        return new ReachPathNavigatorTargetCondition(_arrivalDistance,_randomArrivalRange);
     }
 }
 
 public class ReachPathNavigatorTargetCondition : Condition
 {
     private readonly float _arrivalDistance;
+    private readonly float _randomArrivalRange;
 
     private Transform _owner;
     private PathNavigator _pathNavigator;
 
-    public ReachPathNavigatorTargetCondition(float arrivalDistance)
+    public float ArrivalRandomRange{get;private set;}
+
+    public ReachPathNavigatorTargetCondition(float arrivalDistance, float randomArrivalRange)
     {
         _arrivalDistance = Mathf.Max(0.01f,arrivalDistance);
+        _randomArrivalRange = Mathf.Max(0f,randomArrivalRange);
     }
 
     public override void Awake(StateMachine stateMachine)
@@ -49,6 +60,11 @@ public class ReachPathNavigatorTargetCondition : Condition
 
         if (_pathNavigator == null)
             Debug.LogError("ReachPathNavigatorTargetCondition requires PathNavigator.");
+    }
+    public override void OnStateEnter()
+    {
+        ArrivalRandomRange = Mathf.Max(0.01f,
+            _arrivalDistance + Random.Range(-_randomArrivalRange, _randomArrivalRange));
     }
 
     protected override bool Statement()
@@ -63,6 +79,6 @@ public class ReachPathNavigatorTargetCondition : Condition
         Vector3 offset = _pathNavigator.Target.position - _owner.position;
         offset.y = 0f;
 
-        return offset.sqrMagnitude <= _arrivalDistance * _arrivalDistance;
+        return offset.sqrMagnitude <= ArrivalRandomRange * ArrivalRandomRange;
     }
 }

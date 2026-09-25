@@ -9,6 +9,8 @@ public class SetPathNavigatorTargetActionSO : StateActionSO
 {
     [SerializeField] private TransformAnchor _targetAnchor;
     [SerializeField] private Vector3 _offset;
+    [Header("Randomize offset per axis (+-range) each time the state is entered")]
+    [SerializeField] private Vector3 _randomOffsetRange = Vector3.zero;
 
     public Transform TargetTransform
     {
@@ -19,10 +21,18 @@ public class SetPathNavigatorTargetActionSO : StateActionSO
         get => _offset;
         set => _offset = value;
     }
+    public Vector3 RandomOffsetRange
+    {
+        get => _randomOffsetRange;
+        set => _randomOffsetRange = new Vector3(
+            Mathf.Abs(value.x),
+            Mathf.Abs(value.y),
+            Mathf.Abs(value.z));
+    }
 
     public override StateAction CreateAction(StateMachine stateMachine)
     {
-        return new SetPathNavigatorTargetAction(_targetAnchor, _offset);
+        return new SetPathNavigatorTargetAction(_targetAnchor, _offset, _randomOffsetRange);
     }
 }
 
@@ -30,13 +40,19 @@ public class SetPathNavigatorTargetAction : StateAction
 {
     private readonly TransformAnchor _targetAnchor;
     private readonly Vector3 _offset;
+    private readonly Vector3 _randomOffsetRange;
     private PathNavigator _pathNavigator;
     private Transform _offsetTarget;
+    private Vector3 _randomOffset;
 
-    public SetPathNavigatorTargetAction(TransformAnchor targetAnchor, Vector3 offset)
+    public SetPathNavigatorTargetAction(TransformAnchor targetAnchor, Vector3 offset, Vector3 randomOffsetRange)
     {
         _targetAnchor = targetAnchor;
         _offset = offset;
+        _randomOffsetRange = new Vector3(
+            Mathf.Abs(randomOffsetRange.x),
+            Mathf.Abs(randomOffsetRange.y),
+            Mathf.Abs(randomOffsetRange.z));
     }
 
     public override void Awake(StateMachine stateMachine)
@@ -69,7 +85,12 @@ public class SetPathNavigatorTargetAction : StateAction
             return;
         }
 
-        _offsetTarget.position = _targetAnchor.Value.TransformPoint(_offset);
+        _randomOffset = new Vector3(
+            Random.Range(-_randomOffsetRange.x, _randomOffsetRange.x),
+            Random.Range(-_randomOffsetRange.y, _randomOffsetRange.y),
+            Random.Range(-_randomOffsetRange.z, _randomOffsetRange.z));
+
+        _offsetTarget.position = _targetAnchor.Value.TransformPoint(_offset + _randomOffset);
         _pathNavigator.Target = _offsetTarget;
     }
 
@@ -78,6 +99,6 @@ public class SetPathNavigatorTargetAction : StateAction
         if (_pathNavigator == null || _targetAnchor == null || !_targetAnchor.IsSet)
             return;
 
-        _offsetTarget.position = _targetAnchor.Value.TransformPoint(_offset);
+        _offsetTarget.position = _targetAnchor.Value.TransformPoint(_offset + _randomOffset);
     }
 }
