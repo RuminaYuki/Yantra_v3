@@ -28,6 +28,11 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // Play Mode: name of the state the running StateMachine is in (StateSO.name), or null.
         private string _activeStateName;
 
+        // Follow mode camera: seconds to scroll to the highlighted node.
+        private const double PanDuration = 0.25;
+        private const int PanRetryFrames = 10;
+        private IVisualElementScheduledItem _panAnimation;
+
         // The single selected element (state node or edge), or null when nothing or several things are selected.
         public event Action<GraphElement> SelectionChanged;
 
@@ -266,6 +271,53 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             _activeStateName = stateName;
             ApplyActiveState();
+        }
+
+        // Follow mode: smoothly scroll so the highlighted node is in the middle, keeping the zoom.
+        public void PanToActiveState()
+        {
+            foreach (GraphElement element in graphElements.ToList())
+            {
+                if (element is StateNodeView stateNode && stateNode.State.name == _activeStateName)
+                {
+                    PanToNode(stateNode, PanRetryFrames);
+                    return;
+                }
+            }
+        }
+
+        private void PanToNode(Node node, int retriesLeft)
+        {
+            Rect nodeRect = node.GetPosition();
+
+            // Right after Load() the node has no size yet: try again next frame.
+            if (float.IsNaN(nodeRect.width) || nodeRect.width <= 0f || float.IsNaN(layout.width))
+            {
+                if (retriesLeft > 0)
+                {
+                    schedule.Execute(() => PanToNode(node, retriesLeft - 1));
+                }
+
+                return;
+            }
+
+            // viewTransform.position is where content (0,0) is drawn, so to put the node's
+            // center in the middle of the view: middle - center * zoom.
+            Vector3 scale = viewTransform.scale;
+            Vector3 start = viewTransform.position;
+            Vector3 target = (Vector3)(layout.size * 0.5f - nodeRect.center * scale.x);
+            double startTime = EditorApplication.timeSinceStartup;
+            bool done = false;
+
+            _panAnimation?.Pause();
+            _panAnimation = schedule.Execute(() =>
+                {
+                    float t = Mathf.Clamp01((float)((EditorApplication.timeSinceStartup - startTime) / PanDuration));
+                    UpdateViewTransform(Vector3.Lerp(start, target, Mathf.SmoothStep(0f, 1f, t)), scale);
+                    done = t >= 1f;
+                })
+                .Every(16)
+                .Until(() => done);
         }
 
         private void ApplyActiveState()

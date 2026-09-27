@@ -39,7 +39,10 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             _onGraphDataChanged = onGraphDataChanged;
             _onSelectTransition = onSelectTransition;
 
-            style.minWidth = 250;
+            // No minimum, so the split view's divider can drag the panel almost closed.
+            // Hidden overflow keeps the content from spilling over the graph when it's narrow.
+            style.minWidth = 0;
+            style.overflow = Overflow.Hidden;
             style.paddingLeft = 6;
             style.paddingRight = 6;
             style.paddingTop = 6;

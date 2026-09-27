@@ -11,7 +11,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 {
     // Play Mode: outlines the state a running StateMachineController is in, like Animator,
     // at any sub-state machine depth. "Follow" also moves the graph in and out of sub-state
-    // machines as the character does.
+    // machines as the character does, and scrolls to the highlighted node.
     //
     // Which controller: the selected GameObject's, otherwise the first one in the scene that runs
     // the root table of the navigation path. From there the running machines are walked down
@@ -32,6 +32,16 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         private double _nextPollTime;
         private ToolbarToggle _followToggle;
         private Label _playModeLabel;
+
+        // What the Follow camera last moved to, so it only moves when that changes.
+        private string _lastPannedStateName;
+        private TransitionTableSO _lastPannedTable;
+
+        private void ForgetLastPan()
+        {
+            _lastPannedStateName = null;
+            _lastPannedTable = null;
+        }
 
         // One level of what is running right now, from the root table down.
         private struct RunningLevel
@@ -63,6 +73,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             {
                 _follow = evt.newValue;
                 _nextPollTime = 0; // Jump to the running state right away.
+                ForgetLastPan();   // And move the camera to it, even if the state didn't change.
             });
             toolbar.Add(_followToggle);
         }
@@ -112,7 +123,18 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 FollowTo(chain);
             }
 
-            _graphView.SetActiveState(GetActiveStateName(chain));
+            string activeStateName = GetActiveStateName(chain);
+            _graphView.SetActiveState(activeStateName);
+
+            // Follow also moves the camera, once per new highlighted state (or new table).
+            if (_follow && activeStateName != null &&
+                (activeStateName != _lastPannedStateName || _table != _lastPannedTable))
+            {
+                _graphView.PanToActiveState();
+                _lastPannedStateName = activeStateName;
+                _lastPannedTable = _table;
+            }
+
             _playModeLabel.text = _controller != null
                 ? $"▶ {_controller.name}"
                 : "▶ Select a GameObject running this table";
@@ -136,6 +158,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         private void StopWatching()
         {
             _controller = null;
+            ForgetLastPan();
         }
 
         private StateMachineController FindController()
