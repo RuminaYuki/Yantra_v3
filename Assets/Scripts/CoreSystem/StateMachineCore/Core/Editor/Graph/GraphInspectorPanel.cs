@@ -11,19 +11,21 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 namespace Yuki.Learning.StateMachine.Editor.Graph
 {
     // Right-hand panel of the graph window, like Animator's Inspector:
-    // - state node selected: the StateSO's actions and its outgoing transitions
+    // - state node selected: the StateSO's actions and its outgoing transitions (reorderable)
+    // - Any State selected: the Any State transitions (reorderable)
     // - edge selected: the transitions behind it, with their conditions
     public class GraphInspectorPanel : VisualElement
     {
         // Raised after a change that the graph has to redraw for (e.g. a new initial state).
         private readonly Action _onGraphDataChanged;
 
-        // Asks the graph to select the edge From -> To (local transitions only).
-        private readonly Action<StateSO, StateSO> _onSelectTransition;
+        // Asks the graph to select an edge. From is a StateSO, or SpecialNodeView.Kind.AnyState.
+        private readonly Action<object, StateSO> _onSelectTransition;
 
         private SerializedObject _serializedTable;
         private TransitionEdgeView _edge;
         private StateNodeView _stateNode;
+        private bool _isAnyStateSelected;
         private Vector2 _scroll;
 
         // Inspector of the selected StateSO, drawn inside this panel.
@@ -32,7 +34,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // Other TransitionTableSO assets that also use the selected StateSO.
         private readonly List<string> _otherTablesUsingState = new List<string>();
 
-        public GraphInspectorPanel(Action onGraphDataChanged, Action<StateSO, StateSO> onSelectTransition)
+        public GraphInspectorPanel(Action onGraphDataChanged, Action<object, StateSO> onSelectTransition)
         {
             _onGraphDataChanged = onGraphDataChanged;
             _onSelectTransition = onSelectTransition;
@@ -63,6 +65,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             _edge = element as TransitionEdgeView;
             _stateNode = element as StateNodeView;
+            _isAnyStateSelected = element is SpecialNodeView { NodeKind: SpecialNodeView.Kind.AnyState };
 
             StateSO newState = _stateNode?.State;
 
@@ -125,7 +128,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 return;
             }
 
-            if (_edge == null && _stateNode == null)
+            if (_edge == null && _stateNode == null && !_isAnyStateSelected)
             {
                 EditorGUILayout.HelpBox("Select a state or a transition arrow to edit it.", MessageType.Info);
                 return;
@@ -139,6 +142,10 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             if (_stateNode != null)
             {
                 DrawState();
+            }
+            else if (_isAnyStateSelected)
+            {
+                DrawAnyState();
             }
             else if (IsEntryEdge())
             {
@@ -187,42 +194,115 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             }
 
             EditorGUILayout.Space(10f);
-            DrawOutgoingTransitions(state);
-        }
-
-        private void DrawOutgoingTransitions(StateSO state)
-        {
             EditorGUILayout.LabelField("Transitions from this state", EditorStyles.boldLabel);
             EditorGUILayout.LabelField(
                 "Checked top to bottom, after Any State transitions.",
                 EditorStyles.miniLabel);
 
-            SerializedProperty transitions = _serializedTable.FindProperty("_transitions");
-            int shown = 0;
+            DrawOrderedTransitions(
+                _serializedTable.FindProperty("_transitions"),
+                transition => transition.FindPropertyRelative("FromState").objectReferenceValue == state,
+                state);
+        }
 
+        // ---------- Any State ----------
+
+        private void DrawAnyState()
+        {
+            EditorGUILayout.LabelField("Any State", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField(
+                "Checked top to bottom, before the current state's own transitions.",
+                EditorStyles.miniLabel);
+            EditorGUILayout.Space(4f);
+
+            DrawOrderedTransitions(
+                _serializedTable.FindProperty("_anyTransitions"),
+                _ => true,
+                SpecialNodeView.Kind.AnyState);
+        }
+
+        // ---------- Priority list (shared by State and Any State) ----------
+
+        // Lists the items of `transitions` that pass `belongs`, in priority order, with ▲ / ▼.
+        // Moving swaps two of those items inside the array; items that don't belong keep their place,
+        // which is fine because only one state's transitions are ever checked against each other.
+        private void DrawOrderedTransitions(
+            SerializedProperty transitions,
+            Func<SerializedProperty, bool> belongs,
+            object fromKey)
+        {
+            var indices = new List<int>();
             for (int i = 0; i < transitions.arraySize; i++)
             {
-                SerializedProperty transition = transitions.GetArrayElementAtIndex(i);
-                if (transition.FindPropertyRelative("FromState").objectReferenceValue != state)
+                if (belongs(transitions.GetArrayElementAtIndex(i)))
                 {
-                    continue;
+                    indices.Add(i);
                 }
+            }
 
-                shown++;
+            if (indices.Count == 0)
+            {
+                EditorGUILayout.LabelField("None", EditorStyles.miniLabel);
+                return;
+            }
+
+            // Moving the array while it's being drawn would mix up the rows, so do it after the loop.
+            int moveFrom = -1;
+            int moveTo = -1;
+
+            for (int row = 0; row < indices.Count; row++)
+            {
+                SerializedProperty transition = transitions.GetArrayElementAtIndex(indices[row]);
                 var toState = transition.FindPropertyRelative("ToState").objectReferenceValue as StateSO;
-                string label = $"{shown}.  →  {(toState != null ? toState.name : "None")}   (Priority {i + 1})";
+                string label = $"{row + 1}.  →  {(toState != null ? toState.name : "None")}";
+
+                EditorGUILayout.BeginHorizontal();
 
                 if (GUILayout.Button(label, EditorStyles.helpBox) && toState != null)
                 {
                     // Selecting while IMGUI is still drawing would swap the panel mid-frame.
-                    schedule.Execute(() => _onSelectTransition?.Invoke(state, toState));
+                    schedule.Execute(() => _onSelectTransition?.Invoke(fromKey, toState));
                 }
+
+                using (new EditorGUI.DisabledScope(row == 0))
+                {
+                    if (GUILayout.Button("▲", GUILayout.Width(24f)))
+                    {
+                        moveFrom = row;
+                        moveTo = row - 1;
+                    }
+                }
+
+                using (new EditorGUI.DisabledScope(row == indices.Count - 1))
+                {
+                    if (GUILayout.Button("▼", GUILayout.Width(24f)))
+                    {
+                        moveFrom = row;
+                        moveTo = row + 1;
+                    }
+                }
+
+                EditorGUILayout.EndHorizontal();
             }
 
-            if (shown == 0)
+            if (moveFrom >= 0)
             {
-                EditorGUILayout.LabelField("None", EditorStyles.miniLabel);
+                SwapArrayElements(transitions, indices[moveFrom], indices[moveTo]);
+                _serializedTable.ApplyModifiedProperties();
+
+                // Edges remember array indexes, so the graph has to rebuild.
+                schedule.Execute(() => _onGraphDataChanged?.Invoke());
             }
+        }
+
+        private static void SwapArrayElements(SerializedProperty array, int a, int b)
+        {
+            int low = Mathf.Min(a, b);
+            int high = Mathf.Max(a, b);
+
+            // [.. L .. H] -> [.. H L ..] -> [.. H .. L]
+            array.MoveArrayElement(high, low);
+            array.MoveArrayElement(low + 1, high);
         }
 
         // ---------- Edge ----------

@@ -13,6 +13,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
     {
         private static readonly Color InitialColor = new Color(0.75f, 0.42f, 0.12f, 1f);
         private static readonly Color NormalColor = new Color(0.25f, 0.25f, 0.25f, 1f);
+        private static readonly Color ActiveBorderColor = new Color(0.3f, 0.8f, 1f);
+        private const float ActiveBorderWidth = 3f;
 
         public StateSO State { get; }
 
@@ -40,6 +42,24 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // The graph builds the whole menu (StateMachineGraphView.BuildContextualMenu).
         public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
         {
+        }
+
+        // Play Mode: outline the state the running StateMachine is in.
+        public void SetActive(bool active)
+        {
+            // StyleKeyword.Null removes the inline value, back to GraphView's own style.
+            StyleFloat width = active ? ActiveBorderWidth : new StyleFloat(StyleKeyword.Null);
+            StyleColor color = active ? ActiveBorderColor : new StyleColor(StyleKeyword.Null);
+
+            mainContainer.style.borderTopWidth = width;
+            mainContainer.style.borderBottomWidth = width;
+            mainContainer.style.borderLeftWidth = width;
+            mainContainer.style.borderRightWidth = width;
+
+            mainContainer.style.borderTopColor = color;
+            mainContainer.style.borderBottomColor = color;
+            mainContainer.style.borderLeftColor = color;
+            mainContainer.style.borderRightColor = color;
         }
 
         private void OnMouseDown(MouseDownEvent evt)

@@ -25,6 +25,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // True while Load() rebuilds the view, so removing old elements isn't treated as a user delete.
         private bool _isLoading;
 
+        // Play Mode: name of the state the running StateMachine is in (StateSO.name), or null.
+        private string _activeStateName;
+
         // The single selected element (state node or edge), or null when nothing or several things are selected.
         public event Action<GraphElement> SelectionChanged;
 
@@ -121,10 +124,10 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             }
         }
 
-        // Called from the panel's "Transitions from this state" list.
-        public void SelectTransitionEdge(StateSO from, StateSO to)
+        // Called from the panel's transition lists. fromKey is a StateSO, or SpecialNodeView.Kind.AnyState.
+        public void SelectTransitionEdge(object fromKey, StateSO to)
         {
-            SelectEdge(from, to);
+            SelectEdge(fromKey, to);
         }
 
         // Keys as returned by GetNodeKey: a StateSO, or a SpecialNodeView.Kind.
@@ -239,6 +242,32 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             }
 
             CreateEdges(_serializedTable, initialState, entryNode, anyStateNode, stateNodes);
+
+            // New nodes start un-highlighted, so apply the Play Mode highlight again.
+            ApplyActiveState();
+        }
+
+        // Called by the window while in Play Mode. The runtime State only knows its StateSO's name.
+        public void SetActiveState(string stateName)
+        {
+            if (stateName == _activeStateName)
+            {
+                return;
+            }
+
+            _activeStateName = stateName;
+            ApplyActiveState();
+        }
+
+        private void ApplyActiveState()
+        {
+            foreach (GraphElement element in graphElements.ToList())
+            {
+                if (element is StateNodeView stateNode)
+                {
+                    stateNode.SetActive(_activeStateName != null && stateNode.State.name == _activeStateName);
+                }
+            }
         }
 
         private static Dictionary<StateSO, Vector2> ReadNodePositions(SerializedObject serializedTable)

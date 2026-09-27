@@ -10,7 +10,8 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 namespace Yuki.Learning.StateMachine.Editor.Graph
 {
     // Editor window that hosts the graph. Opened by double-clicking a TransitionTableSO.
-    public class StateMachineGraphWindow : EditorWindow
+    // Play Mode highlighting is in StateMachineGraphWindow.PlayMode.cs.
+    public partial class StateMachineGraphWindow : EditorWindow
     {
         // Serialized so the window keeps its table after a script recompile.
         [SerializeField]
@@ -48,6 +49,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         private void OnDisable()
         {
             Undo.undoRedoPerformed -= Reload;
+            StopWatching();
         }
 
         private void CreateGUI()
@@ -57,6 +59,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             _titleLabel.style.unityTextAlign = TextAnchor.MiddleLeft;
             _titleLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
             toolbar.Add(_titleLabel);
+            CreatePlayModeLabel(toolbar);
             rootVisualElement.Add(toolbar);
 
             _graphView = new StateMachineGraphView(this);
