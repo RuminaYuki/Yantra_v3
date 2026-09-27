@@ -7,7 +7,7 @@ using UnityEngine.UIElements;
 
 namespace Yuki.Learning.StateMachine.Editor.Graph
 {
-    // Animator-style transition: a straight line between two node borders with an arrow in the middle.
+    // Animator-style transition: a straight line between two node borders with an arrow near the source.
     // One edge stands for every transition with the same From -> To (Animator shows 3 arrows for that).
     //
     // GraphView's built-in Edge needs ports and draws curves, so this draws the line itself.
@@ -17,6 +17,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         private const float SideOffset = 8f;
         private const float ArrowLength = 10f;
         private const float ArrowHalfWidth = 6f;
+        // Arrow sits this many pixels after the source node's border, the same on every line.
+        private const float ArrowDistanceFromStart = 15f;
         private const float LineWidth = 2f;
         private const float ClickDistance = 6f;
         private const float BoundsPadding = 12f;
@@ -174,7 +176,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             painter.Stroke();
 
             Vector2 direction = line.normalized;
-            Vector2 middle = (_start + _end) * 0.5f;
+            // On lines too short for the full distance, stop at the middle so the arrow stays on the line.
+            float distanceFromStart = Mathf.Min(ArrowDistanceFromStart, line.magnitude * 0.5f);
+            Vector2 middle = _start + direction * distanceFromStart;
 
             if (TransitionIndices.Count > 1)
             {
