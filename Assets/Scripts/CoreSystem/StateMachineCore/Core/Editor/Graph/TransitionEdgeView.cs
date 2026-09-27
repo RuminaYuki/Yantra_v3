@@ -44,7 +44,10 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             // Lower layer = drawn behind the nodes.
             layer = -1;
-            capabilities = Capabilities.Selectable;
+            // The Entry edge (no indices) just shows the initial state, so it can't be deleted.
+            capabilities = transitionIndices.Count > 0
+                ? Capabilities.Selectable | Capabilities.Deletable
+                : Capabilities.Selectable;
             style.position = Position.Absolute;
 
             generateVisualContent += OnGenerateVisualContent;

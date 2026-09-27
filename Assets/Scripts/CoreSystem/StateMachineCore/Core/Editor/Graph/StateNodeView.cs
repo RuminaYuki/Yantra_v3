@@ -21,9 +21,6 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             State = state;
             title = state.name;
 
-            // Read-only for now: deleting a node here would not delete it from the table.
-            capabilities &= ~Capabilities.Deletable;
-
             // Hide the collapse arrow, a state node has nothing to collapse.
             titleButtonContainer.style.display = DisplayStyle.None;
             style.minWidth = 160;
@@ -38,6 +35,11 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             titleContainer.style.backgroundColor = isInitial ? InitialColor : NormalColor;
 
             RegisterCallback<MouseDownEvent>(OnMouseDown);
+        }
+
+        // The graph builds the whole menu (StateMachineGraphView.BuildContextualMenu).
+        public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
+        {
         }
 
         private void OnMouseDown(MouseDownEvent evt)

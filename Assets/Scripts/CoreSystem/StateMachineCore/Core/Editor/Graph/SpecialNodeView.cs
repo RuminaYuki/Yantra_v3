@@ -41,6 +41,11 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             titleContainer.style.backgroundColor =
                 kind == Kind.Entry ? EntryColor : AnyStateColor;
         }
+
+        // The graph builds the whole menu (StateMachineGraphView.BuildContextualMenu).
+        public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
+        {
+        }
     }
 }
 

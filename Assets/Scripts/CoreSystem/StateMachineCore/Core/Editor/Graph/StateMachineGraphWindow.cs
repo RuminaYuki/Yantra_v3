@@ -17,6 +17,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         private TransitionTableSO _table;
 
         private StateMachineGraphView _graphView;
+        private GraphInspectorPanel _inspectorPanel;
         private Label _titleLabel;
 
         [OnOpenAsset]
@@ -41,12 +42,12 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
         private void OnEnable()
         {
-            Undo.undoRedoPerformed += Refresh;
+            Undo.undoRedoPerformed += Reload;
         }
 
         private void OnDisable()
         {
-            Undo.undoRedoPerformed -= Refresh;
+            Undo.undoRedoPerformed -= Reload;
         }
 
         private void CreateGUI()
@@ -58,20 +59,28 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             toolbar.Add(_titleLabel);
             rootVisualElement.Add(toolbar);
 
-            _graphView = new StateMachineGraphView();
-            _graphView.style.flexGrow = 1;
-            rootVisualElement.Add(_graphView);
+            _graphView = new StateMachineGraphView(this);
+            _inspectorPanel = new GraphInspectorPanel(Reload, _graphView.SelectTransitionEdge);
+            _graphView.SelectionChanged += _inspectorPanel.ShowSelection;
 
-            Refresh();
+            // Graph on the left, panel on the right with a draggable divider. Panel starts 320px wide.
+            var split = new TwoPaneSplitView(1, 320f, TwoPaneSplitViewOrientation.Horizontal);
+            split.style.flexGrow = 1;
+            split.Add(_graphView);
+            split.Add(_inspectorPanel);
+            rootVisualElement.Add(split);
+
+            ShowTable();
         }
 
         private void SetTable(TransitionTableSO table)
         {
             _table = table;
-            Refresh();
+            ShowTable();
         }
 
-        private void Refresh()
+        // A different table (or the first one) was opened.
+        private void ShowTable()
         {
             // CreateGUI may not have run yet.
             if (_graphView == null)
@@ -83,7 +92,14 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 ? _table.name
                 : "No Transition Table (double-click one in the Project window)";
 
+            _inspectorPanel.SetTable(_table);
             _graphView.Load(_table);
+        }
+
+        // Same table, but its data changed (Undo/Redo, new initial state, ...).
+        private void Reload()
+        {
+            _graphView?.Reload();
         }
     }
 }
