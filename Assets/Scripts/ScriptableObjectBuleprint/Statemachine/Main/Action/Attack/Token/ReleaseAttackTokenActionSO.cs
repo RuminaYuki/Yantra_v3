@@ -19,18 +19,15 @@ public class ReleaseAttackTokenAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        _attackTokenUser = stateMachine.GetComponent<AttackTokenUser>();
-
-        if (_attackTokenUser == null)
-        {
-            Debug.LogError(
-                "ReleaseAttackTokenAction cannot find AttackTokenUser.");
-        }
+        stateMachine.TryGetRequired(out _attackTokenUser, this);
     }
 
     public override void OnStateEnter()
     {
-        _attackTokenUser?.Release();
+        if (_attackTokenUser != null)
+        {
+            _attackTokenUser.Release();
+        }
     }
 
     public override void OnUpdate() { }

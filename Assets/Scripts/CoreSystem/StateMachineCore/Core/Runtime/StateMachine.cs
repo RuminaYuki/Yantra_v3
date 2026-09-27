@@ -33,17 +33,12 @@ namespace Yuki.Learning.StateMachine
                 : throw new ArgumentNullException(nameof(owner));
         }
 
-        // Delete Later
-        public T GetComponent<T>() where T : Component
-        {
-            return _owner.GetComponent<T>();
-        }
-
         /// <summary>
-        /// Gets a required component from the owner. Logs an error and returns false if it's missing.
+        /// Gets a required component from the owner. If it's missing: logs an error, disables
+        /// the requester (a StateAction is skipped from then on, a Condition never passes)
+        /// and returns false.
         /// Pass <c>this</c> as <paramref name="requester"/>. For optional components use <c>Owner.TryGetComponent</c>.
         /// </summary>
-
         public bool TryGetRequired<T>(out T component, object requester) where T : Component
         {
             if (_owner.TryGetComponent(out component))
@@ -54,9 +49,28 @@ namespace Yuki.Learning.StateMachine
             Debug.LogError(
                 $"[{requester.GetType().Name}] needs {typeof(T).Name} on '{_owner.name}'.",
                 _owner);
+            DisableRequester(requester);
             return false;
         }
 
+        /// <summary>
+        /// Switches off the action / condition whose setup failed: State drops disabled actions,
+        /// and a disabled condition never passes. Anything else (e.g. a MonoBehaviour) is left alone.
+        /// Also used by AnchorComponentExtensions.
+        /// </summary>
+        internal static void DisableRequester(object requester)
+        {
+            switch (requester)
+            {
+                case StateAction action:
+                    action.Disable();
+                    break;
+
+                case Condition condition:
+                    condition.Disable();
+                    break;
+            }
+        }
 
         public void RegisterCondition(Condition condition)
         {

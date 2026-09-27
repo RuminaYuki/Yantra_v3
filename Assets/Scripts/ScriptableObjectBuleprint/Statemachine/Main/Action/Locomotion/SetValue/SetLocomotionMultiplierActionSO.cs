@@ -36,10 +36,7 @@ public class SetLocomotionMultiplierAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        _locomotion = stateMachine.GetComponent<BaseLocomotion>();
-
-        if (_locomotion == null)
-            Debug.LogError("SetLocomotionMultiplierAction cannot find BaseLocomotion.");
+        stateMachine.TryGetRequired(out _locomotion, this);
     }
 
     public override void OnStateEnter()

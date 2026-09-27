@@ -19,18 +19,15 @@ public class TryClaimAttackTokenAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        _attackTokenUser = stateMachine.GetComponent<AttackTokenUser>();
-
-        if (_attackTokenUser == null)
-        {
-            Debug.LogError(
-                "TryClaimAttackTokenAction cannot find AttackTokenUser.");
-        }
+        stateMachine.TryGetRequired(out _attackTokenUser, this);
     }
 
     public override void OnStateEnter()
     {
-        _attackTokenUser?.TryClaim();
+        if (_attackTokenUser != null)
+        {
+            _attackTokenUser.TryClaim();
+        }
     }
 
     public override void OnUpdate()

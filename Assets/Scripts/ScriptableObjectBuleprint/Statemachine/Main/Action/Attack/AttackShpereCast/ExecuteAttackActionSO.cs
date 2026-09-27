@@ -53,12 +53,7 @@ public class ExecuteAttackAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        _attackSphereCast = stateMachine.GetComponent<AttackSphereCast>();
-
-        if (_attackSphereCast == null)
-            Debug.LogError(
-                "ExecuteAttackAction requires AttackSphereCast.",
-                stateMachine.Owner);
+        stateMachine.TryGetRequired(out _attackSphereCast, this);
     }
 
     public override void OnStateEnter()

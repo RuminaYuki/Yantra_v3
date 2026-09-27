@@ -30,12 +30,7 @@ public class ExecuteParryAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        _blockSystem = stateMachine.GetComponent<BlockSystem>();
-
-        if (_blockSystem == null)
-            Debug.LogError(
-                "ExecuteParryAction requires BlockSystem.",
-                stateMachine.Owner);
+        stateMachine.TryGetRequired(out _blockSystem, this);
     }
 
     public override void OnStateEnter()

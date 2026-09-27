@@ -27,11 +27,8 @@ public class OnHurtByTypeCondition : Condition
 
     public override void Awake(StateMachine stateMachine)
     {
-        _health = stateMachine.GetComponent<Health>();
-
-        if (_health == null)
+        if (!stateMachine.TryGetRequired(out _health, this))
         {
-            Debug.LogError("OnHurtCondition requires a Health component on the owner.");
             return;
         }
 

@@ -34,10 +34,7 @@ public class SetFlagOnEnterAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        stateFlags = stateMachine.GetComponent<StateFlagsAccess>();
-
-        if (stateFlags == null)
-            Debug.LogError("SetFlagOnEnterAction requires StateFlags or StateFlagReader on the StateMachine GameObject.");
+        stateMachine.TryGetRequired(out stateFlags, this);
     }
 
     public override void OnStateEnter()

@@ -32,7 +32,10 @@ public class TryShootingAction : StateAction
 
     public override void OnStateEnter()
     {
-        _gunController?.TryShooting();
+        if (_gunController != null)
+        {
+            _gunController.TryShooting();
+        }
     }
 
     public override void OnUpdate() { }

@@ -2,6 +2,9 @@ namespace Yuki.Learning.StateMachine
 {
     public abstract class Condition
     {
+        public bool IsDisabled { get; private set; }
+        internal void Disable() => IsDisabled = true;
+
         private bool _isCached;
         private bool _cachedStatement;
 
@@ -42,13 +45,14 @@ namespace Yuki.Learning.StateMachine
 
         public bool IsMet()
         {
-            bool actualResult =
-                _condition.GetStatement();
+            if (_condition.IsDisabled) return false;
 
+            bool actualResult = _condition.GetStatement();
             return actualResult == _expectedResult;
         }
         public void OnStateEnter()
         {
+            if (_condition.IsDisabled) return;
             _condition.OnStateEnter();
         }
 

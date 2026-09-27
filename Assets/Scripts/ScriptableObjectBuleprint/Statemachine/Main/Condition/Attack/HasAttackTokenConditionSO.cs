@@ -19,13 +19,7 @@ public class HasAttackTokenCondition : Condition
 
     public override void Awake(StateMachine stateMachine)
     {
-        _attackTokenUser = stateMachine.GetComponent<AttackTokenUser>();
-
-        if (_attackTokenUser == null)
-        {
-            Debug.LogError(
-                "HasAttackTokenCondition cannot find AttackTokenUser.");
-        }
+        stateMachine.TryGetRequired(out _attackTokenUser, this);
     }
 
     protected override bool Statement()

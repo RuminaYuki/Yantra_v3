@@ -28,14 +28,8 @@ public class FollowPathLocomotionAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        _pathNavigator = stateMachine.GetComponent<PathNavigator>();
-        _locomotion = stateMachine.GetComponent<BaseLocomotion>();
-
-        if (_pathNavigator == null)
-            Debug.LogError("FollowPathLocomotionAction cannot find PathNavigator.");
-
-        if (_locomotion == null)
-            Debug.LogError("FollowPathLocomotionAction cannot find BaseLocomotion.");
+        stateMachine.TryGetRequired(out _pathNavigator, this);
+        stateMachine.TryGetRequired(out _locomotion, this);
     }
 
     public override void OnUpdate()
@@ -52,6 +46,9 @@ public class FollowPathLocomotionAction : StateAction
 
     public override void OnStateExit()
     {
-        _locomotion?.ClearMovementDirection();
+        if (_locomotion != null)
+        {
+            _locomotion.ClearMovementDirection();
+        }
     }
 }

@@ -34,22 +34,23 @@ public class SetEffectInputEnabledAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        effectController = stateMachine.GetComponent<EffectController>();
-        if (effectController == null)
-        {
-            Debug.LogError(
-                "SetEffectInputEnabledAction cannot find EffectController.");
-        }
+        stateMachine.TryGetRequired(out effectController, this);
     }
 
     public override void OnStateEnter()
     {
-        effectController?.SetEnabled(enabledOnEnter);
+        if (effectController != null)
+        {
+            effectController.SetEnabled(enabledOnEnter);
+        }
     }
 
     public override void OnStateExit()
     {
-        effectController?.SetEnabled(enabledOnExit);
+        if (effectController != null)
+        {
+            effectController.SetEnabled(enabledOnExit);
+        }
     }
 
     public override void OnUpdate()

@@ -65,17 +65,15 @@ public class SetAttackDamageParameterAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        _attackSphereCast = stateMachine.GetComponent<AttackSphereCast>();
-
-        if (_attackSphereCast == null)
-            Debug.LogError(
-                "SetAttackDamageParameterAction requires AttackSphereCast.",
-                stateMachine.Owner);
+        stateMachine.TryGetRequired(out _attackSphereCast, this);
     }
 
     public override void OnStateEnter()
     {
-        _attackSphereCast?.SetDamageParameter(_attackParameters, _damageType);
+        if (_attackSphereCast != null)
+        {
+            _attackSphereCast.SetDamageParameter(_attackParameters, _damageType);
+        }
     }
 
     public override void OnUpdate() { }

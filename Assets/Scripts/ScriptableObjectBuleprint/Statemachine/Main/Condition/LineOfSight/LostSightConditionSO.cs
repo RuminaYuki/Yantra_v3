@@ -43,12 +43,7 @@ public class LostSightCondition : Condition
 
     public override void Awake(StateMachine stateMachine)
     {
-        _lineOfSight = stateMachine.GetComponent<LineOfSight>();
-
-        if (_lineOfSight == null)
-        {
-            Debug.LogError("LostSightCondition requires a LineOfSight component on the same GameObject.");
-        }
+        stateMachine.TryGetRequired(out _lineOfSight, this);
     }
 
     protected override bool Statement()

@@ -31,10 +31,7 @@ public class EnableCharacterControllerAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        characterController = stateMachine.GetComponent<CharacterController>();
-
-        if (characterController == null)
-            Debug.LogError("EnableCharacterControllerAction cannot find CharacterController.");
+        stateMachine.TryGetRequired(out characterController, this);
     }
 
     public override void OnStateEnter()

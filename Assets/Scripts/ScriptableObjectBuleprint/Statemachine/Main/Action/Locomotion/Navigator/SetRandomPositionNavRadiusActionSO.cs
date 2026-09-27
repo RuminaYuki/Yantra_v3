@@ -81,17 +81,11 @@ public class SetRandomPositionNavRadiusAction : StateAction
     public override void Awake(StateMachine stateMachine)
     {
         _owner = stateMachine.Owner.transform;
-        _pathNavigator = stateMachine.GetComponent<PathNavigator>();
-        _randomWalkPoint = stateMachine.GetComponent<RandomWalkPoint>();
-        _waypointPath = stateMachine.GetComponent<WaypointPath>();
+        stateMachine.TryGetRequired(out _pathNavigator, this);
+        stateMachine.TryGetRequired(out _randomWalkPoint, this);
+        stateMachine.TryGetRequired(out _waypointPath, this);
 
         CreateDestination();
-
-        if (_pathNavigator == null)
-            Debug.LogError("SetRandomPositionNavRadiusAction requires PathNavigator.", _owner);
-
-        if (_randomWalkPoint == null)
-            Debug.LogError("SetRandomPositionNavRadiusAction requires RandomWalkPoint.", _owner);
     }
 
     public override void OnStateEnter()

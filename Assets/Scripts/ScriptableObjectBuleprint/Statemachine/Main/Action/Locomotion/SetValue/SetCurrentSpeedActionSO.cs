@@ -49,10 +49,7 @@ public class SetCurrentSpeedAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        _locomotion = stateMachine.GetComponent<BaseLocomotion>();
-
-        if (_locomotion == null)
-            Debug.LogError("SetCurrentSpeedAction cannot find BaseLocomotion.");
+        stateMachine.TryGetRequired(out _locomotion, this);
     }
 
     public override void OnStateEnter()

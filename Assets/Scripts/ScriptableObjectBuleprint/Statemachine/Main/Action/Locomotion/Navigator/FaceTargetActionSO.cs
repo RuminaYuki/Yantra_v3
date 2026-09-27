@@ -29,10 +29,7 @@ public class FaceTargetAction : StateAction
     public override void Awake(StateMachine stateMachine)
     {
         _owner = stateMachine.Owner.transform;
-        _locomotion = stateMachine.GetComponent<BaseLocomotion>();
-
-        if (_locomotion == null)
-            Debug.LogError("FaceTargetAction cannot find BaseLocomotion.");
+        stateMachine.TryGetRequired(out _locomotion, this);
 
         if (_targetAnchor == null)
             Debug.LogError("FaceTargetAction has no target GameObjectAnchor assigned.");

@@ -19,7 +19,7 @@ public class SpellRadialAction : StateAction
     private SpellRadialMenuSelect _spellRadialMenuSelect;
     public override void Awake(StateMachine stateMachine)
     {
-        _spellRadialMenuSelect = stateMachine.GetComponent<SpellRadialMenuSelect>();
+        stateMachine.TryGetRequired(out _spellRadialMenuSelect, this);
     }
     public override void OnStateEnter()
     {

@@ -18,7 +18,7 @@ public class HurtAnimationTypeAction : StateAction
     private DamageTypeAnimationActor _damageTypeAnimationActor;
     public override void Awake(StateMachine stateMachine)
     {
-        _damageTypeAnimationActor = stateMachine.GetComponent<DamageTypeAnimationActor>();
+        stateMachine.TryGetRequired(out _damageTypeAnimationActor, this);
     }
     public override void OnStateEnter()
     {

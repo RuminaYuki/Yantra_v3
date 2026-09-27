@@ -22,11 +22,8 @@ public class OnDeadCondition : Condition
     public override void Awake(StateMachine stateMachine)
     {
         _owner = stateMachine.Owner;
-        _health = _owner.GetComponent<Health>();
-
-        if (_health == null)
+        if (!stateMachine.TryGetRequired(out _health, this))
         {
-            Debug.LogError("OnDeadCondition requires a Health component on the owner.", _owner);
             return;
         }
 

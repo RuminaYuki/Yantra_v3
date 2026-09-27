@@ -61,16 +61,12 @@ public class SetAnimatorLayerWeightAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        _animator = stateMachine.GetComponent<Animator>();
-        _coroutineRunner = stateMachine.GetComponent<StateMachineController>();
+        // Single & so both are checked (and logged) even if the first one is missing.
+        bool hasAll = stateMachine.TryGetRequired(out _animator, this)
+            & stateMachine.TryGetRequired(out _coroutineRunner, this);
 
-        if (_animator == null || _coroutineRunner == null)
+        if (!hasAll)
         {
-            Debug.LogError(
-                $"{nameof(SetAnimatorLayerWeightAction)} requires Animator and " +
-                $"StateMachineController on " +
-                $"{stateMachine.Owner.name}.",
-                stateMachine.Owner);
             return;
         }
 

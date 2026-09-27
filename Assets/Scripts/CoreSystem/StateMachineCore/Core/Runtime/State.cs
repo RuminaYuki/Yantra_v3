@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 namespace Yuki.Learning.StateMachine
 {
@@ -12,14 +13,14 @@ namespace Yuki.Learning.StateMachine
         public State(string debugName, StateAction[] actions, StateMachine stateMachine)
         {
             DebugName = debugName;
-            _actions = actions;
             _transitions = new StateTransition[0];
 
 
-            foreach (StateAction action in _actions)
+            foreach (StateAction action in actions)
             {
                 action.Awake(stateMachine);
             }
+            _actions = Array.FindAll(actions, action => !action.IsDisabled);
         }
         public void SetTransitions(StateTransition[] transitions)
         {

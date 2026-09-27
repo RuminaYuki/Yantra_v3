@@ -32,7 +32,10 @@ public class ReloadAction : StateAction
 
     public override void OnStateEnter()
     {
-        _gunController?.Reload();
+        if (_gunController != null)
+        {
+            _gunController.Reload();
+        }
     }
 
     public override void OnUpdate() { }

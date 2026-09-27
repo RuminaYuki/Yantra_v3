@@ -41,8 +41,8 @@ public class GianSkillOnHitPointAction : StateAction
     }
     public override void Awake(StateMachine stateMachine)
     {
-        attackSphereCast = stateMachine.GetComponent<AttackSphereCast>();
-        skillPoints = stateMachine.GetComponent<SkillPoints>();
+        stateMachine.TryGetRequired(out attackSphereCast, this);
+        stateMachine.TryGetRequired(out skillPoints, this);
     }
     public override void OnStateEnter()
     {

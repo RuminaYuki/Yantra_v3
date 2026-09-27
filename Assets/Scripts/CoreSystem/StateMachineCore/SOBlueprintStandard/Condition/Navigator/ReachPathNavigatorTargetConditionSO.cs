@@ -56,10 +56,7 @@ public class ReachPathNavigatorTargetCondition : Condition
     public override void Awake(StateMachine stateMachine)
     {
         _owner = stateMachine.Owner.transform;
-        _pathNavigator = stateMachine.GetComponent<PathNavigator>();
-
-        if (_pathNavigator == null)
-            Debug.LogError("ReachPathNavigatorTargetCondition requires PathNavigator.");
+        stateMachine.TryGetRequired(out _pathNavigator, this);
     }
     public override void OnStateEnter()
     {

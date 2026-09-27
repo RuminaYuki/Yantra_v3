@@ -13,6 +13,8 @@ namespace Yuki.Learning.StateMachine
         /// <summary>
         /// Gets a component from the GameObject the anchor points at.
         /// Anchor left empty in the SO: looks on the owner instead.
+        /// If it can't be found (anchor not provided yet, or component missing) the requester is
+        /// disabled, same as <see cref="StateMachine.TryGetRequired{T}"/>.
         /// </summary>
         /// <param name="anchor">The anchor from the SO. May be null.</param>
         /// <param name="stateMachine">Used for the owner fallback and as the log context.</param>
@@ -41,9 +43,11 @@ namespace Yuki.Learning.StateMachine
             if (!anchor.IsSet)
             {
                 // Warning, not error: usually the provider just hasn't run yet.
+                // Still disabled: the component is only looked up once, in Awake.
                 Debug.LogWarning(
-                    $"[{requester.GetType().Name}] {anchor.name} has no value yet.",
+                    $"[{requester.GetType().Name}] {anchor.name} has no value yet, so it is disabled.",
                     stateMachine.Owner);
+                StateMachine.DisableRequester(requester);
                 return false;
             }
 
@@ -55,7 +59,9 @@ namespace Yuki.Learning.StateMachine
             Debug.LogError(
                 $"[{requester.GetType().Name}] needs {typeof(T).Name} on '{anchor.name}' ({anchor.Value.name}).",
                 anchor.Value);
+            StateMachine.DisableRequester(requester);
             return false;
+
         }
     }
 }

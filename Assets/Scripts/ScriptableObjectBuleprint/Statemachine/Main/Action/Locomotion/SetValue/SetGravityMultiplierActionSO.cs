@@ -36,12 +36,7 @@ public class SetGravityMultiplierAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        _locomotion = stateMachine.GetComponent<BaseLocomotion>();
-
-        if (_locomotion == null)
-            Debug.LogError(
-                "SetGravityMultiplierAction requires BaseLocomotion.",
-                stateMachine.Owner);
+        stateMachine.TryGetRequired(out _locomotion, this);
     }
 
     public override void OnStateEnter()

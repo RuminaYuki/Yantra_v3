@@ -38,15 +38,8 @@ public class FlagCondition : Condition
         // กรณีตรวจ Flag ของ StateMachine ตัวเอง
         if (targetAnchor == null)
         {
-            stateFlags =
-                stateMachine.GetComponent<StateFlagsAccess>();
-
-            if (stateFlags == null)
-            {
-                Debug.LogError(
-                    "FlagCondition requires StateFlags or " +
-                    "StateFlagReader on the StateMachine GameObject.");
-            }
+            // Logs once here if missing; TryResolveTarget retries quietly.
+            stateMachine.TryGetRequired(out stateFlags, this);
         }
     }
     public override void OnStateEnter()
@@ -94,9 +87,8 @@ public class FlagCondition : Condition
                 return false;
             }
 
-            stateFlags = stateMachine.GetComponent<StateFlagsAccess>();
-
-            return stateFlags != null;
+            // Called every frame from Statement(), so no log here (Awake already logged).
+            return stateMachine.Owner.TryGetComponent(out stateFlags);
         }
 
         // Anchor ยังไม่ได้รับ Object จาก Provider

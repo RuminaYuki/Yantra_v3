@@ -57,11 +57,8 @@ public class SetPathNavigatorTargetAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        _pathNavigator = stateMachine.GetComponent<PathNavigator>();
-
-        if (_pathNavigator == null)
+        if (!stateMachine.TryGetRequired(out _pathNavigator, this))
         {
-            Debug.LogError("SetPathNavigatorTargetAction cannot find PathNavigator.");
             return;
         }
 

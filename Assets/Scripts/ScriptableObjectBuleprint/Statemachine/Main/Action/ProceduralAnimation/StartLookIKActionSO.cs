@@ -27,10 +27,7 @@ public class StartLookIKAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        _lookAtIK = stateMachine.GetComponent<LookAtIKController>();
-
-        if (_lookAtIK == null)
-            Debug.LogError("StartLookIKAction cannot find LookAtIKController.");
+        stateMachine.TryGetRequired(out _lookAtIK, this);
     }
 
     public override void OnStateEnter()

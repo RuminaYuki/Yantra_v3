@@ -51,10 +51,7 @@ public class SetProjectileConfigAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        _shooter = stateMachine.GetComponent<ProjectileShooter>();
-
-        if (_shooter == null)
-            Debug.LogError("SetProjectileConfigAction requires a ProjectileShooter component.");
+        stateMachine.TryGetRequired(out _shooter, this);
     }
 
     public override void OnStateEnter()

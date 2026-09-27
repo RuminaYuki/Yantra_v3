@@ -47,7 +47,7 @@ public class DistanceCondition : Condition
 
     public override void Awake(StateMachine stateMachine)
     {
-        _owner = stateMachine.GetComponent<Transform>();
+        stateMachine.TryGetRequired(out _owner, this);
 
         if (_targetAnchor == null)
             Debug.LogError("TargetInRangeCondition has no GameObjectAnchor assigned.");

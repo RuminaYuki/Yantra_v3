@@ -19,15 +19,15 @@ public class ClearMoveDirectionAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        _locomotion = stateMachine.GetComponent<BaseLocomotion>();
-
-        if (_locomotion == null)
-            Debug.LogError("ClearMoveDirectionAction cannot find BaseLocomotion.");
+        stateMachine.TryGetRequired(out _locomotion, this);
     }
 
     public override void OnStateEnter()
     {
-        _locomotion?.ClearMovementDirection();
+        if (_locomotion != null)
+        {
+            _locomotion.ClearMovementDirection();
+        }
     }
 
     public override void OnUpdate() { }

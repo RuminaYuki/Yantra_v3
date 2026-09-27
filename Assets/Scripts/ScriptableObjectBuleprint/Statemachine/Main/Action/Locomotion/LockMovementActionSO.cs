@@ -27,22 +27,25 @@ public class LockMovementAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        _locomotion = stateMachine.GetComponent<BaseLocomotion>();
-
-        if (_locomotion == null)
-            Debug.LogError("LockMovementAction cannot find BaseLocomotion.");
+        stateMachine.TryGetRequired(out _locomotion, this);
     }
 
     public override void OnStateEnter()
     {
-        _locomotion?.LockLocomotion(
-            this,
-            _resetMoveAnimation);
+        if (_locomotion != null)
+        {
+            _locomotion.LockLocomotion(
+                this,
+                _resetMoveAnimation);
+        }
     }
 
     public override void OnStateExit()
     {
-        _locomotion?.UnlockLocomotion(this);
+        if (_locomotion != null)
+        {
+            _locomotion.UnlockLocomotion(this);
+        }
     }
 
     public override void OnUpdate() { }
