@@ -161,6 +161,16 @@ public class StateMachineController : MonoBehaviour
             ? stateMachine.CurrentStateName
             : "None";
     }
+    
+    // Read-only access for tools (e.g. the State Machine Graph window in Play Mode).
+    public StateMachine GetStateMachine(int tableIndex)
+    {
+        if (_stateMachines == null || tableIndex < 0 || tableIndex >= _stateMachines.Length)
+            return null;
+
+        return _stateMachines[tableIndex];
+    }
+
 
     private void HandleChildStateChanged(
         string previousStateName,

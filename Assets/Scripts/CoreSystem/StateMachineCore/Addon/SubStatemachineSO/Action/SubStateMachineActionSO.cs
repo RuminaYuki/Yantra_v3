@@ -27,6 +27,12 @@ public class SubStateMachineAction : StateAction
     private StateMachine _childStateMachine;
     private State _forceExitState;
     private bool _skipNextUpdate;
+    
+    public TransitionTableSO TransitionTable => _transitionTable;
+
+    // Null while this state isn't running (created in OnStateEnter, disposed in OnStateExit).
+    public StateMachine ChildStateMachine => _childStateMachine;
+
 
     public SubStateMachineAction(TransitionTableSO transitionTable, StateSO forceExitState)
     {

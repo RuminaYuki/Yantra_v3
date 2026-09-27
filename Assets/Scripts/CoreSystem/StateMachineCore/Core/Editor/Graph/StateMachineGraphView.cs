@@ -31,6 +31,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // The single selected element (state node or edge), or null when nothing or several things are selected.
         public event Action<GraphElement> SelectionChanged;
 
+        // Asks the window to show a sub-state machine's table (the state it belongs to, its table).
+        public event Action<StateSO, TransitionTableSO> SubStateMachineOpenRequested;
+
         public StateMachineGraphView(EditorWindow window)
         {
             _window = window;
@@ -245,6 +248,12 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             // New nodes start un-highlighted, so apply the Play Mode highlight again.
             ApplyActiveState();
+        }
+
+        // From a sub-state node's double-click or its right-click menu.
+        public void OpenSubStateMachine(StateSO state, TransitionTableSO subTable)
+        {
+            SubStateMachineOpenRequested?.Invoke(state, subTable);
         }
 
         // Called by the window while in Play Mode. The runtime State only knows its StateSO's name.

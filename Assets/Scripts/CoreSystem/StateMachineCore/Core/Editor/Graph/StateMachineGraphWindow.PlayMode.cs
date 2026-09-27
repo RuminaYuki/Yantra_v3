@@ -1,30 +1,49 @@
 #if UNITY_EDITOR
 
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Yuki.Learning.StateMachine.ScriptableObjects;
 
 namespace Yuki.Learning.StateMachine.Editor.Graph
 {
-    // Play Mode: outlines the state a running StateMachineController is in, like Animator.
+    // Play Mode: outlines the state a running StateMachineController is in, like Animator,
+    // at any sub-state machine depth. "Follow" also moves the graph in and out of sub-state
+    // machines as the character does.
     //
     // Which controller: the selected GameObject's, otherwise the first one in the scene that runs
-    // this table. Tables run as a sub-state machine (SubStateMachineAction) aren't in the
-    // controller's list, so those follow ChildStateChanged and need the GameObject selected.
+    // the root table of the navigation path. From there the running machines are walked down
+    // (StateMachine.CurrentState -> SubStateMachineAction.ChildStateMachine -> ...).
     public partial class StateMachineGraphWindow
     {
         // Seconds between checks. Fast enough to look live, cheap enough to ignore.
         private const double PollInterval = 0.1;
 
+        // Stops the walk if a table (indirectly) runs itself.
+        private const int MaxDepth = 16;
+
+        // Serialized so it survives the domain reload when entering Play Mode.
+        [SerializeField]
+        private bool _follow;
+
         private StateMachineController _controller;
-        private string _childStateName;
         private double _nextPollTime;
+        private ToolbarToggle _followToggle;
         private Label _playModeLabel;
 
-        private void CreatePlayModeLabel(Toolbar toolbar)
+        // One level of what is running right now, from the root table down.
+        private struct RunningLevel
         {
-            // Pushes the label to the right end of the toolbar.
+            public TransitionTableSO Table;
+            public StateSO EnteredFrom;   // State whose SubStateMachineAction runs Table. Null at the root.
+            public StateMachine Machine;
+        }
+
+        private void CreatePlayModeToolbarItems(Toolbar toolbar)
+        {
+            // Pushes the items to the right end of the toolbar.
             var spacer = new VisualElement();
             spacer.style.flexGrow = 1;
             toolbar.Add(spacer);
@@ -33,6 +52,26 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             _playModeLabel.style.unityTextAlign = TextAnchor.MiddleRight;
             _playModeLabel.style.marginRight = 6;
             toolbar.Add(_playModeLabel);
+
+            _followToggle = new ToolbarToggle
+            {
+                text = "Follow",
+                tooltip = "Play Mode: go into and out of sub-state machines as the character does."
+            };
+            _followToggle.SetValueWithoutNotify(_follow);
+            _followToggle.RegisterValueChangedCallback(evt =>
+            {
+                _follow = evt.newValue;
+                _nextPollTime = 0; // Jump to the running state right away.
+            });
+            toolbar.Add(_followToggle);
+        }
+
+        // Moving around by hand turns Follow off, otherwise the next poll would pull the graph back.
+        private void SetFollow(bool follow)
+        {
+            _follow = follow;
+            _followToggle?.SetValueWithoutNotify(follow);
         }
 
         // EditorWindow message, called several times per second while the window is open.
@@ -61,20 +100,19 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             // Unity's == null is also true after the GameObject was destroyed.
             if (_controller == null)
             {
-                WatchController(FindController());
+                _controller = FindController();
             }
 
-            string activeStateName = null;
+            List<RunningLevel> chain = _controller != null
+                ? BuildRunningChain()
+                : new List<RunningLevel>();
 
-            if (_controller != null)
+            if (_follow && chain.Count > 0 && !PathMatches(chain, chain.Count))
             {
-                int tableIndex = IndexOfTable(_controller);
-                activeStateName = tableIndex >= 0
-                    ? _controller.GetCurrentStateName(tableIndex)
-                    : _childStateName;
+                FollowTo(chain);
             }
 
-            _graphView.SetActiveState(activeStateName);
+            _graphView.SetActiveState(GetActiveStateName(chain));
             _playModeLabel.text = _controller != null
                 ? $"▶ {_controller.name}"
                 : "▶ Select a GameObject running this table";
@@ -88,11 +126,16 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 return;
             }
 
-            var selected = Selection.activeGameObject.GetComponent<StateMachineController>();
-            if (selected != null && selected != _controller)
+            if (Selection.activeGameObject.TryGetComponent(out StateMachineController selected))
             {
-                WatchController(selected);
+                _controller = selected;
+                _nextPollTime = 0;
             }
+        }
+
+        private void StopWatching()
+        {
+            _controller = null;
         }
 
         private StateMachineController FindController()
@@ -106,7 +149,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             // Includes prefab assets, so keep only objects that live in a scene.
             foreach (StateMachineController controller in Resources.FindObjectsOfTypeAll<StateMachineController>())
             {
-                if (controller.gameObject.scene.IsValid() && IndexOfTable(controller) >= 0)
+                if (controller.gameObject.scene.IsValid() && IndexOfTable(controller, RootTable) >= 0)
                 {
                     return controller;
                 }
@@ -115,16 +158,16 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             return null;
         }
 
-        // Index of the open table in the controller's _transitionTables, or -1.
+        // Index of `table` in the controller's _transitionTables, or -1.
         // Read every poll because ChangeTable() can swap tables at runtime.
-        private int IndexOfTable(StateMachineController controller)
+        private static int IndexOfTable(StateMachineController controller, TransitionTableSO table)
         {
             using var serializedController = new SerializedObject(controller);
             SerializedProperty tables = serializedController.FindProperty("_transitionTables");
 
             for (int i = 0; i < tables.arraySize; i++)
             {
-                if (tables.GetArrayElementAtIndex(i).objectReferenceValue == _table)
+                if (tables.GetArrayElementAtIndex(i).objectReferenceValue == table)
                 {
                     return i;
                 }
@@ -133,41 +176,141 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             return -1;
         }
 
-        private void WatchController(StateMachineController controller)
+        // What is running now: the root table's machine, then the sub-state machine its current
+        // state runs, and so on down to the deepest one.
+        private List<RunningLevel> BuildRunningChain()
         {
-            StopWatching();
+            var chain = new List<RunningLevel>();
 
-            _controller = controller;
-            if (_controller == null)
+            TransitionTableSO table = RootTable;
+            int tableIndex = IndexOfTable(_controller, table);
+            if (tableIndex < 0)
             {
-                return;
+                return chain;
             }
 
-            _controller.MainStateChanged += OnMainStateChanged;
-            _controller.ChildStateChanged += OnChildStateChanged;
-        }
+            StateMachine machine = _controller.GetStateMachine(tableIndex);
+            StateSO enteredFrom = null;
 
-        private void StopWatching()
-        {
-            if (_controller != null)
+            while (machine != null && chain.Count < MaxDepth)
             {
-                _controller.MainStateChanged -= OnMainStateChanged;
-                _controller.ChildStateChanged -= OnChildStateChanged;
+                chain.Add(new RunningLevel { Table = table, EnteredFrom = enteredFrom, Machine = machine });
+
+                State current = machine.CurrentState;
+                SubStateMachineAction subAction = current != null ? FindRunningSubAction(current) : null;
+                if (subAction == null)
+                {
+                    break;
+                }
+
+                // The runtime State only has a name; the breadcrumb wants the StateSO.
+                enteredFrom = FindStateByName(table, current.DebugName);
+                table = subAction.TransitionTable;
+                machine = subAction.ChildStateMachine;
             }
 
-            _controller = null;
-            _childStateName = null;
+            return chain;
         }
 
-        private void OnMainStateChanged(string previousStateName, string currentStateName)
+        private static SubStateMachineAction FindRunningSubAction(State state)
         {
-            // Leaving a state disposes its sub-state machine, so the old child state is gone.
-            _childStateName = null;
+            foreach (StateAction action in state.Actions)
+            {
+                if (action is SubStateMachineAction { ChildStateMachine: not null } subAction)
+                {
+                    return subAction;
+                }
+            }
+
+            return null;
         }
 
-        private void OnChildStateChanged(string previousStateName, string currentStateName)
+        // True if the first `count` levels of the chain are exactly the navigation path.
+        private bool PathMatches(List<RunningLevel> chain, int count)
         {
-            _childStateName = currentStateName;
+            if (_path.Count != count || chain.Count < count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < count; i++)
+            {
+                if (_path[i] != chain[i].Table)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        // Name of the running state in the table shown now, or null if that table isn't running
+        // (e.g. looking inside a sub-state machine the character isn't in).
+        private string GetActiveStateName(List<RunningLevel> chain)
+        {
+            int level = _path.Count - 1;
+
+            for (int i = 0; i <= level; i++)
+            {
+                if (i >= chain.Count || chain[i].Table != _path[i])
+                {
+                    return null;
+                }
+            }
+
+            return chain[level].Machine.CurrentState?.DebugName;
+        }
+
+        private void FollowTo(List<RunningLevel> chain)
+        {
+            _path.Clear();
+            _pathStates.Clear();
+
+            foreach (RunningLevel level in chain)
+            {
+                _path.Add(level.Table);
+                _pathStates.Add(level.EnteredFrom);
+            }
+
+            _table = _path[_path.Count - 1];
+            ShowTable();
+        }
+
+        // First StateSO in the table with this name (runtime State.DebugName is StateSO.name).
+        private static StateSO FindStateByName(TransitionTableSO table, string stateName)
+        {
+            using var serializedTable = new SerializedObject(table);
+
+            bool Matches(SerializedProperty property, out StateSO state)
+            {
+                state = property.objectReferenceValue as StateSO;
+                return state != null && state.name == stateName;
+            }
+
+            if (Matches(serializedTable.FindProperty("_initialState"), out StateSO found))
+            {
+                return found;
+            }
+
+            foreach (string arrayName in new[] { "_transitions", "_anyTransitions", "_nodePositions" })
+            {
+                SerializedProperty array = serializedTable.FindProperty(arrayName);
+                for (int i = 0; i < array.arraySize; i++)
+                {
+                    SerializedProperty item = array.GetArrayElementAtIndex(i);
+
+                    foreach (string field in new[] { "FromState", "ToState", "State" })
+                    {
+                        SerializedProperty property = item.FindPropertyRelative(field);
+                        if (property != null && Matches(property, out found))
+                        {
+                            return found;
+                        }
+                    }
+                }
+            }
+
+            return null;
         }
     }
 }

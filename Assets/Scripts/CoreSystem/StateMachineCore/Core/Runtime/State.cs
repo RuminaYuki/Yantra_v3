@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 namespace Yuki.Learning.StateMachine
 {
     public class State
@@ -6,6 +7,7 @@ namespace Yuki.Learning.StateMachine
         private StateTransition[] _transitions;
 
         public string DebugName { get; }
+        public IReadOnlyList<StateAction> Actions => _actions;
 
         public State(string debugName, StateAction[] actions, StateMachine stateMachine)
         {

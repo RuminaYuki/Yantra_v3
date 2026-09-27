@@ -18,6 +18,8 @@ namespace Yuki.Learning.StateMachine
         public GameObject Owner => _owner;
         public bool IsDisposed => _isDisposed;
         public string CurrentStateName => _currentState?.DebugName ?? "None";
+        public State CurrentState => _currentState;
+
 
         public event Action<string, string> StateChanged;
         public event Action<string, string> ChildStateChanged;

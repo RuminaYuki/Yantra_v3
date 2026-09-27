@@ -50,6 +50,21 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             {
                 bool isInitial = stateNode.State == GetInitialState();
 
+                if (stateNode.IsSubStateMachine)
+                {
+                    // One item normally, a submenu when the state runs several sub-state machines.
+                    foreach (TransitionTableSO subTable in stateNode.SubTables)
+                    {
+                        string label = stateNode.SubTables.Count == 1
+                            ? "Open Sub-State Machine"
+                            : $"Open Sub-State Machine/{subTable.name}";
+
+                        evt.menu.AppendAction(label, _ => OpenSubStateMachine(stateNode.State, subTable));
+                    }
+
+                    evt.menu.AppendSeparator();
+                }
+
                 evt.menu.AppendAction("Make Transition", _ => StartTransitionCreation(stateNode, mousePosition));
                 evt.menu.AppendAction(
                     "Set as Initial State",
