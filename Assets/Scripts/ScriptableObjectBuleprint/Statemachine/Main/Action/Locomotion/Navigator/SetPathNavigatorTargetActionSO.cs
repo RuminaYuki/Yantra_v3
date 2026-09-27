@@ -7,14 +7,14 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Locomotion/Navigation/Set Target")]
 public class SetPathNavigatorTargetActionSO : StateActionSO
 {
-    [SerializeField] private TransformAnchor _targetAnchor;
+    [SerializeField] private GameObjectAnchor _targetAnchor;
     [SerializeField] private Vector3 _offset;
     [Header("Randomize offset per axis (+-range) each time the state is entered")]
     [SerializeField] private Vector3 _randomOffsetRange = Vector3.zero;
 
     public Transform TargetTransform
     {
-        get => _targetAnchor.Value;
+        get => _targetAnchor != null && _targetAnchor.IsSet ? _targetAnchor.Value.transform : null;
     }
     public Vector3 Offset
     {
@@ -38,14 +38,14 @@ public class SetPathNavigatorTargetActionSO : StateActionSO
 
 public class SetPathNavigatorTargetAction : StateAction
 {
-    private readonly TransformAnchor _targetAnchor;
+    private readonly GameObjectAnchor _targetAnchor;
     private readonly Vector3 _offset;
     private readonly Vector3 _randomOffsetRange;
     private PathNavigator _pathNavigator;
     private Transform _offsetTarget;
     private Vector3 _randomOffset;
 
-    public SetPathNavigatorTargetAction(TransformAnchor targetAnchor, Vector3 offset, Vector3 randomOffsetRange)
+    public SetPathNavigatorTargetAction(GameObjectAnchor targetAnchor, Vector3 offset, Vector3 randomOffsetRange)
     {
         _targetAnchor = targetAnchor;
         _offset = offset;
@@ -75,7 +75,7 @@ public class SetPathNavigatorTargetAction : StateAction
 
         if (_targetAnchor == null)
         {
-            Debug.LogError("SetPathNavigatorTargetAction has no TransformAnchor assigned.");
+            Debug.LogError("SetPathNavigatorTargetAction has no GameObjectAnchor assigned.");
             return;
         }
 
@@ -90,7 +90,7 @@ public class SetPathNavigatorTargetAction : StateAction
             Random.Range(-_randomOffsetRange.y, _randomOffsetRange.y),
             Random.Range(-_randomOffsetRange.z, _randomOffsetRange.z));
 
-        _offsetTarget.position = _targetAnchor.Value.TransformPoint(_offset + _randomOffset);
+        _offsetTarget.position = _targetAnchor.Value.transform.TransformPoint(_offset + _randomOffset);
         _pathNavigator.Target = _offsetTarget;
     }
 
@@ -99,6 +99,6 @@ public class SetPathNavigatorTargetAction : StateAction
         if (_pathNavigator == null || _targetAnchor == null || !_targetAnchor.IsSet)
             return;
 
-        _offsetTarget.position = _targetAnchor.Value.TransformPoint(_offset + _randomOffset);
+        _offsetTarget.position = _targetAnchor.Value.transform.TransformPoint(_offset + _randomOffset);
     }
 }

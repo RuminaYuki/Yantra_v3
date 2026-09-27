@@ -7,7 +7,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Procedural Animation/Head IK/Start Look IK")]
 public class StartLookIKActionSO : StateActionSO
 {
-    [SerializeField] private TransformAnchor _targetAnchor;
+    [SerializeField] private GameObjectAnchor _targetAnchor;
 
     public override StateAction CreateAction(StateMachine stateMachine)
     {
@@ -17,10 +17,10 @@ public class StartLookIKActionSO : StateActionSO
 
 public class StartLookIKAction : StateAction
 {
-    private readonly TransformAnchor _targetAnchor;
+    private readonly GameObjectAnchor _targetAnchor;
     private LookAtIKController _lookAtIK;
 
-    public StartLookIKAction(TransformAnchor targetAnchor)
+    public StartLookIKAction(GameObjectAnchor targetAnchor)
     {
         _targetAnchor = targetAnchor;
     }
@@ -40,7 +40,7 @@ public class StartLookIKAction : StateAction
 
         if (_targetAnchor == null)
         {
-            Debug.LogError("StartLookIKAction has no TransformAnchor assigned.");
+            Debug.LogError("StartLookIKAction has no GameObjectAnchor assigned.");
             return;
         }
 
@@ -50,7 +50,7 @@ public class StartLookIKAction : StateAction
             return;
         }
 
-        _lookAtIK.SetLookTarget(_targetAnchor.Value);
+        _lookAtIK.SetLookTarget(_targetAnchor.Value.transform);
         _lookAtIK.SetIKEnabled(true);
     }
 

@@ -7,8 +7,8 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/Animation Finished")]
 public class AnimationFinishedConditionSO : StateConditionSO
 {
-    [Header("If AnimatorAnchor has Set It will Check Target Instead")]
-    [SerializeField] private AnimatorAnchor animatorAnchor;
+    [Header("If GameObjectAnchor has Set It will Check Target Instead")]
+    [SerializeField] private GameObjectAnchor animatorAnchor;
     [Header("Leave empty to auto-detect whichever state the Animator is currently playing")]
     [SerializeField] private string stateName;
     [SerializeField] private int layerIndex;
@@ -43,7 +43,7 @@ public class AnimationFinishedConditionSO : StateConditionSO
 
 public class AnimationFinishedCondition : Condition
 {
-    private readonly AnimatorAnchor animatorAnchor;
+    private readonly GameObjectAnchor animatorAnchor;
     private readonly string stateName;
     private readonly int layerIndex;
     private readonly float finishTime;
@@ -53,7 +53,7 @@ public class AnimationFinishedCondition : Condition
     private int? capturedStateHash;
 
     public AnimationFinishedCondition(
-        AnimatorAnchor animatorAnchor,
+        GameObjectAnchor animatorAnchor,
         string stateName,
         int layerIndex,
         float finishTime,
@@ -68,13 +68,7 @@ public class AnimationFinishedCondition : Condition
 
     public override void Awake(StateMachine stateMachine)
     {
-        if (animatorAnchor == null)
-            animator = stateMachine.GetComponent<Animator>();
-        else if (animatorAnchor.IsSet)
-            animator = animatorAnchor.Value.GetComponent<Animator>();
-
-        if (animator == null)
-            Debug.LogError("AnimationFinishedCondition cannot find Animator.");
+        animatorAnchor.TryGetComponentOrOwner(stateMachine, out animator, this);
     }
 
     public override void OnStateEnter()

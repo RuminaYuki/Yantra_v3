@@ -11,7 +11,7 @@ public class BaseEffectClass : MonoBehaviour
 
     [Header("Animator")]
     [SerializeField] protected bool useAnimation;
-    [SerializeField] protected AnimatorAnchor animatorAnchor;
+    [SerializeField] protected GameObjectAnchor animatorAnchor;
     [SerializeField] protected string animationName;
     [SerializeField] protected int layerIndex;
     [SerializeField] protected string eventKey = string.Empty;

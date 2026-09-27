@@ -7,7 +7,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Locomotion/Navigation/Face Target")]
 public class FaceTargetActionSO : StateActionSO
 {
-    [SerializeField] private TransformAnchor _targetAnchor;
+    [SerializeField] private GameObjectAnchor _targetAnchor;
 
     public override StateAction CreateAction(StateMachine stateMachine)
     {
@@ -17,11 +17,11 @@ public class FaceTargetActionSO : StateActionSO
 
 public class FaceTargetAction : StateAction
 {
-    private readonly TransformAnchor _targetAnchor;
+    private readonly GameObjectAnchor _targetAnchor;
     private BaseLocomotion _locomotion;
     private Transform _owner;
 
-    public FaceTargetAction(TransformAnchor targetAnchor)
+    public FaceTargetAction(GameObjectAnchor targetAnchor)
     {
         _targetAnchor = targetAnchor;
     }
@@ -35,7 +35,7 @@ public class FaceTargetAction : StateAction
             Debug.LogError("FaceTargetAction cannot find BaseLocomotion.");
 
         if (_targetAnchor == null)
-            Debug.LogError("FaceTargetAction has no target TransformAnchor assigned.");
+            Debug.LogError("FaceTargetAction has no target GameObjectAnchor assigned.");
     }
 
     public override void OnUpdate()
@@ -46,7 +46,7 @@ public class FaceTargetAction : StateAction
         if (_targetAnchor == null || !_targetAnchor.IsSet || _targetAnchor.Value == null)
             return;
 
-        Vector3 direction = _targetAnchor.Value.position - _owner.position;
+        Vector3 direction = _targetAnchor.Value.transform.position - _owner.position;
         _locomotion.SetFacingDirection(direction);
     }
 }

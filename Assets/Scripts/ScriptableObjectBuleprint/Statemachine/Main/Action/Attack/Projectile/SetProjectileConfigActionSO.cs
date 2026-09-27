@@ -14,7 +14,7 @@ public class SetProjectileConfigActionSO : StateActionSO
     [SerializeField] private ProjectileBullet _fallbackPrefab;
 
     [Header("Aim Target (leave empty for a straight shot)")]
-    [SerializeField] private TransformAnchor _targetAnchor;
+    [SerializeField] private GameObjectAnchor _targetAnchor;
 
     public ProjectileBullet.ProjectileConfig Config
     {
@@ -33,7 +33,7 @@ public class SetProjectileConfigAction : StateAction
     private readonly ProjectileBullet.ProjectileConfig _config;
     private readonly string _poolTag;
     private readonly ProjectileBullet _fallbackPrefab;
-    private readonly TransformAnchor _targetAnchor;
+    private readonly GameObjectAnchor _targetAnchor;
 
     private ProjectileShooter _shooter;
 
@@ -41,7 +41,7 @@ public class SetProjectileConfigAction : StateAction
         ProjectileBullet.ProjectileConfig config,
         string poolTag,
         ProjectileBullet fallbackPrefab,
-        TransformAnchor targetAnchor)
+        GameObjectAnchor targetAnchor)
     {
         _config = config;
         _poolTag = poolTag;
@@ -81,7 +81,7 @@ public class SetProjectileConfigAction : StateAction
             return;
 
         if (_targetAnchor != null && _targetAnchor.IsSet)
-            _shooter.SetTarget(_targetAnchor.Value.position);
+            _shooter.SetTarget(_targetAnchor.Value.transform.position);
         else
             _shooter.ClearTarget();
     }

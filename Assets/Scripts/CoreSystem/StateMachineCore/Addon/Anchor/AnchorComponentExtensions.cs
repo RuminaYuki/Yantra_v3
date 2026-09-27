@@ -5,13 +5,13 @@ namespace Yuki.Learning.StateMachine
     /// <summary>
     /// Anchor side of the component guard. Lives in the Anchor addon so the core StateMachine
     /// never has to know anchors exist: this calls into the core, never the other way round.
-    /// Both methods also work when the anchor field is null (nothing assigned in the SO);
+    /// It also works when the anchor field is null (nothing assigned in the SO);
     /// that case falls back to <see cref="StateMachine.TryGetRequired{T}"/> on the owner.
     /// </summary>
     public static class AnchorComponentExtensions
     {
         /// <summary>
-        /// For an anchor that points at a GameObject, when the component needed is another one on it.
+        /// Gets a component from the GameObject the anchor points at.
         /// Anchor left empty in the SO: looks on the owner instead.
         /// </summary>
         /// <param name="anchor">The anchor from the SO. May be null.</param>
@@ -24,12 +24,11 @@ namespace Yuki.Learning.StateMachine
         /// _gunAnchor.TryGetComponentOrOwner(stateMachine, out _gunController, this);
         /// </code>
         /// </example>
-        public static bool TryGetComponentOrOwner<TValue, T>(
-            this RuntimeAnchorBase<TValue> anchor,
+        public static bool TryGetComponentOrOwner<T>(
+            this GameObjectAnchor anchor,
             StateMachine stateMachine,
             out T component,
             object requester)
-            where TValue : Object
             where T : Component
         {
             if (anchor == null)
@@ -41,37 +40,22 @@ namespace Yuki.Learning.StateMachine
 
             if (!anchor.IsSet)
             {
-                LogAnchorNotSet(anchor, stateMachine, requester);
+                // Warning, not error: usually the provider just hasn't run yet.
+                Debug.LogWarning(
+                    $"[{requester.GetType().Name}] {anchor.name} has no value yet.",
+                    stateMachine.Owner);
                 return false;
             }
 
-            // GameObjectAnchor holds a GameObject; TransformAnchor, AnimatorAnchor... hold a Component.
-            GameObject target = anchor.Value is Component valueComponent
-                ? valueComponent.gameObject
-                : anchor.Value as GameObject;
-
-            if (target != null && target.TryGetComponent(out component))
+            if (anchor.Value.TryGetComponent(out component))
             {
                 return true;
             }
 
             Debug.LogError(
-                $"[{requester.GetType().Name}] needs {typeof(T).Name} on '{anchor.name}' " +
-                $"({(target != null ? target.name : "null")}).",
-                target);
+                $"[{requester.GetType().Name}] needs {typeof(T).Name} on '{anchor.name}' ({anchor.Value.name}).",
+                anchor.Value);
             return false;
-        }
-
-        // Warning, not error: usually the provider just hasn't run yet.
-        private static void LogAnchorNotSet<TValue>(
-            RuntimeAnchorBase<TValue> anchor,
-            StateMachine stateMachine,
-            object requester)
-            where TValue : Object
-        {
-            Debug.LogWarning(
-                $"[{requester.GetType().Name}] {anchor.name} has no value yet.",
-                stateMachine.Owner);
         }
     }
 }

@@ -11,10 +11,10 @@ public class HomingMissileEffect : BaseEffectClass, IEffectExecutor
 
         if (useAnimation)
         {
-            Animator animator = animatorAnchor.Value;
-            if (animator == null) return;
+            GameObject animatorObject = animatorAnchor.Value;
+            if (animatorObject == null || !animatorObject.TryGetComponent(out Animator animator)) return;
 
-            animEvent = animator.gameObject.GetComponent<AnimEventDispatcher>();
+            animEvent = animatorObject.GetComponent<AnimEventDispatcher>();
             if (animEvent == null) return;
 
             if (!string.IsNullOrEmpty(eventKey))

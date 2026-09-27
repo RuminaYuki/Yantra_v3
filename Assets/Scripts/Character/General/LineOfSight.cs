@@ -3,7 +3,7 @@ using UnityEngine;
 public class LineOfSight : MonoBehaviour
 {
     [Header("If targetAnchor is set, It will override Target value")]
-    [SerializeField] TransformAnchor targetAnchor;
+    [SerializeField] GameObjectAnchor targetAnchor;
     [SerializeField] Transform target;
     [SerializeField] Transform viewpoint;
     [SerializeField] bool showGizmos = true;
@@ -67,7 +67,7 @@ public class LineOfSight : MonoBehaviour
     {
         if(targetAnchor != null)
         {
-            target = targetAnchor.Value;
+            target = targetAnchor.IsSet ? targetAnchor.Value.transform : null;
             if (target == null)
             {
                 GameObject player = GameObject.FindWithTag("Player");

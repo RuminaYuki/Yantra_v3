@@ -19,7 +19,7 @@ public class PlayAnimatorStateActionSO : StateActionSO
     [SerializeField, Range(0f, 1f)] private float _exitNormalizedStartTime;
 
     [Header("If the TargetAnchor is set, Check target flag instead")]
-    [SerializeField] private AnimatorAnchor targetAnchor;
+    [SerializeField] private GameObjectAnchor targetAnchor;
 
     public override StateAction CreateAction(StateMachine stateMachine)
     {
@@ -46,7 +46,7 @@ public class PlayAnimatorStateAction : StateAction
     private readonly float _exitNormalizedStartTime;
 
     private Animator _animator;
-    private readonly AnimatorAnchor _targetAnchor;
+    private readonly GameObjectAnchor _targetAnchor;
 
     private readonly bool _hasExitState;
 
@@ -58,7 +58,7 @@ public class PlayAnimatorStateAction : StateAction
         float normalizedStartTime,
         float exitTransitionDuration,
         float exitNormalizedStartTime,
-        AnimatorAnchor targetAnchor = null)
+        GameObjectAnchor targetAnchor = null)
     {
         _hasExitState = !string.IsNullOrWhiteSpace(exitStateName);
         _exitStateHash = _hasExitState ? Animator.StringToHash(exitStateName) : 0;
@@ -75,18 +75,7 @@ public class PlayAnimatorStateAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        if(_targetAnchor != null)
-        {
-            _animator = _targetAnchor.Value;
-        }
-        else
-        {
-            _animator = stateMachine.GetComponent<Animator>();
-        }
-
-        if (_animator == null)
-            Debug.LogError(
-                "PlayAnimatorStateAction cannot find Animator.");
+        _targetAnchor.TryGetComponentOrOwner(stateMachine, out _animator, this);
     }
 
     public override void OnStateEnter()

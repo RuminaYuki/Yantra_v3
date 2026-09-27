@@ -7,7 +7,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/Distance")]
 public class DistanceConditionSO : StateConditionSO
 {
-    [SerializeField] private TransformAnchor _targetAnchor;
+    [SerializeField] private GameObjectAnchor _targetAnchor;
     [SerializeField, Min(0f)] private float _distance = 1f;
 
     public float Distance
@@ -33,12 +33,12 @@ public class DistanceConditionSO : StateConditionSO
 
 public class DistanceCondition : Condition
 {
-    private readonly TransformAnchor _targetAnchor;
+    private readonly GameObjectAnchor _targetAnchor;
     private readonly float _distance;
     private Transform _owner;
 
     public DistanceCondition(
-        TransformAnchor targetAnchor,
+        GameObjectAnchor targetAnchor,
         float distance)
     {
         _targetAnchor = targetAnchor;
@@ -50,7 +50,7 @@ public class DistanceCondition : Condition
         _owner = stateMachine.GetComponent<Transform>();
 
         if (_targetAnchor == null)
-            Debug.LogError("TargetInRangeCondition has no TransformAnchor assigned.");
+            Debug.LogError("TargetInRangeCondition has no GameObjectAnchor assigned.");
     }
 
     protected override bool Statement()
@@ -63,7 +63,7 @@ public class DistanceCondition : Condition
             return false;
         }
 
-        Vector3 offset = _targetAnchor.Value.position - _owner.position;
+        Vector3 offset = _targetAnchor.Value.transform.position - _owner.position;
         offset.y = 0f;
 
         return offset.sqrMagnitude <= _distance * _distance;

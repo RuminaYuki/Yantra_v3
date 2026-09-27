@@ -12,7 +12,7 @@ public class EnableMeshrendererActionSO : StateActionSO
     [SerializeField] private bool resetValueOnExit = true;
 
     [Header("If the TargetAnchor is set, Use that anchor instead")]
-    [SerializeField] private MeshRendererAnchor meshRendererAnchor;
+    [SerializeField] private GameObjectAnchor meshRendererAnchor;
 
     public override StateAction CreateAction(StateMachine stateMachine)
     {
@@ -22,12 +22,12 @@ public class EnableMeshrendererActionSO : StateActionSO
 
 public class EnableMeshrendererAction : StateAction
 {
-    private readonly MeshRendererAnchor meshRendererAnchor;
+    private readonly GameObjectAnchor meshRendererAnchor;
     private readonly bool value;
     private readonly bool resetValueOnExit;
     private MeshRenderer meshRenderer;
 
-    public EnableMeshrendererAction(bool value, bool changeValueOnExit,MeshRendererAnchor meshRendererAnchor = null)
+    public EnableMeshrendererAction(bool value, bool changeValueOnExit,GameObjectAnchor meshRendererAnchor = null)
     {
         this.meshRendererAnchor = meshRendererAnchor;
         this.value = value;
@@ -36,12 +36,7 @@ public class EnableMeshrendererAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        if(meshRendererAnchor != null)
-        {
-            meshRenderer = meshRendererAnchor.Value;
-            return;
-        }
-        meshRenderer = stateMachine.GetComponent<MeshRenderer>();
+        meshRendererAnchor.TryGetComponentOrOwner(stateMachine, out meshRenderer, this);
     }
 
     public override void OnStateEnter()

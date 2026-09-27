@@ -7,7 +7,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Navigator/Facing")]
 public class FacingConditionSO : StateConditionSO
 {
-    [SerializeField] private TransformAnchor _targetAnchor;
+    [SerializeField] private GameObjectAnchor _targetAnchor;
     [Tooltip("Max angle (degrees) between the owner's forward and the direction to the target to be considered \"facing\" it.")]
     [SerializeField, Range(0f, 180f)] private float _angleTolerance = 10f;
 
@@ -19,12 +19,12 @@ public class FacingConditionSO : StateConditionSO
 
 public class FacingCondition : Condition
 {
-    private readonly TransformAnchor _targetAnchor;
+    private readonly GameObjectAnchor _targetAnchor;
     private readonly float _angleTolerance;
     private Transform _owner;
 
     public FacingCondition(
-        TransformAnchor targetAnchor,
+        GameObjectAnchor targetAnchor,
         float angleTolerance)
     {
         _targetAnchor = targetAnchor;
@@ -36,7 +36,7 @@ public class FacingCondition : Condition
         _owner = stateMachine.Owner.transform;
 
         if (_targetAnchor == null)
-            Debug.LogError("FacingCondition has no target TransformAnchor assigned.");
+            Debug.LogError("FacingCondition has no target GameObjectAnchor assigned.");
     }
 
     protected override bool Statement()
@@ -49,7 +49,7 @@ public class FacingCondition : Condition
             return false;
         }
 
-        Vector3 toTarget = _targetAnchor.Value.position - _owner.position;
+        Vector3 toTarget = _targetAnchor.Value.transform.position - _owner.position;
         toTarget.y = 0f;
 
         if (toTarget.sqrMagnitude < 0.0001f)

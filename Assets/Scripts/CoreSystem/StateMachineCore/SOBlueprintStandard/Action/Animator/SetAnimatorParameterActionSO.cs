@@ -10,7 +10,7 @@ public class SetAnimatorParameterActionSO : StateActionSO
     public ParameterSetting ParameterSetting;
 
     [Header("If the TargetAnchor is set, Check target flag instead")]
-    [SerializeField] private AnimatorAnchor targetAnchor;
+    [SerializeField] private GameObjectAnchor targetAnchor;
     public override StateAction CreateAction(StateMachine stateMachine)
     {
         return new SetParameterAnimatorAction(ParameterSetting, targetAnchor);
@@ -25,12 +25,12 @@ public class SetParameterAnimatorAction : StateAction
     private readonly string _parameterName;
     private readonly bool _boolValueOnEnter;
     private readonly bool _resetOnExit;
-    private readonly AnimatorAnchor _targetAnchor;
+    private readonly GameObjectAnchor _targetAnchor;
 
     private bool _previousBoolValue;
     private bool _isApplied;
 
-    public SetParameterAnimatorAction(ParameterSetting parameterSetting, AnimatorAnchor targetAnchor = null)
+    public SetParameterAnimatorAction(ParameterSetting parameterSetting, GameObjectAnchor targetAnchor = null)
     {
         _parameterType = parameterSetting.ParameterType;
         _parameterName = parameterSetting.ParameterName;
@@ -41,12 +41,7 @@ public class SetParameterAnimatorAction : StateAction
     }
     public override void Awake(StateMachine stateMachine)
     {
-        if(_targetAnchor != null)
-        {
-            _animator = _targetAnchor.Value;
-            return;
-        }
-        _animator = stateMachine.GetComponent<Animator>();
+        _targetAnchor.TryGetComponentOrOwner(stateMachine, out _animator, this);
     }
     public override void OnStateEnter()
     {
