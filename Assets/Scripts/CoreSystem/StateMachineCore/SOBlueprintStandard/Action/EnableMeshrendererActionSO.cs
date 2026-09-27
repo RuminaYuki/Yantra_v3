@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(MeshRenderer), UnlessAnchorField = "meshRendererAnchor")]
 [CreateAssetMenu(
     fileName = "NewEnableMeshrenderer_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Standard/Enable Mesh Renderer")]

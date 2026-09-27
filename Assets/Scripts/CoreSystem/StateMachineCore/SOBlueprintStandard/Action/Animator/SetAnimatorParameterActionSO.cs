@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 using Yuki.Learning.StateMachine;
 
+[RequiresOwnerComponent(typeof(Animator), UnlessAnchorField = "targetAnchor")]
 [CreateAssetMenu(
     fileName = "SetParametersAnimator_Action", 
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Standard/Animator/SetParametersAnimatorAction")]

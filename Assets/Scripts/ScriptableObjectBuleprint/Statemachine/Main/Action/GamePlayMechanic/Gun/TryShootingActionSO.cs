@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(GunController), UnlessAnchorField = "_gunAnchor")]
 [CreateAssetMenu(
     fileName = "TryShooting_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/GamePlayMechanic/Gun/Try Shooting")]

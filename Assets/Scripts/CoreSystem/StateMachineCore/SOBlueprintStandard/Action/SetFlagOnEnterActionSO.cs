@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(StateFlagsAccess))]
 [CreateAssetMenu(
     fileName = "NewSetFlagOnEnter_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Standard/Set Flag On Enter")]
@@ -39,7 +40,7 @@ public class SetFlagOnEnterAction : StateAction
 
     public override void OnStateEnter()
     {
-        if (stateFlags == null || flag == null) return;
+        if (flag == null) return;
         stateFlags.Set(flag, value);
     }
 

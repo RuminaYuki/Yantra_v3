@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(Health))]
 [CreateAssetMenu(
     fileName = "NewOnDead_Condition",
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Health/On Dead")]

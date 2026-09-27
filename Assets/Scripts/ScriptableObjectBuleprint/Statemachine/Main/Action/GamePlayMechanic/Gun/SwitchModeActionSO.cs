@@ -2,6 +2,8 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(SkillPoints))]
+[RequiresOwnerComponent(typeof(GunController), UnlessAnchorField = "_gunAnchor")]
 [CreateAssetMenu(
     fileName = "SwitchMode_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/GamePlayMechanic/Gun/Switch Mode")]
@@ -37,7 +39,7 @@ public class SwitchModeAction : StateAction
         if (_gunController == null) return;
 
         GunController.GunMode desiredMode = GunController.GunMode.Normal;
-        if (_skillPoints != null && _skillPoints.CurrentSkillPoints >= _skillPoints.MaxSkillPoints)
+        if (_skillPoints.CurrentSkillPoints >= _skillPoints.MaxSkillPoints)
         {
             desiredMode = GunController.GunMode.Special;
         }

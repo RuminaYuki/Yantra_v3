@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(PlayerCameraController), UnlessAnchorField = "_cameraAnchor")]
 [CreateAssetMenu(
     fileName = "LookInputPlayerCamera_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Camera/LookInputPlayerCamera")]

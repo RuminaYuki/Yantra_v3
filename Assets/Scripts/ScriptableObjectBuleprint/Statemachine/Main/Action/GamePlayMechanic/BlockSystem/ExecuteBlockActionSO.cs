@@ -1,6 +1,7 @@
 using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
+[RequiresOwnerComponent(typeof(BlockSystem))]
 [CreateAssetMenu(
     fileName = "ExecuteBlock_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/GamePlayMechanic/BlockSystem/Execute Block")]
@@ -35,9 +36,6 @@ public class ExecuteBlockAction : StateAction
 
     public override void OnStateEnter()
     {
-        if (_blockSystem == null)
-            return;
-
         _blockSystem.ExecuteBlock(_enable);
     }
 
@@ -45,7 +43,7 @@ public class ExecuteBlockAction : StateAction
 
     public override void OnStateExit()
     {
-        if (_blockSystem == null || !_resetValueOnExit)
+        if (!_resetValueOnExit)
             return;
 
         _blockSystem.ExecuteBlock(!_enable);

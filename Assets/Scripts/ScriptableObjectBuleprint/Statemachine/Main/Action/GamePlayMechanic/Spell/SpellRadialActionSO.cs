@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(SpellRadialMenuSelect))]
 [CreateAssetMenu(
     fileName = "SpellRadial_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/GamePlayMechanic/Spell/SpellRadial")]
@@ -23,14 +24,12 @@ public class SpellRadialAction : StateAction
     }
     public override void OnStateEnter()
     {
-        if (_spellRadialMenuSelect == null) return;
         _spellRadialMenuSelect.HandleOpenRadial();
     }
     public override void OnUpdate(){}
 
     public override void OnStateExit()
     {
-        if (_spellRadialMenuSelect == null) return;
         _spellRadialMenuSelect.HandleStateExit();
     }
 }

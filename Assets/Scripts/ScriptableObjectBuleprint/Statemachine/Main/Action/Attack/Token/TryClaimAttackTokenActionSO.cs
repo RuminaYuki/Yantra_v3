@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(AttackTokenUser))]
 [CreateAssetMenu(
     fileName = "TryClaimAttackToken_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Attack/Token/Try Claim Attack Token")]
@@ -24,16 +25,12 @@ public class TryClaimAttackTokenAction : StateAction
 
     public override void OnStateEnter()
     {
-        if (_attackTokenUser != null)
-        {
-            _attackTokenUser.TryClaim();
-        }
+        _attackTokenUser.TryClaim();
     }
 
     public override void OnUpdate()
     {
-        if (_attackTokenUser == null ||
-            _attackTokenUser.HasToken)
+        if (_attackTokenUser.HasToken)
         {
             return;
         }

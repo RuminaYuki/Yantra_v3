@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(LineOfSight))]
 [CreateAssetMenu(
     fileName = "Detect_Condition",
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/LineOfSight/Detect")]
@@ -105,11 +106,6 @@ public class DetectCondition : Condition
     }
     public override void OnStateEnter()
     {
-        if (_lineOfSight == null)
-        {
-            return;
-        }
-
         _lineOfSight.DetectRange = _detectRange;
         _lineOfSight.MinTimeToNotice = _minTimeToNotice;
         _lineOfSight.MaxTimeToNotice = _maxTimeToNotice;
@@ -118,6 +114,6 @@ public class DetectCondition : Condition
     }
     protected override bool Statement()
     {
-        return _lineOfSight != null && _lineOfSight.HasNoticed;
+        return _lineOfSight.HasNoticed;
     }
 }

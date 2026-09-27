@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(BaseLocomotion))]
 [CreateAssetMenu(
     fileName = "SetLocomotionMultiplier_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Locomotion/SetBaseLocomotionValue/Set Locomotion Multiplier")]
@@ -41,9 +42,6 @@ public class SetLocomotionMultiplierAction : StateAction
 
     public override void OnStateEnter()
     {
-        if (_locomotion == null)
-            return;
-
         _previousMultiplier = _locomotion.GetMoveMultiply();
         _locomotion.SetMoveMultiply(_multiplier);
         _isApplied = true;
@@ -53,7 +51,7 @@ public class SetLocomotionMultiplierAction : StateAction
 
     public override void OnStateExit()
     {
-        if (_locomotion == null || !_isApplied)
+        if (!_isApplied)
             return;
 
         // Another concurrent state machine (e.g. a combat state) may have

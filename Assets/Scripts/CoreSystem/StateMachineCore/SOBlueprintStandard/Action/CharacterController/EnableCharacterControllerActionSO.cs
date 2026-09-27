@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(CharacterController))]
 [CreateAssetMenu(
     fileName = "EnableCharacterController_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Standard/CharacterController/Enable Character Controller")]
@@ -36,7 +37,6 @@ public class EnableCharacterControllerAction : StateAction
 
     public override void OnStateEnter()
     {
-        if (characterController == null) return;
         characterController.enabled = value;
     }
 
@@ -44,7 +44,7 @@ public class EnableCharacterControllerAction : StateAction
 
     public override void OnStateExit()
     {
-        if (characterController == null || !resetValueOnExit) return;
+        if (!resetValueOnExit) return;
         characterController.enabled = !value;
     }
 }

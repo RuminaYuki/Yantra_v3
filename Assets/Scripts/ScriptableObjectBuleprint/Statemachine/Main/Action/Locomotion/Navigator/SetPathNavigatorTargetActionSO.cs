@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(PathNavigator))]
 [CreateAssetMenu(
     fileName = "SetPathNavigatorTargetAction",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Locomotion/Navigation/Set Target")]
@@ -67,9 +68,6 @@ public class SetPathNavigatorTargetAction : StateAction
 
     public override void OnStateEnter()
     {
-        if (_pathNavigator == null)
-            return;
-
         if (_targetAnchor == null)
         {
             Debug.LogError("SetPathNavigatorTargetAction has no GameObjectAnchor assigned.");
@@ -93,7 +91,7 @@ public class SetPathNavigatorTargetAction : StateAction
 
     public override void OnUpdate()
     {
-        if (_pathNavigator == null || _targetAnchor == null || !_targetAnchor.IsSet)
+        if (_targetAnchor == null || !_targetAnchor.IsSet)
             return;
 
         _offsetTarget.position = _targetAnchor.Value.transform.TransformPoint(_offset + _randomOffset);

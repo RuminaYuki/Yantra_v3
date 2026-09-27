@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(AttackSphereCast))]
 [CreateAssetMenu(
     fileName = "NewSetADParameter_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Attack/AttackShpereCast/Set Attack Damage Parameter")]
@@ -70,10 +71,7 @@ public class SetAttackDamageParameterAction : StateAction
 
     public override void OnStateEnter()
     {
-        if (_attackSphereCast != null)
-        {
-            _attackSphereCast.SetDamageParameter(_attackParameters, _damageType);
-        }
+        _attackSphereCast.SetDamageParameter(_attackParameters, _damageType);
     }
 
     public override void OnUpdate() { }

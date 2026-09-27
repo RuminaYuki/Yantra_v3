@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(PathNavigator))]
 [CreateAssetMenu(
     fileName = "ReachPathNavigatorTarget_Condition",
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Navigator/Reach Path Navigator Target")]
@@ -67,7 +68,6 @@ public class ReachPathNavigatorTargetCondition : Condition
     protected override bool Statement()
     {
         if (_owner == null ||
-            _pathNavigator == null ||
             _pathNavigator.Target == null)
         {
             return false;

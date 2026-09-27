@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(AttackTokenUser))]
 [CreateAssetMenu(
     fileName = "ReleaseAttackTokenAction",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Attack/Token/Release Attack Token")]
@@ -24,10 +25,7 @@ public class ReleaseAttackTokenAction : StateAction
 
     public override void OnStateEnter()
     {
-        if (_attackTokenUser != null)
-        {
-            _attackTokenUser.Release();
-        }
+        _attackTokenUser.Release();
     }
 
     public override void OnUpdate() { }

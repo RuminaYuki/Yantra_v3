@@ -2,6 +2,8 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(AttackSphereCast))]
+[RequiresOwnerComponent(typeof(SkillPoints))]
 [CreateAssetMenu(
     fileName = "GianSkillOnHitPointAction",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/GamePlayMechanic/SkillPoint/Gian Skill On Hit Point")]
@@ -46,7 +48,6 @@ public class GianSkillOnHitPointAction : StateAction
     }
     public override void OnStateEnter()
     {
-        if (attackSphereCast == null) return;
         attackSphereCast.OnHit += OnHit;
     }
 
@@ -54,12 +55,11 @@ public class GianSkillOnHitPointAction : StateAction
     
     public override void OnStateExit()
     {
-        if (attackSphereCast == null) return;
         attackSphereCast.OnHit -= OnHit;
     }
     
     private void OnHit()
     {
-        skillPoints?.gaint(gianSkillPointAmount);
+        skillPoints.gaint(gianSkillPointAmount);
     }
 }

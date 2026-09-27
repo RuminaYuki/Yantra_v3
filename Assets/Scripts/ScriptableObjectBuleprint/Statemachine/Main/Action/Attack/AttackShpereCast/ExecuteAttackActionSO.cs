@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(AttackSphereCast))]
 [CreateAssetMenu(
     fileName = "ExecuteAttack_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Attack/AttackShpereCast/Execute Attack")]
@@ -58,9 +59,6 @@ public class ExecuteAttackAction : StateAction
 
     public override void OnStateEnter()
     {
-        if (_attackSphereCast == null)
-            return;
-
         _attackSphereCast.TryToExecuteAttack(_attackParameters);
     }
 

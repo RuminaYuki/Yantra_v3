@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(EffectController))]
 [CreateAssetMenu(
     fileName = "SetEffectInputEnabled_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Spell/Set Effect Input Enabled")]
@@ -39,18 +40,12 @@ public class SetEffectInputEnabledAction : StateAction
 
     public override void OnStateEnter()
     {
-        if (effectController != null)
-        {
-            effectController.SetEnabled(enabledOnEnter);
-        }
+        effectController.SetEnabled(enabledOnEnter);
     }
 
     public override void OnStateExit()
     {
-        if (effectController != null)
-        {
-            effectController.SetEnabled(enabledOnExit);
-        }
+        effectController.SetEnabled(enabledOnExit);
     }
 
     public override void OnUpdate()

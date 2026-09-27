@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(BaseLocomotion))]
 [CreateAssetMenu(
     fileName = "ClearMoveDirectionAction",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Locomotion/Clear Move Direction")]
@@ -24,10 +25,7 @@ public class ClearMoveDirectionAction : StateAction
 
     public override void OnStateEnter()
     {
-        if (_locomotion != null)
-        {
-            _locomotion.ClearMovementDirection();
-        }
+        _locomotion.ClearMovementDirection();
     }
 
     public override void OnUpdate() { }

@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(StateFlagsAccess), UnlessAnchorField = "targetAnchor")]
 [CreateAssetMenu(
     fileName = "NewFlag_Condition",
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/Check Flag")]

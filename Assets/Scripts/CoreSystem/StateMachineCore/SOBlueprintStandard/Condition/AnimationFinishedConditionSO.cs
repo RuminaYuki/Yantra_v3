@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(Animator), UnlessAnchorField = "animatorAnchor")]
 [CreateAssetMenu(
     fileName = "NewAnimFin_Condition",
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/Animation Finished")]

@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(ProjectileShooter))]
 [CreateAssetMenu(
     fileName = "SetProjectileConfig_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Attack/Projectile/Set Projectile Config")]
@@ -56,9 +57,6 @@ public class SetProjectileConfigAction : StateAction
 
     public override void OnStateEnter()
     {
-        if (_shooter == null)
-            return;
-
         _shooter.SetBulletConfig(_config);
 
         if (!string.IsNullOrEmpty(_poolTag))
@@ -74,9 +72,6 @@ public class SetProjectileConfigAction : StateAction
 
     private void UpdateTarget()
     {
-        if (_shooter == null)
-            return;
-
         if (_targetAnchor != null && _targetAnchor.IsSet)
             _shooter.SetTarget(_targetAnchor.Value.transform.position);
         else

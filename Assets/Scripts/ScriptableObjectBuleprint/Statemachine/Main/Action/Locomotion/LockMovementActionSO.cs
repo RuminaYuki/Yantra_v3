@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(BaseLocomotion))]
 [CreateAssetMenu(
     fileName = "LockMovementAction",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Locomotion/Lock Movement")]
@@ -32,20 +33,14 @@ public class LockMovementAction : StateAction
 
     public override void OnStateEnter()
     {
-        if (_locomotion != null)
-        {
-            _locomotion.LockLocomotion(
-                this,
-                _resetMoveAnimation);
-        }
+        _locomotion.LockLocomotion(
+            this,
+            _resetMoveAnimation);
     }
 
     public override void OnStateExit()
     {
-        if (_locomotion != null)
-        {
-            _locomotion.UnlockLocomotion(this);
-        }
+        _locomotion.UnlockLocomotion(this);
     }
 
     public override void OnUpdate() { }

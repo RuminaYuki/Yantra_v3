@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(BaseLocomotion))]
 [CreateAssetMenu(
     fileName = "SetSpeedAction",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Locomotion/SetBaseLocomotionValue/SetCurrentSpeed")]
@@ -54,9 +55,6 @@ public class SetCurrentSpeedAction : StateAction
 
     public override void OnStateEnter()
     {
-        if (_locomotion == null)
-            return;
-
         _previousSpeed = _locomotion.CurrentSpeed;
         _locomotion.CurrentSpeed = _speed;
         _isApplied = true;
@@ -64,7 +62,7 @@ public class SetCurrentSpeedAction : StateAction
 
     public override void OnStateExit()
     {
-        if (_locomotion == null || !_isApplied)
+        if (!_isApplied)
             return;
 
         if (_resetOnStateExit)

@@ -1,6 +1,7 @@
 using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
+[RequiresOwnerComponent(typeof(BlockSystem))]
 [CreateAssetMenu(
     fileName = "ExecuteParry_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/GamePlayMechanic/BlockSystem/Execute Parry")]
@@ -35,9 +36,6 @@ public class ExecuteParryAction : StateAction
 
     public override void OnStateEnter()
     {
-        if (_blockSystem == null)
-            return;
-
         _blockSystem.ExecuteParry(_enable);
     }
 
@@ -45,7 +43,7 @@ public class ExecuteParryAction : StateAction
 
     public override void OnStateExit()
     {
-        if (_blockSystem == null || !_resetValueOnExit)
+        if (!_resetValueOnExit)
             return;
 
         _blockSystem.ExecuteParry(!_enable);

@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(BaseLocomotion))]
 [CreateAssetMenu(
     fileName = "FaceTarget_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Locomotion/Navigation/Face Target")]
@@ -37,7 +38,7 @@ public class FaceTargetAction : StateAction
 
     public override void OnUpdate()
     {
-        if (_locomotion == null || _owner == null)
+        if (_owner == null)
             return;
 
         if (_targetAnchor == null || !_targetAnchor.IsSet || _targetAnchor.Value == null)

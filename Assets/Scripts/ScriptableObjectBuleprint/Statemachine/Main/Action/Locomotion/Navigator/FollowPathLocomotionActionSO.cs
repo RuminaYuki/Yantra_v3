@@ -2,6 +2,8 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(PathNavigator))]
+[RequiresOwnerComponent(typeof(BaseLocomotion))]
 [CreateAssetMenu(
     fileName = "FollowPathLocomotion_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Locomotion/Navigation/Follow Path Locomotion")]
@@ -34,9 +36,6 @@ public class FollowPathLocomotionAction : StateAction
 
     public override void OnUpdate()
     {
-        if (_pathNavigator == null || _locomotion == null)
-            return;
-
         Vector3 direction = _pathNavigator.Direction;
         _locomotion.SetMovementDirection(direction);
 
@@ -46,9 +45,6 @@ public class FollowPathLocomotionAction : StateAction
 
     public override void OnStateExit()
     {
-        if (_locomotion != null)
-        {
-            _locomotion.ClearMovementDirection();
-        }
+        _locomotion.ClearMovementDirection();
     }
 }

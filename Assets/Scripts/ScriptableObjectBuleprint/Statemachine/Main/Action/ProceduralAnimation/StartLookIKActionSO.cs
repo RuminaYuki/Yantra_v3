@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(LookAtIKController))]
 [CreateAssetMenu(
     fileName = "StartLookIK_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Procedural Animation/Head IK/Start Look IK")]
@@ -32,9 +33,6 @@ public class StartLookIKAction : StateAction
 
     public override void OnStateEnter()
     {
-        if (_lookAtIK == null)
-            return;
-
         if (_targetAnchor == null)
         {
             Debug.LogError("StartLookIKAction has no GameObjectAnchor assigned.");
@@ -53,9 +51,6 @@ public class StartLookIKAction : StateAction
 
     public override void OnStateExit()
     {
-        if (_lookAtIK == null)
-            return;
-
         _lookAtIK.SetIKEnabled(false);
         _lookAtIK.SetLookTarget(null);
     }

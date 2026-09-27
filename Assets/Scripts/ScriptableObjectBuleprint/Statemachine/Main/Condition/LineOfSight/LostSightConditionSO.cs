@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(LineOfSight))]
 [CreateAssetMenu(
     fileName = "LostSight_Condition",
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/LineOfSight/Lost Sight")]
@@ -48,6 +49,6 @@ public class LostSightCondition : Condition
 
     protected override bool Statement()
     {
-        return _lineOfSight != null && _lineOfSight.TimeSinceLastSeen >= _loseSightDuration;
+        return _lineOfSight.TimeSinceLastSeen >= _loseSightDuration;
     }
 }

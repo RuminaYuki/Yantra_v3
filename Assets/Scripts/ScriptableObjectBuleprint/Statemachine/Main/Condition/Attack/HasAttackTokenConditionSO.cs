@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(AttackTokenUser))]
 [CreateAssetMenu(
     fileName = "HasAttackTokenCondition",
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Attack/Attack Token/Has Attack Token")]
@@ -24,7 +25,6 @@ public class HasAttackTokenCondition : Condition
 
     protected override bool Statement()
     {
-        return _attackTokenUser != null &&
-               _attackTokenUser.HasToken;
+        return _attackTokenUser.HasToken;
     }
 }

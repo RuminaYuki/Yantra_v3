@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(Transform))]
 [CreateAssetMenu(
     fileName = "NewRange_Condition",
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/Distance")]
@@ -55,8 +56,7 @@ public class DistanceCondition : Condition
 
     protected override bool Statement()
     {
-        if (_owner == null ||
-            _targetAnchor == null ||
+        if (_targetAnchor == null ||
             !_targetAnchor.IsSet ||
             _targetAnchor.Value == null)
         {

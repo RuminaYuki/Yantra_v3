@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(BaseLocomotion))]
 [CreateAssetMenu(
     fileName = "SetTurnSmoothSpeedAction",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Locomotion/SetBaseLocomotionValue/Set Turn Smooth Speed")]
@@ -41,9 +42,6 @@ public class SetRotateSmoothSpeedAction : StateAction
 
     public override void OnStateEnter()
     {
-        if (_locomotion == null)
-            return;
-
         _previousRotateSmoothSpeed =
             _locomotion.GetRotateSmoothSpeed();
         _locomotion.SetRotateSmoothSpeed(_rotateSmoothSpeed);
@@ -52,7 +50,7 @@ public class SetRotateSmoothSpeedAction : StateAction
 
     public override void OnStateExit()
     {
-        if (_locomotion == null || !_isApplied)
+        if (!_isApplied)
             return;
 
         if (_resetOnStateExit)

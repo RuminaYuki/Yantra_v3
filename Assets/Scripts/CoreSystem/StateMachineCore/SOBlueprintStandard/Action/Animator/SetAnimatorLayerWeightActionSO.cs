@@ -3,6 +3,8 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(Animator))]
+[RequiresOwnerComponent(typeof(StateMachineController))]
 [CreateAssetMenu(
     fileName = "NewSetAnimatorLayerWeightAction",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Animator/Set Layer Weight")]
@@ -100,7 +102,7 @@ public class SetAnimatorLayerWeightAction : StateAction
 
     private void StartWeightLerp(float targetWeight, float duration)
     {
-        if (_animator == null || _coroutineRunner == null || _layerIndex < 0)
+        if (_layerIndex < 0)
         {
             return;
         }

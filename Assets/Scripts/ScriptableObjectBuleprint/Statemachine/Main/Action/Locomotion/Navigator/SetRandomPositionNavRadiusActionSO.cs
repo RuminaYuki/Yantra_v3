@@ -2,6 +2,9 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(PathNavigator))]
+[RequiresOwnerComponent(typeof(RandomWalkPoint))]
+[RequiresOwnerComponent(typeof(WaypointPath))]
 [CreateAssetMenu(
     fileName = "SetRandomPositionNavRadius_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Locomotion/Navigation/Set Random Position (Nav Radius)")]
@@ -90,9 +93,6 @@ public class SetRandomPositionNavRadiusAction : StateAction
 
     public override void OnStateEnter()
     {
-        if (_pathNavigator == null || _randomWalkPoint == null)
-            return;
-
         _pathNavigator.ClearTarget();
 
         if (!TryGetTarget(out Transform target))
@@ -131,7 +131,7 @@ public class SetRandomPositionNavRadiusAction : StateAction
 
     public override void OnStateExit()
     {
-        if (_pathNavigator != null && _pathNavigator.Target == _destination)
+        if (_pathNavigator.Target == _destination)
             _pathNavigator.ClearTarget();
     }
 
