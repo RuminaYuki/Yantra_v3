@@ -27,30 +27,7 @@ public class TryShootingAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        if (_gunAnchor != null)
-        {
-            if (_gunAnchor.Value == null)
-            {
-                Debug.LogWarning(
-                    $"{_gunAnchor.name} has not been provided a value yet; TryShootingAction cannot resolve a GunController."
-                );
-                return;
-            }
-            _gunController = _gunAnchor.Value.gameObject.GetComponent<GunController>();
-            if (_gunController == null)
-            {
-                Debug.LogWarning(
-                    $"GunController component was not found on the GameObject referenced by {_gunAnchor.name}."
-                );
-            }
-            return;
-        }
-        _gunController = stateMachine.GetComponent<GunController>();
-
-        if (_gunController == null)
-            Debug.LogError(
-                "TryShootingAction requires GunController.",
-                stateMachine.Owner);
+         _gunAnchor.TryGetComponentOrOwner(stateMachine, out _gunController, this);
     }
 
     public override void OnStateEnter()

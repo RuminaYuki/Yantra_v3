@@ -25,25 +25,7 @@ public class SpellDrawAction : StateAction
     }
     public override void Awake(StateMachine stateMachine)
     {
-        if (_spellDrawAnchor != null)
-        {
-            if (_spellDrawAnchor.Value == null)
-            {
-                Debug.LogWarning(
-                    $"{_spellDrawAnchor.name} has not been provided a value yet; SpellDrawAction cannot resolve a SpellController."
-                );
-                return;
-            }
-            _spellController = _spellDrawAnchor.Value.gameObject.GetComponent<SpellController>();
-            if (_spellController == null)
-            {
-                Debug.LogWarning(
-                    $"SpellController component was not found on the GameObject referenced by {_spellDrawAnchor.name}."
-                );
-            }
-            return;
-        }
-        _spellController = stateMachine.GetComponent<SpellController>();
+        _spellDrawAnchor.TryGetComponentOrOwner(stateMachine, out _spellController, this);
     }
     public override void OnStateEnter()
     {

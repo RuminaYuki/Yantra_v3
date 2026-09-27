@@ -33,10 +33,30 @@ namespace Yuki.Learning.StateMachine
                 : throw new ArgumentNullException(nameof(owner));
         }
 
+        // Delete Later
         public T GetComponent<T>() where T : Component
         {
             return _owner.GetComponent<T>();
         }
+
+        /// <summary>
+        /// Gets a required component from the owner. Logs an error and returns false if it's missing.
+        /// Pass <c>this</c> as <paramref name="requester"/>. For optional components use <c>Owner.TryGetComponent</c>.
+        /// </summary>
+
+        public bool TryGetRequired<T>(out T component, object requester) where T : Component
+        {
+            if (_owner.TryGetComponent(out component))
+            {
+                return true;
+            }
+
+            Debug.LogError(
+                $"[{requester.GetType().Name}] needs {typeof(T).Name} on '{_owner.name}'.",
+                _owner);
+            return false;
+        }
+
 
         public void RegisterCondition(Condition condition)
         {

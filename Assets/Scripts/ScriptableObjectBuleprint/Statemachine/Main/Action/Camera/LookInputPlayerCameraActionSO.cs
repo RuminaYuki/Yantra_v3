@@ -25,25 +25,7 @@ public class LookInputPlayerCameraAction : StateAction
     }
     public override void Awake(StateMachine stateMachine)
     {
-        if (_cameraAnchor != null)
-        {
-            if (_cameraAnchor.Value == null)
-            {
-                Debug.LogWarning(
-                    $"{_cameraAnchor.name} has not been provided a value yet; LookInputPlayerCameraAction cannot resolve a PlayerCameraController."
-                );
-                return;
-            }
-            _playerCameraController = _cameraAnchor.Value.gameObject.GetComponent<PlayerCameraController>();
-            if (_playerCameraController == null)
-            {
-                Debug.LogWarning(
-                    $"PlayerCameraController component was not found on the GameObject referenced by {_cameraAnchor.name}."
-                );
-            }
-            return;
-        }
-        _playerCameraController = stateMachine.GetComponent<PlayerCameraController>();
+        _cameraAnchor.TryGetComponentOrOwner(stateMachine, out _playerCameraController, this);
     }
     public override void OnStateEnter()
     {

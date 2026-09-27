@@ -28,32 +28,8 @@ public class SwitchModeAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        _skillPoints = stateMachine.GetComponent<SkillPoints>();
-
-        if (_gunAnchor != null)
-        {
-            if (_gunAnchor.Value == null)
-            {
-                Debug.LogWarning(
-                    $"{_gunAnchor.name} has not been provided a value yet; SwitchModeAction cannot resolve a GunController."
-                );
-                return;
-            }
-            _gunController = _gunAnchor.Value.gameObject.GetComponent<GunController>();
-            if (_gunController == null)
-            {
-                Debug.LogWarning(
-                    $"GunController component was not found on the GameObject referenced by {_gunAnchor.name}."
-                );
-            }
-            return;
-        }
-        _gunController = stateMachine.GetComponent<GunController>();
-
-        if (_gunController == null)
-            Debug.LogError(
-                "SwitchModeAction requires GunController.",
-                stateMachine.Owner);
+        stateMachine.TryGetRequired(out _skillPoints, this);
+        _gunAnchor.TryGetComponentOrOwner(stateMachine, out _gunController, this);
     }
 
     public override void OnStateEnter()
