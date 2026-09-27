@@ -19,7 +19,18 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
         [SerializeField]
         private TransitionItem[] _transitions =
             Array.Empty<TransitionItem>();
-        
+
+        // Graph editor layout only (StateMachineGraphWindow). Not used at runtime.
+        [SerializeField, HideInInspector]
+        private NodePosition[] _nodePositions =
+            Array.Empty<NodePosition>();
+
+        [SerializeField, HideInInspector]
+        private Vector2 _entryNodePosition = new Vector2(0f, 0f);
+
+        [SerializeField, HideInInspector]
+        private Vector2 _anyStateNodePosition = new Vector2(0f, 120f);
+
         public State CreateInitialState(StateMachine stateMachine)
         {
             return CreateInitialState(stateMachine, out _);
@@ -325,6 +336,13 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
         public struct ConditionGroupUsage
         {
             public ConditionUsage[] Conditions;
+        }
+
+        [Serializable]
+        public struct NodePosition
+        {
+            public StateSO State;
+            public Vector2 Position;
         }
     }
 }
