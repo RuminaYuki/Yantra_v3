@@ -1,120 +1,123 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-[RequireComponent(typeof(CenterRayInteract))]
-public class PlayerInteract : MonoBehaviour
+namespace SDFcl.GamePlay.Interactable
 {
-    [SerializeField] private InputActionReference inputAction;
-    [SerializeField] private CenterRayInteract rayInteract;
-    [SerializeField] private GameObject rootPlayer;
-
-    [SerializeField] private bool isHoldingInteraction = false;
-    private Iinteractor activeInteraction;
-    private InputAction subscribedAction;
-
-    private void Awake()
+    [RequireComponent(typeof(CenterRayInteract))]
+    public class PlayerInteract : MonoBehaviour
     {
-        rayInteract = GetComponent<CenterRayInteract>();
-        if (inputAction == null)
+        [SerializeField] private InputActionReference inputAction;
+        [SerializeField] private CenterRayInteract rayInteract;
+        [SerializeField] private GameObject rootPlayer;
+
+        [SerializeField] private bool isHoldingInteraction = false;
+        private Iinteractor activeInteraction;
+        private InputAction subscribedAction;
+
+        private void Awake()
         {
-            Debug.LogError("Input Action Reference is not assigned.");
-            enabled = false;
-            rayInteract.enabled = false;
-            return;
-        }
-    }
-
-    private void OnEnable()
-    {
-        SubscribeInput();
-    }
-
-    private void OnDisable()
-    {
-        UnsubscribeInput();
-        ResetInteractionState();
-    }
-
-    private void OnDestroy()
-    {
-        UnsubscribeInput();
-    }
-
-    private void SubscribeInput()
-    {
-        if (inputAction == null || inputAction.action == null)
-            return;
-
-        if (subscribedAction == inputAction.action)
-            return;
-
-        UnsubscribeInput();
-        subscribedAction = inputAction.action;
-        subscribedAction.started += HandleInteractInput;
-    }
-
-    private void UnsubscribeInput()
-    {
-        if (subscribedAction == null)
-            return;
-
-        subscribedAction.started -= HandleInteractInput;
-        subscribedAction = null;
-    }
-
-    private void HandleInteractInput(InputAction.CallbackContext context)
-    {
-        if (!context.started)
-            return;
-
-        if (rayInteract == null || rootPlayer == null)
-            return;
-
-        if (isHoldingInteraction)
-        {
-            isHoldingInteraction = false;
-            rayInteract.SetInteractEnabled(true);
-
-            if (IsAlive(activeInteraction))
+            rayInteract = GetComponent<CenterRayInteract>();
+            if (inputAction == null)
             {
-                activeInteraction.CancelInteraction(rootPlayer);
+                Debug.LogError("Input Action Reference is not assigned.");
+                enabled = false;
+                rayInteract.enabled = false;
+                return;
+            }
+        }
+
+        private void OnEnable()
+        {
+            SubscribeInput();
+        }
+
+        private void OnDisable()
+        {
+            UnsubscribeInput();
+            ResetInteractionState();
+        }
+
+        private void OnDestroy()
+        {
+            UnsubscribeInput();
+        }
+
+        private void SubscribeInput()
+        {
+            if (inputAction == null || inputAction.action == null)
+                return;
+
+            if (subscribedAction == inputAction.action)
+                return;
+
+            UnsubscribeInput();
+            subscribedAction = inputAction.action;
+            subscribedAction.started += HandleInteractInput;
+        }
+
+        private void UnsubscribeInput()
+        {
+            if (subscribedAction == null)
+                return;
+
+            subscribedAction.started -= HandleInteractInput;
+            subscribedAction = null;
+        }
+
+        private void HandleInteractInput(InputAction.CallbackContext context)
+        {
+            if (!context.started)
+                return;
+
+            if (rayInteract == null || rootPlayer == null)
+                return;
+
+            if (isHoldingInteraction)
+            {
+                isHoldingInteraction = false;
+                rayInteract.SetInteractEnabled(true);
+
+                if (IsAlive(activeInteraction))
+                {
+                    activeInteraction.CancelInteraction(rootPlayer);
+                }
+
+                activeInteraction = null;
+
+                return;
             }
 
+            Iinteractor targetInteractable = rayInteract.CurrentInteractable;
+            if (!IsAlive(targetInteractable) || !targetInteractable.CanInteract)
+                return;
+
+            if (!targetInteractable.HoldInteract)
+            {
+                targetInteractable.Interact(rootPlayer);
+                return;
+            }
+
+            if (targetInteractable.Interact(rootPlayer))
+            {
+                activeInteraction = targetInteractable;
+                isHoldingInteraction = true;
+                rayInteract.SetInteractEnabled(false);
+                rayInteract.StopHighlightingAll();
+            }
+        }
+
+        private void ResetInteractionState()
+        {
+            isHoldingInteraction = false;
             activeInteraction = null;
 
-            return;
+            if (rayInteract != null)
+                rayInteract.SetInteractEnabled(true);
         }
 
-        Iinteractor targetInteractable = rayInteract.CurrentInteractable;
-        if (!IsAlive(targetInteractable) || !targetInteractable.CanInteract)
-            return;
-
-        if (!targetInteractable.HoldInteract)
+        private static bool IsAlive(Iinteractor interactable)
         {
-            targetInteractable.Interact(rootPlayer);
-            return;
+            return interactable is MonoBehaviour target && target != null;
         }
-
-        if (targetInteractable.Interact(rootPlayer))
-        {
-            activeInteraction = targetInteractable;
-            isHoldingInteraction = true;
-            rayInteract.SetInteractEnabled(false);
-            rayInteract.StopHighlightingAll();
-        }
-    }
-
-    private void ResetInteractionState()
-    {
-        isHoldingInteraction = false;
-        activeInteraction = null;
-
-        if (rayInteract != null)
-            rayInteract.SetInteractEnabled(true);
-    }
-
-    private static bool IsAlive(Iinteractor interactable)
-    {
-        return interactable is MonoBehaviour target && target != null;
     }
 }

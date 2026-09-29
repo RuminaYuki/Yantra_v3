@@ -1,27 +1,30 @@
 using UnityEngine;
 using UnityEngine.Events;
 
-public class InteractorEvent : MonoBehaviour
+namespace SDFcl.GamePlay.Interactable
 {
-    [SerializeField] UnityEvent<GameObject> OnInteract;
-    [SerializeField] UnityEvent<GameObject> OnEndInteract;
-
-    Iinteractor interactor;
-
-    private void Awake() => interactor = GetComponent<Iinteractor>();
-
-    private void OnEnable()
+    public class InteractorEvent : MonoBehaviour
     {
-        interactor.OnInteract += HandleEnter;
-        interactor.OnEndInteract += HandleExit;
-    }
+        [SerializeField] UnityEvent<GameObject> OnInteract;
+        [SerializeField] UnityEvent<GameObject> OnEndInteract;
 
-    private void OnDisable()
-    {
-        interactor.OnInteract -= HandleEnter;
-        interactor.OnEndInteract -= HandleExit;
-    }
+        Iinteractor interactor;
 
-    private void HandleEnter(GameObject who) => OnInteract?.Invoke(who);
-    private void HandleExit(GameObject who) => OnEndInteract?.Invoke(who);
+        private void Awake() => interactor = GetComponent<Iinteractor>();
+
+        private void OnEnable()
+        {
+            interactor.OnInteract += HandleEnter;
+            interactor.OnEndInteract += HandleExit;
+        }
+
+        private void OnDisable()
+        {
+            interactor.OnInteract -= HandleEnter;
+            interactor.OnEndInteract -= HandleExit;
+        }
+
+        private void HandleEnter(GameObject who) => OnInteract?.Invoke(who);
+        private void HandleExit(GameObject who) => OnEndInteract?.Invoke(who);
+    }
 }

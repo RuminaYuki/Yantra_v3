@@ -1,20 +1,23 @@
 using UnityEngine;
 
-public class ButtonInteractor : BaseInteractor
+namespace SDFcl.GamePlay.Interactable
 {
-    public override bool Interact(GameObject rootplayer)
+    public class ButtonInteractor : BaseInteractor
     {
-        if (!base.Interact(rootplayer)) return false;
+        public override bool Interact(GameObject rootplayer)
+        {
+            if (!base.Interact(rootplayer)) return false;
 
-        Debug.Log("Button Down");
+            Debug.Log("Button Down");
 
-        CancelInteraction(rootplayer);
+            CancelInteraction(rootplayer);
 
-        return true;
-    }
+            return true;
+        }
 
-    public override bool CancelInteraction(GameObject rootplayer)
-    {
-        return base.CancelInteraction(rootplayer);
+        public override bool CancelInteraction(GameObject rootplayer)
+        {
+            return base.CancelInteraction(rootplayer);
+        }
     }
 }
