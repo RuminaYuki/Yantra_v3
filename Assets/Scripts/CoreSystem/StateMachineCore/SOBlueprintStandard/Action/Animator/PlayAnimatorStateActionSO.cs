@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [RequiresOwnerComponent(typeof(Animator), UnlessAnchorField = "targetAnchor")]
 [CreateAssetMenu(
-    fileName = "PlayAnimatorState_Action",
+    fileName = "NewPlayAnimState_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Standard/Animator/PlayAnimatorState")]
 public class PlayAnimatorStateActionSO : StateActionSO
 {

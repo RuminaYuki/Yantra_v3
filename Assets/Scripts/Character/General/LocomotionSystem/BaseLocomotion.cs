@@ -91,10 +91,8 @@ public class BaseLocomotion : MonoBehaviour,ILocomotionLock,IRootMotionControl
         _facingDirection = direction.normalized;
     }
 
-    public void ClearMovementDirection()
-    {
-        _movementDirection = Vector3.zero;
-    }
+    public void ClearMovementDirection() => _movementDirection = Vector3.zero;
+    public void ClearFacingDirection() => _facingDirection = Vector3.zero;
 
     public void LockLocomotion(object owner,bool resetMoveAnimation = true)
     {

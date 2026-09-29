@@ -37,7 +37,10 @@ public class MovementStuckCondition : Condition
 
     private Transform _owner;
     private Vector3 _windowStartPosition;
-    private float _windowElapsed;
+
+    // A timestamp, not a per-frame sum: Statement() isn't called every frame
+    // (transitions stop at the first failing condition), so summing deltaTime there runs slow.
+    private float _windowStartTime;
 
     public float StuckTimer { get; private set; }
 
@@ -51,6 +54,7 @@ public class MovementStuckCondition : Condition
     {
         _owner = stateMachine.Owner.transform;
         _windowStartPosition = _owner.position;
+        _windowStartTime = Time.time;
     }
 
     public override void OnStateEnter()
@@ -59,7 +63,7 @@ public class MovementStuckCondition : Condition
         {
             _windowStartPosition = _owner.position;
         }
-        _windowElapsed = 0f;
+        _windowStartTime = Time.time;
         StuckTimer = 0f;
     }
 
@@ -70,23 +74,23 @@ public class MovementStuckCondition : Condition
             return false;
         }
 
-        _windowElapsed += Time.deltaTime;
+        float windowElapsed = Time.time - _windowStartTime;
 
         Vector3 totalDelta = _owner.position - _windowStartPosition;
         totalDelta.y = 0f;
 
-        float averageSpeed = totalDelta.magnitude / Mathf.Max(_windowElapsed, 0.0001f);
+        float averageSpeed = totalDelta.magnitude / Mathf.Max(windowElapsed, 0.0001f);
 
         if (averageSpeed < _minMoveSpeed)
         {
-            StuckTimer = _windowElapsed;
+            StuckTimer = windowElapsed;
         }
         else
         {
             // Moved too far this window - restart the window from here instead of the raw per-frame speed,
             // so a single jittery frame (collision push, rotation offset) doesn't reset progress to 0.
             _windowStartPosition = _owner.position;
-            _windowElapsed = 0f;
+            _windowStartTime = Time.time;
             StuckTimer = 0f;
         }
 

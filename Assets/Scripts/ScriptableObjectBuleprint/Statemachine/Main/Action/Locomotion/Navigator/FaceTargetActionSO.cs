@@ -9,22 +9,26 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 public class FaceTargetActionSO : StateActionSO
 {
     [SerializeField] private GameObjectAnchor _targetAnchor;
+    [SerializeField] private float _rotateSpeed = 1f;
 
     public override StateAction CreateAction(StateMachine stateMachine)
     {
-        return new FaceTargetAction(_targetAnchor);
+        return new FaceTargetAction(_targetAnchor,_rotateSpeed);
     }
 }
 
 public class FaceTargetAction : StateAction
 {
     private readonly GameObjectAnchor _targetAnchor;
+    private readonly float _rotateSpeed;
     private BaseLocomotion _locomotion;
+    private float _previousRotateSpeed;
     private Transform _owner;
 
-    public FaceTargetAction(GameObjectAnchor targetAnchor)
+    public FaceTargetAction(GameObjectAnchor targetAnchor, float rotateSpeed)
     {
         _targetAnchor = targetAnchor;
+        _rotateSpeed = rotateSpeed;
     }
 
     public override void Awake(StateMachine stateMachine)
@@ -34,6 +38,12 @@ public class FaceTargetAction : StateAction
 
         if (_targetAnchor == null)
             Debug.LogError("FaceTargetAction has no target GameObjectAnchor assigned.");
+    }
+
+    public override void OnStateEnter()
+    {
+        _previousRotateSpeed = _locomotion.GetRotateSmoothSpeed();
+        _locomotion.SetRotateSmoothSpeed(_rotateSpeed);
     }
 
     public override void OnUpdate()
@@ -47,4 +57,11 @@ public class FaceTargetAction : StateAction
         Vector3 direction = _targetAnchor.Value.transform.position - _owner.position;
         _locomotion.SetFacingDirection(direction);
     }
+
+    public override void OnStateExit()
+    {
+        _locomotion.SetRotateSmoothSpeed(_previousRotateSpeed);
+        _locomotion.ClearFacingDirection();
+    }
+
 }

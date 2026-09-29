@@ -50,7 +50,10 @@ public class AnimationFinishedCondition : Condition
     private readonly float finishTime;
     private readonly float extraSeconds;
     private Animator animator;
-    private float extraTimeElapsed;
+    // When the animation was first seen finished, or null while it isn't.
+    // A timestamp, not a per-frame sum: Statement() isn't called every frame
+    // (transitions stop at the first failing condition), so summing deltaTime there runs slow.
+    private float? finishedSince;
     private int? capturedStateHash;
 
     public AnimationFinishedCondition(
@@ -74,7 +77,7 @@ public class AnimationFinishedCondition : Condition
 
     public override void OnStateEnter()
     {
-        extraTimeElapsed = 0f;
+        finishedSince = null;
 
         // Force a fresh capture next Statement() check instead of comparing
         // against whatever this condition happened to watch the last time it
@@ -109,7 +112,7 @@ public class AnimationFinishedCondition : Condition
                 // (Re)lock onto whatever is playing now and wait for the
                 // next check before trusting its normalizedTime.
                 capturedStateHash = currentHash;
-                extraTimeElapsed = 0f;
+                finishedSince = null;
                 return false;
             }
 
@@ -126,13 +129,13 @@ public class AnimationFinishedCondition : Condition
 
         if (!animationReachedFinishTime)
         {
-            extraTimeElapsed = 0f;
+            finishedSince = null;
             return false;
         }
 
         if (extraSeconds <= 0f) return true;
 
-        extraTimeElapsed += Time.deltaTime;
-        return extraTimeElapsed >= extraSeconds;
+        finishedSince ??= Time.time;
+        return Time.time - finishedSince.Value >= extraSeconds;
     }
 }

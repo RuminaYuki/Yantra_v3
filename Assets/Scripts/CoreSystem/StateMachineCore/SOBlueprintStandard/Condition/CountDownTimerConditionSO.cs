@@ -61,10 +61,11 @@ public class CountDownTimerCondition : Condition
     private readonly float _minDuration;
     private readonly float _maxDuration;
 
-    
-    private float _elapsed;
+    // A timestamp, not a per-frame sum: Statement() isn't called every frame
+    // (transitions stop at the first failing condition), so summing deltaTime there runs slow.
+    private float _startTime;
     public float Duration { get; private set; }
-    public float Remaining => Mathf.Max(0f, Duration - _elapsed);
+    public float Remaining => Mathf.Max(0f, Duration - (Time.time - _startTime));
 
     public CountDownTimerCondition(float minDuration, float maxDuration)
     {
@@ -78,13 +79,11 @@ public class CountDownTimerCondition : Condition
             ? Random.Range(_minDuration, _maxDuration)
             : _minDuration;
 
-        _elapsed = 0f;
+        _startTime = Time.time;
     }
 
     protected override bool Statement()
     {
-        _elapsed += Time.deltaTime;
-
-        return _elapsed >= Duration;
+        return Time.time - _startTime >= Duration;
     }
 }
