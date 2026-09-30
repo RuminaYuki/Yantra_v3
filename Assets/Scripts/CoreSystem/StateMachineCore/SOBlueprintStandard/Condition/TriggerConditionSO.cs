@@ -31,26 +31,37 @@ public class TriggerConditionSO : StateConditionSO
     }
 }
 
+// A trigger is true for exactly one state machine update (the one right after Trigger()),
+// however many transitions read it and in whatever order. It isn't used up by reading,
+// so a transition that doesn't fire can't swallow it, and it can't linger for later.
 public class TriggerCondition : Condition
 {
     private readonly TriggerConditionSO _owner;
-    private bool _wasTriggered;
+    private bool _pending;   // triggered, waiting for the next update
+    private bool _active;    // true during this update
 
     public TriggerCondition(TriggerConditionSO owner)
     {
         _owner = owner;
     }
 
-    public void SetTriggered() => _wasTriggered = true;
+    public void SetTriggered() => _pending = true;
 
-    public override void OnStateEnter() => _wasTriggered = false;
-
-    protected override bool Statement()
+    // A trigger from before this state doesn't count.
+    public override void OnStateEnter()
     {
-        bool result = _wasTriggered;
-        _wasTriggered = false;
-        return result;
+        _pending = false;
+        _active = false;
     }
+
+    // Start of every update: last update's trigger expires, a new one becomes visible.
+    protected override void OnTick()
+    {
+        _active = _pending;
+        _pending = false;
+    }
+
+    protected override bool Statement() => _active;
 
     public override void Dispose() => _owner.Unregister(this);
 }

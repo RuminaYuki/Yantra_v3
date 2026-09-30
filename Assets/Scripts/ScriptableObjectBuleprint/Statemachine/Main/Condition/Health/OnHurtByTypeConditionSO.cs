@@ -15,11 +15,14 @@ public class OnHurtByTypeConditionSO : StateConditionSO
         return new OnHurtByTypeCondition(damageTypeID);
     }
 }
+// Same as OnHurtCondition, but only for one damage type: a matching hit is true for
+// exactly one state machine update, not used up by reading and never lingering.
 public class OnHurtByTypeCondition : Condition
 {
     private readonly DamageTypeID damageTypeID;
     private Health _health;
-    private bool _wasRaised;
+    private bool _pending;   // matching hit happened, waiting for the next update
+    private bool _active;    // true during this update
 
     public OnHurtByTypeCondition(DamageTypeID damageTypeID)
     {
@@ -38,27 +41,32 @@ public class OnHurtByTypeCondition : Condition
 
     public override void OnStateEnter()
     {
-        _wasRaised = false;
+        // A hit from before this state (e.g. the one that got us here) doesn't count.
+        _pending = false;
+        _active = false;
+    }
+
+    // Start of every update: last update's hit expires, a new one becomes visible.
+    protected override void OnTick()
+    {
+        _active = _pending;
+        _pending = false;
     }
 
     protected override bool Statement()
     {
-        bool result = _wasRaised;
-        _wasRaised = false;
-        return result;
+        return _active;
     }
 
     public override void Dispose()
     {
         if (_health != null)
             _health.OnHurtDamageType -= HandleHurt;
-
-        _wasRaised = false;
     }
 
     private void HandleHurt(DamageTypeID damageTypeID)
     {
-        if(this.damageTypeID == damageTypeID)
-        _wasRaised = true;
+        if (this.damageTypeID == damageTypeID)
+            _pending = true;
     }
 }

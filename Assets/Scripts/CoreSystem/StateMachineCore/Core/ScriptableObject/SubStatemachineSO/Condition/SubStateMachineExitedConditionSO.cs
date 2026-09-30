@@ -38,11 +38,13 @@ public class SubStateMachineExitedCondition : Condition
         _exitReceived = false;
     }
 
+    // "The child has exited" is a state, not a one-off event: once the child machine has
+    // exited it sends nothing more, so reading must not clear it, or a transition that
+    // reads it but doesn't fire would leave this state stuck forever.
+    // Cleared only in OnStateEnter, when the child machine is started again.
     protected override bool Statement()
     {
-        bool result = _exitReceived;
-        _exitReceived = false;
-        return result;
+        return _exitReceived;
     }
 
     public override void Dispose()

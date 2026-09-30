@@ -92,5 +92,27 @@ namespace Yuki.Learning.StateMachine
                 }
             }
         }
+        
+        public void TickConditions()
+        {
+            if (_conditionGroups == null)
+            {
+                return;
+            }
+
+            foreach (StateCondition[] group in _conditionGroups)
+            {
+                if (group == null)
+                {
+                    continue;
+                }
+
+                foreach (StateCondition condition in group)
+                {
+                    condition.Tick();
+                }
+            }
+        }
+
     }
 }

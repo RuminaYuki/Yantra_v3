@@ -14,15 +14,17 @@ public class OnHurtConditionSO : StateConditionSO
     }
 }
 
+// A hit is true for exactly one state machine update (the one right after it happened),
+// however many transitions read it and in whatever order. It isn't used up by reading,
+// so a transition that doesn't fire can't swallow it, and it can't linger for later.
 public class OnHurtCondition : Condition
 {
-    private GameObject _owner;
     private Health _health;
-    private bool _wasRaised;
+    private bool _pending;   // hit happened, waiting for the next update
+    private bool _active;    // true during this update
 
     public override void Awake(StateMachine stateMachine)
     {
-        _owner = stateMachine.Owner;
         if (!stateMachine.TryGetRequired(out _health, this))
         {
             return;
@@ -33,26 +35,31 @@ public class OnHurtCondition : Condition
 
     public override void OnStateEnter()
     {
-        _wasRaised = false;
+        // A hit from before this state (e.g. the one that got us here) doesn't count.
+        _pending = false;
+        _active = false;
+    }
+
+    // Start of every update: last update's hit expires, a new one becomes visible.
+    protected override void OnTick()
+    {
+        _active = _pending;
+        _pending = false;
     }
 
     protected override bool Statement()
     {
-        bool result = _wasRaised;
-        _wasRaised = false;
-        return result;
+        return _active;
     }
 
     public override void Dispose()
     {
         if (_health != null)
             _health.OnHurt -= HandleHurt;
-
-        _wasRaised = false;
     }
 
     private void HandleHurt()
     {
-        _wasRaised = true;
+        _pending = true;
     }
 }

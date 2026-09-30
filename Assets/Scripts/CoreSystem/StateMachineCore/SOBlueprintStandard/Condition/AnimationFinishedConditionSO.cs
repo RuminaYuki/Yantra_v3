@@ -87,11 +87,13 @@ public class AnimationFinishedCondition : Condition
         capturedStateHash = null;
     }
 
-    protected override bool Statement()
+        // Watches the Animator every frame (see Condition.OnTick), so the moment the animation
+    // finishes is recorded on time, even on frames when Statement() is skipped.
+    protected override void OnTick()
     {
-        if (animator == null) return false;
-        if (layerIndex < 0 || layerIndex >= animator.layerCount) return false;
-        if (animator.IsInTransition(layerIndex)) return false;
+        if (animator == null) return;
+        if (layerIndex < 0 || layerIndex >= animator.layerCount) return;
+        if (animator.IsInTransition(layerIndex)) return;
 
         bool autoDetectState = string.IsNullOrWhiteSpace(stateName);
 
@@ -106,14 +108,14 @@ public class AnimationFinishedCondition : Condition
 
             if (capturedStateHash != currentHash)
             {
-                // Either the first check ever, or the Animator has moved on
+                // Either the first look ever, or the Animator has moved on
                 // to a different state since we last looked (a new clip
                 // started, or Play()/CrossFade() only just took effect).
                 // (Re)lock onto whatever is playing now and wait for the
-                // next check before trusting its normalizedTime.
+                // next frame before trusting its normalizedTime.
                 capturedStateHash = currentHash;
                 finishedSince = null;
-                return false;
+                return;
             }
 
             isWatchedState = true;
@@ -130,12 +132,15 @@ public class AnimationFinishedCondition : Condition
         if (!animationReachedFinishTime)
         {
             finishedSince = null;
-            return false;
+            return;
         }
 
-        if (extraSeconds <= 0f) return true;
-
         finishedSince ??= Time.time;
-        return Time.time - finishedSince.Value >= extraSeconds;
+    }
+
+    protected override bool Statement()
+    {
+        return finishedSince.HasValue &&
+               Time.time - finishedSince.Value >= extraSeconds;
     }
 }

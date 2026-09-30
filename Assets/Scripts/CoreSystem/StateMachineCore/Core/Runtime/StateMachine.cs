@@ -100,6 +100,8 @@ namespace Yuki.Learning.StateMachine
                 return;
             }
 
+            TickConditions();
+
             if (TryGetNextState(out State nextState))
             {
                 ChangeState(nextState);
@@ -252,6 +254,15 @@ namespace Yuki.Learning.StateMachine
             _currentState?.OnStateExit();
             _currentState = null;
             Exited?.Invoke(exitId);
+        }
+        private void TickConditions()
+        {
+            foreach (StateTransition transition in _anyTransitions)
+            {
+                transition?.TickConditions();
+            }
+
+            _currentState.TickConditions();
         }
 
         private bool TryGetNextState(out State nextState)

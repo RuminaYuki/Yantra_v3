@@ -203,7 +203,9 @@ public class StateMachineFolderClonerWindow : EditorWindow
         SerializedProperty property = serializedObject.GetIterator();
         bool enterChildren = true;
 
-        while (property.NextVisible(enterChildren))
+        // Next, not NextVisible: [HideInInspector] fields hold references too
+        // (e.g. TransitionTableSO._nodePositions, the graph editor's node layout).
+        while (property.Next(enterChildren))
         {
             enterChildren = true;
 

@@ -143,8 +143,17 @@ namespace Yuki.Learning.StateMachine.Editor
             }
         }
 
-        private static void CheckAsset(ScriptableObject asset, GameObject owner, List<Issue> issues)
+        // `visited` guards against wrappers that (indirectly) contain themselves.
+        private static void CheckAsset(
+            ScriptableObject asset, GameObject owner, List<Issue> issues,
+            HashSet<ScriptableObject> visited = null)
         {
+            visited ??= new HashSet<ScriptableObject>();
+            if (!visited.Add(asset))
+            {
+                return;
+            }
+
             foreach (RequiresOwnerComponentAttribute requirement in
                      asset.GetType().GetCustomAttributes<RequiresOwnerComponentAttribute>(true))
             {
@@ -157,6 +166,32 @@ namespace Yuki.Learning.StateMachine.Editor
                     !issues.Exists(issue => issue.Source == asset && issue.Component == requirement.ComponentType))
                 {
                     issues.Add(new Issue { Component = requirement.ComponentType, Source = asset });
+                }
+            }
+
+            CheckNestedAssets(asset, owner, issues, visited);
+        }
+
+        // An action / condition can hold other actions / conditions in its fields (a wrapper such as
+        // a delayed condition); those run on the same owner, so check them too. Found by field type,
+        // so this editor doesn't need to know any wrapper class.
+        private static void CheckNestedAssets(
+            ScriptableObject asset, GameObject owner, List<Issue> issues,
+            HashSet<ScriptableObject> visited)
+        {
+            using var serializedAsset = new SerializedObject(asset);
+            SerializedProperty property = serializedAsset.GetIterator();
+
+            while (property.NextVisible(true))
+            {
+                if (property.propertyType != SerializedPropertyType.ObjectReference)
+                {
+                    continue;
+                }
+
+                if (property.objectReferenceValue is StateConditionSO or StateActionSO)
+                {
+                    CheckAsset((ScriptableObject)property.objectReferenceValue, owner, issues, visited);
                 }
             }
         }

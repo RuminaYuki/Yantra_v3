@@ -46,6 +46,13 @@ namespace Yuki.Learning.StateMachine
 
             return nextState != null;
         }
+        public void TickConditions()
+        {
+            foreach (StateTransition transition in _transitions)
+            {
+                transition.TickConditions();
+            }
+        }
 
         public void OnStateEnter()
         {

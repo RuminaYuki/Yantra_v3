@@ -67,11 +67,11 @@ public class MovementStuckCondition : Condition
         StuckTimer = 0f;
     }
 
-    protected override bool Statement()
+    protected override void OnTick()
     {
         if (_owner == null)
         {
-            return false;
+            return;
         }
 
         float windowElapsed = Time.time - _windowStartTime;
@@ -93,7 +93,13 @@ public class MovementStuckCondition : Condition
             _windowStartTime = Time.time;
             StuckTimer = 0f;
         }
-
+    }
+    protected override bool Statement()
+    {
+        if (_owner == null)
+        {
+            return false;
+        }
         return StuckTimer >= _stuckDuration;
     }
 }

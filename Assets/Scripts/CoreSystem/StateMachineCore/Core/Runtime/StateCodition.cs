@@ -7,12 +7,23 @@ namespace Yuki.Learning.StateMachine
 
         private bool _isCached;
         private bool _cachedStatement;
+        private int _lastTickFrame = -1;
 
         public virtual void Awake(StateMachine stateMachine){}
         public virtual void OnStateEnter(){}
         protected abstract bool Statement();
         public virtual void Dispose(){}
+        protected virtual void OnTick(){}
+        internal void Tick()
+        {
+            if (IsDisabled || _lastTickFrame == UnityEngine.Time.frameCount)
+            {
+                return;
+            }
 
+            _lastTickFrame = UnityEngine.Time.frameCount;
+            OnTick();
+        }
         public bool GetStatement()
         {
             if (!_isCached)
@@ -42,7 +53,10 @@ namespace Yuki.Learning.StateMachine
             _condition = condition;
             _expectedResult = expectedResult;
         }
-
+        public void Tick()
+        {
+            _condition.Tick();
+        }
         public bool IsMet()
         {
             if (_condition.IsDisabled) return false;

@@ -15,12 +15,16 @@ public class VoidEventChannelConditionSO : StateConditionSO
     }
 }
 
+// A raised event is true for exactly one state machine update (the one right after it
+// was raised), however many transitions read it and in whatever order. It isn't used up
+// by reading, so a transition that doesn't fire can't swallow it, and it can't linger.
 public class VoidEventChannelCondition : Condition
 {
     private readonly VoidEventChannelSO _eventChannel;
 
     private GameObject _owner;
-    private bool _wasRaised;
+    private bool _pending;   // raised, waiting for the next update
+    private bool _active;    // true during this update
 
     public VoidEventChannelCondition(VoidEventChannelSO eventChannel)
     {
@@ -36,22 +40,32 @@ public class VoidEventChannelCondition : Condition
             Debug.LogError(
                 "VoidEventChannelCondition has no Event Channel.",
                 _owner);
+
+            // Never raised, so it would read false forever and pass any "Expected = False" check.
+            Disable();
             return;
         }
 
         _eventChannel.Raised += OnEventRaised;
     }
 
+    // An event raised before this state doesn't count.
     public override void OnStateEnter()
     {
-        _wasRaised = false;
+        _pending = false;
+        _active = false;
+    }
+
+    // Start of every update: last update's event expires, a new one becomes visible.
+    protected override void OnTick()
+    {
+        _active = _pending;
+        _pending = false;
     }
 
     protected override bool Statement()
     {
-        bool result = _wasRaised;
-        _wasRaised = false;
-        return result;
+        return _active;
     }
 
     public override void Dispose()
@@ -60,12 +74,10 @@ public class VoidEventChannelCondition : Condition
         {
             _eventChannel.Raised -= OnEventRaised;
         }
-
-        _wasRaised = false;
     }
 
     private void OnEventRaised()
     {
-        _wasRaised = true;
+        _pending = true;
     }
 }

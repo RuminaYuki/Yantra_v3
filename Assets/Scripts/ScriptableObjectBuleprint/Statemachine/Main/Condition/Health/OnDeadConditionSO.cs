@@ -14,45 +14,20 @@ public class OnDeadConditionSO : StateConditionSO
     }
 }
 
+// Being dead is a state, not a one-off event: it reads Health.IsDead instead of listening
+// for OnDead, so it can't be missed or used up by a transition that didn't fire, and it
+// stays true for as long as the character is dead (false again after a revive).
 public class OnDeadCondition : Condition
 {
-    private GameObject _owner;
     private Health _health;
-    private bool _wasRaised;
 
     public override void Awake(StateMachine stateMachine)
     {
-        _owner = stateMachine.Owner;
-        if (!stateMachine.TryGetRequired(out _health, this))
-        {
-            return;
-        }
-
-        _health.OnDead += HandleDead;
-    }
-
-    public override void OnStateEnter()
-    {
-        _wasRaised = false;
+        stateMachine.TryGetRequired(out _health, this);
     }
 
     protected override bool Statement()
     {
-        bool result = _wasRaised;
-        _wasRaised = false;
-        return result;
-    }
-
-    public override void Dispose()
-    {
-        if (_health != null)
-            _health.OnDead -= HandleDead;
-
-        _wasRaised = false;
-    }
-
-    private void HandleDead()
-    {
-        _wasRaised = true;
+        return _health.IsDead;
     }
 }

@@ -61,8 +61,8 @@ public class CountDownTimerCondition : Condition
     private readonly float _minDuration;
     private readonly float _maxDuration;
 
-    // A timestamp, not a per-frame sum: Statement() isn't called every frame
-    // (transitions stop at the first failing condition), so summing deltaTime there runs slow.
+    // Set in OnStateEnter, which always runs, so no OnTick is needed:
+    // Statement() only compares it with the current time.
     private float _startTime;
     public float Duration { get; private set; }
     public float Remaining => Mathf.Max(0f, Duration - (Time.time - _startTime));
