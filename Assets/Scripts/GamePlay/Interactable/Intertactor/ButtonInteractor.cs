@@ -8,8 +8,6 @@ namespace SDFcl.GamePlay.Interactable
         {
             if (!base.Interact(rootplayer)) return false;
 
-            Debug.Log("Button Down");
-
             CancelInteraction(rootplayer);
 
             return true;

@@ -22,9 +22,9 @@ namespace SDFcl.GamePlay.Interactable
         [SerializeField] private LayerMask obstacleLayer;
 
         public GameObject currentInteractableDebug;
-        private Iinteractor currentInteractable;
+        private IbaseInteractor currentInteractable;
 
-        public Iinteractor CurrentInteractable
+        public IbaseInteractor CurrentInteractable
         {
             get
             {
@@ -40,7 +40,7 @@ namespace SDFcl.GamePlay.Interactable
 
         private readonly Collider[] interactableBuffer = new Collider[32];
 
-        private readonly HashSet<Iinteractor> highlightedInteractors = new();
+        private readonly HashSet<IbaseInteractor> highlightedInteractors = new();
 
         private bool isInteractableInSight = false;
 
@@ -73,7 +73,7 @@ namespace SDFcl.GamePlay.Interactable
                 QueryTriggerInteraction.Collide
             );
 
-            HashSet<Iinteractor> detectedThisFrame = new();
+            HashSet<IbaseInteractor> detectedThisFrame = new();
 
             for (int i = 0; i < count; i++)
             {
@@ -82,8 +82,8 @@ namespace SDFcl.GamePlay.Interactable
                 if (collider == null)
                     continue;
 
-                Iinteractor interactable =
-                    collider.GetComponentInParent<Iinteractor>();
+                IbaseInteractor interactable =
+                    collider.GetComponentInParent<IbaseInteractor>();
 
                 if (interactable == null) continue;
 
@@ -100,7 +100,7 @@ namespace SDFcl.GamePlay.Interactable
             }
 
             // Remove highlights from interactables that are no longer detected
-            foreach (Iinteractor interactable in highlightedInteractors)
+            foreach (IbaseInteractor interactable in highlightedInteractors)
             {
                 if (!detectedThisFrame.Contains(interactable))
                 {
@@ -115,11 +115,11 @@ namespace SDFcl.GamePlay.Interactable
 
         private void DetectInteractable()
         {
-            Iinteractor bestInteractable = null;
+            IbaseInteractor bestInteractable = null;
 
             float bestScore = float.MaxValue;
 
-            foreach (Iinteractor interactable in highlightedInteractors)
+            foreach (IbaseInteractor interactable in highlightedInteractors)
             {
                 if (!IsAlive(interactable))
                     continue;
@@ -187,7 +187,7 @@ namespace SDFcl.GamePlay.Interactable
             SetFocus(bestInteractable);
         }
 
-        private void SetFocus(Iinteractor interactable)
+        private void SetFocus(IbaseInteractor interactable)
         {
             if (!IsAlive(interactable) || interactable == currentInteractable)
                 return;
@@ -212,7 +212,7 @@ namespace SDFcl.GamePlay.Interactable
             currentInteractable = null;
         }
 
-        private static bool IsAlive(Iinteractor interactable)
+        private static bool IsAlive(IbaseInteractor interactable)
         {
             return interactable is MonoBehaviour target && target != null;
         }
@@ -230,7 +230,7 @@ namespace SDFcl.GamePlay.Interactable
 
         public void StopHighlightingAll()
         {
-            foreach (Iinteractor interactable in highlightedInteractors)
+            foreach (IbaseInteractor interactable in highlightedInteractors)
             {
                 if (IsAlive(interactable))
                     interactable.HideHighlight();

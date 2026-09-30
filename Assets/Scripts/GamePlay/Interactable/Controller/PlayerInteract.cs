@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,7 +12,9 @@ namespace SDFcl.GamePlay.Interactable
         [SerializeField] private GameObject rootPlayer;
 
         [SerializeField] private bool isHoldingInteraction = false;
-        private Iinteractor activeInteraction;
+
+        private Action<bool> Interaction;
+        private IbaseInteractor activeInteraction;
         private InputAction subscribedAction;
 
         private void Awake()
@@ -87,9 +90,14 @@ namespace SDFcl.GamePlay.Interactable
                 return;
             }
 
-            Iinteractor targetInteractable = rayInteract.CurrentInteractable;
+            IbaseInteractor targetInteractable = rayInteract.CurrentInteractable;
             if (!IsAlive(targetInteractable) || !targetInteractable.CanInteract)
+            {
+                Interaction?.Invoke(false);
                 return;
+            }
+
+            Interaction?.Invoke(true);
 
             if (!targetInteractable.HoldInteract)
             {
@@ -115,7 +123,7 @@ namespace SDFcl.GamePlay.Interactable
                 rayInteract.SetInteractEnabled(true);
         }
 
-        private static bool IsAlive(Iinteractor interactable)
+        private static bool IsAlive(IbaseInteractor interactable)
         {
             return interactable is MonoBehaviour target && target != null;
         }

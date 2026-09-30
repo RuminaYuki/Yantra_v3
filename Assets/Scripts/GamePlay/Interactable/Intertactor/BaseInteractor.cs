@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace SDFcl.GamePlay.Interactable
 {
-    public abstract class BaseInteractor : MonoBehaviour, Iinteractor
+    public abstract class BaseInteractor : MonoBehaviour, IbaseInteractor , Iinteractor
     {
         [Header("Highlight and Focus Objects")]
         [SerializeField] private GameObject highlightObject;
@@ -45,8 +45,6 @@ namespace SDFcl.GamePlay.Interactable
                 return false;
             }
 
-            Debug.Log("Start Interact");
-
             OnInteract?.Invoke(rootplayer);
             return true;
             //Debug.Log($"Interact input detected{this.gameObject.name}");
@@ -79,7 +77,6 @@ namespace SDFcl.GamePlay.Interactable
 
         public virtual bool CancelInteraction(GameObject rootplayer)
         {
-            Debug.Log("Cancel Interact");
             OnEndInteract?.Invoke(rootplayer);
             return false;
         }
@@ -91,13 +88,10 @@ namespace SDFcl.GamePlay.Interactable
         }
     }
 
-    public interface Iinteractor
+    public interface IbaseInteractor
     {
         bool CanInteract { get; }
         bool HoldInteract {  get; }
-
-        public Action<GameObject> OnInteract { get; set; }
-        public Action<GameObject> OnEndInteract { get; set; }
 
         //Command the object to perform its interaction logic
         bool Interact(GameObject rootplayer);
@@ -111,5 +105,11 @@ namespace SDFcl.GamePlay.Interactable
         void HideHighlight();
 
         bool CancelInteraction(GameObject rootplayer);
+    }
+
+    public interface Iinteractor
+    {
+        public Action<GameObject> OnInteract { get; set; }
+        public Action<GameObject> OnEndInteract { get; set; }
     }
 }
