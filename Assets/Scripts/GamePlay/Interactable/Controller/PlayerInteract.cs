@@ -13,7 +13,7 @@ namespace SDFcl.GamePlay.Interactable
 
         [SerializeField] private bool isHoldingInteraction = false;
 
-        private Action<bool> Interaction;
+        public event Action<bool> OnInteraction;
         private IbaseInteractor activeInteraction;
         private InputAction subscribedAction;
 
@@ -93,11 +93,11 @@ namespace SDFcl.GamePlay.Interactable
             IbaseInteractor targetInteractable = rayInteract.CurrentInteractable;
             if (!IsAlive(targetInteractable) || !targetInteractable.CanInteract)
             {
-                Interaction?.Invoke(false);
+                OnInteraction?.Invoke(false);
                 return;
             }
 
-            Interaction?.Invoke(true);
+            OnInteraction?.Invoke(true);
 
             if (!targetInteractable.HoldInteract)
             {
