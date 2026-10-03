@@ -465,7 +465,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &300928166
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -710,6 +710,10 @@ PrefabInstance:
       propertyPath: m_VersionIndex
       value: 1685
       objectReference: {fileID: 0}
+    - target: {fileID: 809213569433171308, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: collapsed
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 998187679989262526, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_Name
       value: Rin(Player)
@@ -754,10 +758,34 @@ PrefabInstance:
       propertyPath: interacsAnimation.Array.size
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3720944614719164237, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: interacsAnimation.Array.data[0].ID
+      value: Reload
+      objectReference: {fileID: 0}
+    - target: {fileID: 3720944614719164237, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: interacsAnimation.Array.data[0].Dispat
+      value: 
+      objectReference: {fileID: 1885159997}
+    - target: {fileID: 3720944614719164237, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: interacsAnimation.Array.data[0].EventID
+      value: EndInteract
+      objectReference: {fileID: 0}
+    - target: {fileID: 3720944614719164237, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: interacsAnimation.Array.data[0].Animator
+      value: 
+      objectReference: {fileID: 1885159991}
+    - target: {fileID: 3720944614719164237, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: interacsAnimation.Array.data[0].stateName
+      value: GunReload_ArmClip 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3970455072621369329, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: e8af68480b87b504db5aaba6f8f456a4, type: 2}
+    - target: {fileID: 4368828265564020728, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: collapsed
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4851855335008929027, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -784,6 +812,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5908338020195601355, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6252579542559560056, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: collapsed
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7204550034172044822, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
@@ -819,9 +851,9 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 572323420}
     m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 998187679989262526, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 351552449}
+    - targetCorrespondingSourceObject: {fileID: 8849103926970512020, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      insertIndex: 20
+      addedObject: {fileID: 1030715337}
   m_SourcePrefab: {fileID: 100100000, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
 --- !u!114 &351552445 stripped
 MonoBehaviour:
@@ -844,29 +876,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 5561648883682279471, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
   m_PrefabInstance: {fileID: 351552444}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &351552448 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 998187679989262526, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
-  m_PrefabInstance: {fileID: 351552444}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &351552449
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 351552448}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 973cb9967f70eed44bbbbe992e619c16, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InventoryInput
-  inventory: {fileID: 0}
-  ui: {fileID: 300928166}
-  pickupRadius: 5
-  pickupMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
 --- !u!1 &358467560
 GameObject:
   m_ObjectHideFlags: 0
@@ -2440,6 +2449,26 @@ MonoBehaviour:
   targetCamera: {fileID: 0}
   lockYAxis: 0
   reverseZ: 0
+--- !u!1 &1030715322 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8849103926970512020, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+  m_PrefabInstance: {fileID: 351552444}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1030715337
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1030715322}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cdd0fa5777bc4af45a10f49ca6059bd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
+  inputAction: {fileID: 1138664736820775389, guid: 35845fe01580c41289b024647b1d1c53, type: 3}
+  ui: {fileID: 300928166}
+  slotCount: 20
 --- !u!1 &1044818250
 GameObject:
   m_ObjectHideFlags: 0
@@ -3626,7 +3655,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2b3941db3c8df204db621510e652e007, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AnimInteractAddition
-  AnimationID: 
+  AnimationID: Reload
 --- !u!114 &1448657172
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4872,6 +4901,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1867947831}
   m_CullTransparentMesh: 1
+--- !u!95 &1885159991 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 3970455072621369329, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+  m_PrefabInstance: {fileID: 351552444}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1885159997 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4509149362283433533, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+  m_PrefabInstance: {fileID: 351552444}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef16dc72c1be5654db353f62022007cf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AnimEventDispatcher
 --- !u!1 &1887053563
 GameObject:
   m_ObjectHideFlags: 0

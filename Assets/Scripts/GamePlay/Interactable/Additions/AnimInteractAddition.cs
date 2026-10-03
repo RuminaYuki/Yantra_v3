@@ -55,8 +55,11 @@ public class AnimInteractAddition : MonoBehaviour
 
         playerInteract = rootPlayer.GetComponentInChildren<PlayerInteract>();
         serializableAction = playerInteract.PlayAnimation(AnimationID);
-        serializableAction.AddListener(HandleEndInteract);
-        IsPlayAnimation = true;
+        if (serializableAction != null )
+        {
+            serializableAction.AddListener(HandleEndInteract);
+            IsPlayAnimation = true;
+        }
     }
     private void HandleEndInteract()
     {
