@@ -7,7 +7,7 @@ using UnityEngine;
     {
         public bool IsActive { get; private set; }
 
-        public override bool Interact(GameObject rootplayer)
+        public override bool Interact(GameObject rootplayer, bool force = false)
         {
             if (!base.Interact(rootplayer)) return false; // ยิง OnInteract ในนี้
             if (IsActive)
@@ -20,12 +20,13 @@ using UnityEngine;
             return true;
         }
 
-        public override bool CancelInteraction(GameObject rootplayer)
+        public override bool CancelInteraction(GameObject rootplayer, bool force = false)
         {
+            if (!base.CancelInteraction(rootplayer)) return false;
             if (!IsActive) return false;
 
             IsActive = false;
-            return base.CancelInteraction(rootplayer); // ยิง OnEndInteract ในนี้
+            return true; // ยิง OnEndInteract ในนี้
         }
 
         private void OnDisable()

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -12,11 +13,14 @@ namespace SDFcl.GamePlay.Interactable
         [SerializeField] private GameObject rootPlayer;
 
         [SerializeField] private bool isHoldingInteraction = false;
+        [SerializeField] InteracAnimation[] interacsAnimation;
 
-        private Action<bool> Interaction;
         private IbaseInteractor activeInteraction;
         private InputAction subscribedAction;
 
+        private bool isInteractable = false;
+
+        #region System
         private void Awake()
         {
             rayInteract = GetComponent<CenterRayInteract>();
@@ -44,7 +48,9 @@ namespace SDFcl.GamePlay.Interactable
         {
             UnsubscribeInput();
         }
+        #endregion
 
+        #region Logic Interact
         private void SubscribeInput()
         {
             if (inputAction == null || inputAction.action == null)
@@ -77,6 +83,8 @@ namespace SDFcl.GamePlay.Interactable
 
             if (isHoldingInteraction)
             {
+                if (!activeInteraction.CanInteract) return;
+
                 isHoldingInteraction = false;
                 rayInteract.SetInteractEnabled(true);
 
@@ -93,11 +101,8 @@ namespace SDFcl.GamePlay.Interactable
             IbaseInteractor targetInteractable = rayInteract.CurrentInteractable;
             if (!IsAlive(targetInteractable) || !targetInteractable.CanInteract)
             {
-                Interaction?.Invoke(false);
                 return;
             }
-
-            Interaction?.Invoke(true);
 
             if (!targetInteractable.HoldInteract)
             {
@@ -127,5 +132,58 @@ namespace SDFcl.GamePlay.Interactable
         {
             return interactable is MonoBehaviour target && target != null;
         }
+        #endregion
+
+        #region Animation Interact
+        public SerializableAction PlayAnimation(string _ID)
+        {
+            for (int i = 0; i < interacsAnimation.Count(); i++)
+            {
+                if (interacsAnimation[i].ID != _ID) continue;
+
+                if (interacsAnimation[i].Animator.GetCurrentAnimatorStateInfo(0).
+                        IsName(interacsAnimation[i].stateName))
+                    return null;
+
+                interacsAnimation[i].Dispat.
+                    GetEvent(interacsAnimation[i].EventID);
+
+                Animator animator = interacsAnimation[i].Animator;
+                animator.CrossFade(
+                    interacsAnimation[i].stateName,
+                    interacsAnimation[i].crossfade,
+                    interacsAnimation[i].indexLayer);
+
+                return interacsAnimation[i].Dispat.
+                    GetEvent(interacsAnimation[i].EventID);
+            }
+            return null;
+        }
+
+
+        #endregion
+
+        #region API
+        public bool GetIsInterctable => isInteractable;
+        public void SetIsInterctable(bool value) 
+        {
+            isInteractable = value;
+
+            if (!isInteractable) ResetInteractionState();
+        }
+        #endregion
+    }
+
+    [Serializable]
+    public struct InteracAnimation
+    {
+        public string ID;
+        public string EventID;
+        public string stateName;
+        public int indexLayer;
+        public float crossfade;
+        public AnimEventDispatcher Dispat;
+        public Animator Animator;
+        private Action action;
     }
 }
