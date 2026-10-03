@@ -101,8 +101,9 @@ public class PlayPairedAnimationAction : StateAction
             _camera.IsLookLocked = _lookWasLocked;
 
         // ยิง OnEndInteract — ทั้งตอนจบท่าเองและตอนโดน State อื่นแทรก
+        // force = true เพราะท่าจบจริงแล้ว ต้องปิด Interact เสมอ ไม่ให้ตัวกันยกเลิกของ BaseInteractor มาขวาง
         if (_hasStarted && IsAlive(_request.Source))
-            _request.Source.CancelInteraction(_request.RootPlayer);
+            _request.Source.CancelInteraction(_request.RootPlayer, true);
 
         _hasStarted = false;
         _request = default;

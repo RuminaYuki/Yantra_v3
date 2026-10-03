@@ -38,7 +38,7 @@ public class GloryInteractor : BaseInteractor, IPairedInteractionSource
     }
 
     // กด E แล้วแค่ยื่นคำขอให้ผู้เล่น (พร้อมข้อมูลของผี) — State ของผู้เล่นเป็นคนสั่งผีต่อเอง
-    public override bool Interact(GameObject rootplayer)
+    public override bool Interact(GameObject rootplayer, bool force = false)
     {
         if (_victim == null || _playerAnimation == null || _victimAnimation == null)
         {

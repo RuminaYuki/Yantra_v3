@@ -18,7 +18,7 @@ public class ClimbInteractor : BaseInteractor, IPairedInteractionSource
     [SerializeField, Min(0f)] private float _maxDistanceFromStart = 1.5f;
 
     // กด E แล้วแค่ยื่นคำขอ — State Machine ของผู้เล่นเป็นคนตัดสินว่าจะปีนไหม
-    public override bool Interact(GameObject rootplayer)
+    public override bool Interact(GameObject rootplayer, bool force = false)
     {
         if (_animation == null || _startPoint == null || _endPoint == null)
         {
