@@ -22,6 +22,8 @@ public class SpellRadialMenuSelect : MonoBehaviour
     int _Id;
     bool _radialOpen;
 
+    public bool HasSelection => _radialOpen && _Id >= 0;
+
     private void Awake()
     {
         if (_playerCameraController == null)

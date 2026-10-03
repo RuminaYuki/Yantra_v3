@@ -5,7 +5,8 @@ public class StatsProfileHost : MonoBehaviour
     [SerializeField] StatsProfileSO CharacterStatsSO;
     void Awake()
     {
-        CharacterStatsSO.ApplyStats();
+        if (CharacterStatsSO != null)
+            CharacterStatsSO.ApplyStats();
     }
      private void OnDrawGizmos()
     {
