@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[RequiresOwnerComponent(typeof(PlayerInteractFlagTest))]
 [CreateAssetMenu(
     fileName = "NewTestInteractFlag_Condition",
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Test/Test Interact Flag")]
