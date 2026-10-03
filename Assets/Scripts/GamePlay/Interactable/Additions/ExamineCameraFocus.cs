@@ -11,6 +11,10 @@ public class ExamineCameraFocus : MonoBehaviour
     [SerializeField] private bool smooth = true;
     [SerializeField] private float transitionDuration = 0.6f;
 
+    [Header("Setting")]
+    [SerializeField] bool waitForFinish = true;
+    [SerializeField, Range(0,1)] float finishScaleTime = 0.0f;
+
     private Iinteractor _interactor;
     private PlayerCameraController _cameraController;
     private Transform _cameraTransform;
@@ -26,6 +30,8 @@ public class ExamineCameraFocus : MonoBehaviour
     {
         _interactor.OnInteract += HandleInteract;
         _interactor.OnEndInteract += HandleEndInteract;
+
+        _interactor.AddCanInteractModifier(CanInteract);
     }
 
     private void OnDisable()
@@ -33,11 +39,27 @@ public class ExamineCameraFocus : MonoBehaviour
         _interactor.OnInteract -= HandleInteract;
         _interactor.OnEndInteract -= HandleEndInteract;
 
+        _interactor.RemoveCanInteractModifier(CanInteract);
+
         if (_active)
         {
             StopRoutine();
             Finish();
         }
+    }
+
+    private bool CanInteract()
+    {
+        if (!waitForFinish || !_active) return true;
+
+        Vector3 line = cameraPoint.position - _savedPosition;
+        Vector3 currentP = _cameraTransform.position -_savedPosition;
+
+        float t = Vector3.Dot(currentP, line) / line.sqrMagnitude;
+        t = Mathf.Clamp01(t);
+
+        if (t < finishScaleTime) return false;
+        return true;
     }
 
     private void HandleInteract(GameObject rootplayer)
