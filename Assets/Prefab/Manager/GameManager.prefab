@@ -10,6 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1265719492576319561}
   - component: {fileID: 8782298841939422256}
+  - component: {fileID: 2799764911747943172}
+  - component: {fileID: 622337567933058253}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -46,3 +48,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StateMachineController
   _transitionTables:
   - {fileID: 11400000, guid: 106f6d3514ca0624cbd010dd526d45de, type: 2}
+--- !u!114 &2799764911747943172
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1488768533028563634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5b489d6c34523443a6c4a369669e76d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ReservationController
+  reservationSO:
+  - {fileID: 11400000, guid: 5cb3d38a7b2e9c34a9c1bb5d187749fe, type: 2}
+--- !u!114 &622337567933058253
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1488768533028563634}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a005c5bc7a06924a9413769e8243e01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameOverTrigger
+  _onDead: {fileID: 11400000, guid: 46885c84663e73e488762bc5783096e2, type: 2}
