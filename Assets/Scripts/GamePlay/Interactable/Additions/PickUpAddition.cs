@@ -15,10 +15,12 @@ public class PickUpAddition : MonoBehaviour
     private void OnEnable()
     {
         interactor.OnInteract += HandleOnInteract;
+        interactor.OnEndInteract += HandleOnEndInteract;
     }
     private void OnDisable()
     {
         interactor.OnInteract -= HandleOnInteract;
+        interactor.OnEndInteract -= HandleOnEndInteract;
     }
 
     private void HandleOnInteract(GameObject rootplayer)
@@ -27,5 +29,10 @@ public class PickUpAddition : MonoBehaviour
         if (inventory == null) return;
 
         inventory.TryPickup(worldItem);
+    }
+
+    private void HandleOnEndInteract(GameObject rootplayer)
+    {
+        Destroy(worldItem.gameObject, 0.01f);
     }
 }

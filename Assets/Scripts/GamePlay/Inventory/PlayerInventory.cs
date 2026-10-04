@@ -54,7 +54,6 @@ public class PlayerInventory : MonoBehaviour
 
         if (left <= 0)
         {
-            Destroy(worldItem.gameObject);
             return true;
         }
 

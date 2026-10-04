@@ -75,24 +75,28 @@ namespace SDFcl.GamePlay.Interactable
         public virtual void OnFocus()
         {
             if (!canInteract) return;
+            if (highlightObject == null || focusObject == null) return;
             focusObject.SetActive(true);
             highlightObject.SetActive(false);
         }
 
         public virtual void OnLoseFocus()
         {
+            if (highlightObject == null || focusObject == null) return;
             focusObject.SetActive(false);
             highlightObject.SetActive(true);
         }
 
         public virtual void ShowHighlight()
         {
+            if (highlightObject == null || focusObject == null) return;
             highlightObject.SetActive(true);
             focusObject.SetActive(false);
         }
 
         public virtual void HideHighlight()
         {
+            if (highlightObject == null || focusObject == null) return;
             highlightObject.SetActive(false);
             focusObject.SetActive(false);
         }
