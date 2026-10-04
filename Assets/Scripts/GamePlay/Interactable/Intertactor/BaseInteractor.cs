@@ -123,6 +123,13 @@ namespace SDFcl.GamePlay.Interactable
             canInteract = value;
         }
 
+        // For Test Dont Commit Before Get a Permission
+        public void SetHideInteract(bool value)
+        {
+            hideInteract = value;
+            if (value && !canInteract) HideHighlight();
+        }
+
         public void AddCanInteractModifier(Func<bool> modifier)
         {
             canInteractFuncs.Add(modifier);
