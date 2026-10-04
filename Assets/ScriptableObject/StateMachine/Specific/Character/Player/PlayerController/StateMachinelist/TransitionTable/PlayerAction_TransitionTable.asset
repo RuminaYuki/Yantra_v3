@@ -21,6 +21,13 @@ MonoBehaviour:
         ExpectedResult: 0
       - Condition: {fileID: 11400000, guid: 4cc1a21797039de4baa9d41d0b096e59, type: 2}
         ExpectedResult: 1
+      - Condition: {fileID: 11400000, guid: 45d2dd7c3a55599428b14c8cd6c4c8d4, type: 2}
+        ExpectedResult: 1
+  - ToState: {fileID: 11400000, guid: 2388c62025b28d54fadac765a79be5d3, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 45d2dd7c3a55599428b14c8cd6c4c8d4, type: 2}
+        ExpectedResult: 0
   _transitions:
   - FromState: {fileID: 11400000, guid: 6936ac72c9d3f5b4fa1af6e969ba1a6d, type: 2}
     ConditionGroups:
@@ -94,20 +101,26 @@ MonoBehaviour:
       - Condition: {fileID: 11400000, guid: 00e989453b5fbef4f91ced558dbc4663, type: 2}
         ExpectedResult: 0
     ToState: {fileID: 11400000, guid: 9b03be382e028a34b8b91e0341e8b28f, type: 2}
+  - FromState: {fileID: 11400000, guid: 2388c62025b28d54fadac765a79be5d3, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 45d2dd7c3a55599428b14c8cd6c4c8d4, type: 2}
+        ExpectedResult: 1
+    ToState: {fileID: 11400000, guid: 9b03be382e028a34b8b91e0341e8b28f, type: 2}
   _nodePositions:
   - State: {fileID: 11400000, guid: 6936ac72c9d3f5b4fa1af6e969ba1a6d, type: 2}
-    Position: {x: 42, y: 1}
+    Position: {x: 56, y: 1}
   - State: {fileID: 11400000, guid: 30909b92a8730694da9eba98b6d02b35, type: 2}
     Position: {x: 244, y: 123}
   - State: {fileID: 11400000, guid: 78abb9a98a15b7348a9a3cc4591ca792, type: 2}
-    Position: {x: 492, y: -98}
+    Position: {x: 449, y: -98}
   - State: {fileID: 11400000, guid: f5b66c33ee9ed944ba4dae71328d1a3c, type: 2}
-    Position: {x: 492, y: 123}
+    Position: {x: 449, y: 123}
   - State: {fileID: 11400000, guid: f58c07346369cbc419ba02555004dc07, type: 2}
-    Position: {x: 486, y: 1}
+    Position: {x: 443, y: 1}
   - State: {fileID: 11400000, guid: 9b03be382e028a34b8b91e0341e8b28f, type: 2}
     Position: {x: 244, y: 1}
   - State: {fileID: 11400000, guid: 2388c62025b28d54fadac765a79be5d3, type: 2}
-    Position: {x: 42, y: -98}
+    Position: {x: 56, y: -98}
   _entryNodePosition: {x: 264, y: -98}
-  _anyStateNodePosition: {x: -119, y: 1}
+  _anyStateNodePosition: {x: -105, y: 1}
