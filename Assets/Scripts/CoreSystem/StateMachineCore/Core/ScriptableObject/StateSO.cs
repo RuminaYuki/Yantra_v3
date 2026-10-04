@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace Yuki.Learning.StateMachine.ScriptableObjects
@@ -8,7 +9,7 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
     public class StateSO : ScriptableObject
     {
         [SerializeField]
-        private StateActionSO[] _actions;
+        private StateActionSO[] _actions = Array.Empty<StateActionSO>();
 
         public State CreateState(StateMachine stateMachine)
         {

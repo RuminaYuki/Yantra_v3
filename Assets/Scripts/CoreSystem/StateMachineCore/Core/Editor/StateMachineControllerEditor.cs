@@ -162,7 +162,7 @@ namespace Yuki.Learning.StateMachine.Editor
                     continue;
                 }
 
-                if (owner.GetComponent(requirement.ComponentType) == null &&
+                if (!HasComponentOnOwnerOrReference(owner, requirement.ComponentType) &&
                     !issues.Exists(issue => issue.Source == asset && issue.Component == requirement.ComponentType))
                 {
                     issues.Add(new Issue { Component = requirement.ComponentType, Source = asset });
@@ -194,6 +194,18 @@ namespace Yuki.Learning.StateMachine.Editor
                     CheckAsset((ScriptableObject)property.objectReferenceValue, owner, issues, visited);
                 }
             }
+        }
+
+        // Same lookup order as the runtime: the owner first, then the ReferenceGameObject target.
+        private static bool HasComponentOnOwnerOrReference(GameObject owner, System.Type componentType)
+        {
+            if (owner.GetComponent(componentType) != null)
+            {
+                return true;
+            }
+
+            return owner.TryGetComponent(out ReferenceGameObject reference) &&
+                   reference.Has(componentType);
         }
 
         private static bool IsAnchorAssigned(ScriptableObject asset, string fieldName)

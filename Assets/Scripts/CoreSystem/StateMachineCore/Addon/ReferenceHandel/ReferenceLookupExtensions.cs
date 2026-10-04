@@ -8,7 +8,7 @@ namespace Yuki.Learning.StateMachine
     /// It also works when the anchor field is null (nothing assigned in the SO);
     /// that case falls back to <see cref="StateMachine.TryGetRequired{T}"/> on the owner.
     /// </summary>
-    public static class AnchorComponentExtensions
+    public static class ReferenceLookupExtensions
     {
         /// <summary>
         /// Gets a component from the GameObject the anchor points at.
@@ -31,14 +31,13 @@ namespace Yuki.Learning.StateMachine
             StateMachine stateMachine,
             out T component,
             object requester)
-            where T : Component
         {
             if (anchor == null)
             {
-                return stateMachine.TryGetRequired(out component, requester);
+                return TryGetFromOwnerOrReference(stateMachine, out component, requester);
             }
 
-            component = null;
+            component = default;
 
             if (!anchor.IsSet)
             {
@@ -63,5 +62,32 @@ namespace Yuki.Learning.StateMachine
             return false;
 
         }
+
+        private static bool TryGetFromOwnerOrReference<T>(
+        StateMachine stateMachine, out T component, object requester)
+    {
+        GameObject owner = stateMachine.Owner;
+
+        // 1. บน Owner (ห้ามใช้ TryGetRequired ตรงนี้ เพราะมันจะ log กับ disable ทันทีถ้าไม่เจอ)
+        if (owner.TryGetComponent(out component))
+        {
+            return true;
+        }
+
+        // 2. บน object ใน list ของ ReferenceGameObject
+        if (owner.TryGetComponent(out ReferenceGameObject reference) &&
+            reference.TryGet(out component))
+        {
+            return true;
+        }
+
+        // 3. ไม่เจอทั้งคู่
+        Debug.LogError(
+            $"[{requester.GetType().Name}] needs {typeof(T).Name} on '{owner.name}' or one of its ReferenceGameObject targets.",
+            owner);
+        StateMachine.DisableRequester(requester);
+        return false;
+    }
+
     }
 }
