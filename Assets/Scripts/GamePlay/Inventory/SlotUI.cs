@@ -8,7 +8,6 @@ public class SlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, 
     [SerializeField] private Image icon;
     [SerializeField] private TMP_Text countText;
     [SerializeField] private GameObject selectedMark;
-    [SerializeField] private GameObject equippedMark;
 
     private InventoryUI owner;
     private int index;
@@ -30,8 +29,7 @@ public class SlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, 
     }
 
     public void SetSelected(bool value) { if (selectedMark) selectedMark.SetActive(value); }
-    public void SetEquipped(bool value) { if (equippedMark) equippedMark.SetActive(value); }
-
+ 
     public void OnPointerEnter(PointerEventData e) => owner.HandleHoverEnter(index);
     public void OnPointerExit(PointerEventData e) => owner.HandleHoverExit(index);
     public void OnPointerClick(PointerEventData e) => owner.HandleClick(index, e.button);

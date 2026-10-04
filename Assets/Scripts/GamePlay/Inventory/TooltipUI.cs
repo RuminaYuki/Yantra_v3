@@ -15,16 +15,17 @@ public class TooltipUI : MonoBehaviour
 
     public void Show(ItemData item, RectTransform anchor)
     {
-        if (item == null) { Hide(); return; }
+        if (item == null) { return; }
 
         nameText.text = item.displayName;
         categoryText.text = item.category.ToString();
         descriptionText.text = item.description;
-
-        // Anchored next to the slot, so no input polling is needed
-        root.transform.position = (Vector2)anchor.position + offset;
-        root.SetActive(true);
     }
 
-    public void Hide() => root.SetActive(false);
+    public void Hide()
+    {
+        nameText.text = string.Empty;
+        categoryText.text = string.Empty;
+        descriptionText.text = string.Empty;
+    }
 }

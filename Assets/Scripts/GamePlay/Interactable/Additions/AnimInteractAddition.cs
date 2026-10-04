@@ -63,7 +63,6 @@ public class AnimInteractAddition : MonoBehaviour
     }
     private void HandleEndInteract()
     {
-        Debug.Log("Here");
         IsPlayAnimation = false;
         _interactor.CancelInteraction(rootPlayer);
     }

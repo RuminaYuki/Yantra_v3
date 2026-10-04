@@ -61,13 +61,19 @@ public class AnimationProgressDriver : MonoBehaviour
     private float CalculatSpeed(float animProgress)
     {
         float diff = _progress - animProgress;
-        float speed = Mathf.Max(diff, 0f) * speedMultiple; // เดินไปข้างหน้าอย่างเดียว ไม่ถอย
+        float speed = Mathf.Max(diff, 0f) * 10f * speedMultiple; // เดินไปข้างหน้าอย่างเดียว ไม่ถอย
+        Debug.Log(speed);
         return speed;
     }
 
     private void HandleSetEnable(bool enable)
     {
         _active = enable;
+
+        if (!_active && _animator != null)
+        {
+            _animator.speed = 1;
+        }
     }
 
     private void HandleSetProgress(
@@ -92,19 +98,6 @@ public class AnimationProgressDriver : MonoBehaviour
         }
 
         _layerIndex = layerIndex;
-
-        /*normalizedStart = Mathf.Clamp01(normalizedStart);
-        normalizedEnd = Mathf.Clamp01(normalizedEnd);
-
-        float normalizedTime = Mathf.Lerp(
-            normalizedStart,
-            normalizedEnd,
-            progress
-        );
-
-
-        _animator.Play(animationName, layerIndex, normalizedTime);
-        _animator.Update(0f);*/
 
         stateInfo = _animator.GetCurrentAnimatorStateInfo(layerIndex);
         if (stateInfo.IsName(stateName))

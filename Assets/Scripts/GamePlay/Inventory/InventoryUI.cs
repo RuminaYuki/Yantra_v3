@@ -31,8 +31,6 @@ public class InventoryUI : MonoBehaviour
         }
 
         inv.OnSlotChanged += RefreshSlot;
-        player.OnEquippedChanged += RefreshEquipped;
-        RefreshEquipped(player.EquippedSlot);
 
         SetOpen(false);
     }
@@ -41,7 +39,6 @@ public class InventoryUI : MonoBehaviour
     {
         if (player == null || player.Inventory == null) return;
         player.Inventory.OnSlotChanged -= RefreshSlot;
-        player.OnEquippedChanged -= RefreshEquipped;
     }
 
     public void Toggle() => SetOpen(!IsOpen);
@@ -73,11 +70,6 @@ public class InventoryUI : MonoBehaviour
 
     public void HandleClick(int index, PointerEventData.InputButton button)
     {
-        if (button == PointerEventData.InputButton.Right)
-        {
-            player.ToggleEquip(index);
-            return;
-        }
 
         if (button != PointerEventData.InputButton.Left) return;
 
@@ -104,12 +96,6 @@ public class InventoryUI : MonoBehaviour
     {
         slotUIs[index].Refresh(player.Inventory[index]);
         if (index == hoveredIndex) ShowTooltipFor(index);
-    }
-
-    private void RefreshEquipped(int equippedSlot)
-    {
-        for (int i = 0; i < slotUIs.Length; i++)
-            slotUIs[i].SetEquipped(i == equippedSlot);
     }
 
     private void ShowTooltipFor(int index)
