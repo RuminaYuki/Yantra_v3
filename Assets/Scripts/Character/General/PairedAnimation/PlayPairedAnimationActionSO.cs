@@ -11,9 +11,12 @@ public class PlayPairedAnimationActionSO : StateActionSO
     [Tooltip("ล็อกการหันกล้องระหว่างเล่นท่า (มีผลเฉพาะผู้เล่น)")]
     [SerializeField] private bool _lockLook = true;
 
+    [Tooltip("สลับไปใช้กล้อง Glory (vcamGlory) ที่หมุนตามกระดูกหัว")]
+    [SerializeField] private bool _useGloryCamera = false; // <-- ส่วนที่เพิ่มเข้ามา
+
     public override StateAction CreateAction(StateMachine stateMachine)
     {
-        return new PlayPairedAnimationAction(_lockLook);
+        return new PlayPairedAnimationAction(_lockLook, _useGloryCamera);
     }
 }
 
@@ -21,6 +24,7 @@ public class PlayPairedAnimationActionSO : StateActionSO
 public class PlayPairedAnimationAction : StateAction
 {
     private readonly bool _lockLook;
+    private readonly bool _useGloryCamera; // <-- ส่วนที่เพิ่มเข้ามา
 
     private PairedAnimationActor _actor;
     private BaseLocomotion _locomotion;
@@ -31,9 +35,10 @@ public class PlayPairedAnimationAction : StateAction
     private bool _hasStarted;
     private PairedRequest _request;
 
-    public PlayPairedAnimationAction(bool lockLook)
+    public PlayPairedAnimationAction(bool lockLook, bool useGloryCamera)
     {
         _lockLook = lockLook;
+        _useGloryCamera = useGloryCamera;
     }
 
     public override void Awake(StateMachine stateMachine)
@@ -64,6 +69,12 @@ public class PlayPairedAnimationAction : StateAction
         {
             _lookWasLocked = _camera.IsLookLocked;
             _camera.IsLookLocked = true;
+        }
+
+        // <-- สั่งเปิดกล้อง Glory ตอนเริ่มท่า
+        if (_useGloryCamera && _camera != null)
+        {
+            _camera.SetGloryCameraActive(true);
         }
 
         _hasStarted = _actor.Begin();
@@ -99,6 +110,12 @@ public class PlayPairedAnimationAction : StateAction
         // คืนค่าเดิม ไม่ใช่ปลดล็อกทิ้ง เผื่อระบบอื่นล็อกกล้องไว้ก่อนแล้ว
         if (_lockLook && _camera != null)
             _camera.IsLookLocked = _lookWasLocked;
+
+        // <-- สั่งปิดกล้อง Glory คืนสู่สภาพเดินยิงปกติ ตอนจบท่า
+        if (_useGloryCamera && _camera != null)
+        {
+            _camera.SetGloryCameraActive(false);
+        }
 
         // ยิง OnEndInteract — ทั้งตอนจบท่าเองและตอนโดน State อื่นแทรก
         // force = true เพราะท่าจบจริงแล้ว ต้องปิด Interact เสมอ ไม่ให้ตัวกันยกเลิกของ BaseInteractor มาขวาง
