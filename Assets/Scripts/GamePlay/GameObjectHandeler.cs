@@ -9,7 +9,10 @@ public class GameObjectHandeler : MonoBehaviour
     {
         if (_gameObject == null)
         {
-            Debug.LogWarning("_gameObject reference has not been assigned.");
+            if(_enableDebug)
+                Debug.LogWarning("_gameObject reference has not been assigned.");
+                
+            _gameObject = gameObject;
         }
         if(_enableOnAwake)
         {
