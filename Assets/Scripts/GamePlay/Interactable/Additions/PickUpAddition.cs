@@ -17,6 +17,7 @@ public class PickUpAddition : MonoBehaviour
         interactor.OnInteract += HandleOnInteract;
         interactor.OnEndInteract += HandleOnEndInteract;
     }
+
     private void OnDisable()
     {
         interactor.OnInteract -= HandleOnInteract;
@@ -33,6 +34,11 @@ public class PickUpAddition : MonoBehaviour
 
     private void HandleOnEndInteract(GameObject rootplayer)
     {
-        Destroy(worldItem.gameObject, 0.01f);
+        // Only remove the world object when everything was picked up.
+        // If the inventory was full, the remainder stays on the ground.
+        if (worldItem.Stack.IsEmpty)
+        {
+            Destroy(worldItem.gameObject, 0.01f);
+        }
     }
 }
