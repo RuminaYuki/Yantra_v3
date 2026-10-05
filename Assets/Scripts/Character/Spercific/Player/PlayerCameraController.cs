@@ -5,6 +5,8 @@ public class PlayerCameraController : MonoBehaviour
 {
     [Header("Cinemachine")]
     public CinemachineCamera vcamGameplay;
+    [Tooltip("กล้องที่ล็อกติดกับกระดูกหัวของแอนิเมชัน Glory")]
+    public CinemachineCamera vcamGlory; // <-- เพิ่มกล้อง Glory
 
     [Header("Targets")]
     [Tooltip("จุดตากล้อง — กล้องจะอยู่ตรงนี้ตลอด")]
@@ -138,6 +140,18 @@ public class PlayerCameraController : MonoBehaviour
     public Vector2 CameraRotation => new Vector2(_yaw, _pitch);
     public float MinPitch => _minPitch;
     public float MaxPitch => _maxPitch;
+
+    // <-- ฟังก์ชันที่เพิ่มใหม่ เอาไว้ใช้สั่งสลับกล้อง Glory
+    public void SetGloryCameraActive(bool active)
+    {
+        IsCutsceneMode = active; // ล็อกไม่ให้ผู้เล่นหมุนเมาส์
+
+        if (vcamGlory != null)
+        {
+            // ดันกล้อง Glory ให้ทำงาน / หรือลด Priority กลับไปใช้กล้องเกมเพลย์ปกติ
+            vcamGlory.Priority = active ? 20 : 0;
+        }
+    }
 
     #endregion
 
