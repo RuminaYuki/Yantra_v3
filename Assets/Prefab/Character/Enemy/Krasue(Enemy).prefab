@@ -57,6 +57,7 @@ GameObject:
   - component: {fileID: 1602908658639240925}
   - component: {fileID: 2911086634674529745}
   - component: {fileID: 5259888117518558591}
+  - component: {fileID: 6608845382996242917}
   m_Layer: 7
   m_Name: EnemeyController
   m_TagString: Enemy
@@ -104,7 +105,7 @@ CharacterController:
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 1, z: 0}
+  m_Center: {x: 0, y: 0.57, z: 0}
 --- !u!95 &3896365105674866857
 Animator:
   serializedVersion: 7
@@ -419,6 +420,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PrefabIdentity
   prefabId: Krasue
+--- !u!114 &6608845382996242917
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3067078080897093266}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a65cc0b69e6d5c41b923b14bab68123, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FootIk
+  IkWeight: 1
+  GroundLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  RaycastDistance: 1.2
+  FootOffsetY: 0.1
+  SphereCastRadius: 0.05
+  LiftThreshold: 0.2
+  PositionSmoothSpeed: 15
+  RotationSmoothSpeed: 15
+  MaxSlopeAngle: 45
+  FixFootOverlap: 1
+  FootRadius: 0.08
+  AdjustPelvis: 1
+  PelvisOffsetSpeed: 10
+  MaxPelvisOffset: 0.6
 --- !u!1 &5661545997499741349
 GameObject:
   m_ObjectHideFlags: 0

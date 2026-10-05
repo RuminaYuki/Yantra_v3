@@ -59,6 +59,7 @@ GameObject:
   - component: {fileID: 3117964211689334339}
   - component: {fileID: 7536221892418918656}
   - component: {fileID: 4361828618637776244}
+  - component: {fileID: 6937792664942880573}
   m_Layer: 7
   m_Name: EnemeyController
   m_TagString: Enemy
@@ -283,7 +284,7 @@ MonoBehaviour:
   targetAnchor: {fileID: 11400000, guid: ded8b5ee8f0dd57488cc9fa0e5c0d061, type: 2}
   target: {fileID: 0}
   viewpoint: {fileID: 1070177650532018801}
-  showGizmos: 1
+  showGizmos: 0
   detectRange: 10
   viewAngle: 115
   enableFOV: 1
@@ -414,6 +415,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PrefabIdentity
   prefabId: PKa
+--- !u!114 &6937792664942880573
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1362228334903577606}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a65cc0b69e6d5c41b923b14bab68123, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FootIk
+  IkWeight: 1
+  GroundLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  RaycastDistance: 1.2
+  FootOffsetY: 0.1
+  SphereCastRadius: 0.05
+  LiftThreshold: 0.2
+  PositionSmoothSpeed: 15
+  RotationSmoothSpeed: 15
+  MaxSlopeAngle: 45
+  FixFootOverlap: 1
+  FootRadius: 0.08
+  AdjustPelvis: 1
+  PelvisOffsetSpeed: 10
+  MaxPelvisOffset: 0.6
 --- !u!1 &2032088470783747889
 GameObject:
   m_ObjectHideFlags: 0

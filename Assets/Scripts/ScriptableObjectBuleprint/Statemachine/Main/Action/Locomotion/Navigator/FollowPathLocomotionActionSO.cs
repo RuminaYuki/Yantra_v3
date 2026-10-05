@@ -46,5 +46,7 @@ public class FollowPathLocomotionAction : StateAction
     public override void OnStateExit()
     {
         _locomotion.ClearMovementDirection();
+        if (_updateFacing)
+        _locomotion.ClearFacingDirection();
     }
 }
