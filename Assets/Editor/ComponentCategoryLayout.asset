@@ -1,0 +1,131 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78c6fb0d4a5cc0a47b24cb7e5dd3d690, type: 3}
+  m_Name: ComponentCategoryLayout
+  m_EditorClassIdentifier: Assembly-CSharp-Editor::CategoryInspector.ComponentCategoryLayout
+  objects:
+  - key: prefab:42607b3ad3a1a8340816661a55902ba1/PlayerController
+    displayName: Rin(Player)/PlayerController
+    categories:
+    - id: eef94d6f3be84b41a652d77bf21d7541
+      parentId: 
+      name: State machine
+      order: 0
+      headerColor: {r: 1, g: 0, b: 0, a: 1}
+      textColor: {r: 0.95, g: 0.95, b: 0.95, a: 1}
+      fontSize: 13
+      bold: 1
+      builtinIcon: Folder Icon
+      customIcon: {fileID: 0}
+    - id: a5329efb194142e88a0766987cd086cd
+      parentId: 
+      name: Behavior
+      order: 1
+      headerColor: {r: 0.2, g: 0.36, b: 0.58, a: 1}
+      textColor: {r: 0.95, g: 0.95, b: 0.95, a: 1}
+      fontSize: 13
+      bold: 1
+      builtinIcon: Folder Icon
+      customIcon: {fileID: 0}
+    - id: 566871e2cf2c40b28ce126b120229666
+      parentId: 
+      name: Feedback
+      order: 2
+      headerColor: {r: 0.34082413, g: 0.6509434, b: 0.40185755, a: 1}
+      textColor: {r: 0.95, g: 0.95, b: 0.95, a: 1}
+      fontSize: 13
+      bold: 1
+      builtinIcon: Folder Icon
+      customIcon: {fileID: 0}
+    assignments:
+    - typeName: StateMachineController
+      categoryId: eef94d6f3be84b41a652d77bf21d7541
+      order: 0
+    - typeName: Provider
+      categoryId: eef94d6f3be84b41a652d77bf21d7541
+      order: 1
+    - typeName: StateFlags
+      categoryId: eef94d6f3be84b41a652d77bf21d7541
+      order: 2
+    - typeName: StatsProfileHost
+      categoryId: eef94d6f3be84b41a652d77bf21d7541
+      order: 3
+    - typeName: Health
+      categoryId: a5329efb194142e88a0766987cd086cd
+      order: 0
+    - typeName: PlayerLocomotion
+      categoryId: a5329efb194142e88a0766987cd086cd
+      order: 1
+    - typeName: PlayerCameraInput
+      categoryId: a5329efb194142e88a0766987cd086cd
+      order: 2
+    - typeName: BlockSystem
+      categoryId: a5329efb194142e88a0766987cd086cd
+      order: 3
+    - typeName: SkillPoints
+      categoryId: a5329efb194142e88a0766987cd086cd
+      order: 4
+    - typeName: AttackSphereCast
+      categoryId: a5329efb194142e88a0766987cd086cd
+      order: 5
+    - typeName: AttackCoordinator
+      categoryId: a5329efb194142e88a0766987cd086cd
+      order: 6
+    - typeName: SpellRadialMenuSelect
+      categoryId: a5329efb194142e88a0766987cd086cd
+      order: 7
+    - typeName: SDFcl.GamePlay.Interactable.CenterRayInteract
+      categoryId: a5329efb194142e88a0766987cd086cd
+      order: 8
+    - typeName: SDFcl.GamePlay.Interactable.PlayerInteract
+      categoryId: a5329efb194142e88a0766987cd086cd
+      order: 9
+    - typeName: PlayerInventory
+      categoryId: a5329efb194142e88a0766987cd086cd
+      order: 10
+    - typeName: HurtFeedback
+      categoryId: 566871e2cf2c40b28ce126b120229666
+      order: 0
+    - typeName: PlayerHurtReaction
+      categoryId: 566871e2cf2c40b28ce126b120229666
+      order: 1
+    - typeName: AttackSoundPlayer
+      categoryId: 566871e2cf2c40b28ce126b120229666
+      order: 2
+    - typeName: PlayerSoundController
+      categoryId: 566871e2cf2c40b28ce126b120229666
+      order: 3
+    - typeName: AttackVFXPlayer
+      categoryId: 566871e2cf2c40b28ce126b120229666
+      order: 4
+    - typeName: PlaySoundOnEventChannel
+      categoryId: 566871e2cf2c40b28ce126b120229666
+      order: 5
+    - typeName: PlayVFXOnEventChannel
+      categoryId: 566871e2cf2c40b28ce126b120229666
+      order: 6
+    - typeName: ParrySuccessDetector
+      categoryId: 566871e2cf2c40b28ce126b120229666
+      order: 7
+    - typeName: AttackHitFeedback
+      categoryId: 566871e2cf2c40b28ce126b120229666
+      order: 8
+    - typeName: PlayVFXOnEventChannel#1
+      categoryId: 566871e2cf2c40b28ce126b120229666
+      order: 9
+    - typeName: PlaySoundOnEventChannel#1
+      categoryId: 566871e2cf2c40b28ce126b120229666
+      order: 10
+    - typeName: AttackSoundPlayer#1
+      categoryId: 566871e2cf2c40b28ce126b120229666
+      order: 11
+  showEmptyCategories: 1
