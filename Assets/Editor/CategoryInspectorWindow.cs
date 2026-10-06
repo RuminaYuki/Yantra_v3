@@ -17,8 +17,6 @@ namespace CategoryInspector
     /// </summary>
     public class CategoryInspectorWindow : EditorWindow
     {
-        const string AssetFolder = "Assets/Editor";
-        const string AssetPath = "Assets/Editor/ComponentCategoryLayout.asset";
         const string UncategorizedId = "__uncategorized__";
         const string PrefPrefix = "CategoryInspector.expanded.";
 
@@ -45,7 +43,7 @@ namespace CategoryInspector
         [SerializeField] bool locked;
         [SerializeField] UnityEngine.Object lockedObject;
 
-        ComponentCategoryLayout layout;
+        bool layoutLoaded;
         GameObject target;                 // GameObject ที่กำลังดู (null ถ้าเลือก asset)
         UnityEngine.Object assetTarget;    // asset ที่กำลังดู เช่น ScriptableObject, Material
         Editor headerEditor;               // ใช้วาดหัวแบบ Inspector ปกติ (เปิด/ปิด, ชื่อ, Tag, Layer, Static)
@@ -56,33 +54,36 @@ namespace CategoryInspector
         string lastSignature = "";
         string currentKey;            // ตัวระบุ object ปัจจุบัน (ใช้หาชุดหมวดของมัน)
         string currentName;
+        string currentGroup;          // โฟลเดอร์ย่อยที่เก็บไฟล์หมวด เช่น "Scenes/Level1", "Prefabs/Player"
 
         // ชุดหมวดของ object ปัจจุบัน (ถ้ายังไม่เคยสร้าง จะได้ชุดว่างไว้อ่านอย่างเดียว)
         static readonly ObjectLayout Empty = new ObjectLayout();
-        ObjectLayout Cur => Resolve() ?? Empty;
+        ObjectLayout Cur => ResolveAsset()?.data ?? Empty;
 
         /// <summary>
         /// หาชุดหมวดของ object ปัจจุบัน
         /// ตอน Play: object ที่ spawn จาก prefab (เช่น "Player(Clone)" จาก Netcode) จะไม่มีลิงก์กับ prefab แล้ว
         /// และ object ใน scene ก็ได้ id ใหม่ → ถ้าหาจาก key ไม่เจอ ให้หาจากชื่อ path แทน
         /// </summary>
-        ObjectLayout Resolve()
+        ObjectLayoutAsset ResolveAsset()
         {
-            if (layout == null || string.IsNullOrEmpty(currentKey)) return null;
-            var o = layout.Get(currentKey);
-            if (o != null || !EditorApplication.isPlayingOrWillChangePlaymode || string.IsNullOrEmpty(fallbackName)) return o;
+            if (string.IsNullOrEmpty(currentKey)) return null;
+            var a = CategoryLayoutStore.Get(currentKey);
+            if (a != null || !EditorApplication.isPlayingOrWillChangePlaymode || string.IsNullOrEmpty(fallbackName)) return a;
 
-            return layout.objects
-                .Where(x => x.displayName == fallbackName)
-                .OrderBy(x => x.key != null && x.key.StartsWith("prefab:") ? 0 : 1)   // ให้ prefab มาก่อน
+            return CategoryLayoutStore.All
+                .Where(x => x != null && x.data.displayName == fallbackName)
+                .OrderBy(x => x.data.key != null && x.data.key.StartsWith("prefab:") ? 0 : 1)   // ให้ prefab มาก่อน
                 .FirstOrDefault();
         }
 
-        // ใช้ก่อนแก้ไขทุกครั้ง: บันทึก Undo + สร้างชุดหมวดของ object นี้ถ้ายังไม่มี
+        // ใช้ก่อนแก้ไขทุกครั้ง: สร้างไฟล์หมวดของ object นี้ถ้ายังไม่มี + บันทึก Undo
         ObjectLayout Edit(string undoName)
         {
-            Undo.RecordObject(layout, undoName);
-            return Resolve() ?? layout.GetOrCreate(currentKey, currentName);
+            var a = ResolveAsset() ?? CategoryLayoutStore.Create(currentKey, currentName, currentGroup);
+            Undo.RecordObject(a, undoName);
+            if (a.data.key == currentKey && !string.IsNullOrEmpty(currentName)) a.data.displayName = currentName;
+            return a.data;
         }
 
         Label targetLabel;
@@ -153,13 +154,14 @@ namespace CategoryInspector
 
             if (target != null)
             {
-                currentKey = LayoutKey(target, out currentName);
+                currentKey = LayoutKey(target, out currentName, out currentGroup);
                 fallbackName = PathName(target);
             }
             else
             {
                 currentKey = null;
                 currentName = assetTarget != null ? assetTarget.name : null;
+                currentGroup = null;
                 fallbackName = null;
             }
 
@@ -194,7 +196,7 @@ namespace CategoryInspector
         ///   → GUID ของไฟล์ prefab + path ชื่อ object ภายใน prefab ทำให้ทุก instance ใช้ชุดเดียวกัน
         /// - object ธรรมดาใน scene → GlobalObjectId (ไม่เปลี่ยนแม้เปลี่ยนชื่อ)
         /// </summary>
-        static string LayoutKey(GameObject go, out string displayName)
+        static string LayoutKey(GameObject go, out string displayName, out string group)
         {
             displayName = go.name;
 
@@ -204,6 +206,7 @@ namespace CategoryInspector
             {
                 string rel = RelPath(go.transform, stage.prefabContentsRoot.transform);
                 displayName = System.IO.Path.GetFileNameWithoutExtension(stage.assetPath) + (rel == "/" ? "" : rel);
+                group = "Prefabs/" + System.IO.Path.GetFileNameWithoutExtension(stage.assetPath);
                 return "prefab:" + AssetDatabase.AssetPathToGUID(stage.assetPath) + rel;
             }
 
@@ -216,12 +219,14 @@ namespace CategoryInspector
                 {
                     string rel = RelPath(assetObj.transform, assetObj.transform.root);
                     displayName = System.IO.Path.GetFileNameWithoutExtension(path) + (rel == "/" ? "" : rel);
+                    group = "Prefabs/" + System.IO.Path.GetFileNameWithoutExtension(path);
                     return "prefab:" + AssetDatabase.AssetPathToGUID(path) + rel;
                 }
             }
 
             // 3) object ธรรมดาใน scene (ต้องเซฟ scene ก่อน id ถึงจะคงที่)
             displayName = PathName(go);
+            group = "Scenes/" + (string.IsNullOrEmpty(go.scene.name) ? "Untitled" : go.scene.name);
             return "scene:" + GlobalObjectId.GetGlobalObjectIdSlow(go);
         }
 
@@ -259,17 +264,9 @@ namespace CategoryInspector
 
         void LoadLayout()
         {
-            if (layout != null) return;
-            var guids = AssetDatabase.FindAssets("t:" + nameof(ComponentCategoryLayout));
-            if (guids.Length > 0)
-            {
-                layout = AssetDatabase.LoadAssetAtPath<ComponentCategoryLayout>(AssetDatabase.GUIDToAssetPath(guids[0]));
-                if (layout != null) return;
-            }
-            if (!AssetDatabase.IsValidFolder(AssetFolder)) AssetDatabase.CreateFolder("Assets", "Editor");
-            layout = CreateInstance<ComponentCategoryLayout>();
-            AssetDatabase.CreateAsset(layout, AssetPath);
-            AssetDatabase.SaveAssets();
+            if (layoutLoaded) return;
+            layoutLoaded = true;
+            CategoryLayoutStore.MigrateLegacy();   // มีไฟล์รวมแบบเก่าอยู่ → แยกเป็นไฟล์ต่อ object
         }
 
         // ------------------------------------------------------------------
@@ -452,7 +449,7 @@ namespace CategoryInspector
         {
             bool searching = !string.IsNullOrEmpty(search);
             int count = CountInSubtree(node, buckets);
-            bool hide = count == 0 && (searching || !layout.showEmptyCategories);
+            bool hide = count == 0 && (searching || !CategoryLayoutStore.ShowEmptyCategories);
             if (hide && editingCategoryId != node.id) return null;
 
             bool expanded = searching || GetExpanded(node.id);
@@ -607,9 +604,11 @@ namespace CategoryInspector
 
             void Changed(string undoName, Action apply)
             {
-                Undo.RecordObject(layout, undoName);
+                var a = ResolveAsset();
+                if (a == null) return;
+                Undo.RecordObject(a, undoName);
                 apply();
-                EditorUtility.SetDirty(layout);
+                EditorUtility.SetDirty(a);
                 ApplyCategoryStyle(node, refs);   // อัปเดตสดโดยไม่ต้อง rebuild ทั้งหน้า
             }
 
@@ -932,14 +931,18 @@ namespace CategoryInspector
             m.AddItem(new GUIContent("Collapse All Categories"), false, () => SetAllExpanded(false));
             m.AddItem(new GUIContent("Collapse All Components"), false, CollapseAllComponents);
             m.AddSeparator("");
-            m.AddItem(new GUIContent("Show Empty Categories"), layout.showEmptyCategories, () =>
+            m.AddItem(new GUIContent("Show Empty Categories"), CategoryLayoutStore.ShowEmptyCategories, () =>
             {
-                Undo.RecordObject(layout, "Toggle Empty Categories");
-                layout.showEmptyCategories = !layout.showEmptyCategories;
-                Save();
+                CategoryLayoutStore.ShowEmptyCategories = !CategoryLayoutStore.ShowEmptyCategories;
                 Rebuild();
             });
-            m.AddItem(new GUIContent("Ping Layout Asset"), false, () => EditorGUIUtility.PingObject(layout));
+            m.AddItem(new GUIContent("Ping Layout File"), false, () =>
+            {
+                var a = ResolveAsset();
+                var folder = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(CategoryLayoutStore.Root);
+                if (a != null) EditorGUIUtility.PingObject(a);
+                else if (folder != null) EditorGUIUtility.PingObject(folder);
+            });
 
             m.AddSeparator("");
             if (target != null)
@@ -950,7 +953,7 @@ namespace CategoryInspector
                 if (HasCopiedCategories()) m.AddItem(new GUIContent("Paste Categories (Replace)"), false, PasteCategories);
                 else m.AddDisabledItem(new GUIContent("Paste Categories (Replace)"));
 
-                if (layout.Get(currentKey) != null) m.AddItem(new GUIContent("Clear Categories"), false, ClearCategories);
+                if (CategoryLayoutStore.Get(currentKey) != null) m.AddItem(new GUIContent("Clear Categories"), false, ClearCategories);
                 else m.AddDisabledItem(new GUIContent("Clear Categories"));
             }
             m.ShowAsContext();
@@ -1445,14 +1448,12 @@ namespace CategoryInspector
 
         void ClearCategories()
         {
-            var existing = layout.Get(currentKey);
+            var existing = CategoryLayoutStore.Get(currentKey);
             if (existing == null) return;
             if (!EditorUtility.DisplayDialog("Clear Categories",
-                    $"Remove all categories from \"{currentName}\"?", "Clear", "Cancel")) return;
-            Undo.RecordObject(layout, "Clear Categories");
-            layout.objects.Remove(existing);
+                    $"Remove all categories from \"{currentName}\"?\nThis deletes its layout file and cannot be undone.", "Clear", "Cancel")) return;
+            CategoryLayoutStore.Delete(existing);
             editingCategoryId = null;
-            Save();
             Rebuild();
         }
 
@@ -1471,11 +1472,7 @@ namespace CategoryInspector
             Rebuild();
         }
 
-        void Save()
-        {
-            EditorUtility.SetDirty(layout);
-            AssetDatabase.SaveAssetIfDirty(layout);
-        }
+        void Save() => CategoryLayoutStore.Save(ResolveAsset());
 
         // ------------------------------------------------------------------
         // ตัวช่วย
