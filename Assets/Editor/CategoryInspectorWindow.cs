@@ -43,10 +43,14 @@ namespace CategoryInspector
         };
 
         [SerializeField] bool locked;
-        [SerializeField] GameObject lockedTarget;
+        [SerializeField] UnityEngine.Object lockedObject;
 
         ComponentCategoryLayout layout;
-        GameObject target;
+        GameObject target;                 // GameObject ที่กำลังดู (null ถ้าเลือก asset)
+        UnityEngine.Object assetTarget;    // asset ที่กำลังดู เช่น ScriptableObject, Material
+        Editor headerEditor;               // ใช้วาดหัวแบบ Inspector ปกติ (เปิด/ปิด, ชื่อ, Tag, Layer, Static)
+        IMGUIContainer headerContainer;
+        string fallbackName;               // ชื่อ path ไว้หาชุดหมวดตอน Play
         string search = "";
         string editingCategoryId;     // หมวดที่เปิดแผงแก้สไตล์อยู่
         string lastSignature = "";
@@ -55,13 +59,30 @@ namespace CategoryInspector
 
         // ชุดหมวดของ object ปัจจุบัน (ถ้ายังไม่เคยสร้าง จะได้ชุดว่างไว้อ่านอย่างเดียว)
         static readonly ObjectLayout Empty = new ObjectLayout();
-        ObjectLayout Cur => (layout != null ? layout.Get(currentKey) : null) ?? Empty;
+        ObjectLayout Cur => Resolve() ?? Empty;
+
+        /// <summary>
+        /// หาชุดหมวดของ object ปัจจุบัน
+        /// ตอน Play: object ที่ spawn จาก prefab (เช่น "Player(Clone)" จาก Netcode) จะไม่มีลิงก์กับ prefab แล้ว
+        /// และ object ใน scene ก็ได้ id ใหม่ → ถ้าหาจาก key ไม่เจอ ให้หาจากชื่อ path แทน
+        /// </summary>
+        ObjectLayout Resolve()
+        {
+            if (layout == null || string.IsNullOrEmpty(currentKey)) return null;
+            var o = layout.Get(currentKey);
+            if (o != null || !EditorApplication.isPlayingOrWillChangePlaymode || string.IsNullOrEmpty(fallbackName)) return o;
+
+            return layout.objects
+                .Where(x => x.displayName == fallbackName)
+                .OrderBy(x => x.key != null && x.key.StartsWith("prefab:") ? 0 : 1)   // ให้ prefab มาก่อน
+                .FirstOrDefault();
+        }
 
         // ใช้ก่อนแก้ไขทุกครั้ง: บันทึก Undo + สร้างชุดหมวดของ object นี้ถ้ายังไม่มี
         ObjectLayout Edit(string undoName)
         {
             Undo.RecordObject(layout, undoName);
-            return layout.GetOrCreate(currentKey, currentName);
+            return Resolve() ?? layout.GetOrCreate(currentKey, currentName);
         }
 
         Label targetLabel;
@@ -85,8 +106,26 @@ namespace CategoryInspector
             GetWindow<CategoryInspectorWindow>("Category Inspector").Show();
         }
 
-        void OnEnable() => Undo.undoRedoPerformed += Rebuild;
-        void OnDisable() => Undo.undoRedoPerformed -= Rebuild;
+        void OnEnable()
+        {
+            Undo.undoRedoPerformed += Rebuild;
+            EditorApplication.playModeStateChanged += OnPlayModeChanged;
+        }
+
+        void OnDisable()
+        {
+            Undo.undoRedoPerformed -= Rebuild;
+            EditorApplication.playModeStateChanged -= OnPlayModeChanged;
+            if (headerEditor != null) DestroyImmediate(headerEditor);
+            headerEditor = null;
+        }
+
+        void OnPlayModeChanged(PlayModeStateChange state)
+        {
+            if (state != PlayModeStateChange.EnteredPlayMode && state != PlayModeStateChange.EnteredEditMode) return;
+            RefreshTarget();
+            Rebuild();
+        }
 
         void OnSelectionChange()
         {
@@ -102,14 +141,51 @@ namespace CategoryInspector
         void OnInspectorUpdate()
         {
             if (body == null) return;
-            if (Signature(target) != lastSignature) Rebuild();
+            if (CurrentSignature() != lastSignature) Rebuild();
+            headerContainer?.MarkDirtyRepaint();   // อัปเดตหัว (ชื่อ, เปิด/ปิด) ถ้าถูกแก้จากที่อื่น
         }
 
         void RefreshTarget()
         {
-            target = locked ? lockedTarget : Selection.activeGameObject;
-            if (target != null) currentKey = LayoutKey(target, out currentName);
-            else { currentKey = null; currentName = null; }
+            var obj = locked ? lockedObject : Selection.activeObject;
+            target = obj as GameObject;
+            assetTarget = target == null ? obj : null;
+
+            if (target != null)
+            {
+                currentKey = LayoutKey(target, out currentName);
+                fallbackName = PathName(target);
+            }
+            else
+            {
+                currentKey = null;
+                currentName = assetTarget != null ? assetTarget.name : null;
+                fallbackName = null;
+            }
+
+            // editor สำหรับวาดหัว: สร้างใหม่เมื่อเปลี่ยน object
+            UnityEngine.Object headerTarget = target != null ? (UnityEngine.Object)target : assetTarget;
+            if (headerEditor == null || headerEditor.target != headerTarget)
+            {
+                if (headerEditor != null) DestroyImmediate(headerEditor);
+                headerEditor = headerTarget != null ? Editor.CreateEditor(headerTarget) : null;
+            }
+        }
+
+        string CurrentSignature()
+        {
+            if (target != null) return Signature(target);
+            if (assetTarget != null) return "asset:" + ObjectId(assetTarget);
+            return "null";
+        }
+
+        /// <summary>ชื่อ root (ตัด "(Clone)" ออก) + path ลงมาถึง object นี้ เช่น "Player/Model/Gun"</summary>
+        static string PathName(GameObject go)
+        {
+            var root = go.transform.root;
+            string rootName = root.name.Replace("(Clone)", "").Trim();
+            string rel = RelPath(go.transform, root);
+            return rootName + (rel == "/" ? "" : rel);
         }
 
         /// <summary>
@@ -145,6 +221,7 @@ namespace CategoryInspector
             }
 
             // 3) object ธรรมดาใน scene (ต้องเซฟ scene ก่อน id ถึงจะคงที่)
+            displayName = PathName(go);
             return "scene:" + GlobalObjectId.GetGlobalObjectIdSlow(go);
         }
 
@@ -213,14 +290,18 @@ namespace CategoryInspector
             targetLabel.style.paddingLeft = 4;
             targetLabel.style.overflow = Overflow.Hidden;
             targetLabel.tooltip = "Click to ping";
-            targetLabel.AddManipulator(new Clickable(() => { if (target) EditorGUIUtility.PingObject(target); }));
+            targetLabel.AddManipulator(new Clickable(() =>
+            {
+                if (target) EditorGUIUtility.PingObject(target);
+                else if (assetTarget) EditorGUIUtility.PingObject(assetTarget);
+            }));
             toolbar.Add(targetLabel);
 
             var lockToggle = new ToolbarToggle { text = "Lock", value = locked };
             lockToggle.RegisterValueChangedCallback(e =>
             {
                 locked = e.newValue;
-                lockedTarget = locked ? target : null;
+                lockedObject = !locked ? null : (target != null ? (UnityEngine.Object)target : assetTarget);
                 RefreshTarget();
                 Rebuild();
             });
@@ -270,12 +351,26 @@ namespace CategoryInspector
             displayOrder.Clear();
             componentHeaders.Clear();
             body.Clear();
-            lastSignature = Signature(target);
-            targetLabel.text = target ? currentName : "(nothing selected)";
+            lastSignature = CurrentSignature();
+            targetLabel.text = target ? currentName : assetTarget ? assetTarget.name : "(nothing selected)";
+            headerContainer = null;
 
+            if (target == null && assetTarget == null)
+            {
+                body.Add(new HelpBox("Select a GameObject or an asset to inspect.", HelpBoxMessageType.Info));
+                return;
+            }
+
+            // หัวแบบ Inspector ปกติ: GameObject = เปิด/ปิด, ชื่อ, Static, Tag, Layer, ปุ่ม Prefab
+            //                       asset = ไอคอน, ชื่อ, ปุ่ม Open
+            body.Add(BuildObjectHeader());
+
+            // ScriptableObject หรือ asset อื่น: แสดง inspector เต็มเหมือนของปกติ (ไม่มีระบบหมวด)
             if (target == null)
             {
-                body.Add(new HelpBox("Select a GameObject to inspect.", HelpBoxMessageType.Info));
+                var insp = new InspectorElement(assetTarget);
+                insp.style.marginTop = 4;
+                body.Add(insp);
                 return;
             }
 
@@ -318,6 +413,19 @@ namespace CategoryInspector
             selected.RemoveWhere(c => c == null || !componentHeaders.ContainsKey(c));
 
             scroll.schedule.Execute(() => scroll.scrollOffset = new Vector2(0, scrollY));
+        }
+
+        VisualElement BuildObjectHeader()
+        {
+            headerContainer = new IMGUIContainer(() =>
+            {
+                if (headerEditor == null || headerEditor.target == null) return;
+                headerEditor.DrawHeader();
+            });
+            headerContainer.style.marginLeft = -4;    // ให้ชิดขอบเหมือน Inspector ปกติ
+            headerContainer.style.marginRight = -4;
+            headerContainer.style.marginBottom = 4;
+            return headerContainer;
         }
 
         bool MatchesSearch(Component c)
@@ -715,108 +823,108 @@ namespace CategoryInspector
 
         /// <summary>รายการ component แบบค้นหาได้ (คล้ายปุ่ม Add Component ของ Unity)</summary>
         class ComponentDropdown : AdvancedDropdown
+    {
+        class TypeItem : AdvancedDropdownItem
         {
-            class TypeItem : AdvancedDropdownItem
-            {
-                public readonly Type type;
-                public TypeItem(string name, Type t) : base(name) { type = t; }
-            }
-
-            static List<(string path, Type type)> cache;   // ล้างเองทุกครั้งที่ compile ใหม่
-            readonly Action<Type> onPicked;
-
-            public ComponentDropdown(AdvancedDropdownState state, Action<Type> onPicked) : base(state)
-            {
-                this.onPicked = onPicked;
-                minimumSize = new Vector2(260, 380);
-            }
-
-            protected override AdvancedDropdownItem BuildRoot()
-            {
-                var root = new AdvancedDropdownItem("Add Component");
-                var folders = new Dictionary<string, AdvancedDropdownItem>();
-                foreach (var (path, type) in GetEntries())
-                {
-                    int slash = path.LastIndexOf('/');
-                    var parent = slash < 0 ? root : GetFolder(root, folders, path.Substring(0, slash));
-                    parent.AddChild(new TypeItem(path.Substring(slash + 1), type)
-                    {
-                        icon = AssetPreview.GetMiniTypeThumbnail(type) as Texture2D
-                    });
-                }
-                return root;
-            }
-
-            protected override void ItemSelected(AdvancedDropdownItem item)
-            {
-                if (item is TypeItem t) onPicked?.Invoke(t.type);
-            }
-
-            static AdvancedDropdownItem GetFolder(AdvancedDropdownItem root, Dictionary<string, AdvancedDropdownItem> folders, string path)
-            {
-                if (folders.TryGetValue(path, out var f)) return f;
-                int slash = path.LastIndexOf('/');
-                var parent = slash < 0 ? root : GetFolder(root, folders, path.Substring(0, slash));
-                f = new AdvancedDropdownItem(path.Substring(slash + 1));
-                parent.AddChild(f);
-                folders[path] = f;
-                return f;
-            }
-
-            static List<(string path, Type type)> GetEntries()
-            {
-                if (cache != null) return cache;
-                cache = new List<(string path, Type type)>();
-
-                foreach (var t in TypeCache.GetTypesDerivedFrom<Component>())
-                {
-                    if (t.IsAbstract || t.IsGenericTypeDefinition) continue;
-                    if (t == typeof(MonoBehaviour) || t == typeof(Behaviour)) continue;
-                    if (typeof(Transform).IsAssignableFrom(t)) continue;               // Transform เพิ่มเองไม่ได้
-                    if (Attribute.IsDefined(t, typeof(ObsoleteAttribute), false)) continue;
-
-                    string asm = t.Assembly.GetName().Name;
-                    if (asm.Contains("Editor")) continue;                               // สคริปต์ editor ใส่ object ไม่ได้
-                    if (asm.StartsWith("UnityEngine") && !t.IsVisible) continue;       // component ภายในของ Unity
-
-                    string path = MenuPathFor(t, asm);
-                    if (path != null) cache.Add((path, t));
-                }
-
-                cache.Sort((a, b) => string.Compare(a.path, b.path, StringComparison.OrdinalIgnoreCase));
-                return cache;
-            }
-
-            static string MenuPathFor(Type t, string asm)
-            {
-                // ถ้าสคริปต์ใส่ [AddComponentMenu("...")] ไว้ ใช้ path นั้น (ค่าว่าง = ตั้งใจซ่อน)
-                var attr = (AddComponentMenu)Attribute.GetCustomAttribute(t, typeof(AddComponentMenu), false);
-                if (attr != null)
-                    return string.IsNullOrEmpty(attr.componentMenu) ? null : attr.componentMenu;
-
-                string nice = ObjectNames.NicifyVariableName(t.Name);
-
-                if (asm.StartsWith("UnityEngine"))
-                {
-                    string module = asm == "UnityEngine" || asm == "UnityEngine.CoreModule"
-                        ? "Core"
-                        : asm.Replace("UnityEngine.", "").Replace("Module", "");
-                    return "Unity/" + module + "/" + nice;
-                }
-
-                if (asm.StartsWith("Unity."))
-                    return "Packages/" + asm + "/" + nice;
-
-                return string.IsNullOrEmpty(t.Namespace)
-                    ? "Scripts/" + nice
-                    : "Scripts/" + t.Namespace.Replace('.', '/') + "/" + nice;
-            }
+            public readonly Type type;
+            public TypeItem(string name, Type t) : base(name) { type = t; }
         }
 
+        static List<(string path, Type type)> cache;   // ล้างเองทุกครั้งที่ compile ใหม่
+        readonly Action<Type> onPicked;
+
+        public ComponentDropdown(AdvancedDropdownState state, Action<Type> onPicked) : base(state)
+        {
+            this.onPicked = onPicked;
+            minimumSize = new Vector2(260, 380);
+        }
+
+        protected override AdvancedDropdownItem BuildRoot()
+        {
+            var root = new AdvancedDropdownItem("Add Component");
+            var folders = new Dictionary<string, AdvancedDropdownItem>();
+            foreach (var (path, type) in GetEntries())
+            {
+                int slash = path.LastIndexOf('/');
+                var parent = slash < 0 ? root : GetFolder(root, folders, path.Substring(0, slash));
+                parent.AddChild(new TypeItem(path.Substring(slash + 1), type)
+                {
+                    icon = AssetPreview.GetMiniTypeThumbnail(type) as Texture2D
+                });
+            }
+            return root;
+        }
+
+        protected override void ItemSelected(AdvancedDropdownItem item)
+        {
+            if (item is TypeItem t) onPicked?.Invoke(t.type);
+        }
+
+        static AdvancedDropdownItem GetFolder(AdvancedDropdownItem root, Dictionary<string, AdvancedDropdownItem> folders, string path)
+        {
+            if (folders.TryGetValue(path, out var f)) return f;
+            int slash = path.LastIndexOf('/');
+            var parent = slash < 0 ? root : GetFolder(root, folders, path.Substring(0, slash));
+            f = new AdvancedDropdownItem(path.Substring(slash + 1));
+            parent.AddChild(f);
+            folders[path] = f;
+            return f;
+        }
+
+        static List<(string path, Type type)> GetEntries()
+        {
+            if (cache != null) return cache;
+            cache = new List<(string path, Type type)>();
+
+            foreach (var t in TypeCache.GetTypesDerivedFrom<Component>())
+            {
+                if (t.IsAbstract || t.IsGenericTypeDefinition) continue;
+                if (t == typeof(MonoBehaviour) || t == typeof(Behaviour)) continue;
+                if (typeof(Transform).IsAssignableFrom(t)) continue;               // Transform เพิ่มเองไม่ได้
+                if (Attribute.IsDefined(t, typeof(ObsoleteAttribute), false)) continue;
+
+                string asm = t.Assembly.GetName().Name;
+                if (asm.Contains("Editor")) continue;                               // สคริปต์ editor ใส่ object ไม่ได้
+                if (asm.StartsWith("UnityEngine") && !t.IsVisible) continue;       // component ภายในของ Unity
+
+                string path = MenuPathFor(t, asm);
+                if (path != null) cache.Add((path, t));
+            }
+
+            cache.Sort((a, b) => string.Compare(a.path, b.path, StringComparison.OrdinalIgnoreCase));
+            return cache;
+        }
+
+        static string MenuPathFor(Type t, string asm)
+        {
+            // ถ้าสคริปต์ใส่ [AddComponentMenu("...")] ไว้ ใช้ path นั้น (ค่าว่าง = ตั้งใจซ่อน)
+            var attr = (AddComponentMenu)Attribute.GetCustomAttribute(t, typeof(AddComponentMenu), false);
+            if (attr != null)
+                return string.IsNullOrEmpty(attr.componentMenu) ? null : attr.componentMenu;
+
+            string nice = ObjectNames.NicifyVariableName(t.Name);
+
+            if (asm.StartsWith("UnityEngine"))
+            {
+                string module = asm == "UnityEngine" || asm == "UnityEngine.CoreModule"
+                    ? "Core"
+                    : asm.Replace("UnityEngine.", "").Replace("Module", "");
+                return "Unity/" + module + "/" + nice;
+            }
+
+            if (asm.StartsWith("Unity."))
+                return "Packages/" + asm + "/" + nice;
+
+            return string.IsNullOrEmpty(t.Namespace)
+                ? "Scripts/" + nice
+                : "Scripts/" + t.Namespace.Replace('.', '/') + "/" + nice;
+        }
+        }
+ 
         // ------------------------------------------------------------------
         // เมนูจุดสามจุด
         // ------------------------------------------------------------------
-
+ 
         void ShowWindowMenu()
         {
             var m = new GenericMenu();
