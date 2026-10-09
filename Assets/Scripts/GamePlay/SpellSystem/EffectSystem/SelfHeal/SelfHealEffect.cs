@@ -1,9 +1,14 @@
+using System.Collections;
 using UnityEngine;
 
 public class SelfHealEffect : BaseEffectClass, IEffectExecutor
 {
     [Header("Heal")]
     [SerializeField] float healAmount;
+    [SerializeField] float OverTime = 0f;
+
+    [SerializeField] private HealOverTime healOverTimePrefab;
+    private HealOverTime overTime;
 
     public void Execute(GameObject owner)
     {
@@ -52,7 +57,17 @@ public class SelfHealEffect : BaseEffectClass, IEffectExecutor
         IHeal heal = owner.GetComponentInChildren<IHeal>();
         if (heal == null) return;
 
-        heal.Heal(healAmount);
+        if (OverTime > 0f)
+        {
+            GameObject healOverTimeObject = Instantiate(healOverTimePrefab.gameObject, owner.transform);
+            overTime = healOverTimeObject.GetComponent<HealOverTime>();
+
+            overTime.StartHealing(healAmount, OverTime, heal);
+        }
+        else
+        {
+            heal.Heal(healAmount);
+        }
     }
 
     private void OnEnable()
