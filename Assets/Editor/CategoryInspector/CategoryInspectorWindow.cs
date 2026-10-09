@@ -43,7 +43,6 @@ namespace CategoryInspector
         [SerializeField] bool locked;
         [SerializeField] UnityEngine.Object lockedObject;
 
-        bool layoutLoaded;
         GameObject target;                 // GameObject ที่กำลังดู (null ถ้าเลือก asset)
         UnityEngine.Object assetTarget;    // asset ที่กำลังดู เช่น ScriptableObject, Material
         Editor headerEditor;               // ใช้วาดหัวแบบ Inspector ปกติ (เปิด/ปิด, ชื่อ, Tag, Layer, Static)
@@ -262,12 +261,6 @@ namespace CategoryInspector
 #endif
         }
 
-        void LoadLayout()
-        {
-            if (layoutLoaded) return;
-            layoutLoaded = true;
-            CategoryLayoutStore.MigrateLegacy();   // มีไฟล์รวมแบบเก่าอยู่ → แยกเป็นไฟล์ต่อ object
-        }
 
         // ------------------------------------------------------------------
         // สร้าง UI หลัก
@@ -275,7 +268,6 @@ namespace CategoryInspector
 
         public void CreateGUI()
         {
-            LoadLayout();
             var root = rootVisualElement;
 
             // แถวบน: ชื่อ object / Lock / + Category / เมนูจุดสามจุด
@@ -341,7 +333,6 @@ namespace CategoryInspector
         void Rebuild()
         {
             if (body == null) return;
-            LoadLayout();
 
             float scrollY = scroll.scrollOffset.y;
             dropHighlight = null;
@@ -919,11 +910,11 @@ namespace CategoryInspector
                 : "Scripts/" + t.Namespace.Replace('.', '/') + "/" + nice;
         }
         }
- 
+
         // ------------------------------------------------------------------
         // เมนูจุดสามจุด
         // ------------------------------------------------------------------
- 
+
         void ShowWindowMenu()
         {
             var m = new GenericMenu();
@@ -1033,7 +1024,99 @@ namespace CategoryInspector
             }
             if (!multi) m.AddItem(new GUIContent("Ping Object"), false, () => EditorGUIUtility.PingObject(comp));
             if (selected.Count > 0) m.AddItem(new GUIContent("Clear Selection"), false, ClearSelection);
+
+            m.AddSeparator("");
+            if (comps.All(c => c is Transform)) m.AddDisabledItem(new GUIContent("Remove Component"));
+            else m.AddItem(new GUIContent("Remove Component" + suffix), false, () => RemoveComponents(comps));
             m.ShowAsContext();
+        }
+
+        // ------------------------------------------------------------------
+        // ลบ component
+        // ------------------------------------------------------------------
+
+        /// <summary>
+        /// ลบ component ออกจาก object (Undo ได้ในครั้งเดียว)
+        /// - ข้าม Transform เพราะลบไม่ได้
+        /// - กันลบตัวที่ component อื่นต้องใช้ ([RequireComponent]) เหมือน Inspector ปกติ
+        /// - จัดหมวดของ component ชนิดเดียวกันที่เหลือให้ถูกตัว (เพราะหมวดจำตามลำดับ)
+        /// </summary>
+        void RemoveComponents(IList<Component> comps)
+        {
+            if (target == null || comps == null) return;
+            var toRemove = comps.Where(c => c != null && !(c is Transform) && c.gameObject == target).Distinct().ToList();
+            if (toRemove.Count == 0) return;
+
+            // เช็กว่ามีตัวอื่นต้องใช้หรือไม่
+            var blocked = new List<string>();
+            foreach (var c in toRemove)
+            {
+                var dependent = FindDependent(c, toRemove);
+                if (dependent != null)
+                    blocked.Add($"{ObjectNames.GetInspectorTitle(c)} is required by {ObjectNames.GetInspectorTitle(dependent)}");
+            }
+            if (blocked.Count > 0)
+            {
+                EditorUtility.DisplayDialog("Can't remove component",
+                    string.Join("\n", blocked) + "\n\nRemove the dependent component first.", "OK");
+                return;
+            }
+
+            if (toRemove.Count > 1 && !EditorUtility.DisplayDialog("Remove Components",
+                    $"Remove {toRemove.Count} components from \"{target.name}\"?", "Remove", "Cancel")) return;
+
+            Undo.IncrementCurrentGroup();
+            int group = Undo.GetCurrentGroup();
+            Undo.SetCurrentGroupName(toRemove.Count > 1 ? "Remove Components" : "Remove " + ObjectNames.GetInspectorTitle(toRemove[0]));
+
+            // จำหมวดของตัวที่เหลือไว้ก่อน (ลำดับจะเลื่อนหลังลบ)
+            var o = Edit("Remove Component");
+            var keep = new Dictionary<Component, TypeAssignment>();
+            foreach (var c in target.GetComponents<Component>())
+            {
+                if (c == null) continue;
+                var a = o.GetAssignment(c);
+                if (a == null) continue;
+                if (toRemove.Contains(c)) o.assignments.Remove(a);
+                else keep[c] = a;
+            }
+
+            foreach (var c in toRemove)
+            {
+                selected.Remove(c);
+                if (anchor == c) anchor = null;
+                Undo.DestroyObjectImmediate(c);
+            }
+
+            // ตั้ง key ใหม่ให้ตัวที่เหลือตามลำดับปัจจุบัน
+            foreach (var kv in keep)
+                if (kv.Key != null) kv.Value.typeName = ObjectLayout.ComponentKey(kv.Key);
+
+            Undo.CollapseUndoOperations(group);
+            Save();
+            Rebuild();
+        }
+
+        /// <summary>หา component ที่มี [RequireComponent] ชี้มาที่ comp และไม่มีตัวอื่นชนิดเดียวกันมาแทนได้</summary>
+        Component FindDependent(Component comp, ICollection<Component> removing)
+        {
+            var type = comp.GetType();
+            var all = target.GetComponents<Component>().Where(c => c != null).ToList();
+
+            // ถ้ายังมีตัวชนิดเดียวกัน (ที่ไม่ได้ลบ) เหลืออยู่ ก็ลบได้
+            bool hasReplacement(Type required) =>
+                all.Any(x => !removing.Contains(x) && required.IsAssignableFrom(x.GetType()));
+
+            foreach (var other in all)
+            {
+                if (removing.Contains(other)) continue;
+                var attrs = (RequireComponent[])Attribute.GetCustomAttributes(other.GetType(), typeof(RequireComponent), true);
+                foreach (var r in attrs)
+                    foreach (var req in new[] { r.m_Type0, r.m_Type1, r.m_Type2 })
+                        if (req != null && req.IsAssignableFrom(type) && !hasReplacement(req))
+                            return other;
+            }
+            return null;
         }
 
         /// <summary>path สำหรับเมนู ถ้าหมวดมีลูก ต้องมีรายการ "(here)" เพราะเมนูย่อยกดเลือกตัวมันเองไม่ได้</summary>

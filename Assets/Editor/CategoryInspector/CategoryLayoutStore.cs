@@ -8,14 +8,13 @@ namespace CategoryInspector
 {
     /// <summary>
     /// จัดการไฟล์หมวดแยกต่อ object
-    /// - object ใน scene → CategoryLayouts/Scenes/&lt;ชื่อ scene&gt;/&lt;path ของ object&gt;.asset
-    /// - prefab        → CategoryLayouts/Prefabs/&lt;ชื่อ prefab&gt;/&lt;path ภายใน prefab&gt;.asset
+    /// - object ใน scene → CategoryLayoutS/Scenes/&lt;ชื่อ scene&gt;/&lt;path ของ object&gt;.asset
+    /// - prefab        → CategoryLayoutS/Prefabs/&lt;ชื่อ prefab&gt;/&lt;path ภายใน prefab&gt;.asset
     /// ชื่อไฟล์มีไว้ให้คนอ่านเท่านั้น ตัวที่ใช้จับคู่จริงคือ data.key ข้างในไฟล์ (เปลี่ยนชื่อ object ทีหลังก็ยังหาเจอ)
     /// </summary>
     static class CategoryLayoutStore
     {
-        public const string Root = "Assets/Editor/CategoryLayouts";
-        const string LegacyAssetPath = "Assets/Editor/ComponentCategoryLayout.asset";
+        public const string Root = "Assets/Editor/CategoryInspector/CategoryLayoutS";
         const string ShowEmptyPref = "CategoryInspector.showEmptyCategories";
 
         static Dictionary<string, ObjectLayoutAsset> index;   // key → ไฟล์ (ล้างเมื่อมีไฟล์ในโฟลเดอร์เปลี่ยน)
@@ -110,54 +109,6 @@ namespace CategoryInspector
             EnsureFolder(parent);
             AssetDatabase.CreateFolder(parent, Path.GetFileName(folder));
         }
-
-        // ------------------------------------------------------------------
-        // ย้ายข้อมูลจากไฟล์รวมแบบเก่า (ComponentCategoryLayout.asset) มาเป็นไฟล์แยก
-        // ------------------------------------------------------------------
-
-        public static void MigrateLegacy()
-        {
-            var legacy = AssetDatabase.LoadAssetAtPath<ComponentCategoryLayout>(LegacyAssetPath);
-            if (legacy == null) return;
-
-            ShowEmptyCategories = legacy.showEmptyCategories;
-            int moved = 0;
-            foreach (var o in legacy.objects)
-            {
-                if (o == null || string.IsNullOrEmpty(o.key)) continue;
-                if (o.categories.Count == 0 && o.assignments.Count == 0) continue;
-                if (Get(o.key) != null) continue;
-
-                var a = Create(o.key, o.displayName, LegacyGroup(o));
-                a.data.categories = o.categories;
-                a.data.assignments = o.assignments;
-                Save(a);
-                moved++;
-            }
-
-            AssetDatabase.DeleteAsset(LegacyAssetPath);
-            Invalidate();
-            Debug.Log($"[Category Inspector] Migrated {moved} object layout(s) from {LegacyAssetPath} to {Root}/");
-        }
-
-        static string LegacyGroup(ObjectLayout o)
-        {
-            if (o.key.StartsWith("prefab:"))
-            {
-                string guid = o.key.Substring("prefab:".Length).Split('/')[0];
-                string path = AssetDatabase.GUIDToAssetPath(guid);
-                return "Prefabs/" + (string.IsNullOrEmpty(path) ? FirstSegment(o.displayName) : Path.GetFileNameWithoutExtension(path));
-            }
-            if (o.key.StartsWith("scene:") && GlobalObjectId.TryParse(o.key.Substring("scene:".Length), out var id))
-            {
-                string path = AssetDatabase.GUIDToAssetPath(id.assetGUID);
-                if (!string.IsNullOrEmpty(path)) return "Scenes/" + Path.GetFileNameWithoutExtension(path);
-            }
-            return "Scenes/Untitled";
-        }
-
-        static string FirstSegment(string s) =>
-            string.IsNullOrEmpty(s) ? "Unknown" : s.Split('/').First();
 
         /// <summary>มีไฟล์ในโฟลเดอร์หมวดถูกเพิ่ม/ลบ/ย้าย (เช่น git pull) → ล้าง index</summary>
         class Watcher : AssetPostprocessor

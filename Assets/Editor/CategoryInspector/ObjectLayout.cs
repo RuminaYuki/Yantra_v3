@@ -123,36 +123,4 @@ namespace CategoryInspector
             return string.Join(separator, parts);
         }
     }
-
-    /// <summary>
-    /// [รุ่นเก่า] ไฟล์รวมหมวดของทุก object ไว้ไฟล์เดียว — เก็บคลาสไว้เพื่อย้ายข้อมูลเท่านั้น
-    /// ตอนเปิด Category Inspector จะแยกเป็นไฟล์ต่อ object (ObjectLayoutAsset) แล้วลบไฟล์นี้ทิ้ง (ดู CategoryLayoutStore.MigrateLegacy)
-    /// ชื่อไฟล์ .cs ต้องตรงกับชื่อคลาสนี้ ไม่อย่างนั้น Unity จะโหลด ScriptableObject ไม่ได้
-    /// </summary>
-    public class ComponentCategoryLayout : ScriptableObject
-    {
-        public List<ObjectLayout> objects = new List<ObjectLayout>();
-        public bool showEmptyCategories = true;
-
-        public ObjectLayout Get(string key)
-        {
-            if (string.IsNullOrEmpty(key)) return null;
-            return objects.Find(o => o.key == key);
-        }
-
-        public ObjectLayout GetOrCreate(string key, string displayName)
-        {
-            var o = Get(key);
-            if (o == null)
-            {
-                o = new ObjectLayout { key = key, displayName = displayName };
-                objects.Add(o);
-            }
-            else if (!string.IsNullOrEmpty(displayName))
-            {
-                o.displayName = displayName;
-            }
-            return o;
-        }
-    }
 }
