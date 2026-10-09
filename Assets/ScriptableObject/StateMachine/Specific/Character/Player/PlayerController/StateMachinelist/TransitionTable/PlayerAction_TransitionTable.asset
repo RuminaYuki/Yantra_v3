@@ -28,6 +28,11 @@ MonoBehaviour:
     - Conditions:
       - Condition: {fileID: 11400000, guid: 45d2dd7c3a55599428b14c8cd6c4c8d4, type: 2}
         ExpectedResult: 0
+  - ToState: {fileID: 11400000, guid: 01ddd4e0761d19b46849c7f5156836de, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 0a158c78d75a939468790e29e848bb78, type: 2}
+        ExpectedResult: 0
   _transitions:
   - FromState: {fileID: 11400000, guid: 6936ac72c9d3f5b4fa1af6e969ba1a6d, type: 2}
     ConditionGroups:
@@ -107,9 +112,15 @@ MonoBehaviour:
       - Condition: {fileID: 11400000, guid: 45d2dd7c3a55599428b14c8cd6c4c8d4, type: 2}
         ExpectedResult: 1
     ToState: {fileID: 11400000, guid: 9b03be382e028a34b8b91e0341e8b28f, type: 2}
+  - FromState: {fileID: 11400000, guid: 01ddd4e0761d19b46849c7f5156836de, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 0a158c78d75a939468790e29e848bb78, type: 2}
+        ExpectedResult: 1
+    ToState: {fileID: 11400000, guid: 9b03be382e028a34b8b91e0341e8b28f, type: 2}
   _nodePositions:
   - State: {fileID: 11400000, guid: 6936ac72c9d3f5b4fa1af6e969ba1a6d, type: 2}
-    Position: {x: 56, y: 1}
+    Position: {x: 44, y: 123}
   - State: {fileID: 11400000, guid: 30909b92a8730694da9eba98b6d02b35, type: 2}
     Position: {x: 244, y: 123}
   - State: {fileID: 11400000, guid: 78abb9a98a15b7348a9a3cc4591ca792, type: 2}
@@ -121,6 +132,8 @@ MonoBehaviour:
   - State: {fileID: 11400000, guid: 9b03be382e028a34b8b91e0341e8b28f, type: 2}
     Position: {x: 244, y: 1}
   - State: {fileID: 11400000, guid: 2388c62025b28d54fadac765a79be5d3, type: 2}
-    Position: {x: 56, y: -98}
+    Position: {x: 44, y: 2}
+  - State: {fileID: 11400000, guid: 01ddd4e0761d19b46849c7f5156836de, type: 2}
+    Position: {x: 44, y: -98}
   _entryNodePosition: {x: 264, y: -98}
-  _anyStateNodePosition: {x: -105, y: 1}
+  _anyStateNodePosition: {x: -122, y: 123}

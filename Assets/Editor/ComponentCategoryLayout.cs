@@ -125,7 +125,8 @@ namespace CategoryInspector
     }
 
     /// <summary>
-    /// ไฟล์เก็บหมวดของทุก object (สร้างอัตโนมัติที่ Assets/Editor/ComponentCategoryLayout.asset)
+    /// [รุ่นเก่า] ไฟล์รวมหมวดของทุก object ไว้ไฟล์เดียว — เก็บคลาสไว้เพื่อย้ายข้อมูลเท่านั้น
+    /// ตอนเปิด Category Inspector จะแยกเป็นไฟล์ต่อ object (ObjectLayoutAsset) แล้วลบไฟล์นี้ทิ้ง (ดู CategoryLayoutStore.MigrateLegacy)
     /// ชื่อไฟล์ .cs ต้องตรงกับชื่อคลาสนี้ ไม่อย่างนั้น Unity จะโหลด ScriptableObject ไม่ได้
     /// </summary>
     public class ComponentCategoryLayout : ScriptableObject
