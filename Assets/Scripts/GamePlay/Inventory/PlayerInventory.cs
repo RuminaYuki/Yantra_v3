@@ -11,8 +11,14 @@ public class PlayerInventory : MonoBehaviour
     [Tooltip("Where dropped items spawn. Leave empty to spawn in front of this object.")]
     [SerializeField] private Transform dropPoint;
 
+    [Header("Board")]
+    [SerializeField, Min(1)] private int width = 8;
+    [SerializeField, Min(1)] private int height = 6;
+    [Tooltip("Cells that are always storage. Cells outside it only become storage under a bag.\n" +
+             "Not using bags: make it cover the whole board (0, 0, width, height).")]
+    [SerializeField] private RectInt startArea = new RectInt(0, 0, 8, 6);
+
     [Header("Setting")]
-    [SerializeField] private int slotCount = 20;
     [SerializeField] private float dropForwardDistance = 1f;
     [SerializeField] private float dropUpOffset = 0.5f;
 
@@ -20,7 +26,7 @@ public class PlayerInventory : MonoBehaviour
 
     private void Awake()
     {
-        Inventory = new Inventory(slotCount);
+        Inventory = new Inventory(width, height, startArea);
     }
 
     private void OnEnable()
@@ -60,15 +66,13 @@ public class PlayerInventory : MonoBehaviour
         return left < s.quantity;
     }
 
-    // Removes items from a slot and spawns them on the ground as one stack.
-    public void DropFromSlot(int index, int amount)
+    // Removes items from a placed stack and spawns them on the ground as one stack.
+    public void DropItem(PlacedItem target, int amount)
     {
-        if (!Inventory.IsValid(index)) return;
+        if (!Inventory.CanRemove(target) || target.Item.worldPrefab == null) return;
 
-        ItemStack s = Inventory[index];
-        if (s.IsEmpty || s.item.worldPrefab == null) return;
-
-        int removed = Inventory.TryRemoveAt(index, amount);
+        ItemData item = target.Item;
+        int removed = Inventory.TryRemove(target, amount);
         if (removed <= 0) return;
 
         Vector3 pos;
@@ -84,7 +88,7 @@ public class PlayerInventory : MonoBehaviour
             rot = Quaternion.LookRotation(transform.forward, Vector3.up);
         }
 
-        WorldItem dropped = Instantiate(s.item.worldPrefab, pos, rot);
-        dropped.Initialize(new ItemStack(s.item, removed));
+        WorldItem dropped = Instantiate(item.worldPrefab, pos, rot);
+        dropped.Initialize(new ItemStack(item, removed));
     }
 }

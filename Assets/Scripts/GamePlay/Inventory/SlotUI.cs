@@ -1,66 +1,49 @@
-using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-// One cell of the grid. Only forwards pointer events to InventoryUI.
-// Left click = select, right click = action menu, left drag = move/merge/swap.
-public class SlotUI : MonoBehaviour,
-    IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler, IDropHandler
+// One cell of the board background. Visual only (no clicks):
+// shows whether the cell is storage, and green/red while an item is dragged over it.
+// Items are drawn by ItemViewUI on top of the cells.
+public class SlotUI : MonoBehaviour
 {
-    [SerializeField] private Image icon;
-    [SerializeField] private TMP_Text countText;
-    [SerializeField] private GameObject selectedMark;
+    public enum Highlight { None, Valid, Invalid }
 
-    private InventoryUI owner;
-    private int index;
+    [SerializeField] private Image background;
+    [SerializeField] private Color lockedColor = new Color(1f, 1f, 1f, 0.03f);
+    [SerializeField] private Color storageColor = new Color(1f, 1f, 1f, 0.15f);
+    [SerializeField] private Color validColor = new Color(0.3f, 1f, 0.3f, 0.5f);
+    [SerializeField] private Color invalidColor = new Color(1f, 0.3f, 0.3f, 0.5f);
+
+    private bool storage;
+    private Highlight highlight;
 
     public RectTransform Rect => (RectTransform)transform;
 
-    public void Init(InventoryUI owner, int index)
+    private void Awake()
     {
-        this.owner = owner;
-        this.index = index;
+        // Cells are drawn above bags, so they must not steal clicks meant for the bag.
+        if (background) background.raycastTarget = false;
     }
 
-    public void Refresh(ItemStack stack)
+    public void SetStorage(bool value)
     {
-        bool has = !stack.IsEmpty;
-        icon.enabled = has;
-        icon.sprite = has ? stack.item.icon : null;
-        countText.text = has && stack.quantity > 1 ? stack.quantity.ToString() : string.Empty;
+        storage = value;
+        Apply();
     }
 
-    public void SetSelected(bool value) { if (selectedMark) selectedMark.SetActive(value); }
-
-    // Dims the icon while it is being dragged.
-    public void SetDragging(bool value)
+    public void SetHighlight(Highlight value)
     {
-        Color c = icon.color;
-        c.a = value ? 0.4f : 1f;
-        icon.color = c;
+        if (highlight == value) return;
+        highlight = value;
+        Apply();
     }
 
-    // Unity does not send a click after a drag, so these never conflict.
-    public void OnPointerClick(PointerEventData e) => owner.HandleClick(index, e);
-
-    public void OnBeginDrag(PointerEventData e)
+    private void Apply()
     {
-        if (e.button == PointerEventData.InputButton.Left) owner.HandleBeginDrag(index, e);
-    }
-
-    public void OnDrag(PointerEventData e)
-    {
-        if (e.button == PointerEventData.InputButton.Left) owner.HandleDrag(e);
-    }
-
-    public void OnEndDrag(PointerEventData e)
-    {
-        if (e.button == PointerEventData.InputButton.Left) owner.HandleEndDrag();
-    }
-
-    public void OnDrop(PointerEventData e)
-    {
-        if (e.button == PointerEventData.InputButton.Left) owner.HandleDropOnSlot(index);
+        if (!background) return;
+        background.color =
+            highlight == Highlight.Valid ? validColor :
+            highlight == Highlight.Invalid ? invalidColor :
+            storage ? storageColor : lockedColor;
     }
 }
