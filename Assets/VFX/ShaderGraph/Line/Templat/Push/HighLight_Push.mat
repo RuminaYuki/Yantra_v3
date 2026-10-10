@@ -27,7 +27,7 @@ Material:
   - TransparentDepthPostpass
   - TransparentBackface
   - MOTIONVECTORS
-  m_LockedProperties: 
+  m_LockedProperties: _Texture2D
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
@@ -54,6 +54,7 @@ Material:
     - _AlphaCutoffEnable: 0
     - _AlphaDstBlend: 10
     - _AlphaSrcBlend: 1
+    - _Background_Intensity: 1
     - _BlendMode: 0
     - _Cicle: 0.89
     - _ConservativeDepthOffsetEnable: 0
@@ -69,10 +70,13 @@ Material:
     - _EnableFogOnTransparent: 1
     - _ExcludeFromTUAndAA: 0
     - _Float: 0
+    - _Glow_Blur: 0
+    - _Glow_Intensity: 0
+    - _Glow_Strength: 0
     - _OpaqueCullMode: 2
     - _PerPixelSorting: 0
-    - _Radia: 0.03
-    - _Radia_Out: 0.64
+    - _Radia: -0.23
+    - _Radia_Out: 0.56
     - _RenderQueueType: 4
     - _SrcBlend: 1
     - _StencilRef: 0
@@ -96,7 +100,8 @@ Material:
     - _ZTestTransparent: 4
     - _ZWrite: 0
     m_Colors:
-    - _Color: {r: 0.99999994, g: 0.99999994, b: 0.99999994, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Color_1: {r: 0, g: 0, b: 0, a: 0.72156864}
     - _DoubleSidedConstants: {r: 1, g: 1, b: -1, a: 0}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
     - _Offet: {r: 0.5, g: 0.5, b: 0, a: 0}

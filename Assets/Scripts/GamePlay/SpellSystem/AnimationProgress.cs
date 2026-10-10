@@ -10,8 +10,7 @@ public class AnimationProgress : MonoBehaviour
     [Header("Animation Setting")]
     [SerializeField] int _layerIndex;
     [SerializeField] string _animationName;
-    [SerializeField, Range(0f, 1f)] float _startTime = 0f;
-    [SerializeField, Range(0f, 1f)] float _endTime = 1f;
+    [SerializeField, Min(0f)] float _fadeDuration = 0f;
 
 
     private void OnEnable()
@@ -51,7 +50,7 @@ public class AnimationProgress : MonoBehaviour
             }
             HandleFinishSpell(); 
         }
-        _aPD_AEC.Raise(_animationName, _layerIndex, value, _startTime, _endTime);
+        _aPD_AEC.Raise(_animationName, _layerIndex, value, _fadeDuration);
     }
 
     private void HandleFinishSpell()
