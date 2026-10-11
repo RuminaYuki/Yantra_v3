@@ -26,6 +26,9 @@ public class AttackTokenUser : MonoBehaviour
         {
             _coordinator = GameObject.FindGameObjectWithTag("Player")?.GetComponent<AttackCoordinator>();
             if (_coordinator == null)
+                _coordinator = GameObject.Find("PlayerController")?.GetComponent<AttackCoordinator>();
+
+            if (_coordinator == null)
             {
                 Debug.LogError(
                     "AttackTokenUser cannot find AttackCoordinator.",
