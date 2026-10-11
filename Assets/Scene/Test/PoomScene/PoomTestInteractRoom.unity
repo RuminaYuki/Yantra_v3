@@ -328,7 +328,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 809213569433171308, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: collapsed
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 998187679989262526, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_Name
@@ -336,7 +336,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4368828265564020728, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: collapsed
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5107126304779472096, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: vcamGlory
@@ -344,7 +344,7 @@ PrefabInstance:
       objectReference: {fileID: 781206307}
     - target: {fileID: 6252579542559560056, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: collapsed
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8773688531908745627, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: '_transitionTables.Array.data[0]'
@@ -1158,7 +1158,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Follow3D
   _target: {fileID: 333419919}
-  _targetAnchor: {fileID: 0}
   _constrainPosition: 1
   _constrainRotation: 1
   _maintainOffset: 0
@@ -2998,6 +2997,18 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5509282250630994498, guid: 4cdd45ece38eee449998c03d63f40c87, type: 3}
+      propertyPath: _anchorReferences.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5509282250630994498, guid: 4cdd45ece38eee449998c03d63f40c87, type: 3}
+      propertyPath: _anchorReferences.Array.data[1].anchorID
+      value: 
+      objectReference: {fileID: 11400000, guid: c90374c069c104d43b654c4ec0c510a2, type: 2}
+    - target: {fileID: 5509282250630994498, guid: 4cdd45ece38eee449998c03d63f40c87, type: 3}
+      propertyPath: _anchorReferences.Array.data[1].tagetgameObject
+      value: 
+      objectReference: {fileID: 579470680}
     m_RemovedComponents:
     - {fileID: 4439701199887905063, guid: 4cdd45ece38eee449998c03d63f40c87, type: 3}
     m_RemovedGameObjects: []
@@ -3008,9 +3019,6 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 305783127027506018, guid: 4cdd45ece38eee449998c03d63f40c87, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1771877535}
-    - targetCorrespondingSourceObject: {fileID: 305783127027506018, guid: 4cdd45ece38eee449998c03d63f40c87, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 1771877553}
   m_SourcePrefab: {fileID: 100100000, guid: 4cdd45ece38eee449998c03d63f40c87, type: 3}
 --- !u!4 &1771877516 stripped
@@ -3018,20 +3026,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1008204277547352846, guid: 4cdd45ece38eee449998c03d63f40c87, type: 3}
   m_PrefabInstance: {fileID: 1771877515}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1771877535
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1518992788}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd6acb8c1bfcb6e4ea1cb338dc5348ea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ReferenceGameObject
-  _targets:
-  - {fileID: 579470680}
 --- !u!114 &1771877553
 MonoBehaviour:
   m_ObjectHideFlags: 0
