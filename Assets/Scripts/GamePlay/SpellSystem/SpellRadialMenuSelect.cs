@@ -145,6 +145,7 @@ public class SpellRadialMenuSelect : MonoBehaviour
             if (effectSpawner != null)
             {
                 effectSpawner.SetSpawnPoint(OwnerForEffect.transform != null ? OwnerForEffect.transform : transform);
+                effectSpawner.SetOwner(OwnerForEffect != null ? OwnerForEffect : transform.root.gameObject);
             }
 
             _spellController.SetSplineToLineRenderer(newTemplate.GetComponent<SplineToLineRenderer>());

@@ -22,7 +22,7 @@ using UnityEngine;
 
         public override bool CancelInteraction(GameObject rootplayer, bool force = false)
         {
-            if (!base.CancelInteraction(rootplayer)) return false;
+            if (!base.CancelInteraction(rootplayer, force)) return false;
             if (!IsActive) return false;
 
             IsActive = false;
