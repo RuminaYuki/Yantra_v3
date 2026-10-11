@@ -11,7 +11,10 @@ public class BaseEffectClass : MonoBehaviour
 
     [Header("Animator")]
     [SerializeField] protected bool useAnimation;
-    [SerializeField] protected GameObjectAnchor animatorAnchor;
+    // TODO(Anchor): GameObjectAnchor was replaced by AnchorIDSO (same asset, so the value is kept).
+    // The animator now has to be looked up through the caster's Provider; see the Effect Execute methods.
+    // [SerializeField] protected GameObjectAnchor animatorAnchor;
+    [SerializeField] protected Yuki.Learning.StateMachine.AnchorIDSO animatorAnchor;
     [SerializeField] protected string animationName;
     [SerializeField] protected int layerIndex;
     [SerializeField] protected string eventKey = string.Empty;

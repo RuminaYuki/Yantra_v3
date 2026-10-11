@@ -11,7 +11,10 @@ public class HomingMissileEffect : BaseEffectClass, IEffectExecutor
 
         if (useAnimation)
         {
-            GameObject animatorObject = animatorAnchor.Value;
+            // TODO(Anchor): disabled so the project builds. Look the animator up through the caster's
+            // Provider instead (the owner passed in must be the caster, not the camera/spawn point).
+            // GameObject animatorObject = animatorAnchor.Value;
+            GameObject animatorObject = null;
             if (animatorObject == null || !animatorObject.TryGetComponent(out Animator animator)) return;
 
             animEvent = animatorObject.GetComponent<AnimEventDispatcher>();
