@@ -120,7 +120,7 @@ public class StateActionConditionScriptCreatorWindow : EditorWindow
             sb.AppendLine($"    [SerializeField] private {field.type} {field.name};");
 
         sb.AppendLine();
-        sb.AppendLine("    public override StateAction CreateAction(StateMachine stateMachine)");
+        sb.AppendLine("    protected override StateAction OnCreateAction(StateMachine stateMachine)");
         sb.AppendLine("    {");
         sb.AppendLine($"        return new {_className}(");
         for (int i = 0; i < _fields.Count; i++)
@@ -172,7 +172,7 @@ public class StateActionConditionScriptCreatorWindow : EditorWindow
             sb.AppendLine($"    [SerializeField] private {field.type} {field.name};");
 
         sb.AppendLine();
-        sb.AppendLine("    public override Condition CreateCondition()");
+        sb.AppendLine("    protected override Condition OnCreateCondition()");
         sb.AppendLine("    {");
         sb.AppendLine($"        return new {_className}(");
         for (int i = 0; i < _fields.Count; i++)

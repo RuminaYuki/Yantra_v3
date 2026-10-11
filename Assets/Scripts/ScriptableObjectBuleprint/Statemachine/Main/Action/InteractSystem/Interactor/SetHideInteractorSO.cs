@@ -3,6 +3,7 @@ using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 using SDFcl.GamePlay.Interactable;
 
+[UseSelfAnchor]
 [CreateAssetMenu(
     fileName = "NewSetHideInteractor_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/InteractSystem/Interactor/Set Hide Interactor")]
@@ -12,44 +13,41 @@ public class SetHideInteractorSO : StateActionSO
     [Tooltip("Change opposite Value On Exit")]
     [SerializeField] private bool resetValueOnExit = true;
 
-    [Header("If the TargetAnchor is set, Use that anchor instead")]
-    [SerializeField] private GameObjectAnchor anchorTarget;
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
-        return new SetHideInteractor(value, resetValueOnExit, anchorTarget);
+        return new SetHideInteractor(value, resetValueOnExit);
     }
 }
 
 public class SetHideInteractor : StateAction
 {
-    private readonly GameObjectAnchor anchorTarget;
     private readonly bool value;
     private readonly bool resetValueOnExit;
-    private BaseInteractor baseInteractor;
-    public SetHideInteractor(bool value, bool resetValueOnExit, GameObjectAnchor anchorTarget = null)
+    private AnchorReference<BaseInteractor> interactorRef;
+    public SetHideInteractor(bool value, bool resetValueOnExit)
     {
         this.value = value;
         this.resetValueOnExit = resetValueOnExit;
-        this.anchorTarget = anchorTarget;
     }
 
     public override void Awake(StateMachine stateMachine)
     {
-        anchorTarget.TryGetComponentOrOwner(stateMachine, out baseInteractor, this);
+        interactorRef = new AnchorReference<BaseInteractor>(stateMachine, this);
     }
     public override void OnStateEnter()
     {
-        if (baseInteractor == null) return;
         SetHide(value);
     }
     public override void OnStateExit()
     {
-        if (baseInteractor == null || !resetValueOnExit) return;
+        if (!resetValueOnExit) return;
         SetHide(!value);
     }
     public override void OnUpdate(){}
     private void SetHide(bool active)
     {
+        if (!interactorRef.TryGet(out BaseInteractor baseInteractor)) return;
+
         if (active)
         {
             baseInteractor.SetCanInteract(false);

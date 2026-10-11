@@ -2,13 +2,14 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[UseSelfAnchor]
 [RequiresOwnerComponent(typeof(Health))]
 [CreateAssetMenu(
     fileName = "NewOnDead_Condition",
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Health/On Dead")]
 public class OnDeadConditionSO : StateConditionSO
 {
-    public override Condition CreateCondition()
+    protected override Condition OnCreateCondition()
     {
         return new OnDeadCondition();
     }
@@ -19,15 +20,16 @@ public class OnDeadConditionSO : StateConditionSO
 // stays true for as long as the character is dead (false again after a revive).
 public class OnDeadCondition : Condition
 {
-    private Health _health;
+    private AnchorReference<Health> _health;
 
     public override void Awake(StateMachine stateMachine)
     {
-        stateMachine.TryGetRequired(out _health, this);
+        _health = new AnchorReference<Health>(stateMachine, this);
     }
 
     protected override bool Statement()
     {
-        return _health.IsDead;
+        if (!_health.TryGet(out Health health)) return false;
+        return health.IsDead;
     }
 }

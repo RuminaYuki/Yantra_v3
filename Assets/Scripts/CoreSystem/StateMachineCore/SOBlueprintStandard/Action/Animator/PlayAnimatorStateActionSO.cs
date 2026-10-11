@@ -2,7 +2,8 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
-[RequiresOwnerComponent(typeof(Animator), UnlessAnchorField = "targetAnchor")]
+[UseSelfAnchor]
+[RequiresOwnerComponent(typeof(Animator))]
 [CreateAssetMenu(
     fileName = "NewPlayAnimState_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Standard/Animator/PlayAnimatorState")]
@@ -19,10 +20,7 @@ public class PlayAnimatorStateActionSO : StateActionSO
     [SerializeField] private float _exitTransitionDuration = 0.25f;
     [SerializeField, Range(0f, 1f)] private float _exitNormalizedStartTime;
 
-    [Header("If the TargetAnchor is set, Check target flag instead")]
-    [SerializeField] private GameObjectAnchor targetAnchor;
-
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
         return new PlayAnimatorStateAction(
             _stateName,
@@ -31,8 +29,7 @@ public class PlayAnimatorStateActionSO : StateActionSO
             _transitionDuration,
             _normalizedStartTime,
             _exitTransitionDuration,
-            _exitNormalizedStartTime,
-            targetAnchor);
+            _exitNormalizedStartTime);
     }
 }
 
@@ -46,8 +43,7 @@ public class PlayAnimatorStateAction : StateAction
     private readonly float _exitTransitionDuration;
     private readonly float _exitNormalizedStartTime;
 
-    private Animator _animator;
-    private readonly GameObjectAnchor _targetAnchor;
+    private AnchorReference<Animator> _animator;
 
     private readonly bool _hasExitState;
 
@@ -58,8 +54,7 @@ public class PlayAnimatorStateAction : StateAction
         float transitionDuration,
         float normalizedStartTime,
         float exitTransitionDuration,
-        float exitNormalizedStartTime,
-        GameObjectAnchor targetAnchor = null)
+        float exitNormalizedStartTime)
     {
         _hasExitState = !string.IsNullOrWhiteSpace(exitStateName);
         _exitStateHash = _hasExitState ? Animator.StringToHash(exitStateName) : 0;
@@ -71,12 +66,11 @@ public class PlayAnimatorStateAction : StateAction
         _normalizedStartTime = normalizedStartTime;
         _exitTransitionDuration = exitTransitionDuration;
         _exitNormalizedStartTime = exitNormalizedStartTime;
-        _targetAnchor = targetAnchor;
     }
 
     public override void Awake(StateMachine stateMachine)
     {
-        _targetAnchor.TryGetComponentOrOwner(stateMachine, out _animator, this);
+        _animator = new AnchorReference<Animator>(stateMachine, this);
     }
 
     public override void OnStateEnter()
@@ -92,9 +86,9 @@ public class PlayAnimatorStateAction : StateAction
     public override void OnStateExit()
     {
         if (!_hasExitState ||
-            _animator == null ||
-            !_animator.isActiveAndEnabled ||
-            _animator.runtimeAnimatorController == null)
+            !_animator.TryGet(out Animator animator) ||
+            !animator.isActiveAndEnabled ||
+            animator.runtimeAnimatorController == null)
         {
             return;
         }
@@ -107,20 +101,20 @@ public class PlayAnimatorStateAction : StateAction
 
     private void PlayState(int stateHash, float transitionDuration, float normalizedStartTime)
     {
-        if (_animator == null)
+        if (!_animator.TryGet(out Animator animator))
             return;
 
-        if (!_animator.HasState(_layerIndex, stateHash))
+        if (!animator.HasState(_layerIndex, stateHash))
         {
             Debug.LogWarning(
                 $"Animator state does not exist: hash {stateHash}, " +
                 $"layer {_layerIndex}.",
-                _animator);
+                animator);
 
             return;
         }
 
-        _animator.CrossFadeInFixedTime(
+        animator.CrossFadeInFixedTime(
             stateHash,
             transitionDuration,
             _layerIndex,

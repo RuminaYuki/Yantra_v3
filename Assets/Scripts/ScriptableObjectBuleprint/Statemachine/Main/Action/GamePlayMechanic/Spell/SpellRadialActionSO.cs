@@ -9,7 +9,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 public class SpellRadialActionSO : StateActionSO
 {
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
         return new SpellRadialAction();
     }
@@ -17,19 +17,21 @@ public class SpellRadialActionSO : StateActionSO
 
 public class SpellRadialAction : StateAction
 {
-    private SpellRadialMenuSelect _spellRadialMenuSelect;
+    private AnchorReference<SpellRadialMenuSelect> _spellRadialMenuSelect;
     public override void Awake(StateMachine stateMachine)
     {
-        stateMachine.TryGetRequired(out _spellRadialMenuSelect, this);
+        _spellRadialMenuSelect = new AnchorReference<SpellRadialMenuSelect>(stateMachine, this);
     }
     public override void OnStateEnter()
     {
-        _spellRadialMenuSelect.HandleOpenRadial();
+        if (!_spellRadialMenuSelect.TryGet(out SpellRadialMenuSelect menu)) return;
+        menu.HandleOpenRadial();
     }
     public override void OnUpdate(){}
 
     public override void OnStateExit()
     {
-        _spellRadialMenuSelect.HandleStateExit();
+        if (!_spellRadialMenuSelect.TryGet(out SpellRadialMenuSelect menu)) return;
+        menu.HandleStateExit();
     }
 }

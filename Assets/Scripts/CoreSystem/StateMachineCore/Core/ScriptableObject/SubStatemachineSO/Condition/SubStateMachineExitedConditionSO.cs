@@ -9,7 +9,7 @@ public class SubStateMachineExitedConditionSO : StateConditionSO
 {
     [SerializeField] private string _exitId = "Default";
 
-    public override Condition CreateCondition()
+    protected override Condition OnCreateCondition()
     {
         return new SubStateMachineExitedCondition(_exitId);
     }

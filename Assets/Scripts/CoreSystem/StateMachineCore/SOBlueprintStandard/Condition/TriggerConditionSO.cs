@@ -10,7 +10,7 @@ public class TriggerConditionSO : StateConditionSO
 {
     private readonly List<TriggerCondition> _runtimeConditions = new();
 
-    public override Condition CreateCondition()
+    protected override Condition OnCreateCondition()
     {
         var condition = new TriggerCondition(this);
         _runtimeConditions.Add(condition);

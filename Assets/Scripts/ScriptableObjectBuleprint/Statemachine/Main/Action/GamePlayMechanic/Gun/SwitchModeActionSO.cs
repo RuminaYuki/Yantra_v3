@@ -2,51 +2,46 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[UseSelfAnchor]
 [RequiresOwnerComponent(typeof(SkillPoints))]
-[RequiresOwnerComponent(typeof(GunController), UnlessAnchorField = "_gunAnchor")]
+[RequiresOwnerComponent(typeof(GunController))]
 [CreateAssetMenu(
     fileName = "SwitchMode_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/GamePlayMechanic/Gun/Switch Mode")]
 public class SwitchModeActionSO : StateActionSO
 {
-    [SerializeField] private GameObjectAnchor _gunAnchor;
-
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
-        return new SwitchModeAction(_gunAnchor);
+        return new SwitchModeAction();
     }
 }
 
 public class SwitchModeAction : StateAction
 {
-    private readonly GameObjectAnchor _gunAnchor;
-    private GunController _gunController;
-    private SkillPoints _skillPoints;
-
-    public SwitchModeAction(GameObjectAnchor gunAnchor)
-    {
-        _gunAnchor = gunAnchor;
-    }
+    // Self Anchor = the gun; skill points always come from the owner (the character).
+    private AnchorReference<GunController> _gunController;
+    private AnchorReference<SkillPoints> _skillPoints;
 
     public override void Awake(StateMachine stateMachine)
     {
-        stateMachine.TryGetRequired(out _skillPoints, this);
-        _gunAnchor.TryGetComponentOrOwner(stateMachine, out _gunController, this);
+        _gunController = new AnchorReference<GunController>(stateMachine, this);
+        _skillPoints = new AnchorReference<SkillPoints>(stateMachine, null, this);
     }
 
     public override void OnStateEnter()
     {
-        if (_gunController == null) return;
+        if (!_gunController.TryGet(out GunController gunController) ||
+            !_skillPoints.TryGet(out SkillPoints skillPoints)) return;
 
         GunController.GunMode desiredMode = GunController.GunMode.Normal;
-        if (_skillPoints.CurrentSkillPoints >= _skillPoints.MaxSkillPoints)
+        if (skillPoints.CurrentSkillPoints >= skillPoints.MaxSkillPoints)
         {
             desiredMode = GunController.GunMode.Special;
         }
 
-        if (_gunController.GetGunMode() != desiredMode)
+        if (gunController.GetGunMode() != desiredMode)
         {
-            _gunController.SwitchMode();
+            gunController.SwitchMode();
         }
     }
 

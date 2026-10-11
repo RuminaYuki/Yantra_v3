@@ -8,7 +8,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Attack/Attack Token/Has Attack Token")]
 public class HasAttackTokenConditionSO : StateConditionSO
 {
-    public override Condition CreateCondition()
+    protected override Condition OnCreateCondition()
     {
         return new HasAttackTokenCondition();
     }
@@ -16,15 +16,15 @@ public class HasAttackTokenConditionSO : StateConditionSO
 
 public class HasAttackTokenCondition : Condition
 {
-    private AttackTokenUser _attackTokenUser;
+    private AnchorReference<AttackTokenUser> _attackTokenUser;
 
     public override void Awake(StateMachine stateMachine)
     {
-        stateMachine.TryGetRequired(out _attackTokenUser, this);
+        _attackTokenUser = new AnchorReference<AttackTokenUser>(stateMachine, this);
     }
 
     protected override bool Statement()
     {
-        return _attackTokenUser.HasToken;
+        return _attackTokenUser.TryGet(out AttackTokenUser tokenUser) && tokenUser.HasToken;
     }
 }

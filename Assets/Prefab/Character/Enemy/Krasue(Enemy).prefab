@@ -44,6 +44,7 @@ GameObject:
   - component: {fileID: 3896365105674866857}
   - component: {fileID: 314466773732120346}
   - component: {fileID: 8511213117072907854}
+  - component: {fileID: 1032278163053097036}
   - component: {fileID: 4564602829497988448}
   - component: {fileID: 5315738793068171228}
   - component: {fileID: 6189379867103278235}
@@ -105,7 +106,7 @@ CharacterController:
   m_StepOffset: 0.3
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
-  m_Center: {x: 0, y: 0.57, z: 0}
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!95 &3896365105674866857
 Animator:
   serializedVersion: 7
@@ -154,8 +155,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3b62f809a9c40c4a9f8e36828d69982, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Provider
-  Anchors:
-  - {fileID: 11400000, guid: 6b00cfa7fb9124d4fa71f95158dd25a8, type: 2}
+  _anchorReferences:
+  - anchorID: {fileID: 11400000, guid: 6b00cfa7fb9124d4fa71f95158dd25a8, type: 2}
+    tagetgameObject: {fileID: 3067078080897093266}
+--- !u!114 &1032278163053097036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3067078080897093266}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0bb0d945dba0c0441a748d56f2d7f25f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerTargetLinker
+  _targets:
+  - Anchor: {fileID: 11400000, guid: ded8b5ee8f0dd57488cc9fa0e5c0d061, type: 2}
+    Tag: Player
+    Name: PlayerController
+  - Anchor: {fileID: 11400000, guid: 7e0c6e6867689484fb85c18d09184466, type: 2}
+    Tag: Player
+    Name: IKTarget
 --- !u!114 &4564602829497988448
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -278,7 +299,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0fe60a42dfbdd134aa4ea8177d07828d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LineOfSight
-  targetAnchor: {fileID: 11400000, guid: ded8b5ee8f0dd57488cc9fa0e5c0d061, type: 2}
   target: {fileID: 0}
   viewpoint: {fileID: 831525050366740196}
   showGizmos: 0

@@ -46,7 +46,7 @@ public class SetRandomPositionNavRadiusActionSO : StateActionSO
         }
     }
 
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
         return new SetRandomPositionNavRadiusAction(
             _radius,
@@ -63,9 +63,9 @@ public class SetRandomPositionNavRadiusAction : StateAction
     private readonly int _maxAttempts;
     private readonly bool _requireNavMeshBaked;
 
-    private PathNavigator _pathNavigator;
-    private RandomWalkPoint _randomWalkPoint;
-    private WaypointPath _waypointPath;
+    private AnchorReference<PathNavigator> _pathNavigator;
+    private AnchorReference<RandomWalkPoint> _randomWalkPoint;
+    private AnchorReference<WaypointPath> _waypointPath;
     private Transform _owner;
     private Transform _destination;
 
@@ -84,23 +84,29 @@ public class SetRandomPositionNavRadiusAction : StateAction
     public override void Awake(StateMachine stateMachine)
     {
         _owner = stateMachine.Owner.transform;
-        stateMachine.TryGetRequired(out _pathNavigator, this);
-        stateMachine.TryGetRequired(out _randomWalkPoint, this);
-        stateMachine.TryGetRequired(out _waypointPath, this);
-
-        CreateDestination();
+        _pathNavigator = new AnchorReference<PathNavigator>(stateMachine, this);
+        _randomWalkPoint = new AnchorReference<RandomWalkPoint>(stateMachine, this);
+        _waypointPath = new AnchorReference<WaypointPath>(stateMachine, this);
     }
 
     public override void OnStateEnter()
     {
-        _pathNavigator.ClearTarget();
+        if (!_pathNavigator.TryGet(out PathNavigator pathNavigator) ||
+            !_randomWalkPoint.TryGet(out RandomWalkPoint randomWalkPoint) ||
+            !_waypointPath.TryGet(out WaypointPath waypointPath))
+            return;
 
-        if (!TryGetTarget(out Transform target))
+        // Made on first use instead of in Awake: the components are only looked up when needed.
+        CreateDestination(waypointPath);
+        pathNavigator.ClearTarget();
+
+        Transform target = waypointPath.PathRoot != null ? waypointPath.PathRoot : _owner;
+        if (target == null)
             return;
 
         for (int i = 0; i < _maxAttempts; i++)
         {
-            if (!_randomWalkPoint.TryGetRandomPoint(
+            if (!randomWalkPoint.TryGetRandomPoint(
                     target.position,
                     _radius,
                     _minDistance,
@@ -111,12 +117,12 @@ public class SetRandomPositionNavRadiusAction : StateAction
 
             if (_requireNavMeshBaked)
             {
-                if (!_pathNavigator.TrySetTarget(_destination))
+                if (!pathNavigator.TrySetTarget(_destination))
                     continue;
             }
             else
             {
-                _pathNavigator.Target = _destination;
+                pathNavigator.Target = _destination;
             }
 
             return;
@@ -131,16 +137,16 @@ public class SetRandomPositionNavRadiusAction : StateAction
 
     public override void OnStateExit()
     {
-        if (_pathNavigator.Target == _destination)
-            _pathNavigator.ClearTarget();
+        if (_pathNavigator.TryGet(out PathNavigator pathNavigator) && pathNavigator.Target == _destination)
+            pathNavigator.ClearTarget();
     }
 
-    private void CreateDestination()
+    private void CreateDestination(WaypointPath waypointPath)
     {
         if (_destination != null)
             return;
 
-        Transform pathRoot = _waypointPath != null ? _waypointPath.PathRoot : null;
+        Transform pathRoot = waypointPath.PathRoot;
 
         if (pathRoot != null && pathRoot.childCount > 0)
         {
@@ -151,19 +157,5 @@ public class SetRandomPositionNavRadiusAction : StateAction
         GameObject destinationObject = new("Random Position (Nav Radius) Destination");
         destinationObject.transform.SetParent(pathRoot != null ? pathRoot : _owner, worldPositionStays: false);
         _destination = destinationObject.transform;
-    }
-
-    private bool TryGetTarget(out Transform target)
-    {
-        target = null;
-
-        if (_waypointPath.PathRoot == null)
-        {
-            target = _owner;
-            return target != null;
-        }
-
-        target = _waypointPath.PathRoot;
-        return target != null;
     }
 }

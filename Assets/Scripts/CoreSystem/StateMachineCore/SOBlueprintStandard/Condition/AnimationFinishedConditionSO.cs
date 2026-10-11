@@ -2,14 +2,13 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
-[RequiresOwnerComponent(typeof(Animator), UnlessAnchorField = "animatorAnchor")]
+[UseSelfAnchor]
+[RequiresOwnerComponent(typeof(Animator))]
 [CreateAssetMenu(
     fileName = "NewAnimFin_Condition",
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/Animation Finished")]
 public class AnimationFinishedConditionSO : StateConditionSO
 {
-    [Header("If GameObjectAnchor has Set It will Check Target Instead")]
-    [SerializeField] private GameObjectAnchor animatorAnchor;
     [Header("Leave empty to auto-detect whichever state the Animator is currently playing")]
     [SerializeField] private string stateName;
     [SerializeField] private int layerIndex;
@@ -31,10 +30,9 @@ public class AnimationFinishedConditionSO : StateConditionSO
         }
     }
 
-    public override Condition CreateCondition()
+    protected override Condition OnCreateCondition()
     {
         return new AnimationFinishedCondition(
-            animatorAnchor,
             stateName,
             layerIndex,
             finishTime,
@@ -44,12 +42,11 @@ public class AnimationFinishedConditionSO : StateConditionSO
 
 public class AnimationFinishedCondition : Condition
 {
-    private readonly GameObjectAnchor animatorAnchor;
     private readonly string stateName;
     private readonly int layerIndex;
     private readonly float finishTime;
     private readonly float extraSeconds;
-    private Animator animator;
+    private AnchorReference<Animator> animatorRef;
     // When the animation was first seen finished, or null while it isn't.
     // A timestamp, not a per-frame sum: Statement() isn't called every frame
     // (transitions stop at the first failing condition), so summing deltaTime there runs slow.
@@ -57,13 +54,11 @@ public class AnimationFinishedCondition : Condition
     private int? capturedStateHash;
 
     public AnimationFinishedCondition(
-        GameObjectAnchor animatorAnchor,
         string stateName,
         int layerIndex,
         float finishTime,
         float extraSeconds)
     {
-        this.animatorAnchor = animatorAnchor;
         this.stateName = stateName;
         this.layerIndex = layerIndex;
         this.finishTime = finishTime;
@@ -72,7 +67,7 @@ public class AnimationFinishedCondition : Condition
 
     public override void Awake(StateMachine stateMachine)
     {
-        animatorAnchor.TryGetComponentOrOwner(stateMachine, out animator, this);
+        animatorRef = new AnchorReference<Animator>(stateMachine, this);
     }
 
     public override void OnStateEnter()
@@ -91,7 +86,7 @@ public class AnimationFinishedCondition : Condition
     // finishes is recorded on time, even on frames when Statement() is skipped.
     protected override void OnTick()
     {
-        if (animator == null) return;
+        if (!animatorRef.TryGet(out Animator animator)) return;
         if (layerIndex < 0 || layerIndex >= animator.layerCount) return;
         if (animator.IsInTransition(layerIndex)) return;
 

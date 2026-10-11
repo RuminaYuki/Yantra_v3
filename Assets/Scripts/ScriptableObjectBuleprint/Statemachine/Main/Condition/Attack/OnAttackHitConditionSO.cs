@@ -2,13 +2,14 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[UseSelfAnchor]
 [RequiresOwnerComponent(typeof(AttackSphereCast))]
 [CreateAssetMenu(
     fileName = "NewOnAttackHit_Condition",
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Attack/On Attack Hit")]
 public class OnAttackHitConditionSO : StateConditionSO
 {
-    public override Condition CreateCondition()
+    protected override Condition OnCreateCondition()
     {
         return new OnAttackHitCondition();
     }
@@ -18,23 +19,42 @@ public class OnAttackHitConditionSO : StateConditionSO
 // and stays true until the state is entered again.
 public class OnAttackHitCondition : Condition
 {
-    private AttackSphereCast _attackSphereCast;
+    private AnchorReference<AttackSphereCast> _attackSphereCast;
+    private AttackSphereCast _subscribed;   // the one we are listening to right now
     private bool _hasHit;
 
     public override void Awake(StateMachine stateMachine)
     {
-        if (!stateMachine.TryGetRequired(out _attackSphereCast, this))
-        {
-            return;
-        }
-
-        _attackSphereCast.OnHit += HandleHit;
+        _attackSphereCast = new AnchorReference<AttackSphereCast>(stateMachine, this);
+        SyncSubscription();
     }
 
     public override void OnStateEnter()
     {
+        SyncSubscription();
         // A hit from before this state doesn't count.
         _hasHit = false;
+    }
+
+    protected override void OnTick()
+    {
+        SyncSubscription();
+    }
+
+    // Follows the anchor: if it now points at another AttackSphereCast (or one appeared late), move the listener.
+    private void SyncSubscription()
+    {
+        _attackSphereCast.TryGet(out AttackSphereCast current);
+        if (current == _subscribed)
+            return;
+
+        if (_subscribed != null)
+            _subscribed.OnHit -= HandleHit;
+
+        _subscribed = current;
+
+        if (_subscribed != null)
+            _subscribed.OnHit += HandleHit;
     }
 
     protected override bool Statement()
@@ -44,8 +64,9 @@ public class OnAttackHitCondition : Condition
 
     public override void Dispose()
     {
-        if (_attackSphereCast != null)
-            _attackSphereCast.OnHit -= HandleHit;
+        if (_subscribed != null)
+            _subscribed.OnHit -= HandleHit;
+        _subscribed = null;
     }
 
     private void HandleHit()

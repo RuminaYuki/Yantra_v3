@@ -2,42 +2,38 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
-[RequiresOwnerComponent(typeof(SpellController), UnlessAnchorField = "_spellDrawAnchor")]
+[UseSelfAnchor]
+[RequiresOwnerComponent(typeof(SpellController))]
 [CreateAssetMenu(
     fileName = "SpellDraw_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/GamePlayMechanic/Spell/SpellDraw")]
 
 public class SpellDrawActionSO : StateActionSO
 {
-    [SerializeField] private GameObjectAnchor _spellDrawAnchor;
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
-        return new SpellDrawAction(_spellDrawAnchor);
+        return new SpellDrawAction();
     }
 }
 
 public class SpellDrawAction : StateAction
 {
-    private readonly GameObjectAnchor _spellDrawAnchor;
-    private SpellController _spellController;
-    public SpellDrawAction(GameObjectAnchor spellDrawAnchor)
-    {
-        _spellDrawAnchor = spellDrawAnchor;
-    }
+    private AnchorReference<SpellController> _spellController;
+
     public override void Awake(StateMachine stateMachine)
     {
-        _spellDrawAnchor.TryGetComponentOrOwner(stateMachine, out _spellController, this);
+        _spellController = new AnchorReference<SpellController>(stateMachine, this);
     }
     public override void OnStateEnter()
     {
-        if (_spellController == null) return;
-        _spellController.SetActive(true);
+        if (!_spellController.TryGet(out SpellController spellController)) return;
+        spellController.SetActive(true);
     }
     public override void OnUpdate(){}
 
     public override void OnStateExit()
     {
-        if (_spellController == null) return;
-        _spellController.SetActive(false);
+        if (!_spellController.TryGet(out SpellController spellController)) return;
+        spellController.SetActive(false);
     }
 }

@@ -14,7 +14,7 @@ public class PlayPairedAnimationActionSO : StateActionSO
     [Tooltip("สลับไปใช้กล้อง Glory (vcamGlory) ที่หมุนตามกระดูกหัว")]
     [SerializeField] private bool _useGloryCamera = false; // <-- ส่วนที่เพิ่มเข้ามา
 
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
         return new PlayPairedAnimationAction(_lockLook, _useGloryCamera);
     }
@@ -26,7 +26,7 @@ public class PlayPairedAnimationAction : StateAction
     private readonly bool _lockLook;
     private readonly bool _useGloryCamera; // <-- ส่วนที่เพิ่มเข้ามา
 
-    private PairedAnimationActor _actor;
+    private AnchorReference<PairedAnimationActor> _actor;
     private BaseLocomotion _locomotion;
     private CenterRayInteract _interactRay;
     private PlayerCameraController _camera;
@@ -43,8 +43,7 @@ public class PlayPairedAnimationAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        if (!stateMachine.TryGetRequired(out _actor, this))
-            return;
+        _actor = new AnchorReference<PairedAnimationActor>(stateMachine, this);
 
         // ไม่บังคับ — ถ้าตัวไหนไม่มี Locomotion บน GameObject เดียวกัน ท่ายังเล่นได้ แค่ไม่ได้ล็อกการเดิน
         stateMachine.Owner.TryGetComponent(out _locomotion);
@@ -58,6 +57,9 @@ public class PlayPairedAnimationAction : StateAction
 
     public override void OnStateEnter()
     {
+        if (!_actor.TryGet(out PairedAnimationActor actor))
+            return;
+
         if (_locomotion != null)
             _locomotion.LockLocomotion(this);
 
@@ -77,11 +79,11 @@ public class PlayPairedAnimationAction : StateAction
             _camera.SetGloryCameraActive(true);
         }
 
-        _hasStarted = _actor.Begin();
+        _hasStarted = actor.Begin();
         if (!_hasStarted)
             return;
 
-        _request = _actor.CurrentRequest;
+        _request = actor.CurrentRequest;
 
         // State นี้เป็นคนสั่งคู่ของท่า (เช่น ผีตอน Glory) ให้เข้าท่าตาม
         if (_request.Partner != null)
@@ -94,12 +96,14 @@ public class PlayPairedAnimationAction : StateAction
 
     public override void OnUpdate()
     {
-        _actor.Tick();
+        if (_actor.TryGet(out PairedAnimationActor actor))
+            actor.Tick();
     }
 
     public override void OnStateExit()
     {
-        _actor.Stop();
+        if (_actor.TryGet(out PairedAnimationActor actor))
+            actor.Stop();
 
         if (_locomotion != null)
             _locomotion.UnlockLocomotion(this);

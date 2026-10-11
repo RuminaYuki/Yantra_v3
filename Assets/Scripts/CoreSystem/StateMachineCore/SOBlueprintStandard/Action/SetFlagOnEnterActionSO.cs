@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[UseSelfAnchor]
 [RequiresOwnerComponent(typeof(StateFlagsAccess))]
 [CreateAssetMenu(
     fileName = "NewSetFlagOnEnter_Action",
@@ -13,7 +14,7 @@ public class SetFlagOnEnterActionSO : StateActionSO
     [Tooltip("Change opposite Value On Exit")]
     [SerializeField] private bool changeValueOnExit = false;
 
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
         return new SetFlagOnEnterAction(flag, value, changeValueOnExit);
     }
@@ -24,7 +25,7 @@ public class SetFlagOnEnterAction : StateAction
     private readonly FlagSO flag;
     private readonly bool value;
     private readonly bool changeValueOnExit;
-    private StateFlagsAccess stateFlags;
+    private AnchorReference<StateFlagsAccess> stateFlags;
 
     public SetFlagOnEnterAction(FlagSO flag, bool value, bool changeValueOnExit)
     {
@@ -35,22 +36,22 @@ public class SetFlagOnEnterAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        stateMachine.TryGetRequired(out stateFlags, this);
+        stateFlags = new AnchorReference<StateFlagsAccess>(stateMachine, this);
     }
 
     public override void OnStateEnter()
     {
-        if (flag == null) return;
-        stateFlags.Set(flag, value);
+        if (flag == null || !stateFlags.TryGet(out StateFlagsAccess flags)) return;
+        flags.Set(flag, value);
     }
 
     public override void OnUpdate(){}
 
     public override void OnStateExit()
     {
-        if (changeValueOnExit)
+        if (changeValueOnExit && flag != null && stateFlags.TryGet(out StateFlagsAccess flags))
         {
-            stateFlags.Set(flag, !value);
+            flags.Set(flag, !value);
         }
     }
 }

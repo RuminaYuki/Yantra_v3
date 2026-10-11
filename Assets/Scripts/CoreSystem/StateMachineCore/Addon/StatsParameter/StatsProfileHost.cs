@@ -6,7 +6,7 @@ public class StatsProfileHost : MonoBehaviour
     void Awake()
     {
         if (CharacterStatsSO != null)
-            CharacterStatsSO.ApplyStats();
+            CharacterStatsSO.ApplyStats(gameObject);
     }
      private void OnDrawGizmos()
     {

@@ -49,7 +49,7 @@ public class CountDownTimerConditionSO : StateConditionSO
     public void ResetTimer() => _condition?.OnStateEnter();
 
     private CountDownTimerCondition _condition;
-    public override Condition CreateCondition()
+    protected override Condition OnCreateCondition()
     {
         _condition = new CountDownTimerCondition(minDuration, maxDuration);
         return _condition;

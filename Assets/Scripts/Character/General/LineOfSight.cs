@@ -2,8 +2,7 @@ using UnityEngine;
 
 public class LineOfSight : MonoBehaviour
 {
-    [Header("If targetAnchor is set, It will override Target value")]
-    [SerializeField] GameObjectAnchor targetAnchor;
+    [Tooltip("Leave empty to find the object named PlayerController with tag Player on Start")]
     [SerializeField] Transform target;
     [SerializeField] Transform viewpoint;
     [SerializeField] bool showGizmos = true;
@@ -65,20 +64,21 @@ public class LineOfSight : MonoBehaviour
 
     void Start()
     {
-        if(targetAnchor != null)
+        if (target == null)
         {
-            target = targetAnchor.IsSet ? targetAnchor.Value.transform : null;
-            if (target == null)
+            // Only objects tagged Player, and of those only the one named PlayerController.
+            foreach (GameObject player in GameObject.FindGameObjectsWithTag("Player"))
             {
-                GameObject player = GameObject.FindWithTag("Player");
-                if (player != null)
+                if (player.name == "PlayerController")
                 {
                     target = player.transform;
+                    break;
                 }
-                else
-                {
-                    Debug.LogError("Dont have Player in Scene");
-                }
+            }
+
+            if (target == null)
+            {
+                Debug.LogError("Dont have PlayerController (tag Player) in Scene", this);
             }
         }
     }

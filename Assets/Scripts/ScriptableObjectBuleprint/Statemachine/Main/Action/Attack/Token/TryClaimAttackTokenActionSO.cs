@@ -8,7 +8,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Attack/Token/Try Claim Attack Token")]
 public class TryClaimAttackTokenActionSO : StateActionSO
 {
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
         return new TryClaimAttackTokenAction();
     }
@@ -16,26 +16,27 @@ public class TryClaimAttackTokenActionSO : StateActionSO
 
 public class TryClaimAttackTokenAction : StateAction
 {
-    private AttackTokenUser _attackTokenUser;
+    private AnchorReference<AttackTokenUser> _attackTokenUser;
 
     public override void Awake(StateMachine stateMachine)
     {
-        stateMachine.TryGetRequired(out _attackTokenUser, this);
+        _attackTokenUser = new AnchorReference<AttackTokenUser>(stateMachine, this);
     }
 
     public override void OnStateEnter()
     {
-        _attackTokenUser.TryClaim();
+        if (!_attackTokenUser.TryGet(out AttackTokenUser tokenUser)) return;
+        tokenUser.TryClaim();
     }
 
     public override void OnUpdate()
     {
-        if (_attackTokenUser.HasToken)
+        if (!_attackTokenUser.TryGet(out AttackTokenUser tokenUser) || tokenUser.HasToken)
         {
             return;
         }
 
-        _attackTokenUser.TryClaim();
+        tokenUser.TryClaim();
     }
 
     public override void OnStateExit() { }

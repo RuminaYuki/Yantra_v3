@@ -9,13 +9,13 @@ public class HasPairedRequestConditionSO : StateConditionSO
 {
     [SerializeField] private PairedActionType _type;
 
-    public override Condition CreateCondition() => new HasPairedRequestCondition(_type);
+    protected override Condition OnCreateCondition() => new HasPairedRequestCondition(_type);
 }
 
 public class HasPairedRequestCondition : Condition
 {
     private readonly PairedActionType _type;
-    private PairedAnimationActor _actor;
+    private AnchorReference<PairedAnimationActor> _actor;
 
     public HasPairedRequestCondition(PairedActionType type)
     {
@@ -24,8 +24,9 @@ public class HasPairedRequestCondition : Condition
 
     public override void Awake(StateMachine stateMachine)
     {
-        stateMachine.TryGetRequired(out _actor, this);
+        _actor = new AnchorReference<PairedAnimationActor>(stateMachine, this);
     }
 
-    protected override bool Statement() => _actor.HasPending(_type);
+    protected override bool Statement() =>
+        _actor.TryGet(out PairedAnimationActor actor) && actor.HasPending(_type);
 }

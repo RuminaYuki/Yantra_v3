@@ -1,14 +1,17 @@
 using UnityEngine;
+using Yuki.Learning.StateMachine;
 
 [CreateAssetMenu(fileName = "NewMaxGuardPoint_Modifier",
     menuName = "YUKI Learning State Machine/StatsParameter/Modifiers/Component/Set Max Guard Points")]
-public class SetMaxGuardPointsModifierSO : ScriptableObject, IStatModifier
+public class SetMaxGuardPointsModifierSO : ScriptableObject, IOwnerStatModifier
 {
-    [SerializeField] private GameObjectAnchor _anchor;
+    [Tooltip("Leave empty to use the character itself")]
+    [SerializeField] private AnchorIDSO _anchor;
     [SerializeField] private float _maxGuardPoints;
 
-    public void Apply()
+    public void Apply(GameObject owner)
     {
-        _anchor.Value.GetComponent<BlockSystem>().MaxGuardPoints = _maxGuardPoints;
+        if (ComponentModifierTarget.TryGet(owner, _anchor, this, out BlockSystem blockSystem))
+            blockSystem.MaxGuardPoints = _maxGuardPoints;
     }
 }

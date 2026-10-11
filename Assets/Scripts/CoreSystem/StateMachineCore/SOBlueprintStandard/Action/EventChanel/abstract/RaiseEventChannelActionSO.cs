@@ -7,7 +7,7 @@ public abstract class RaiseEventChannelActionSO<T> : StateActionSO
     [SerializeField] private EventChannelSO<T> _eventChannel;
     [SerializeField] private T _value;
 
-    public override StateAction CreateAction(
+    protected override StateAction OnCreateAction(
         StateMachine stateMachine)
     {
         return new RaiseEventChannelAction<T>(
