@@ -3,6 +3,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[UseSelfAnchor]
 [RequiresOwnerComponent(typeof(Animator))]
 [RequiresOwnerComponent(typeof(StateMachineController))]
 [CreateAssetMenu(
@@ -19,7 +20,7 @@ public class SetAnimatorLayerWeightActionSO : StateActionSO
     [SerializeField, Range(0f, 1f)] private float _exitWeight;
     [SerializeField, Min(0f)] private float _exitDuration = 0.2f;
 
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
         return new SetAnimatorLayerWeightAction(
             _layerName,
@@ -40,9 +41,9 @@ public class SetAnimatorLayerWeightAction : StateAction
     private readonly float _exitWeight;
     private readonly float _exitDuration;
 
-    private Animator _animator;
-    private StateMachineController _coroutineRunner;
-    private int _layerIndex = -1;
+    // Animator follows the Self Anchor; the coroutine always runs on this state machine's own controller.
+    private AnchorReference<Animator> _animator;
+    private AnchorReference<StateMachineController> _coroutineRunner;
     private Coroutine _weightCoroutine;
 
     public SetAnimatorLayerWeightAction(
@@ -63,24 +64,8 @@ public class SetAnimatorLayerWeightAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        // Single & so both are checked (and logged) even if the first one is missing.
-        bool hasAll = stateMachine.TryGetRequired(out _animator, this)
-            & stateMachine.TryGetRequired(out _coroutineRunner, this);
-
-        if (!hasAll)
-        {
-            return;
-        }
-
-        _layerIndex = _animator.GetLayerIndex(_layerName);
-
-        if (_layerIndex < 0)
-        {
-            Debug.LogError(
-                $"Animator layer '{_layerName}' does not exist on " +
-                $"{stateMachine.Owner.name}.",
-                stateMachine.Owner);
-        }
+        _animator = new AnchorReference<Animator>(stateMachine, this);
+        _coroutineRunner = new AnchorReference<StateMachineController>(stateMachine, null, this);
     }
 
     public override void OnStateEnter()
@@ -102,30 +87,39 @@ public class SetAnimatorLayerWeightAction : StateAction
 
     private void StartWeightLerp(float targetWeight, float duration)
     {
-        if (_layerIndex < 0)
+        if (!_animator.TryGet(out Animator animator) ||
+            !_coroutineRunner.TryGet(out StateMachineController runner))
         {
+            return;
+        }
+
+        // Looked up each time: the anchored animator can change while playing.
+        int layerIndex = animator.GetLayerIndex(_layerName);
+        if (layerIndex < 0)
+        {
+            Debug.LogError($"Animator layer '{_layerName}' does not exist on {animator.name}.", animator);
             return;
         }
 
         if (_weightCoroutine != null)
         {
-            _coroutineRunner.StopCoroutine(_weightCoroutine);
+            runner.StopCoroutine(_weightCoroutine);
             _weightCoroutine = null;
         }
 
         if (duration <= 0f)
         {
-            _animator.SetLayerWeight(_layerIndex, targetWeight);
+            animator.SetLayerWeight(layerIndex, targetWeight);
             return;
         }
 
-        _weightCoroutine = _coroutineRunner.StartCoroutine(
-            LerpWeight(targetWeight, duration));
+        _weightCoroutine = runner.StartCoroutine(
+            LerpWeight(animator, layerIndex, targetWeight, duration));
     }
 
-    private IEnumerator LerpWeight(float targetWeight, float duration)
+    private IEnumerator LerpWeight(Animator animator, int layerIndex, float targetWeight, float duration)
     {
-        float startWeight = _animator.GetLayerWeight(_layerIndex);
+        float startWeight = animator.GetLayerWeight(layerIndex);
         float elapsedTime = 0f;
 
         while (elapsedTime < duration)
@@ -133,14 +127,17 @@ public class SetAnimatorLayerWeightAction : StateAction
             elapsedTime += Time.deltaTime;
             float t = Mathf.Clamp01(elapsedTime / duration);
 
-            _animator.SetLayerWeight(
-                _layerIndex,
+            if (animator == null) yield break;   // destroyed mid-lerp
+
+            animator.SetLayerWeight(
+                layerIndex,
                 Mathf.Lerp(startWeight, targetWeight, t));
 
             yield return null;
         }
 
-        _animator.SetLayerWeight(_layerIndex, targetWeight);
+        if (animator != null)
+            animator.SetLayerWeight(layerIndex, targetWeight);
         _weightCoroutine = null;
     }
 }

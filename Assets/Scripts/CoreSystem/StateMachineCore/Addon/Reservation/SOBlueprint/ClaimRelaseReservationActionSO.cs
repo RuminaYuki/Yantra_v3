@@ -13,7 +13,7 @@ public class ClaimRelaseReservationActionSO : StateActionSO
     [Tooltip("This bool will work with ClaimMode")]
     [SerializeField] private bool _relaseOnExit = false;
 
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
         return new ClaimReservationAction(_reservationSO, _reserOnEnterMode, _relaseOnExit, stateMachine);
     }

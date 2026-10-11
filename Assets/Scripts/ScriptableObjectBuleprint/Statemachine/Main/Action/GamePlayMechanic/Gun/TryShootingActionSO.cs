@@ -2,41 +2,32 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
-[RequiresOwnerComponent(typeof(GunController), UnlessAnchorField = "_gunAnchor")]
+[UseSelfAnchor]
+[RequiresOwnerComponent(typeof(GunController))]
 [CreateAssetMenu(
     fileName = "TryShooting_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/GamePlayMechanic/Gun/Try Shooting")]
 public class TryShootingActionSO : StateActionSO
 {
-    [SerializeField] private GameObjectAnchor _gunAnchor;
-
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
-        return new TryShootingAction(_gunAnchor);
+        return new TryShootingAction();
     }
 }
 
 public class TryShootingAction : StateAction
 {
-    private readonly GameObjectAnchor _gunAnchor;
-    private GunController _gunController;
-
-    public TryShootingAction(GameObjectAnchor gunAnchor)
-    {
-        _gunAnchor = gunAnchor;
-    }
+    private AnchorReference<GunController> _gunController;
 
     public override void Awake(StateMachine stateMachine)
     {
-         _gunAnchor.TryGetComponentOrOwner(stateMachine, out _gunController, this);
+        _gunController = new AnchorReference<GunController>(stateMachine, this);
     }
 
     public override void OnStateEnter()
     {
-        if (_gunController != null)
-        {
-            _gunController.TryShooting();
-        }
+        if (!_gunController.TryGet(out GunController gunController)) return;
+        gunController.TryShooting();
     }
 
     public override void OnUpdate() { }

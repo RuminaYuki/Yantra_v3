@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[UseSelfAnchor]
 [RequiresOwnerComponent(typeof(AttackSphereCast))]
 [CreateAssetMenu(
     fileName = "ExecuteAttack_Action",
@@ -35,7 +36,7 @@ public class ExecuteAttackActionSO : StateActionSO
         }
     }
 
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
         return new ExecuteAttackAction(_attackParameters);
     }
@@ -45,7 +46,7 @@ public class ExecuteAttackAction : StateAction
 {
     private readonly AttackParameters _attackParameters;
 
-    private AttackSphereCast _attackSphereCast;
+    private AnchorReference<AttackSphereCast> _attackSphereCast;
 
     public ExecuteAttackAction(AttackParameters attackParameters)
     {
@@ -54,12 +55,13 @@ public class ExecuteAttackAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        stateMachine.TryGetRequired(out _attackSphereCast, this);
+        _attackSphereCast = new AnchorReference<AttackSphereCast>(stateMachine, this);
     }
 
     public override void OnStateEnter()
     {
-        _attackSphereCast.TryToExecuteAttack(_attackParameters);
+        if (!_attackSphereCast.TryGet(out AttackSphereCast attackSphereCast)) return;
+        attackSphereCast.TryToExecuteAttack(_attackParameters);
     }
 
     public override void OnUpdate() { }

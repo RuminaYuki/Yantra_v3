@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[UseSelfAnchor]
 [RequiresOwnerComponent(typeof(Health))]
 [CreateAssetMenu(
     fileName = "NewRespawn_Action",
@@ -13,7 +14,7 @@ public class RespawnActionSO : StateActionSO
     [Tooltip("HP to respawn with. Clamped to 0..MaxHealth.")]
     [SerializeField, Min(0f)] private float healthAmount = 100f;
 
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
         return new RespawnAction(usePercent, healthAmount);
     }
@@ -24,7 +25,7 @@ public class RespawnAction : StateAction
 {
     private readonly bool usePercent;
     private readonly float healthAmount;
-    private Health health;
+    private AnchorReference<Health> healthRef;
 
     public RespawnAction(bool usePercent, float healthAmount)
     {
@@ -34,11 +35,13 @@ public class RespawnAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        stateMachine.TryGetRequired(out health, this);
+        healthRef = new AnchorReference<Health>(stateMachine, this);
     }
 
     public override void OnStateEnter()
     {
+        if (!healthRef.TryGet(out Health health)) return;
+
         float targetHP = usePercent
             ? health.MaxHealth * (healthAmount / 100f)
             : healthAmount;

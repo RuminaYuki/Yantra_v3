@@ -9,7 +9,7 @@ public class ExitSubStateMachineActionSO : StateActionSO
 {
     [SerializeField] private string _exitId = "Default";
 
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
         return new ExitSubStateMachineAction(_exitId);
     }

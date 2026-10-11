@@ -40,7 +40,7 @@ public class DelayedConditionSO : StateConditionSO
         }
     }
 
-    public override Condition CreateCondition()
+    protected override Condition OnCreateCondition()
     {
         // Its own copy of the inner condition, separate from any other use of that asset.
         Condition inner = _innerCondition != null ? _innerCondition.CreateCondition() : null;

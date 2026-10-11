@@ -157,12 +157,15 @@ namespace Yuki.Learning.StateMachine.Editor
             foreach (RequiresOwnerComponentAttribute requirement in
                      asset.GetType().GetCustomAttributes<RequiresOwnerComponentAttribute>(true))
             {
-                if (IsAnchorAssigned(asset, requirement.UnlessAnchorField))
+                // Self Anchor (or the named anchor field) points at another object, which is only
+                // known at runtime through the owner's Provider, so the owner can't be checked here.
+                if (IsAnchorAssigned(asset, StateElementSO.SelfAnchorFieldName) ||
+                    IsAnchorAssigned(asset, requirement.UnlessAnchorField))
                 {
                     continue;
                 }
 
-                if (!HasComponentOnOwnerOrReference(owner, requirement.ComponentType) &&
+                if (owner.GetComponent(requirement.ComponentType) == null &&
                     !issues.Exists(issue => issue.Source == asset && issue.Component == requirement.ComponentType))
                 {
                     issues.Add(new Issue { Component = requirement.ComponentType, Source = asset });
@@ -194,18 +197,6 @@ namespace Yuki.Learning.StateMachine.Editor
                     CheckAsset((ScriptableObject)property.objectReferenceValue, owner, issues, visited);
                 }
             }
-        }
-
-        // Same lookup order as the runtime: the owner first, then the ReferenceGameObject target.
-        private static bool HasComponentOnOwnerOrReference(GameObject owner, System.Type componentType)
-        {
-            if (owner.GetComponent(componentType) != null)
-            {
-                return true;
-            }
-
-            return owner.TryGetComponent(out ReferenceGameObject reference) &&
-                   reference.Has(componentType);
         }
 
         private static bool IsAnchorAssigned(ScriptableObject asset, string fieldName)

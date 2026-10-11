@@ -15,7 +15,7 @@ public class InputActionConditionSO : StateConditionSO
     [SerializeField, Min(0f)] private float _bufferTime = 0.15f;
     [SerializeField] private bool _jumpBuffering = false;
 
-    public override Condition CreateCondition()
+    protected override Condition OnCreateCondition()
     {
         return new InputActionCondition(_inputAction, _checkType, _bufferTime,_jumpBuffering);
     }

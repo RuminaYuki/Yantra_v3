@@ -2,6 +2,7 @@ namespace Yuki.Learning.StateMachine
 {
     public abstract class Condition
     {
+        public AnchorIDSO SelfAnchor {get; internal set;}
         public bool IsDisabled { get; private set; }
         internal void Disable() => IsDisabled = true;
 

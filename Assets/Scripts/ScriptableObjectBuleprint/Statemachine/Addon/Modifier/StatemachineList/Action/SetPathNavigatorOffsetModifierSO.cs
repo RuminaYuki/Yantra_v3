@@ -17,11 +17,11 @@ public class SetPathNavigatorOffsetModifierSO : ScriptableObject, IStatModifier,
     public void DrawGizmos(Transform origin)
     {
         Gizmos.color = _gizmoColor;
-        Transform targetTransform = _target != null ? _target.TargetTransform : null;
+        Transform targetTransform = _target != null ? _target.GetTargetTransform(origin.gameObject) : null;
 
         if (targetTransform == null)
         {
-            // _targetAnchor.Value เป็น null จนกว่าจะมีคน Provide() ตอน runtime
+            // ยังไม่ได้ผูก target ใน Provider ของ owner (เช่น Player ที่ถูกเติมตอน runtime)
             // ใช้ tag lookup แทนเพื่อพรีวิวตอน edit mode (เหมือน LineOfSight.Start())
             GameObject player = GameObject.FindWithTag("Player");
             if (player != null)

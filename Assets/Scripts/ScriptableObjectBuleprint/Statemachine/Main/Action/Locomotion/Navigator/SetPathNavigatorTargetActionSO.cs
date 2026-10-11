@@ -2,20 +2,26 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[UseSelfAnchor]
 [RequiresOwnerComponent(typeof(PathNavigator))]
 [CreateAssetMenu(
     fileName = "SetPathNavigatorTargetAction",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Locomotion/Navigation/Set Target")]
 public class SetPathNavigatorTargetActionSO : StateActionSO
 {
-    [SerializeField] private GameObjectAnchor _targetAnchor;
+    [SerializeField] private AnchorIDSO _targetAnchor;
     [SerializeField] private Vector3 _offset;
     [Header("Randomize offset per axis (+-range) each time the state is entered")]
     [SerializeField] private Vector3 _randomOffsetRange = Vector3.zero;
 
-    public Transform TargetTransform
+    /// <summary>The target as seen by this owner (through its Provider), or null if not linked.</summary>
+    public Transform GetTargetTransform(GameObject owner)
     {
-        get => _targetAnchor != null && _targetAnchor.IsSet ? _targetAnchor.Value.transform : null;
+        return _targetAnchor != null &&
+               owner.TryGetComponent(out Provider provider) &&
+               provider.TryGet(_targetAnchor, out GameObject target)
+            ? target.transform
+            : null;
     }
     public Vector3 Offset
     {
@@ -31,7 +37,7 @@ public class SetPathNavigatorTargetActionSO : StateActionSO
             Mathf.Abs(value.z));
     }
 
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
         return new SetPathNavigatorTargetAction(_targetAnchor, _offset, _randomOffsetRange);
     }
@@ -39,14 +45,14 @@ public class SetPathNavigatorTargetActionSO : StateActionSO
 
 public class SetPathNavigatorTargetAction : StateAction
 {
-    private readonly GameObjectAnchor _targetAnchor;
+    private readonly AnchorIDSO _targetAnchor;
     private readonly Vector3 _offset;
     private readonly Vector3 _randomOffsetRange;
-    private PathNavigator _pathNavigator;
-    private Transform _offsetTarget;
+    private AnchorReference<PathNavigator> _pathNavigator;
+    private AnchorReference<Transform> _target;
     private Vector3 _randomOffset;
 
-    public SetPathNavigatorTargetAction(GameObjectAnchor targetAnchor, Vector3 offset, Vector3 randomOffsetRange)
+    public SetPathNavigatorTargetAction(AnchorIDSO targetAnchor, Vector3 offset, Vector3 randomOffsetRange)
     {
         _targetAnchor = targetAnchor;
         _offset = offset;
@@ -58,25 +64,21 @@ public class SetPathNavigatorTargetAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        if (!stateMachine.TryGetRequired(out _pathNavigator, this))
-        {
-            return;
-        }
-
-        _offsetTarget = _pathNavigator.GetOrCreateOffsetTarget();
+        _pathNavigator = new AnchorReference<PathNavigator>(stateMachine, this);
+        _target = new AnchorReference<Transform>(stateMachine, _targetAnchor, this);
     }
 
     public override void OnStateEnter()
     {
         if (_targetAnchor == null)
         {
-            Debug.LogError("SetPathNavigatorTargetAction has no GameObjectAnchor assigned.");
+            Debug.LogError("SetPathNavigatorTargetAction has no AnchorIDSO assigned.");
             return;
         }
 
-        if (!_targetAnchor.IsSet)
+        if (!_pathNavigator.TryGet(out PathNavigator pathNavigator) ||
+            !_target.TryGet(out Transform target))
         {
-            Debug.LogWarning("SetPathNavigatorTargetAction target anchor is not set.");
             return;
         }
 
@@ -85,15 +87,19 @@ public class SetPathNavigatorTargetAction : StateAction
             Random.Range(-_randomOffsetRange.y, _randomOffsetRange.y),
             Random.Range(-_randomOffsetRange.z, _randomOffsetRange.z));
 
-        _offsetTarget.position = _targetAnchor.Value.transform.TransformPoint(_offset + _randomOffset);
-        _pathNavigator.Target = _offsetTarget;
+        // Asked from the navigator each time (it creates it once), so a re-anchored navigator still works.
+        Transform offsetTarget = pathNavigator.GetOrCreateOffsetTarget();
+        offsetTarget.position = target.TransformPoint(_offset + _randomOffset);
+        pathNavigator.Target = offsetTarget;
     }
 
     public override void OnUpdate()
     {
-        if (_targetAnchor == null || !_targetAnchor.IsSet)
+        if (_targetAnchor == null ||
+            !_pathNavigator.TryGet(out PathNavigator pathNavigator) ||
+            !_target.TryGet(out Transform target))
             return;
 
-        _offsetTarget.position = _targetAnchor.Value.transform.TransformPoint(_offset + _randomOffset);
+        pathNavigator.GetOrCreateOffsetTarget().position = target.TransformPoint(_offset + _randomOffset);
     }
 }

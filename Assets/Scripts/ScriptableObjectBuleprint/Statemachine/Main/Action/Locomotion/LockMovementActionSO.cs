@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[UseSelfAnchor]
 [RequiresOwnerComponent(typeof(BaseLocomotion))]
 [CreateAssetMenu(
     fileName = "LockMovementAction",
@@ -10,7 +11,7 @@ public class LockMovementActionSO : StateActionSO
 {
     [SerializeField] private bool _resetMoveAnimation = true;
 
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
         return new LockMovementAction(_resetMoveAnimation);
     }
@@ -19,7 +20,7 @@ public class LockMovementActionSO : StateActionSO
 public class LockMovementAction : StateAction
 {
     private readonly bool _resetMoveAnimation;
-    private BaseLocomotion _locomotion;
+    private AnchorReference<BaseLocomotion> _locomotion;
 
     public LockMovementAction(bool resetMoveAnimation)
     {
@@ -28,19 +29,21 @@ public class LockMovementAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        stateMachine.TryGetRequired(out _locomotion, this);
+        _locomotion = new AnchorReference<BaseLocomotion>(stateMachine, this);
     }
 
     public override void OnStateEnter()
     {
-        _locomotion.LockLocomotion(
+        if (!_locomotion.TryGet(out BaseLocomotion locomotion)) return;
+        locomotion.LockLocomotion(
             this,
             _resetMoveAnimation);
     }
 
     public override void OnStateExit()
     {
-        _locomotion.UnlockLocomotion(this);
+        if (!_locomotion.TryGet(out BaseLocomotion locomotion)) return;
+        locomotion.UnlockLocomotion(this);
     }
 
     public override void OnUpdate() { }

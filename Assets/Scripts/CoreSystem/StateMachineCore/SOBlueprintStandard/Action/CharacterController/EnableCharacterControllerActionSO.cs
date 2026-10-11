@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[UseSelfAnchor]
 [RequiresOwnerComponent(typeof(CharacterController))]
 [CreateAssetMenu(
     fileName = "EnableCharacterController_Action",
@@ -12,7 +13,7 @@ public class EnableCharacterControllerActionSO : StateActionSO
     [Tooltip("Change opposite Value On Exit")]
     [SerializeField] private bool resetValueOnExit = true;
 
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
         return new EnableCharacterControllerAction(value, resetValueOnExit);
     }
@@ -22,7 +23,7 @@ public class EnableCharacterControllerAction : StateAction
 {
     private readonly bool value;
     private readonly bool resetValueOnExit;
-    private CharacterController characterController;
+    private AnchorReference<CharacterController> characterController;
 
     public EnableCharacterControllerAction(bool value, bool resetValueOnExit)
     {
@@ -32,19 +33,20 @@ public class EnableCharacterControllerAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        stateMachine.TryGetRequired(out characterController, this);
+        characterController = new AnchorReference<CharacterController>(stateMachine, this);
     }
 
     public override void OnStateEnter()
     {
-        characterController.enabled = value;
+        if (!characterController.TryGet(out CharacterController controller)) return;
+        controller.enabled = value;
     }
 
     public override void OnUpdate() { }
 
     public override void OnStateExit()
     {
-        if (!resetValueOnExit) return;
-        characterController.enabled = !value;
+        if (!resetValueOnExit || !characterController.TryGet(out CharacterController controller)) return;
+        controller.enabled = !value;
     }
 }

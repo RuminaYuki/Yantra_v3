@@ -12,7 +12,7 @@ public class SubStateMachineActionSO : StateActionSO
     [Tooltip("ถ้าตั้งไว้ — ทุกครั้งที่ออกจาก state นี้ (ไม่ว่าจะออกแบบปกติหรือถูก parent บังคับออกกะทันหัน) จะวิ่งผ่าน state นี้ก่อนเสมอ ก่อน dispose child machine เช่น PlayerPutGunDown_State เพื่อให้ animation เก็บปืนได้เล่นทุกครั้ง")]
     [SerializeField] private StateSO _forceExitState;
 
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
         return new SubStateMachineAction(_transitionTable, _forceExitState);
     }

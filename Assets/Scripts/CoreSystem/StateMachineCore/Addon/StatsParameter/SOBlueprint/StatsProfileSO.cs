@@ -6,10 +6,15 @@ public class StatsProfileSO : ScriptableObject
 {
     [SerializeField] private List<ScriptableObject> _modifiers;
 
-    public void ApplyStats()
+    public void ApplyStats(GameObject owner)
     {
         foreach (var modifier in _modifiers)
-            (modifier as IStatModifier)?.Apply();
+        {
+            if (modifier is IOwnerStatModifier ownerModifier)
+                ownerModifier.Apply(owner);
+            else
+                (modifier as IStatModifier)?.Apply();
+        }
     }
     public void DrawGizmos(Transform origin)
     {

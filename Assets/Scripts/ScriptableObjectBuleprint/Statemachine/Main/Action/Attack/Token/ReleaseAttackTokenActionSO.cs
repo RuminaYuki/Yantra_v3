@@ -8,7 +8,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Attack/Token/Release Attack Token")]
 public class ReleaseAttackTokenActionSO : StateActionSO
 {
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
         return new ReleaseAttackTokenAction();
     }
@@ -16,16 +16,17 @@ public class ReleaseAttackTokenActionSO : StateActionSO
 
 public class ReleaseAttackTokenAction : StateAction
 {
-    private AttackTokenUser _attackTokenUser;
+    private AnchorReference<AttackTokenUser> _attackTokenUser;
 
     public override void Awake(StateMachine stateMachine)
     {
-        stateMachine.TryGetRequired(out _attackTokenUser, this);
+        _attackTokenUser = new AnchorReference<AttackTokenUser>(stateMachine, this);
     }
 
     public override void OnStateEnter()
     {
-        _attackTokenUser.Release();
+        if (!_attackTokenUser.TryGet(out AttackTokenUser tokenUser)) return;
+        tokenUser.Release();
     }
 
     public override void OnUpdate() { }

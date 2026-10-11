@@ -44,6 +44,7 @@ GameObject:
   - component: {fileID: 4805423748601967255}
   - component: {fileID: 8773011137545376764}
   - component: {fileID: 3448401313642827807}
+  - component: {fileID: 9035622197156565843}
   - component: {fileID: 7524191408126414138}
   - component: {fileID: 8157027762539370649}
   - component: {fileID: 8327179935333160797}
@@ -155,8 +156,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3b62f809a9c40c4a9f8e36828d69982, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Provider
-  Anchors:
-  - {fileID: 11400000, guid: 3f5600626c0d92845a79d02ae967a555, type: 2}
+  _anchorReferences:
+  - anchorID: {fileID: 11400000, guid: 3f5600626c0d92845a79d02ae967a555, type: 2}
+    tagetgameObject: {fileID: 3655578508217946147}
+--- !u!114 &9035622197156565843
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3655578508217946147}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0bb0d945dba0c0441a748d56f2d7f25f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerTargetLinker
+  _targets:
+  - Anchor: {fileID: 11400000, guid: ded8b5ee8f0dd57488cc9fa0e5c0d061, type: 2}
+    Tag: Player
+    Name: PlayerController
+  - Anchor: {fileID: 11400000, guid: 7e0c6e6867689484fb85c18d09184466, type: 2}
+    Tag: Player
+    Name: IKTarget
 --- !u!114 &7524191408126414138
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -279,7 +300,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0fe60a42dfbdd134aa4ea8177d07828d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LineOfSight
-  targetAnchor: {fileID: 11400000, guid: ded8b5ee8f0dd57488cc9fa0e5c0d061, type: 2}
   target: {fileID: 0}
   viewpoint: {fileID: 672988667831278726}
   showGizmos: 0

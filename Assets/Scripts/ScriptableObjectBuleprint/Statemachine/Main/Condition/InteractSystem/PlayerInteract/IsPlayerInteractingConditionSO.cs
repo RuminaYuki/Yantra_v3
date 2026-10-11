@@ -3,18 +3,16 @@ using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 using SDFcl.GamePlay.Interactable;
 
-[RequiresOwnerComponent(typeof(PlayerInteract), UnlessAnchorField = "anchorTarget")]
+[UseSelfAnchor]
+[RequiresOwnerComponent(typeof(PlayerInteract))]
 [CreateAssetMenu(
     fileName = "NewIsPlayerInteracting_Condition",
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/InteractSystem/PlayerInteract/Is Player Interacting")]
 public class IsPlayerInteractingConditionSO : StateConditionSO
 {
-    [Header("If the TargetAnchor is set, Use that anchor instead")]
-    [SerializeField] private GameObjectAnchor anchorTarget;
-
-    public override Condition CreateCondition()
+    protected override Condition OnCreateCondition()
     {
-        return new IsPlayerInteractingCondition(anchorTarget);
+        return new IsPlayerInteractingCondition();
     }
 }
 
@@ -22,21 +20,15 @@ public class IsPlayerInteractingConditionSO : StateConditionSO
 // It's a state, not an event, so it's just read when checked: no Tick needed.
 public class IsPlayerInteractingCondition : Condition
 {
-    private readonly GameObjectAnchor anchorTarget;
-    private PlayerInteract playerInteract;
-
-    public IsPlayerInteractingCondition(GameObjectAnchor anchorTarget = null)
-    {
-        this.anchorTarget = anchorTarget;
-    }
+    private AnchorReference<PlayerInteract> playerInteract;
 
     public override void Awake(StateMachine stateMachine)
     {
-        anchorTarget.TryGetComponentOrOwner(stateMachine, out playerInteract, this);
+        playerInteract = new AnchorReference<PlayerInteract>(stateMachine, this);
     }
 
     protected override bool Statement()
     {
-        return playerInteract.GetIsInterctable;
+        return playerInteract.TryGet(out PlayerInteract interact) && interact.GetIsInterctable;
     }
 }

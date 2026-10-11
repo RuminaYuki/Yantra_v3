@@ -1,14 +1,17 @@
 using UnityEngine;
+using Yuki.Learning.StateMachine;
 
 [CreateAssetMenu(fileName = "NewMaxSkillPoint_Modifier",
 menuName = "YUKI Learning State Machine/StatsParameter/Modifiers/Component/Set Max Skill Points")]
-public class SetMaxSkillPointsModifierSO : ScriptableObject, IStatModifier
+public class SetMaxSkillPointsModifierSO : ScriptableObject, IOwnerStatModifier
 {
-    [SerializeField] private GameObjectAnchor _anchor;
+    [Tooltip("Leave empty to use the character itself")]
+    [SerializeField] private AnchorIDSO _anchor;
     [SerializeField] private float _maxSkillPoints;
 
-    public void Apply()
+    public void Apply(GameObject owner)
     {
-        _anchor.Value.GetComponent<SkillPoints>().MaxSkillPoints = _maxSkillPoints;
+        if (ComponentModifierTarget.TryGet(owner, _anchor, this, out SkillPoints skillPoints))
+            skillPoints.MaxSkillPoints = _maxSkillPoints;
     }
 }

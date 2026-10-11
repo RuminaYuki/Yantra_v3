@@ -11,7 +11,7 @@ public class ExecuteParryActionSO : StateActionSO
     [SerializeField] private bool _enable = true;
     [Tooltip("Whether to reset the parry value when exiting the state.")]
     [SerializeField] private bool _resetValueOnExit = true;
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
         return new ExecuteParryAction(_enable, _resetValueOnExit);
     }
@@ -21,7 +21,7 @@ public class ExecuteParryAction : StateAction
 {
     private readonly bool _enable;
     private readonly bool _resetValueOnExit;
-    private BlockSystem _blockSystem;
+    private AnchorReference<BlockSystem> _blockSystem;
 
     public ExecuteParryAction(bool enable, bool resetValueOnExit)
     {
@@ -31,21 +31,22 @@ public class ExecuteParryAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        stateMachine.TryGetRequired(out _blockSystem, this);
+        _blockSystem = new AnchorReference<BlockSystem>(stateMachine, this);
     }
 
     public override void OnStateEnter()
     {
-        _blockSystem.ExecuteParry(_enable);
+        if (!_blockSystem.TryGet(out BlockSystem blockSystem)) return;
+        blockSystem.ExecuteParry(_enable);
     }
 
     public override void OnUpdate() { }
 
     public override void OnStateExit()
     {
-        if (!_resetValueOnExit)
+        if (!_resetValueOnExit || !_blockSystem.TryGet(out BlockSystem blockSystem))
             return;
 
-        _blockSystem.ExecuteParry(!_enable);
+        blockSystem.ExecuteParry(!_enable);
     }
 }

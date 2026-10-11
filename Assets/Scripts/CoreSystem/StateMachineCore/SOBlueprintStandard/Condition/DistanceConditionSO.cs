@@ -2,13 +2,14 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
-[RequiresOwnerComponent(typeof(Transform))]
+[UseSelfAnchor]
 [CreateAssetMenu(
     fileName = "NewRange_Condition",
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/Distance")]
 public class DistanceConditionSO : StateConditionSO
 {
-    [SerializeField] private GameObjectAnchor _targetAnchor;
+    [Tooltip("Required. Self Anchor is where the distance is measured from (empty = Owner).")]
+    [SerializeField] private AnchorIDSO _targetAnchor;
     [SerializeField, Min(0f)] private float _distance = 1f;
 
     public float Distance
@@ -26,7 +27,7 @@ public class DistanceConditionSO : StateConditionSO
         }
     }
 
-    public override Condition CreateCondition()
+    protected override Condition OnCreateCondition()
     {
         return new DistanceCondition(_targetAnchor, _distance);
     }
@@ -34,12 +35,13 @@ public class DistanceConditionSO : StateConditionSO
 
 public class DistanceCondition : Condition
 {
-    private readonly GameObjectAnchor _targetAnchor;
+    private readonly AnchorIDSO _targetAnchor;
     private readonly float _distance;
-    private Transform _owner;
+    private AnchorReference<Transform> _self;
+    private AnchorReference<Transform> _target;
 
     public DistanceCondition(
-        GameObjectAnchor targetAnchor,
+        AnchorIDSO targetAnchor,
         float distance)
     {
         _targetAnchor = targetAnchor;
@@ -48,22 +50,24 @@ public class DistanceCondition : Condition
 
     public override void Awake(StateMachine stateMachine)
     {
-        stateMachine.TryGetRequired(out _owner, this);
-
         if (_targetAnchor == null)
-            Debug.LogError("TargetInRangeCondition has no GameObjectAnchor assigned.");
+            Debug.LogError("DistanceCondition has no target AnchorIDSO assigned.", stateMachine.Owner);
+
+        _self = new AnchorReference<Transform>(stateMachine, this);
+        _target = new AnchorReference<Transform>(stateMachine, _targetAnchor, this);
     }
 
     protected override bool Statement()
     {
+        // The target may not be linked yet (e.g. the player before a sensor found it).
         if (_targetAnchor == null ||
-            !_targetAnchor.IsSet ||
-            _targetAnchor.Value == null)
+            !_self.TryGet(out Transform self) ||
+            !_target.TryGet(out Transform target))
         {
             return false;
         }
 
-        Vector3 offset = _targetAnchor.Value.transform.position - _owner.position;
+        Vector3 offset = target.position - self.position;
         offset.y = 0f;
 
         return offset.sqrMagnitude <= _distance * _distance;
