@@ -7,18 +7,23 @@ public class HomingMissileEffect : BaseEffectClass, IEffectExecutor
 
     public void Execute(GameObject owner)
     {
-        base.owner = owner;
+        if (owner != null) base.owner = owner;
+        if (base.owner == null)
+        {
+            Debug.LogError("HomingMissileEffect requires an owner.", this);
+            return;
+        }
 
         if (useAnimation)
         {
-            // TODO(Anchor): disabled so the project builds. Look the animator up through the caster's
-            // Provider instead (the owner passed in must be the caster, not the camera/spawn point).
-            // GameObject animatorObject = animatorAnchor.Value;
-            GameObject animatorObject = null;
-            if (animatorObject == null || !animatorObject.TryGetComponent(out Animator animator)) return;
-
-            animEvent = animatorObject.GetComponent<AnimEventDispatcher>();
-            if (animEvent == null) return;
+            animEvent = base.owner.GetComponentInChildren<AnimEventDispatcher>();
+            if (animEvent == null)
+            {
+                Debug.LogError("Owner has no AnimEventDispatcher.", base.owner);
+                return;
+            }
+            Animator animator = animEvent.GetComponent<Animator>();
+            if (animator == null) return;
 
             if (!string.IsNullOrEmpty(eventKey))
                 animEvent.GetEvent(eventKey).AddListener(Shooting);

@@ -14,6 +14,7 @@ public class SpellEffectSpawner : MonoBehaviour
 
     [Header("Runtime Value")]
     [SerializeField] Transform runtimeSpawnPoint;
+    [SerializeField] GameObject runtimeOwner;
 
     private void OnEnable()
     {
@@ -59,20 +60,27 @@ public class SpellEffectSpawner : MonoBehaviour
             origin.rotation,
             origin.transform);
 
-        if (activateOnSpawn)
-        {
-            EffectController controller =
-                effectObject.GetComponent<EffectController>();
+        EffectController controller =
+            effectObject.GetComponent<EffectController>();
 
-            if (controller == null)
+        if (controller == null)
+        {
+            Debug.LogError(
+                "The spawned effect prefab requires an EffectController.",
+                effectObject);
+        }
+        else
+        {
+            // Owner is the caster (player root), not the spawn origin (may be the camera).
+            GameObject owner = runtimeOwner != null
+                ? runtimeOwner
+                : runtimeSpawnPoint != null
+                    ? runtimeSpawnPoint.gameObject
+                    : transform.root.gameObject;
+            controller.SetOwner(owner);
+
+            if (activateOnSpawn)
             {
-                Debug.LogError(
-                    "The spawned effect prefab requires an EffectController.",
-                    effectObject);
-            }
-            else
-            {
-                controller.SetOwner(origin.gameObject);
                 controller.ActivateFromSpawn();
             }
         }
@@ -86,5 +94,10 @@ public class SpellEffectSpawner : MonoBehaviour
     public void SetSpawnPoint(Transform point)
     {
         runtimeSpawnPoint = point;
+    }
+
+    public void SetOwner(GameObject owner)
+    {
+        runtimeOwner = owner;
     }
 }
