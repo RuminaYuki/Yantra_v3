@@ -18,9 +18,12 @@ public class PlayPairedAnimationActionSO : StateActionSO
     [Tooltip("เวลาสูงสุดที่รอกล้องมองตรงก่อนเริ่ม Glory — 0 = เริ่มทันที")]
     [SerializeField, Min(0f)] private float _cameraPreparationTimeout = 1f;
 
+    [Tooltip("ให้กล้องแขน FPS ตามมุมกล้อง Glory แล้วคืนค่าเดิมหลังกล้องกลับเข้าเกมเพลย์")]
+    [SerializeField] private bool _syncGloryViewModelCamera = true;
+
     protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
-        return new PlayPairedAnimationAction(_lockLook, _useGloryCamera, _cameraPreparationTimeout);
+        return new PlayPairedAnimationAction(_lockLook, _useGloryCamera, _cameraPreparationTimeout, _syncGloryViewModelCamera);
     }
 }
 
@@ -29,6 +32,7 @@ public class PlayPairedAnimationAction : StateAction
     private readonly bool _lockLook;
     private readonly bool _useGloryCamera;
     private readonly float _cameraPreparationTimeout;
+    private readonly bool _syncGloryViewModelCamera;
 
     private AnchorReference<PairedAnimationActor> _actor;
     private BaseLocomotion _locomotion;
@@ -47,6 +51,7 @@ public class PlayPairedAnimationAction : StateAction
     private PrioritySettings _previousGloryPriority;
     private bool _isPreparing;
     private float _preparationElapsed;
+    private PairedAnimationViewModelCameraSync _viewModelSync;
 
     // Keep the existing constructor so other paired actions remain compatible.
     public PlayPairedAnimationAction(bool lockLook, bool useGloryCamera)
@@ -55,10 +60,16 @@ public class PlayPairedAnimationAction : StateAction
     }
 
     public PlayPairedAnimationAction(bool lockLook, bool useGloryCamera, float cameraPreparationTimeout)
+        : this(lockLook, useGloryCamera, cameraPreparationTimeout, true)
+    {
+    }
+
+    public PlayPairedAnimationAction(bool lockLook, bool useGloryCamera, float cameraPreparationTimeout, bool syncGloryViewModelCamera)
     {
         _lockLook = lockLook;
         _useGloryCamera = useGloryCamera;
         _cameraPreparationTimeout = Mathf.Max(0f, cameraPreparationTimeout);
+        _syncGloryViewModelCamera = syncGloryViewModelCamera;
     }
 
     public override void Awake(StateMachine stateMachine)
@@ -161,6 +172,59 @@ public class PlayPairedAnimationAction : StateAction
         // Look Lock already rejects mouse input. Let the gameplay camera run its
         // existing RecenterPitch behind Glory, without clearing a prior cutscene.
         _camera.IsCutsceneMode = _cutsceneWasActive;
+        StartViewModelCameraSync();
+    }
+
+    private void StartViewModelCameraSync()
+    {
+        if (!_syncGloryViewModelCamera || _request.Type != PairedActionType.Glory ||
+            !_actor.TryGet(out PairedAnimationActor actor))
+            return;
+
+        // Stay inside this player's camera hierarchy; never select another player's camera.
+        Camera viewCamera = null;
+        foreach (ViewModelRenderer renderer in _camera.GetComponentsInChildren<ViewModelRenderer>(true))
+        {
+            Camera candidate = renderer.Camera != null ? renderer.Camera : renderer.GetComponent<Camera>();
+            if (!renderer.isActiveAndEnabled || candidate == null || !candidate.isActiveAndEnabled)
+                continue;
+
+            if (viewCamera != null)
+            {
+                Debug.LogWarning("[PairedAnimation] พบกล้องแขนหลายตัว — ข้ามการตามกล้อง Glory", _camera);
+                return;
+            }
+            viewCamera = candidate;
+        }
+
+        if (viewCamera == null)
+            return;
+
+        CinemachineBrain brain = null;
+        foreach (CinemachineBrain candidate in _camera.GetComponentsInChildren<CinemachineBrain>(true))
+        {
+            Camera output = candidate.OutputCamera;
+            if (!candidate.isActiveAndEnabled || output == null || !output.isActiveAndEnabled ||
+                output == viewCamera || output.targetTexture != null)
+                continue;
+
+            if (brain != null)
+            {
+                Debug.LogWarning("[PairedAnimation] พบกล้องหลักหลายตัว — ข้ามการตามกล้อง Glory", _camera);
+                return;
+            }
+            brain = candidate;
+        }
+
+        if (brain == null)
+            return;
+
+        PairedAnimationViewModelCameraSync sync = viewCamera.GetComponent<PairedAnimationViewModelCameraSync>();
+        if (sync == null)
+            sync = viewCamera.gameObject.AddComponent<PairedAnimationViewModelCameraSync>();
+
+        if (sync.Begin(actor, brain, viewCamera))
+            _viewModelSync = sync;
     }
 
     public override void OnUpdate()
@@ -225,6 +289,12 @@ public class PlayPairedAnimationAction : StateAction
             if (_camera != null)
                 _camera.IsCutsceneMode = _cutsceneWasActive;
         }
+
+        // The helper follows the return blend before restoring the original arm-camera pose.
+        // Request this only after the Glory priority has been restored above.
+        if (_viewModelSync != null)
+            _viewModelSync.End();
+        _viewModelSync = null;
 
         if (_lookStateSaved && _camera != null)
         {
