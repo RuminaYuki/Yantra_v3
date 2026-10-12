@@ -14,6 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
   _initialState: {fileID: 11400000, guid: 9b03be382e028a34b8b91e0341e8b28f, type: 2}
   _anyTransitions:
+  - ToState: {fileID: 11400000, guid: f814d0733464ad245924d071d2d0f27d, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 995431edc9c64c941b66a509eb363309, type: 2}
+        ExpectedResult: 0
   - ToState: {fileID: 11400000, guid: 6936ac72c9d3f5b4fa1af6e969ba1a6d, type: 2}
     ConditionGroups:
     - Conditions:
@@ -28,6 +33,8 @@ MonoBehaviour:
     - Conditions:
       - Condition: {fileID: 11400000, guid: 45d2dd7c3a55599428b14c8cd6c4c8d4, type: 2}
         ExpectedResult: 0
+      - Condition: {fileID: 11400000, guid: fc96c82ec3c625b46ab864e57496bb53, type: 2}
+        ExpectedResult: 1
   _transitions:
   - FromState: {fileID: 11400000, guid: 6936ac72c9d3f5b4fa1af6e969ba1a6d, type: 2}
     ConditionGroups:
@@ -107,6 +114,12 @@ MonoBehaviour:
       - Condition: {fileID: 11400000, guid: 45d2dd7c3a55599428b14c8cd6c4c8d4, type: 2}
         ExpectedResult: 1
     ToState: {fileID: 11400000, guid: 9b03be382e028a34b8b91e0341e8b28f, type: 2}
+  - FromState: {fileID: 11400000, guid: f814d0733464ad245924d071d2d0f27d, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: bb6f7de74c4f69b40aa8b4516b3a5f9d, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: 11400000, guid: 9b03be382e028a34b8b91e0341e8b28f, type: 2}
   _nodePositions:
   - State: {fileID: 11400000, guid: 6936ac72c9d3f5b4fa1af6e969ba1a6d, type: 2}
     Position: {x: 56, y: 1}
@@ -122,5 +135,7 @@ MonoBehaviour:
     Position: {x: 244, y: 1}
   - State: {fileID: 11400000, guid: 2388c62025b28d54fadac765a79be5d3, type: 2}
     Position: {x: 56, y: -98}
+  - State: {fileID: 11400000, guid: f814d0733464ad245924d071d2d0f27d, type: 2}
+    Position: {x: 850, y: -160}
   _entryNodePosition: {x: 264, y: -98}
   _anyStateNodePosition: {x: -105, y: 1}
