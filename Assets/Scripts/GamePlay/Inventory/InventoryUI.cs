@@ -205,7 +205,7 @@ public class InventoryUI : MonoBehaviour
         ClearHighlight();
         if (!dragOverBoard) return;
 
-        bool valid = FindMergeTarget(screenPos, dragging) != null || inv.CanMove(dragging, dragOrigin, dragRotation);
+        bool valid = FindMergeTarget(screenPos, dragging) != null || inv.TryMove(dragging, dragOrigin, dragRotation, simulate: true);
         SlotUI.Highlight h = valid ? SlotUI.Highlight.Valid : SlotUI.Highlight.Invalid;
         foreach (Vector2Int local in item.GetCells(dragRotation))
         {

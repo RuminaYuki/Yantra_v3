@@ -78,7 +78,10 @@ public class Inventory
     }
 
     // First free spot, trying every allowed rotation. Used for pickups.
-    public bool FindSpace(ItemData item, out Vector2Int origin, out int rotation)
+    public bool FindSpace(ItemData item, out Vector2Int origin, out int rotation) =>
+        FindSpace(item, null, out origin, out rotation);
+
+    private bool FindSpace(ItemData item, HashSet<Vector2Int> reserved, out Vector2Int origin, out int rotation)
     {
         int rotations = item.canRotate ? 4 : 1;
         for (int r = 0; r < rotations; r++)
@@ -86,7 +89,7 @@ public class Inventory
                 for (int x = 0; x < Width; x++)
                 {
                     var o = new Vector2Int(x, y);
-                    if (!CanOccupy(item, o, r, null)) continue;
+                    if (!CanOccupy(item, o, r, null, reserved)) continue;
                     origin = o;
                     rotation = r;
                     return true;
@@ -98,9 +101,11 @@ public class Inventory
     }
 
     // ---------- Add / remove ----------
+    // Every Try* method takes `simulate`: true returns the same result but changes nothing
+    // and fires no events, so "can I do this?" always matches what really happens.
 
     // Returns the amount that did NOT fit (0 means everything was added).
-    public int TryAdd(ItemData item, int amount)
+    public int TryAdd(ItemData item, int amount, bool simulate = false)
     {
         if (item == null || amount <= 0) return amount;
 
@@ -111,14 +116,24 @@ public class Inventory
             if (p.Item != item) continue;
             int add = Math.Min(amount, p.SpaceLeft);
             if (add <= 0) continue;
-            p.Quantity += add;
             amount -= add;
+            if (simulate) continue;
+            p.Quantity += add;
             ItemChanged?.Invoke(p);
         }
 
-        // Pass 2: place new stacks wherever the shape fits
-        while (amount > 0 && FindSpace(item, out Vector2Int origin, out int rotation))
+        // Pass 2: place new stacks wherever the shape fits.
+        // When simulating, new stacks claim cells in `reserved` instead of the board so they don't overlap.
+        HashSet<Vector2Int> reserved = simulate ? new HashSet<Vector2Int>() : null;
+        while (amount > 0 && FindSpace(item, reserved, out Vector2Int origin, out int rotation))
         {
+            if (simulate)
+            {
+                foreach (Vector2Int local in item.GetCells(rotation)) reserved.Add(origin + local);
+                amount -= Math.Min(amount, item.maxStack);
+                continue;
+            }
+
             PlacedItem p = TryPlace(item, amount, origin, rotation);
             if (p == null) break;
             amount -= p.Quantity;
@@ -129,13 +144,16 @@ public class Inventory
 
     // Puts a new stack at an exact spot (also what a save system would call on load).
     // Returns null if it does not fit. Quantity above maxStack is cut off.
-    public PlacedItem TryPlace(ItemData item, int quantity, Vector2Int origin, int rotation)
+    // When simulating, the returned item is a preview that is NOT on the board.
+    public PlacedItem TryPlace(ItemData item, int quantity, Vector2Int origin, int rotation, bool simulate = false)
     {
         if (item == null || quantity <= 0) return null;
         rotation = ItemData.WrapRotation(rotation);
         if (!CanPlace(item, origin, rotation)) return null;
 
         var p = new PlacedItem(item, Math.Min(quantity, item.maxStack), origin, rotation);
+        if (simulate) return p;
+
         items.Add(p);
         Write(p, p);
 
@@ -145,11 +163,13 @@ public class Inventory
     }
 
     // Returns how many were actually removed.
-    public int TryRemove(PlacedItem p, int amount)
+    public int TryRemove(PlacedItem p, int amount, bool simulate = false)
     {
         if (!CanRemove(p) || amount <= 0) return 0;
 
         int removed = Math.Min(amount, p.Quantity);
+        if (simulate) return removed;
+
         p.Quantity -= removed;
         if (p.Quantity <= 0) Delete(p);
         else ItemChanged?.Invoke(p);
@@ -168,14 +188,13 @@ public class Inventory
 
     // ---------- Move / merge ----------
 
-    // Same check as TryMove without changing anything (for the drag preview).
-    public bool CanMove(PlacedItem p, Vector2Int origin, int rotation) => BuildMove(p, origin, rotation, null);
-
     // Moving a bag also moves and rotates every item resting on it.
-    public bool TryMove(PlacedItem p, Vector2Int origin, int rotation)
+    // simulate = true is the drag preview check.
+    public bool TryMove(PlacedItem p, Vector2Int origin, int rotation, bool simulate = false)
     {
         rotation = ItemData.WrapRotation(rotation);
         if (Contains(p) && p.Origin == origin && p.Rotation == rotation) return true; // dropped in place
+        if (simulate) return BuildMove(p, origin, rotation, null);
 
         var plan = new List<Move>();
         if (!BuildMove(p, origin, rotation, plan)) return false;
@@ -194,12 +213,13 @@ public class Inventory
     }
 
     // Moves as much as fits from one stack into another of the same item.
-    public bool TryMerge(PlacedItem from, PlacedItem into)
+    public bool TryMerge(PlacedItem from, PlacedItem into, bool simulate = false)
     {
         if (!Contains(from) || !Contains(into) || from == into || from.Item != into.Item) return false;
 
         int moved = Math.Min(into.SpaceLeft, from.Quantity);
         if (moved <= 0) return false;
+        if (simulate) return true;
 
         into.Quantity += moved;
         from.Quantity -= moved;
@@ -212,12 +232,15 @@ public class Inventory
     // ---------- Internals ----------
 
     // ignore = an item already on the board that is being moved (its own cells count as free).
-    private bool CanOccupy(ItemData item, Vector2Int origin, int rotation, PlacedItem ignore)
+    // reserved = cells already claimed by a simulated placement (HowManyFit).
+    private bool CanOccupy(ItemData item, Vector2Int origin, int rotation, PlacedItem ignore,
+                           HashSet<Vector2Int> reserved = null)
     {
         foreach (Vector2Int local in item.GetCells(rotation))
         {
             Vector2Int c = origin + local;
             if (!InBounds(c)) return false;
+            if (reserved != null && reserved.Contains(c)) return false;
 
             if (item.isBag)
             {
