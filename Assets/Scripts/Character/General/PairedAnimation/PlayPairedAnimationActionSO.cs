@@ -1,4 +1,5 @@
 using SDFcl.GamePlay.Interactable;
+using Unity.Cinemachine;
 using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
@@ -11,44 +12,59 @@ public class PlayPairedAnimationActionSO : StateActionSO
     [Tooltip("ล็อกการหันกล้องระหว่างเล่นท่า (มีผลเฉพาะผู้เล่น)")]
     [SerializeField] private bool _lockLook = true;
 
-    [Tooltip("สลับไปใช้กล้อง Glory (vcamGlory) ที่หมุนตามกระดูกหัว")]
-    [SerializeField] private bool _useGloryCamera = false; // <-- ส่วนที่เพิ่มเข้ามา
+    [Tooltip("ใช้กล้อง Glory และให้กล้องเกมเพลย์ค่อย ๆ คืนมุมก้มเงยก่อนเข้าท่า")]
+    [SerializeField] private bool _useGloryCamera = false;
+
+    [Tooltip("เวลาสูงสุดที่รอกล้องมองตรงก่อนเริ่ม Glory — 0 = เริ่มทันที")]
+    [SerializeField, Min(0f)] private float _cameraPreparationTimeout = 1f;
 
     protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
-        return new PlayPairedAnimationAction(_lockLook, _useGloryCamera);
+        return new PlayPairedAnimationAction(_lockLook, _useGloryCamera, _cameraPreparationTimeout);
     }
 }
 
-// ทุกอย่างของท่าคู่วิ่งผ่าน Action นี้ — เข้า State: เริ่มท่า / ทุกเฟรม: เลื่อนตัว / ออก State: จบท่า
 public class PlayPairedAnimationAction : StateAction
 {
     private readonly bool _lockLook;
-    private readonly bool _useGloryCamera; // <-- ส่วนที่เพิ่มเข้ามา
+    private readonly bool _useGloryCamera;
+    private readonly float _cameraPreparationTimeout;
 
     private AnchorReference<PairedAnimationActor> _actor;
     private BaseLocomotion _locomotion;
     private CenterRayInteract _interactRay;
     private PlayerCameraController _camera;
-    private bool _lookWasLocked;
 
     private bool _hasStarted;
     private PairedRequest _request;
+    private bool _locomotionLocked;
+    private bool _interactRayDisabled;
+    private bool _lookStateSaved;
+    private bool _lookWasLocked;
+    private bool _gloryCameraChanged;
+    private bool _cutsceneWasActive;
+    private CinemachineCamera _gloryCamera;
+    private PrioritySettings _previousGloryPriority;
+    private bool _isPreparing;
+    private float _preparationElapsed;
 
+    // Keep the existing constructor so other paired actions remain compatible.
     public PlayPairedAnimationAction(bool lockLook, bool useGloryCamera)
+        : this(lockLook, useGloryCamera, 1f)
+    {
+    }
+
+    public PlayPairedAnimationAction(bool lockLook, bool useGloryCamera, float cameraPreparationTimeout)
     {
         _lockLook = lockLook;
         _useGloryCamera = useGloryCamera;
+        _cameraPreparationTimeout = Mathf.Max(0f, cameraPreparationTimeout);
     }
 
     public override void Awake(StateMachine stateMachine)
     {
         _actor = new AnchorReference<PairedAnimationActor>(stateMachine, this);
-
-        // ไม่บังคับ — ถ้าตัวไหนไม่มี Locomotion บน GameObject เดียวกัน ท่ายังเล่นได้ แค่ไม่ได้ล็อกการเดิน
         stateMachine.Owner.TryGetComponent(out _locomotion);
-
-        // สองตัวนี้มีแค่ผู้เล่น ผีไม่มีก็ข้ามไป
         stateMachine.Owner.TryGetComponent(out _interactRay);
 
         if (stateMachine.Owner.TryGetComponent(out PlayerCameraInput cameraInput))
@@ -57,47 +73,122 @@ public class PlayPairedAnimationAction : StateAction
 
     public override void OnStateEnter()
     {
+        _hasStarted = false;
+        _request = default;
+        _isPreparing = false;
+        _preparationElapsed = 0f;
+
         if (!_actor.TryGet(out PairedAnimationActor actor))
             return;
 
-        if (_locomotion != null)
-            _locomotion.LockLocomotion(this);
-
-        // ปิดการเล็ง interact ระหว่างท่า กันกดซ้ำและซ่อน highlight
-        if (_interactRay != null)
-            _interactRay.SetInteractEnabled(false);
-
-        if (_lockLook && _camera != null)
-        {
-            _lookWasLocked = _camera.IsLookLocked;
-            _camera.IsLookLocked = true;
-        }
-
-        // <-- สั่งเปิดกล้อง Glory ตอนเริ่มท่า
-        if (_useGloryCamera && _camera != null)
-        {
-            _camera.SetGloryCameraActive(true);
-        }
-
-        _hasStarted = actor.Begin();
+        // A rejected request must not activate a camera or lock player controls.
+        bool prepareFirst = _useGloryCamera && _cameraPreparationTimeout > 0f &&
+            _camera != null && _camera.vcamGlory != null &&
+            !_camera.IsCutsceneMode && !_camera.IsPaused;
+        // Claim the request now, but delay both characters' clips until the camera is ready.
+        _hasStarted = actor.Begin(prepareFirst);
         if (!_hasStarted)
             return;
 
         _request = actor.CurrentRequest;
 
-        // State นี้เป็นคนสั่งคู่ของท่า (เช่น ผีตอน Glory) ให้เข้าท่าตาม
+        if (_locomotion != null)
+        {
+            _locomotion.LockLocomotion(this);
+            _locomotionLocked = true;
+        }
+
+        if (_interactRay != null)
+        {
+            _interactRay.SetInteractEnabled(false);
+            _interactRayDisabled = true;
+        }
+
+        PrepareCamera();
+
+        _isPreparing = prepareFirst;
+        if (!_isPreparing)
+            StartPartnerAndCamera();
+    }
+
+    private void StartPartnerAndCamera()
+    {
+        ActivateGloryCamera();
+
         if (_request.Partner != null)
             _request.Partner.TryRequest(_request.CreatePartnerRequest());
 
-        // ยิง OnInteract ตอนท่าเริ่มจริง — ถ้ากดแล้ว State ไม่รับ (เช่น ถือปืนอยู่) จะไม่มีอะไรเกิดขึ้นเลย
         if (IsAlive(_request.Source) && _request.Source is IPairedInteractionSource source)
             source.NotifyStarted(_request.RootPlayer);
     }
 
+    private void PrepareCamera()
+    {
+        if (_camera == null)
+            return;
+
+        // Glory must block mouse input even if the action's Lock Look checkbox is off.
+        if (_lockLook || _useGloryCamera)
+        {
+            _lookWasLocked = _camera.IsLookLocked;
+            _lookStateSaved = true;
+            _camera.IsLookLocked = true;
+        }
+
+        if (!_useGloryCamera || _camera.vcamGlory == null)
+            return;
+
+        _gloryCamera = _camera.vcamGlory;
+        _previousGloryPriority = _gloryCamera.Priority;
+        _cutsceneWasActive = _camera.IsCutsceneMode;
+
+        // Clear aiming now, so it cannot override RecenterPitch during preparation.
+        _camera.IsGunAiming = false;
+        _camera.IsYantraAiming = false;
+        _camera.IsFreeLookingInBook = false;
+    }
+
+    private void ActivateGloryCamera()
+    {
+        if (!_useGloryCamera || _camera == null || _gloryCamera == null)
+            return;
+
+        _gloryCameraChanged = true;
+
+        // Use the existing API to select Glory and clear aiming.
+        _camera.SetGloryCameraActive(true);
+
+        // Look Lock already rejects mouse input. Let the gameplay camera run its
+        // existing RecenterPitch behind Glory, without clearing a prior cutscene.
+        _camera.IsCutsceneMode = _cutsceneWasActive;
+    }
+
     public override void OnUpdate()
     {
-        if (_actor.TryGet(out PairedAnimationActor actor))
-            actor.Tick();
+        if (!_hasStarted || !_actor.TryGet(out PairedAnimationActor actor))
+            return;
+
+        if (_isPreparing && _camera != null && _camera.IsPaused)
+            return;
+
+        actor.Tick();
+        if (!_isPreparing)
+            return;
+
+        _preparationElapsed += Time.deltaTime;
+        float minimumTime = _request.Animation != null ? _request.Animation.SnapDuration : 0f;
+        bool pitchCentered = _camera != null &&
+            Mathf.Abs(_camera.CameraRotation.y) <= 0.05f &&
+            Mathf.Abs(Mathf.DeltaAngle(0f, _camera.transform.eulerAngles.x)) <= 1f;
+
+        // The timeout also handles Recenter Pitch On Lock being disabled in the Inspector.
+        if ((pitchCentered && _preparationElapsed >= minimumTime) ||
+            _preparationElapsed >= _cameraPreparationTimeout)
+        {
+            actor.StartPlayback();
+            _isPreparing = false;
+            StartPartnerAndCamera();
+        }
     }
 
     public override void OnStateExit()
@@ -105,29 +196,45 @@ public class PlayPairedAnimationAction : StateAction
         if (_actor.TryGet(out PairedAnimationActor actor))
             actor.Stop();
 
-        if (_locomotion != null)
+        if (_locomotionLocked && _locomotion != null)
             _locomotion.UnlockLocomotion(this);
 
-        if (_interactRay != null)
+        if (_interactRayDisabled && _interactRay != null)
             _interactRay.SetInteractEnabled(true);
 
-        // คืนค่าเดิม ไม่ใช่ปลดล็อกทิ้ง เผื่อระบบอื่นล็อกกล้องไว้ก่อนแล้ว
-        if (_lockLook && _camera != null)
-            _camera.IsLookLocked = _lookWasLocked;
+        RestoreCamera();
 
-        // <-- สั่งปิดกล้อง Glory คืนสู่สภาพเดินยิงปกติ ตอนจบท่า
-        if (_useGloryCamera && _camera != null)
-        {
-            _camera.SetGloryCameraActive(false);
-        }
-
-        // ยิง OnEndInteract — ทั้งตอนจบท่าเองและตอนโดน State อื่นแทรก
-        // force = true เพราะท่าจบจริงแล้ว ต้องปิด Interact เสมอ ไม่ให้ตัวกันยกเลิกของ BaseInteractor มาขวาง
         if (_hasStarted && IsAlive(_request.Source))
             _request.Source.CancelInteraction(_request.RootPlayer, true);
 
         _hasStarted = false;
         _request = default;
+        _locomotionLocked = false;
+        _interactRayDisabled = false;
+        _isPreparing = false;
+        _preparationElapsed = 0f;
+    }
+
+    private void RestoreCamera()
+    {
+        if (_gloryCameraChanged)
+        {
+            if (_gloryCamera != null)
+                _gloryCamera.Priority = _previousGloryPriority;
+
+            if (_camera != null)
+                _camera.IsCutsceneMode = _cutsceneWasActive;
+        }
+
+        if (_lookStateSaved && _camera != null)
+        {
+            _camera.FeedLookInput(Vector2.zero);
+            _camera.IsLookLocked = _lookWasLocked;
+        }
+
+        _lookStateSaved = false;
+        _gloryCameraChanged = false;
+        _gloryCamera = null;
     }
 
     private static bool IsAlive(IbaseInteractor interactor) =>
