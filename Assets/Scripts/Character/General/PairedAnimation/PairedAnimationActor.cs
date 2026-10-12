@@ -118,7 +118,7 @@ public class PairedAnimationActor : MonoBehaviour
     [Tooltip("ถ้า Animator ไม่เข้าท่าภายในเวลานี้ (เช่น พิมพ์ชื่อ state ผิด) จะข้ามไปจุดจบ กันตัวค้าง")]
     [SerializeField, Min(0.1f)] private float _stateEnterTimeout = 1f;
 
-    private enum Phase { Idle, Prepare, Play, Finished }
+    private enum Phase { Idle, Play, Finished }
 
     private BaseLocomotion _locomotion;
 
@@ -141,7 +141,6 @@ public class PairedAnimationActor : MonoBehaviour
     private Quaternion _endRotation;
 
     public bool IsBusy => HasAnyPending || _phase != Phase.Idle;
-    public bool IsPreparing => _phase == Phase.Prepare;
     public bool IsFinished => _phase == Phase.Finished;
     public PairedRequest CurrentRequest => _current;
 
@@ -176,9 +175,7 @@ public class PairedAnimationActor : MonoBehaviour
     public bool HasPending(PairedActionType type) => HasAnyPending && _pending.Type == type;
 
     // Action เรียกตอนเข้า State — คืน false ถ้าไม่มีคำขอ (จะจบท่าทันทีให้ State ออกไป)
-    public bool Begin() => Begin(false);
-
-    public bool Begin(bool deferAnimation)
+    public bool Begin()
     {
         if (!HasAnyPending)
         {
@@ -206,47 +203,24 @@ public class PairedAnimationActor : MonoBehaviour
             _locomotion.SetRootMotionEnabled(false);
         }
 
+        // สั่งท่าแบบเดียวกับ PlayAnimatorStateAction ของยูกิ แต่ชื่อท่ามาจาก asset ที่ interactor ส่งมา
+        // ขอบแต่ละอันเลยใช้ท่าต่างกันได้ ทั้งที่ใช้ State ใน SM อันเดียว
         PairedAnimationId animation = _current.Animation;
         _bodyStateHash = Animator.StringToHash(animation.Body.StateName ?? string.Empty);
+        PlayState(_bodyAnimator, animation.Body.Layer, animation.Body.StateName, animation.TransitionDuration);
+        PlayState(_armAnimator, animation.Arm.Layer, animation.Arm.StateName, animation.TransitionDuration);
 
         _hasTakenControl = true;
         _hasEnteredState = false;
         _elapsed = 0f;
-        _phase = Phase.Prepare;
-
-        // รับคำขอไว้ทันที แต่ Glory รอให้ตัวละครและกล้องเข้าที่ก่อนเริ่มคลิปได้
-        if (!deferAnimation)
-            StartPlayback();
-
-        return true;
-    }
-
-    // Action เรียกหลังเตรียมตัวละครและกล้องเสร็จ — เริ่มนับเวลาแอนิเมชันตอนนี้
-    public void StartPlayback()
-    {
-        if (_phase != Phase.Prepare)
-            return;
-
-        _snapFromPosition = transform.position;
-        _snapFromRotation = transform.rotation;
-
-        // สั่งท่าแบบเดียวกับ PlayAnimatorStateAction ของยูกิ แต่ชื่อท่ามาจาก asset ที่ interactor ส่งมา
-        // ขอบแต่ละอันเลยใช้ท่าต่างกันได้ ทั้งที่ใช้ State ใน SM อันเดียว
-        PairedAnimationId animation = _current.Animation;
-        PlayState(_bodyAnimator, animation.Body.Layer, animation.Body.StateName, animation.TransitionDuration);
-        PlayState(_armAnimator, animation.Arm.Layer, animation.Arm.StateName, animation.TransitionDuration);
-
-        _hasEnteredState = false;
-        _elapsed = 0f;
         _phase = Phase.Play;
+        return true;
     }
 
     // Action เรียกทุกเฟรมจาก OnUpdate
     public void Tick()
     {
-        if (_phase == Phase.Prepare)
-            UpdatePrepare();
-        else if (_phase == Phase.Play)
+        if (_phase == Phase.Play)
             UpdatePlay();
     }
 
@@ -256,7 +230,7 @@ public class PairedAnimationActor : MonoBehaviour
         if (_hasTakenControl)
         {
             PairedAnimationId animation = _current.Animation;
-            if (animation != null && _phase != Phase.Prepare)
+            if (animation != null)
             {
                 PlayExit(_bodyAnimator, animation.Body, animation.TransitionDuration);
                 PlayExit(_armAnimator, animation.Arm, animation.TransitionDuration);
@@ -274,20 +248,6 @@ public class PairedAnimationActor : MonoBehaviour
         _hasTakenControl = false;
         _phase = Phase.Idle;
         _current = default;
-    }
-
-    private void UpdatePrepare()
-    {
-        PairedAnimationId animation = _current.Animation;
-        _elapsed += Time.deltaTime;
-
-        float snap = animation.SnapDuration > 0f
-            ? Mathf.SmoothStep(0f, 1f, _elapsed / animation.SnapDuration)
-            : 1f;
-
-        SetPose(
-            Vector3.Lerp(_snapFromPosition, _startPosition, snap),
-            Quaternion.Slerp(_snapFromRotation, _startRotation, snap));
     }
 
     private void UpdatePlay()
