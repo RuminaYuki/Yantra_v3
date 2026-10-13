@@ -8,16 +8,18 @@ using UnityEngine.UI;
 // left drag = move. Clicks on the empty corners of an L-shape fall through.
 //
 // Prefab:
-//   ItemView (this, RectTransform)
-//     Icon         (Image, raycast ON)   <- rotated, so keep it a child
+//   ItemView (this, RectTransform)       <- snapped to the board, rotated size
+//     Center       (RectTransform)       <- unrotated size, turned around its middle
+//       Icon       (Image, raycast ON)
+//       Count      (TMP_Text, raycast OFF) <- kept upright in the visual top-left/right/... corner
 //     SelectedMark (Image, stretched, raycast OFF, starts inactive)
-//     Count        (TMP_Text, bottom-right, raycast OFF)
 public class ItemViewUI : MonoBehaviour,
     ICanvasRaycastFilter, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
     [SerializeField] private Image icon;
     [SerializeField] private TMP_Text countText;
     [SerializeField] private GameObject selectedMark;
+    [SerializeField] private RectTransform centerPivot;
 
     private InventoryUI owner;
     private ItemData item;
@@ -56,20 +58,53 @@ public class ItemViewUI : MonoBehaviour,
         this.rotation = rotation;
         this.cellSize = cellSize;
 
+        // The root covers the rotated footprint and is snapped by its top-left corner.
         RectTransform rt = Rect;
         rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0f, 1f);
         rt.sizeDelta = (Vector2)item.GetSize(rotation) * cellSize;
 
-        // The icon is laid out unrotated, then turned around its center.
+        // Center is laid out unrotated, then turned clockwise around its middle.
+        centerPivot.anchorMin = centerPivot.anchorMax = centerPivot.pivot = new Vector2(0.5f, 0.5f);
+        centerPivot.anchoredPosition = Vector2.zero;
+        centerPivot.sizeDelta = (Vector2)item.GetSize(0) * cellSize;
+        centerPivot.localRotation = Quaternion.Euler(0f, 0f, -90f * rotation);
+
+        // The icon fills Center and turns with it.
         RectTransform ir = icon.rectTransform;
-        ir.anchorMin = ir.anchorMax = ir.pivot = new Vector2(0.5f, 0.5f);
-        ir.anchoredPosition = Vector2.zero;
-        ir.sizeDelta = (Vector2)item.GetSize(0) * cellSize;
-        ir.localRotation = Quaternion.Euler(0f, 0f, -90f * rotation);
+        ir.anchorMin = Vector2.zero;
+        ir.anchorMax = Vector2.one;
+        ir.pivot = new Vector2(0.5f, 0.5f);
+        ir.offsetMin = ir.offsetMax = Vector2.zero;
+        ir.localRotation = Quaternion.identity;
 
         icon.sprite = item.icon;
         icon.enabled = item.icon != null;
-        if (countText) countText.text = quantity > 1 ? quantity.ToString() : string.Empty;
+        if (countText)
+        {
+            countText.text = quantity > 1 ? quantity.ToString() : string.Empty;
+            PlaceCount();
+        }
+    }
+
+    // Corner the number sits in for each clockwise turn.
+    private static readonly TextAlignmentOptions[] CountCorners =
+    {
+        TextAlignmentOptions.TopLeft,
+        TextAlignmentOptions.TopRight,
+        TextAlignmentOptions.BottomRight,
+        TextAlignmentOptions.BottomLeft,
+    };
+
+    // Count covers the whole item on screen: it spins against Center to stay upright and
+    // takes the rotated size. Its margins pad the number in from the corner.
+    private void PlaceCount()
+    {
+        RectTransform cr = countText.rectTransform;
+        cr.anchorMin = cr.anchorMax = cr.pivot = new Vector2(0.5f, 0.5f);
+        cr.anchoredPosition = Vector2.zero;
+        cr.sizeDelta = (Vector2)item.GetSize(rotation) * cellSize;
+        cr.localRotation = Quaternion.Euler(0f, 0f, 90f * rotation);
+        countText.alignment = CountCorners[((rotation % 4) + 4) % 4];
     }
 
     // Position in board pixels: x right, y down from the board's top-left corner.

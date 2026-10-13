@@ -18,7 +18,7 @@ public class BaseEffectClass : MonoBehaviour
     [SerializeField] protected string animationName;
     [SerializeField] protected int layerIndex;
     [SerializeField] protected string eventKey = string.Empty;
-    [SerializeField] protected AnimEventDispatcher animEvent = new AnimEventDispatcher();
+    [SerializeField] protected AnimEventDispatcher animEvent;
 
     public virtual void SetEnabled(bool enabled)
     {

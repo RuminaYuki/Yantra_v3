@@ -58,6 +58,16 @@ public class Inventory
 
     public bool Contains(PlacedItem p) => p != null && items.Contains(p);
 
+    // Total quantity of this item across every stack.
+    public int CountOf(ItemData item)
+    {
+        int count = 0;
+        if (item == null) return count;
+        foreach (PlacedItem p in items)
+            if (p.Item == item) count += p.Quantity;
+        return count;
+    }
+
     public bool CanPlace(ItemData item, Vector2Int origin, int rotation) =>
         item != null && (item.canRotate || ItemData.WrapRotation(rotation) == 0) &&
         CanOccupy(item, origin, rotation, null);
@@ -173,6 +183,21 @@ public class Inventory
         p.Quantity -= removed;
         if (p.Quantity <= 0) Delete(p);
         else ItemChanged?.Invoke(p);
+        return removed;
+    }
+
+    // Removes `amount` of this item across all its stacks. Returns how many were actually removed.
+    public int TryRemove(ItemData item, int amount, bool simulate = false)
+    {
+        if (item == null || amount <= 0) return 0;
+
+        int removed = 0;
+        foreach (PlacedItem p in new List<PlacedItem>(items)) // copy: emptied stacks leave the list
+        {
+            if (removed >= amount) break;
+            if (p.Item != item) continue;
+            removed += TryRemove(p, amount - removed, simulate);
+        }
         return removed;
     }
 

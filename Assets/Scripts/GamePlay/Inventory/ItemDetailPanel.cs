@@ -19,14 +19,19 @@ public class ItemDetailPanel : MonoBehaviour
 
     private void Awake() => Clear();
 
-    public void Show(ItemData item)
+    public void Show(PlacedItem p)
     {
+        ItemData item = p != null ? p.Item : null;
+
         if (item == null) { Clear(); return; }
 
         if (contentRoot) contentRoot.SetActive(true);
         if (emptyRoot) emptyRoot.SetActive(false);
 
         nameText.text = string.IsNullOrEmpty(item.displayName) ? item.name : item.displayName;
+
+        if (p.Quantity > 1) nameText.text += $" x{p.Quantity}";
+
         categoryText.text = item.category != null ? item.category.DisplayName : string.Empty;
         descriptionText.text = item.description;
 
