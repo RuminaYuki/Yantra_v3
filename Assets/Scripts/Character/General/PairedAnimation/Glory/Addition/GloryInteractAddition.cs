@@ -11,6 +11,7 @@ public class GloryInteractAddition : MonoBehaviour, IPairedInteractionSource
 
     private Iinteractor _interactor;
     private IbaseInteractor _baseInteractor;
+    private PairedAnimationPlayer _activePlayer;   // ผู้เล่นที่กำลังเล่นท่าจาก Interactor ตัวนี้
 
     private void Awake()
     {
@@ -22,11 +23,23 @@ public class GloryInteractAddition : MonoBehaviour, IPairedInteractionSource
     {
         // รับคำสั่งตอนผู้เล่นกด E
         _interactor.OnInteract += HandleInteract;
+        _interactor.AddCanInteractModifier(IsNotPlaying);
+        _interactor.AddCanCancelInteractModifier(IsNotPlaying);
     }
 
     private void OnDisable()
     {
         _interactor.OnInteract -= HandleInteract;
+        _interactor.RemoveCanInteractModifier(IsNotPlaying);
+        _interactor.RemoveCanCancelInteractModifier(IsNotPlaying);
+    }
+
+    // BaseInteractor มาถาม: กดได้ไหม / ยกเลิกได้ไหม
+    // ระหว่างเล่นท่า Interactor ขอยกเลิกเองไม่ได้ (เช่น ButtonInteractor ที่ยกเลิกทันทีหลังกด)
+    // ท่าจบแล้ว PairedAnimationPlayer ยกเลิกด้วย force จึงไม่ติดตัวนี้
+    private bool IsNotPlaying()
+    {
+        return _activePlayer == null || !_activePlayer.IsPlaying;
     }
 
     private void HandleInteract(GameObject rootplayer)
@@ -51,12 +64,13 @@ public class GloryInteractAddition : MonoBehaviour, IPairedInteractionSource
         playerPosition.y = player.transform.position.y;
         Quaternion playerRotation = Quaternion.LookRotation(-toPlayer);
 
-        // ผู้เล่นเล่นท่าเองผ่าน Component (อยู่ใน PlayerInteract_State) ส่วนผีรับต่อผ่าน State ของตัวเอง
+        // ผู้เล่นเล่นท่าเองผ่าน Component (อยู่ใน PlayerInteract_State) แล้วสั่งผีให้เล่นตาม
         // ถ้าเริ่มไม่ได้ PairedAnimationPlayer จะยกเลิก Interact ให้เองในเฟรมถัดไป
         PairedRequest request = PairedRequest
             .InPlace(PairedActionType.Glory, _playerAnimation, playerPosition, playerRotation, _baseInteractor, rootplayer)
             .WithPartner(_victim, _victimAnimation, victimPosition, victimRotation);
 
+        _activePlayer = player;
         player.Play(request);
     }
 

@@ -159,10 +159,12 @@ public class PairedAnimationPlayer : MonoBehaviour
         if (_camera != null)
             _camera.Restore();
 
+        // ต้องปิด IsPlaying ก่อนยกเลิก — Addition ที่ห้ามยกเลิกระหว่างเล่นท่า (CanCancel modifier) จะได้ยอมให้ผ่าน
+        _isPlaying = false;
+
         if (cancelSource)
             CancelSource();
 
-        _isPlaying = false;
         _isPreparing = false;
         _request = default;
         _locomotionLocked = false;
