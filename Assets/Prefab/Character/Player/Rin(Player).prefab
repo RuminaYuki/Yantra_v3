@@ -3279,7 +3279,7 @@ MonoBehaviour:
   _animator: {fileID: 3970455072621369329}
   _aPD_SetEnable_AEC: {fileID: 11400000, guid: acd6a1d536bf6a54ead182646c6247c6, type: 2}
   _aPD_AEC: {fileID: 11400000, guid: c71c818643cfef64c8af8ee8b6ccf03e, type: 2}
-  speedMultiple: 1
+  speedMultiple: 1.5
   speedSmoothTime: 0.1
   maxSpeed: 3
   minTransitionSpeed: 0.5
@@ -4403,8 +4403,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -0.071}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 1.053, y: 1.053, z: 1.053}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 3730383249125613236}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -4810,6 +4810,7 @@ MonoBehaviour:
   _spellController: {fileID: 5961984159641964894}
   _playerCameraController: {fileID: 0}
   _dataSO: {fileID: 11400000, guid: eb868a75d494ccd4f88ea6dcf34d4909, type: 2}
+  _playerInventory: {fileID: 0}
   PositionReferences: {fileID: 8511398325305958148}
   OwnerForEffect: {fileID: 998187679989262526}
   _boolRadialSOAdvEventChannal: {fileID: 11400000, guid: 1066bfc6aaaab7d4ca52b755e80ea879, type: 2}
@@ -4870,8 +4871,8 @@ MonoBehaviour:
     Dispat: {fileID: 4509149362283433533}
     Animator: {fileID: 3970455072621369329}
   - ID: PickUp
-    EventID: EndInteract
-    stateName: GunReload_ArmClip 0
+    EventID: PickUp
+    stateName: Pickup_ArmClip
     indexLayer: 0
     crossfade: 0
     Dispat: {fileID: 4509149362283433533}
@@ -5422,6 +5423,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Inventory
       objectReference: {fileID: 0}
+    - target: {fileID: 7413957555481602909, guid: a88c2d2a7d4b82143b2ec54447138b26, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -5531,6 +5536,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1516682350409191304, guid: 1739bf113e27e8c4ca06e8970de158ee, type: 3}
+      propertyPath: _playerInventory
+      value: 
+      objectReference: {fileID: 2833128566450815517}
     - target: {fileID: 7481569275912645915, guid: 1739bf113e27e8c4ca06e8970de158ee, type: 3}
       propertyPath: m_Alpha
       value: 0
