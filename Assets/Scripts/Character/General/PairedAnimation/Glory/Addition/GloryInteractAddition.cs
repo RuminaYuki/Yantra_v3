@@ -31,8 +31,12 @@ public class GloryInteractAddition : MonoBehaviour, IPairedInteractionSource
 
     private void HandleInteract(GameObject rootplayer)
     {
-        PairedAnimationActor player = rootplayer.GetComponentInChildren<PairedAnimationActor>();
-        if (player == null || _victim == null) return;
+        PairedAnimationPlayer player = rootplayer.GetComponentInChildren<PairedAnimationPlayer>();
+        if (player == null || _victim == null)
+        {
+            Debug.LogWarning($"[GloryInteractAddition] {name} หา PairedAnimationPlayer บนผู้เล่น หรือ Victim ไม่เจอ", this);
+            return;
+        }
 
         // คำนวณจุดยืนให้ตรงกัน
         Vector3 victimPosition = _victim.transform.position;
@@ -47,15 +51,13 @@ public class GloryInteractAddition : MonoBehaviour, IPairedInteractionSource
         playerPosition.y = player.transform.position.y;
         Quaternion playerRotation = Quaternion.LookRotation(-toPlayer);
 
-        // ส่งคำสั่งไปบอก State Machine ให้เล่นแอนิเมชัน
+        // ผู้เล่นเล่นท่าเองผ่าน Component (อยู่ใน PlayerInteract_State) ส่วนผีรับต่อผ่าน State ของตัวเอง
+        // ถ้าเริ่มไม่ได้ PairedAnimationPlayer จะยกเลิก Interact ให้เองในเฟรมถัดไป
         PairedRequest request = PairedRequest
             .InPlace(PairedActionType.Glory, _playerAnimation, playerPosition, playerRotation, _baseInteractor, rootplayer)
             .WithPartner(_victim, _victimAnimation, victimPosition, victimRotation);
 
-        if (!player.TryRequest(request))
-        {
-            _interactor.CancelInteraction(rootplayer);
-        }
+        player.Play(request);
     }
 
     public void NotifyStarted(GameObject rootPlayer) { }

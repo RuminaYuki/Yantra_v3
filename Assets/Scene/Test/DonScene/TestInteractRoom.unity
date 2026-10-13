@@ -328,21 +328,105 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 809213569433171308, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: collapsed
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 998187679989262526, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_Name
       value: Rin(Player)
       objectReference: {fileID: 0}
-    - target: {fileID: 6252579542559560056, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+    - target: {fileID: 1417354551239994190, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 3970455072621369329, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: b08b7cdb1f3484d44bbcec0ec6bcc4cb, type: 2}
+    - target: {fileID: 4368828265564020728, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: collapsed
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4968871862757283367, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6252579542559560056, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: collapsed
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8849103926970512020, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      insertIndex: 20
+      addedObject: {fileID: 193239329}
+    - targetCorrespondingSourceObject: {fileID: 8849103926970512020, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      insertIndex: 21
+      addedObject: {fileID: 193239328}
+    - targetCorrespondingSourceObject: {fileID: 8849103926970512020, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      insertIndex: 22
+      addedObject: {fileID: 193239362}
   m_SourcePrefab: {fileID: 100100000, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+--- !u!1 &193239325 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8849103926970512020, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+  m_PrefabInstance: {fileID: 193239324}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &193239326 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 3970455072621369329, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+  m_PrefabInstance: {fileID: 193239324}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &193239327 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 639563021381163097, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+  m_PrefabInstance: {fileID: 193239324}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &193239328
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 193239325}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4681aae2f75dd804fbf5009cb3483ae6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerPairedAnimationPlayer
+--- !u!114 &193239329
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 193239325}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52f768a0aa59c1847a23fb707a789940, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PairedAnimationActor
+  _bodyAnimator: {fileID: 193239327}
+  _armAnimator: {fileID: 193239326}
+  _requestTimeout: 0.5
+  _stateEnterTimeout: 1
+--- !u!114 &193239362
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 193239325}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4aa30a00735391439900c1e5b60f38e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerPairedCamera
+  _lockLook: 1
+  _useGloryCamera: 1
+  _cameraPreparationTimeout: 1
+  _syncGloryViewModelCamera: 1
 --- !u!1001 &329408329
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1065,8 +1149,8 @@ GameObject:
   - component: {fileID: 579470681}
   - component: {fileID: 579470684}
   - component: {fileID: 579470683}
-  - component: {fileID: 579470682}
   - component: {fileID: 579470685}
+  - component: {fileID: 579470686}
   m_Layer: 0
   m_Name: TestButtonInteract
   m_TagString: Untagged
@@ -1091,18 +1175,6 @@ Transform:
   - {fileID: 504281896}
   m_Father: {fileID: 1467405609}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &579470682
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 579470680}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf70bcc7f5f246341be0db31d9110742, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::TestAddition
 --- !u!114 &579470683
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1154,7 +1226,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Follow3D
   _target: {fileID: 333419919}
-  _targetAnchor: {fileID: 0}
   _constrainPosition: 1
   _constrainRotation: 1
   _maintainOffset: 0
@@ -1162,6 +1233,22 @@ MonoBehaviour:
   _rotationOffset: {x: 0, y: 0, z: 0}
   _positionLerpSpeed: 0
   _rotationLerpSpeed: 0
+--- !u!114 &579470686
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 579470680}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1dc9a2e0628f88146a045f25a657fe69, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GloryInteractAddition
+  _victim: {fileID: 1771877518}
+  _playerAnimation: {fileID: 11400000, guid: f0df5507a2c6b8a4ba07fb6cd07eb755, type: 2}
+  _victimAnimation: {fileID: 11400000, guid: f3f77b162d6deb8479c0beb4f44eb5ac, type: 2}
+  _distance: 1.2
 --- !u!1001 &787797335
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2967,6 +3054,18 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5509282250630994498, guid: 4cdd45ece38eee449998c03d63f40c87, type: 3}
+      propertyPath: _anchorReferences.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5509282250630994498, guid: 4cdd45ece38eee449998c03d63f40c87, type: 3}
+      propertyPath: _anchorReferences.Array.data[1].anchorID
+      value: 
+      objectReference: {fileID: 11400000, guid: c90374c069c104d43b654c4ec0c510a2, type: 2}
+    - target: {fileID: 5509282250630994498, guid: 4cdd45ece38eee449998c03d63f40c87, type: 3}
+      propertyPath: _anchorReferences.Array.data[1].tagetgameObject
+      value: 
+      objectReference: {fileID: 579470680}
     m_RemovedComponents:
     - {fileID: 4439701199887905063, guid: 4cdd45ece38eee449998c03d63f40c87, type: 3}
     m_RemovedGameObjects: []
@@ -2977,14 +3076,25 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 305783127027506018, guid: 4cdd45ece38eee449998c03d63f40c87, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1771877535}
+      addedObject: {fileID: 1771877518}
+    - targetCorrespondingSourceObject: {fileID: 305783127027506018, guid: 4cdd45ece38eee449998c03d63f40c87, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1771877537}
+    - targetCorrespondingSourceObject: {fileID: 305783127027506018, guid: 4cdd45ece38eee449998c03d63f40c87, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1771877519}
   m_SourcePrefab: {fileID: 100100000, guid: 4cdd45ece38eee449998c03d63f40c87, type: 3}
 --- !u!4 &1771877516 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1008204277547352846, guid: 4cdd45ece38eee449998c03d63f40c87, type: 3}
   m_PrefabInstance: {fileID: 1771877515}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1771877535
+--- !u!95 &1771877517 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 1814593593988341472, guid: 4cdd45ece38eee449998c03d63f40c87, type: 3}
+  m_PrefabInstance: {fileID: 1771877515}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1771877518
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2993,11 +3103,44 @@ MonoBehaviour:
   m_GameObject: {fileID: 1518992788}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd6acb8c1bfcb6e4ea1cb338dc5348ea, type: 3}
+  m_Script: {fileID: 11500000, guid: 52f768a0aa59c1847a23fb707a789940, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ReferenceGameObject
+  m_EditorClassIdentifier: Assembly-CSharp::PairedAnimationActor
+  _bodyAnimator: {fileID: 1771877517}
+  _armAnimator: {fileID: 0}
+  _requestTimeout: 0.5
+  _stateEnterTimeout: 1
+--- !u!114 &1771877519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1518992788}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0bb0d945dba0c0441a748d56f2d7f25f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerTargetLinker
   _targets:
-  - {fileID: 579470680}
+  - Anchor: {fileID: 11400000, guid: ded8b5ee8f0dd57488cc9fa0e5c0d061, type: 2}
+    Tag: Player
+    Name: PlayerController
+  - Anchor: {fileID: 11400000, guid: 7e0c6e6867689484fb85c18d09184466, type: 2}
+    Tag: Player
+    Name: IKTarget
+--- !u!114 &1771877537
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1518992788}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4681aae2f75dd804fbf5009cb3483ae6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PairedAnimationPlayer
 --- !u!43 &1900424810
 Mesh:
   m_ObjectHideFlags: 0
