@@ -311,7 +311,7 @@ public static class CodexGlorySetup
             playerState = c.playerMachine.GetCurrentStateName(1), enemyState = c.enemyMachine.GetCurrentStateName(0),
             playerPending = actor != null && actor.HasPending(PairedActionType.Glory), victimPending = c.victim.HasPending(PairedActionType.Glory),
             playerBusy = actor != null && actor.IsBusy, victimBusy = c.victim.IsBusy, victimFinished = c.victim.IsFinished,
-            canInteract = c.interactor.CanInteract, rawCanInteract = new SerializedObject(c.interactor).FindProperty("canInteract").boolValue,
+            canInteract = c.interactor.CanInteract(c.player), rawCanInteract = new SerializedObject(c.interactor).FindProperty("canInteract").boolValue,
             lookLocked = c.camera.IsLookLocked, cutscene = c.camera.IsCutsceneMode,
             gloryPriority = c.camera.vcamGlory != null ? (int)c.camera.vcamGlory.Priority : -999,
             gameplayPriority = c.camera.vcamGameplay != null ? (int)c.camera.vcamGameplay.Priority : -999,

@@ -83,7 +83,7 @@ namespace SDFcl.GamePlay.Interactable
 
             if (isHoldingInteraction)
             {
-                if (!activeInteraction.CanInteract) return;
+                if (!activeInteraction.CanInteract(rootPlayer)) return;
 
                 isHoldingInteraction = false;
                 rayInteract.SetInteractEnabled(true);
@@ -99,7 +99,7 @@ namespace SDFcl.GamePlay.Interactable
             }
 
             IbaseInteractor targetInteractable = rayInteract.CurrentInteractable;
-            if (!IsAlive(targetInteractable) || !targetInteractable.CanInteract)
+            if (!IsAlive(targetInteractable) || !targetInteractable.CanInteract(rootPlayer))
             {
                 return;
             }

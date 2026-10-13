@@ -19,23 +19,20 @@ namespace SDFcl.GamePlay.Interactable
         [Tooltip("If true, ")]
         [SerializeField] private bool holdInteract = false;
 
-        private List<Func<bool>> canInteractFuncs = new();
-        private List<Func<bool>> canCancelInteractFuncs = new();
+        private List<Func<GameObject, bool>> canInteractFuncs = new();
+        private List<Func<GameObject, bool>> canCancelInteractFuncs = new();
 
         //if hideInteract is true, CanInteract will always return the value of canInteract, otherwise it will return the value of false
-        public bool CanInteract 
+        public bool CanInteract(GameObject rootplayer)
         {
-            get
+            foreach (var modifier in canInteractFuncs)
             {
-                foreach (var modifier in canInteractFuncs)
+                if (!modifier(rootplayer))
                 {
-                    if (!modifier())
-                    {
-                        return false;
-                    }
+                    return false;
                 }
-                return hideInteract? canInteract : true; 
             }
+            return hideInteract? canInteract : true; 
         }
         public bool HoldInteract => holdInteract;
 
@@ -107,7 +104,7 @@ namespace SDFcl.GamePlay.Interactable
             {
                 foreach (var modifier in canCancelInteractFuncs)
                 {
-                    if (!modifier())
+                    if (!modifier(rootplayer))
                     {
                         return false;
                     }
@@ -134,19 +131,19 @@ namespace SDFcl.GamePlay.Interactable
             if (value && !canInteract) HideHighlight();
         }
 
-        public void AddCanInteractModifier(Func<bool> modifier)
+        public void AddCanInteractModifier(Func<GameObject, bool> modifier)
         {
             canInteractFuncs.Add(modifier);
         }
-        public void RemoveCanInteractModifier(Func<bool> modifier)
+        public void RemoveCanInteractModifier(Func<GameObject, bool> modifier)
         {
             canInteractFuncs.Remove(modifier);
         }
-        public void AddCanCancelInteractModifier(Func<bool> modifier)
+        public void AddCanCancelInteractModifier(Func<GameObject, bool> modifier)
         {
             canCancelInteractFuncs.Add(modifier);
         }
-        public void RemoveCanCancelInteractModifier(Func<bool> modifier)
+        public void RemoveCanCancelInteractModifier(Func<GameObject, bool> modifier)
         {
             canCancelInteractFuncs.Remove(modifier);
         }
@@ -154,7 +151,7 @@ namespace SDFcl.GamePlay.Interactable
 
     public interface IbaseInteractor
     {
-        bool CanInteract { get; }
+        bool CanInteract(GameObject rootplayer);
         bool HoldInteract {  get; }
 
         //Command the object to perform its interaction logic
@@ -173,10 +170,10 @@ namespace SDFcl.GamePlay.Interactable
 
     public interface Iinteractor
     {
-        void AddCanInteractModifier(Func<bool> modifier);
-        void RemoveCanInteractModifier(Func<bool> modifier);
-        void AddCanCancelInteractModifier(Func<bool> modifier);
-        void RemoveCanCancelInteractModifier(Func<bool> modifier);
+        void AddCanInteractModifier(Func<GameObject, bool> modifier);
+        void RemoveCanInteractModifier(Func<GameObject, bool> modifier);
+        void AddCanCancelInteractModifier(Func<GameObject, bool> modifier);
+        void RemoveCanCancelInteractModifier(Func<GameObject, bool> modifier);
         public Action<GameObject> OnInteract { get; set; }
         public Action<GameObject> OnEndInteract { get; set; }
 

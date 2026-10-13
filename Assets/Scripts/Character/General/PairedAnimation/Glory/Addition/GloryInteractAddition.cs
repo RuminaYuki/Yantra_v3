@@ -37,7 +37,7 @@ public class GloryInteractAddition : MonoBehaviour, IPairedInteractionSource
     // BaseInteractor มาถาม: กดได้ไหม / ยกเลิกได้ไหม
     // ระหว่างเล่นท่า Interactor ขอยกเลิกเองไม่ได้ (เช่น ButtonInteractor ที่ยกเลิกทันทีหลังกด)
     // ท่าจบแล้ว PairedAnimationPlayer ยกเลิกด้วย force จึงไม่ติดตัวนี้
-    private bool IsNotPlaying()
+    private bool IsNotPlaying(GameObject rootPlayer)
     {
         return _activePlayer == null || !_activePlayer.IsPlaying;
     }

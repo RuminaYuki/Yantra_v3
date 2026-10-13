@@ -48,7 +48,7 @@ public class ExamineCameraFocus : MonoBehaviour
         }
     }
 
-    private bool CanInteract()
+    private bool CanInteract(GameObject rootPlayer)
     {
         if (!waitForFinish || !_active) return true;
 
