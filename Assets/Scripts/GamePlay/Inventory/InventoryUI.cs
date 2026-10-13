@@ -271,7 +271,7 @@ public class InventoryUI : MonoBehaviour
             views[p].SetSelected(true);
         }
 
-        if (detailPanel != null) detailPanel.Show(p.Item);
+        if (detailPanel != null) detailPanel.Show(p);
     }
 
     private void ClearSelection()
@@ -387,7 +387,7 @@ public class InventoryUI : MonoBehaviour
     {
         if (views.TryGetValue(p, out ItemViewUI view))
             view.Show(p.Item, p.Quantity, p.Origin, p.Rotation, cellSize);
-        if (p == selected && detailPanel != null) detailPanel.Show(p.Item);
+        if (p == selected && detailPanel != null) detailPanel.Show(p);
     }
 
     private void CloseOverlays()
