@@ -39,7 +39,7 @@ public class PlayerInventory : MonoBehaviour
     {
 
 #if UNITY_EDITOR
-        if (inputAction != null)
+        if (inputAction != null && debugLog)
         {
             inputAction.action.started += HandleOpenInventory;
         }
@@ -49,7 +49,7 @@ public class PlayerInventory : MonoBehaviour
     private void OnDisable()
     {
 #if UNITY_EDITOR
-        if (inputAction != null)
+        if (inputAction != null && debugLog)
         {
             inputAction.action.started -= HandleOpenInventory;
         }
