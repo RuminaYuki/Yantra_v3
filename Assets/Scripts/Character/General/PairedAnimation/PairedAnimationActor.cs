@@ -132,6 +132,7 @@ public class PairedAnimationActor : MonoBehaviour
     private int _bodyStateHash;
     private float _elapsed;
     private float _savedGravity;
+    private LocomotionMoveMode _savedMoveMode;
 
     private Vector3 _snapFromPosition;
     private Quaternion _snapFromRotation;
@@ -203,7 +204,8 @@ public class PairedAnimationActor : MonoBehaviour
         {
             _savedGravity = _locomotion.GetGravityMultiplier();
             _locomotion.SetGravityMultiplier(0f);
-            _locomotion.SetRootMotionEnabled(false);
+            _savedMoveMode = _locomotion.MoveMode;
+            _locomotion.MoveMode = LocomotionMoveMode.External;
         }
 
         PairedAnimationId animation = _current.Animation;
@@ -265,9 +267,7 @@ public class PairedAnimationActor : MonoBehaviour
             if (_locomotion != null)
             {
                 _locomotion.SetGravityMultiplier(_savedGravity);
-
-                // BaseLocomotion ไม่มี getter ให้อ่านค่าเดิม เลยคืนเป็น true ซึ่งเป็นค่าเริ่มต้นของมัน
-                _locomotion.SetRootMotionEnabled(true);
+                _locomotion.MoveMode = _savedMoveMode;
             }
         }
 
