@@ -6,7 +6,7 @@ using SDFcl.GamePlay.Interactable;
 [UseSelfAnchor]
 [CreateAssetMenu(
     fileName = "NewSetHideInteractor_Action",
-    menuName = "YUKI Learning State Machine/StateMachineList/Actions/InteractSystem/Interactor/Set Hide Interactor")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/GamePlayMechanic/InteractSystem/Interactor/Set Hide Interactor")]
 public class SetHideInteractorSO : StateActionSO
 {
     [SerializeField] private bool value = true;
