@@ -7,7 +7,6 @@ public enum PairedActionType
     Glory
 }
 
-// interactor ที่ใช้กับระบบนี้ — State เรียกตอนท่าเริ่มจริง เพื่อยิง OnInteract
 public interface IPairedInteractionSource
 {
     void NotifyStarted(GameObject rootPlayer);
@@ -24,13 +23,11 @@ public readonly struct PairedRequest
     public readonly IbaseInteractor Source;
     public readonly GameObject RootPlayer;
 
-    // คู่ของท่า (เช่น ผีตอน Glory) — State ของฝ่ายนี้จะเป็นคนสั่งคู่ให้เข้าท่าตาม
     public readonly PairedAnimationActor Partner;
     public readonly PairedAnimationId PartnerAnimation;
     public readonly Vector3 PartnerPosition;
     public readonly Quaternion PartnerRotation;
 
-    // เก็บเป็นตำแหน่ง ณ ตอนกด ไม่ใช่ Transform — จุดของ glory คำนวณสดจากที่ผีกับผู้เล่นยืนอยู่
     public PairedRequest(
         PairedActionType type,
         PairedAnimationId animation,
@@ -73,7 +70,6 @@ public readonly struct PairedRequest
         PartnerRotation = partnerRotation;
     }
 
-    // เล่นท่าอยู่กับที่ ไม่เคลื่อนต่อ (glory)
     public static PairedRequest InPlace(
         PairedActionType type,
         PairedAnimationId animation,
@@ -102,8 +98,6 @@ public readonly struct PairedRequest
     }
 }
 
-// วางบนตัวเดียวกับ StateMachineController (ผู้เล่น = PlayerController, ผี = EnemeyController)
-// ตัวนี้ไม่ทำอะไรเอง — ถือคำขอไว้ให้ Condition อ่าน แล้วรอ Action สั่ง Begin / Tick / Stop
 public class PairedAnimationActor : MonoBehaviour
 {
     [Tooltip("ว่างไว้ = ใช้ Animator บน GameObject นี้")]
@@ -138,8 +132,6 @@ public class PairedAnimationActor : MonoBehaviour
     private Quaternion _snapFromRotation;
     private Vector3 _startPosition;
     private Quaternion _startRotation;
-    private Vector3 _endPosition;
-    private Quaternion _endRotation;
 
     public bool IsBusy => HasAnyPending || _phase != Phase.Idle;
     public bool IsPreparing => _phase == Phase.Prepare;
@@ -163,7 +155,6 @@ public class PairedAnimationActor : MonoBehaviour
         Stop();
     }
 
-    // interactor แค่ยื่นคำขอไว้ — จะได้เล่นหรือไม่ State Machine เป็นคนตัดสินผ่าน Condition
     public bool TryRequest(PairedRequest request)
     {
         if (IsBusy || request.Animation == null)
@@ -176,7 +167,6 @@ public class PairedAnimationActor : MonoBehaviour
 
     public bool HasPending(PairedActionType type) => HasAnyPending && _pending.Type == type;
 
-    // Action เรียกตอนเข้า State — คืน false ถ้าไม่มีคำขอ (จะจบท่าทันทีให้ State ออกไป)
     public bool Begin() => Begin(false);
 
     public bool Begin(bool deferAnimation)
@@ -196,10 +186,8 @@ public class PairedAnimationActor : MonoBehaviour
         _snapFromRotation = transform.rotation;
         _startPosition = _current.StartPosition;
         _startRotation = FlatRotation(_current.StartRotation * Vector3.forward);
-        _endPosition = _current.EndPosition;
-        _endRotation = FlatRotation(_current.EndRotation * Vector3.forward);
 
-        // ปิดแรงโน้มถ่วงกับ root motion ระหว่างท่า เพราะเราคุมตำแหน่ง/การหมุนเองทั้งหมด
+        // ช่วง Prepare (Snap) ปิดแรงโน้มถ่วงและตั้งโหมดเป็น External เพื่อเลื่อนตัวละครเข้าจุดเริ่มด้วยโค้ด
         if (_locomotion != null)
         {
             _savedGravity = _locomotion.GetGravityMultiplier();
@@ -216,24 +204,27 @@ public class PairedAnimationActor : MonoBehaviour
         _elapsed = 0f;
         _phase = Phase.Prepare;
 
-        // รับคำขอไว้ทันที แต่ Glory รอให้ตัวละครและกล้องเข้าที่ก่อนเริ่มคลิปได้
         if (!deferAnimation)
             StartPlayback();
 
         return true;
     }
 
-    // Action เรียกหลังเตรียมตัวละครและกล้องเสร็จ — เริ่มนับเวลาแอนิเมชันตอนนี้
+    // เริ่มเล่นแอนิเมชันด้วย FullRootMotion หลังจากตัวละครและกล้อง Snap เข้าที่แล้ว
     public void StartPlayback()
     {
         if (_phase != Phase.Prepare)
             return;
 
-        _snapFromPosition = transform.position;
-        _snapFromRotation = transform.rotation;
+        // ยึดจุดเริ่มต้นให้ตรงเป๊ะก่อนปล่อยให้ Root Motion ทำงาน
+        SetPose(_startPosition, _startRotation);
 
-        // สั่งท่าแบบเดียวกับ PlayAnimatorStateAction ของยูกิ แต่ชื่อท่ามาจาก asset ที่ interactor ส่งมา
-        // ขอบแต่ละอันเลยใช้ท่าต่างกันได้ ทั้งที่ใช้ State ใน SM อันเดียว
+        // สลับเป็น FullRootMotion เพื่อให้ BaseLocomotion.OnAnimatorMove ขยับทั้ง Position และ Rotation ตามคลิป
+        if (_locomotion != null)
+        {
+            _locomotion.MoveMode = LocomotionMoveMode.FullRootMotion;
+        }
+
         PairedAnimationId animation = _current.Animation;
         PlayState(_bodyAnimator, animation.Body.Layer, animation.Body.StateName, animation.TransitionDuration);
         PlayState(_armAnimator, animation.Arm.Layer, animation.Arm.StateName, animation.TransitionDuration);
@@ -243,7 +234,6 @@ public class PairedAnimationActor : MonoBehaviour
         _phase = Phase.Play;
     }
 
-    // Action เรียกทุกเฟรมจาก OnUpdate
     public void Tick()
     {
         if (_phase == Phase.Prepare)
@@ -252,7 +242,6 @@ public class PairedAnimationActor : MonoBehaviour
             UpdatePlay();
     }
 
-    // Action เรียกตอนออกจาก State เสมอ ไม่ว่าจะจบท่าเองหรือโดน State อื่นแทรก
     public void Stop()
     {
         if (_hasTakenControl)
@@ -299,26 +288,7 @@ public class PairedAnimationActor : MonoBehaviour
         if (inState)
             _hasEnteredState = true;
 
-        // เวลาท่ามาจาก Animator ตรง ๆ — เปลี่ยนคลิปหรือความเร็วท่าใน Animator แล้วการเลื่อนตัวตามเอง
-        float t = inState ? Mathf.Clamp01(stateTime) : (_hasEnteredState ? 1f : 0f);
-        float up = animation.UpCurve.Evaluate(t);
-        float forward = animation.ForwardCurve.Evaluate(t);
-
-        // แยกแกนสูงกับแกนราบ ท่าปีนจะได้ขึ้นก่อนแล้วค่อยไปข้างหน้า ไม่ทะลุขอบเป็นเส้นตรง
-        Vector3 delta = _endPosition - _startPosition;
-        Vector3 pathPosition = _startPosition
-            + Vector3.up * (delta.y * up)
-            + new Vector3(delta.x, 0f, delta.z) * forward;
-        Quaternion pathRotation = Quaternion.Slerp(_startRotation, _endRotation, forward);
-
-        // Snap: ช่วงแรกค่อย ๆ ดึงจากจุดที่ยืนอยู่เข้าเส้นทาง ไปพร้อมกับที่ท่าเริ่มเล่น
-        float snap = animation.SnapDuration > 0f
-            ? Mathf.SmoothStep(0f, 1f, _elapsed / animation.SnapDuration)
-            : 1f;
-
-        SetPose(
-            Vector3.Lerp(_snapFromPosition, pathPosition, snap),
-            Quaternion.Slerp(_snapFromRotation, pathRotation, snap));
+        // ไม่ใช้ UpCurve / ForwardCurve ขยับตัวละครแล้ว ปล่อยให้ FullRootMotion ใน BaseLocomotion ขยับ 100%
 
         if (_hasEnteredState && (!inState || stateTime >= 1f))
         {
@@ -334,15 +304,12 @@ public class PairedAnimationActor : MonoBehaviour
 
     private void Finish()
     {
-        SetPose(_endPosition, _endRotation);
         _phase = Phase.Finished;
     }
 
     private void SetPose(Vector3 position, Quaternion rotation)
     {
         transform.SetPositionAndRotation(position, rotation);
-
-        // CharacterController ไม่รู้ว่าเราย้าย transform เอง ต้อง sync ไม่งั้นเฟรมหน้าจะ Move จากตำแหน่งเก่าแล้วดีดกลับ
         Physics.SyncTransforms();
     }
 
@@ -374,14 +341,12 @@ public class PairedAnimationActor : MonoBehaviour
         if (string.IsNullOrWhiteSpace(state.ExitStateName) || string.IsNullOrWhiteSpace(state.StateName))
             return;
 
-        // ถ้า Animator ออกจากท่าไปเองแล้ว ไม่ต้องสั่งซ้ำ กันท่ายืน/เดินโดนเริ่มใหม่จนสะดุด
         if (!TryGetStateTime(animator, state.Layer, Animator.StringToHash(state.StateName), out _))
             return;
 
         PlayState(animator, state.Layer, state.ExitStateName, duration);
     }
 
-    // นับทั้งตอนกำลังเฟดเข้าท่า (next) และตอนอยู่ในท่าแล้ว (current)
     private static bool TryGetStateTime(Animator animator, int layer, int stateHash, out float normalizedTime)
     {
         normalizedTime = 0f;
