@@ -4,22 +4,31 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using Yuki.Learning.StateMachine.Editor.Graph;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 using Object = UnityEngine.Object;
 
 /// <summary>
 /// ONE-TIME tool. Delete this file afterwards.
-/// Select a Transition Table file (e.g. PlayerAction_TransitionTable) and run it: every state machine
-/// asset the table reaches (states, actions, conditions, sub-state machine tables, exposed parameters,
-/// all the way down) that lives in another file is copied into the table's file, and the file uses the
-/// copies. Assets in the General folder stay shared and aren't followed. Other data (stats, animation
-/// data, ...) isn't copied. Then every sub-asset in the file loses a leading "Player" ("PlayerGun_State"
-/// -> "Gun_State"). The original files are left alone. A backup of the table's file goes to Backups/.
+/// Select a Transition Table file (e.g. PKa_TransitionTable) and run it: every state machine asset the
+/// table reaches (states, actions, conditions, sub-state machine tables, exposed parameters, all the way
+/// down) that lives in another file is copied into the table's file, and the file uses the copies.
+/// Assets in the General folder stay shared and aren't followed. Other data (stats, animation data, ...)
+/// isn't copied. Then:
+///   - every sub-asset in the file loses the table's prefix ("PKa" for PKa_TransitionTable,
+///     "Player" for PlayerAction_TransitionTable): "PKaChase_State" -> "Chase_State"
+///   - each table's actions and conditions go into Contents folders named after the folder their file
+///     was in, like Player's ("Condition/Distance/PKaAttackRange_Condition" -> folder "Distance",
+///     "General/.../Action/Locomotion/..." -> "Locomotion")
+/// The original files are left alone. A backup of the table's file goes to Backups/.
 /// </summary>
 public static class LocalizeTableTool
 {
     private const string GeneralFolder = "Assets/ScriptableObject/StateMachine/General/";
-    private const string Prefix = "Player";
+    private const string ContentsFoldersProperty = "_contentsFolders";
+
+    // Folder names that hold one kind of asset; the folder right under the last one is the Contents folder.
+    private static readonly string[] KindFolders = { "Action", "Actions", "Condition", "Conditions" };
 
     [MenuItem("Tools/State Machine/Localize Selected Table (except General)")]
     private static void Run()
@@ -31,6 +40,7 @@ public static class LocalizeTableTool
         }
 
         string path = AssetDatabase.GetAssetPath(table);
+        string prefix = PrefixOf(table.name);
         List<ScriptableObject> toCopy = CollectToCopy(table, path);
         List<ScriptableObject> embedded = AssetDatabase.LoadAllAssetsAtPath(path)
             .OfType<ScriptableObject>()
@@ -41,7 +51,8 @@ public static class LocalizeTableTool
                 "Localize Table",
                 $"{table.name}:\n" +
                 $"  copy {toCopy.Count} asset(s) from other files into this file (General stays shared)\n" +
-                $"  remove a leading \"{Prefix}\" from the names in this file\n\n" +
+                $"  remove a leading \"{prefix}\" from the names in this file\n" +
+                "  put actions / conditions into Contents folders named after their old folders\n\n" +
                 "This can't be undone. A backup of the file goes to Backups/ in the project folder.",
                 "Localize", "Cancel"))
         {
@@ -52,12 +63,19 @@ public static class LocalizeTableTool
         AssetDatabase.SaveAssets();
         BackUp(path);
 
-        // Final names for everything in the file (what's there and the copies), without "Player", unique.
+        // Where each thing came from, for its Contents folder (copies lose their own path).
+        var sourcePaths = new Dictionary<Object, string>();
+        foreach (ScriptableObject original in toCopy)
+        {
+            sourcePaths[original] = AssetDatabase.GetAssetPath(original);
+        }
+
+        // Final names for everything in the file (what's there and the copies), without the prefix, unique.
         var names = new HashSet<string>(StringComparer.Ordinal) { table.name };
         var newNames = new Dictionary<ScriptableObject, string>();
         foreach (ScriptableObject asset in embedded.Concat(toCopy))
         {
-            string name = UniqueName(names, WithoutPrefix(asset.name));
+            string name = UniqueName(names, WithoutPrefix(asset.name, prefix));
             names.Add(name);
             newNames[asset] = name;
         }
@@ -69,6 +87,7 @@ public static class LocalizeTableTool
             copy.name = newNames[original];
             AssetDatabase.AddObjectToAsset(copy, table);
             copies[original] = copy;
+            sourcePaths[copy] = sourcePaths[original];
         }
 
         foreach (ScriptableObject asset in embedded)
@@ -83,10 +102,15 @@ public static class LocalizeTableTool
             Remap(asset, copies);
         }
 
+        int filed = FileIntoFolders(path, sourcePaths, prefix);
+
         AssetDatabase.SaveAssets();
         AssetDatabase.ImportAsset(path);
 
-        Debug.Log($"[LocalizeTableTool] {table.name}: copied {toCopy.Count}, renamed {embedded.Count + toCopy.Count}.", table);
+        Debug.Log(
+            $"[LocalizeTableTool] {table.name}: copied {toCopy.Count}, renamed {embedded.Count + toCopy.Count}, " +
+            $"put {filed} into folders.",
+            table);
     }
 
     // State machine assets the table reaches through its fields that live in other files, General aside.
@@ -137,13 +161,32 @@ public static class LocalizeTableTool
                asset is ExposedParametersSO;
     }
 
-    // "PlayerGun_State" -> "Gun_State". "Playerish_State" stays (the next letter isn't a capital).
-    private static string WithoutPrefix(string name)
+    // ---------- Names ----------
+
+    // The character's name at the front of the table's name: "PKa_TransitionTable" -> "PKa",
+    // "PlayerAction_TransitionTable" -> "Player" (cut where a small letter meets a capital).
+    private static string PrefixOf(string tableName)
     {
-        return name.Length > Prefix.Length &&
-               name.StartsWith(Prefix, StringComparison.Ordinal) &&
-               char.IsUpper(name[Prefix.Length])
-            ? name.Substring(Prefix.Length)
+        string stem = tableName.Split('_')[0];
+        for (int i = 1; i < stem.Length; i++)
+        {
+            if (char.IsLower(stem[i - 1]) && char.IsUpper(stem[i]))
+            {
+                return stem.Substring(0, i);
+            }
+        }
+
+        return stem;
+    }
+
+    // "PKaChase_State" -> "Chase_State". "PKanot_State" stays (the next letter isn't a capital).
+    private static string WithoutPrefix(string name, string prefix)
+    {
+        return prefix.Length > 0 &&
+               name.Length > prefix.Length &&
+               name.StartsWith(prefix, StringComparison.Ordinal) &&
+               char.IsUpper(name[prefix.Length])
+            ? name.Substring(prefix.Length)
             : name;
     }
 
@@ -157,6 +200,87 @@ public static class LocalizeTableTool
 
         return unique;
     }
+
+    // ---------- Contents folders ----------
+
+    // For every table in the file: each action / condition it uses that has no folder yet goes into the
+    // folder named after where its file was (copies) or is (shared ones, e.g. General). Sub-state machine
+    // wiring is left out, since Contents shows it under its sub-state. Returns how many were filed.
+    private static int FileIntoFolders(string path, Dictionary<Object, string> sourcePaths, string prefix)
+    {
+        int filed = 0;
+
+        foreach (TransitionTableSO fileTable in AssetDatabase.LoadAllAssetsAtPath(path).OfType<TransitionTableSO>())
+        {
+            var serializedTable = new SerializedObject(fileTable);
+            SerializedProperty entries = serializedTable.FindProperty(ContentsFoldersProperty);
+            if (entries == null)
+            {
+                continue;
+            }
+
+            var hasFolder = new HashSet<Object>();
+            for (int i = 0; i < entries.arraySize; i++)
+            {
+                hasFolder.Add(entries.GetArrayElementAtIndex(i).FindPropertyRelative("Item").objectReferenceValue);
+            }
+
+            foreach (ScriptableObject item in TableContents.CollectUsed(fileTable))
+            {
+                if (item is not (StateActionSO or StateConditionSO) ||
+                    item is SubStateMachineActionSO ||
+                    item is ExitSubStateMachineActionSO ||
+                    item is SubStateMachineExitedConditionSO ||
+                    hasFolder.Contains(item))
+                {
+                    continue;
+                }
+
+                string source = sourcePaths.TryGetValue(item, out string copiedFrom)
+                    ? copiedFrom
+                    : AssetDatabase.GetAssetPath(item);
+                if (source == path)
+                {
+                    continue;   // was already inside the file: nothing says where it belongs
+                }
+
+                string folder = FolderOf(source, prefix);
+                if (folder.Length == 0)
+                {
+                    continue;
+                }
+
+                entries.arraySize++;
+                SerializedProperty entry = entries.GetArrayElementAtIndex(entries.arraySize - 1);
+                entry.FindPropertyRelative("Item").objectReferenceValue = item;
+                entry.FindPropertyRelative("Folder").stringValue = folder;
+                hasFolder.Add(item);
+                filed++;
+            }
+
+            serializedTable.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        return filed;
+    }
+
+    // The folder right under the last Action / Condition folder in the path, or "" if the file sits
+    // straight in it. ".../Condition/Distance/PKaAttackRange_Condition.asset" -> "Distance".
+    private static string FolderOf(string assetPath, string prefix)
+    {
+        string[] parts = assetPath.Split('/');
+        for (int i = parts.Length - 2; i >= 0; i--)
+        {
+            if (KindFolders.Contains(parts[i], StringComparer.OrdinalIgnoreCase))
+            {
+                return i + 1 < parts.Length - 1 ? WithoutPrefix(parts[i + 1], prefix) : "";
+            }
+        }
+
+        return "";
+    }
+
+    // ---------- Helpers ----------
 
     private static void Remap(Object asset, Dictionary<Object, Object> map)
     {
