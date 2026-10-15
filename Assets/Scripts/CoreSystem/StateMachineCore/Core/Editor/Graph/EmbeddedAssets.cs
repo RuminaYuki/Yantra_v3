@@ -95,9 +95,12 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // names ("Chase_Condition 1"). Nothing uses them yet. Returns original -> copy.
         // From this file: only the items (a copied state shares its actions, like Animator's Duplicate).
         // From another file: also whatever they use there, so no copy points into someone else's file.
+        // recordUndo false for a drop: Unity can revert the current Undo group right after a drag ends,
+        // which would destroy the copies in memory while the file on disk still has them.
         public static Dictionary<ScriptableObject, ScriptableObject> CopyInto(
             TransitionTableSO table,
-            IEnumerable<ScriptableObject> items)
+            IEnumerable<ScriptableObject> items,
+            bool recordUndo = true)
         {
             string path = AssetDatabase.GetAssetPath(table);
             var copies = new Dictionary<Object, Object>();
@@ -118,7 +121,11 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
                     ScriptableObject copy = Object.Instantiate(original);
                     copy.name = UniqueName(table, original.name);
-                    Undo.RegisterCreatedObjectUndo(copy, $"Copy {original.name}");
+                    if (recordUndo)
+                    {
+                        Undo.RegisterCreatedObjectUndo(copy, $"Copy {original.name}");
+                    }
+
                     AssetDatabase.AddObjectToAsset(copy, table);
                     copies[original] = copy;
                 }

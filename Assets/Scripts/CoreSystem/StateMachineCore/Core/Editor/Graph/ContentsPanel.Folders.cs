@@ -370,14 +370,27 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         {
             foldout.RegisterCallback<DragUpdatedEvent>(evt =>
             {
-                bool canDrop = CanDrop(group, folderPath);
-                DragAndDrop.visualMode = canDrop ? DragAndDropVisualMode.Move : DragAndDropVisualMode.Rejected;
+                bool isFromProject = DraggedFromProject().Count > 0;
+                bool canDrop = isFromProject || CanDrop(group, folderPath);
+                DragAndDrop.visualMode = isFromProject ? DragAndDropVisualMode.Copy
+                    : canDrop ? DragAndDropVisualMode.Move
+                    : DragAndDropVisualMode.Rejected;
                 SetDropHighlight(canDrop ? header : null);
                 evt.StopPropagation();
             });
 
             foldout.RegisterCallback<DragPerformEvent>(evt =>
             {
+                List<ScriptableObject> fromProject = DraggedFromProject();
+                if (fromProject.Count > 0)
+                {
+                    DragAndDrop.AcceptDrag();
+                    SetDropHighlight(null);
+                    evt.StopPropagation();
+                    schedule.Execute(() => CopyFromProject(fromProject, group, folderPath));
+                    return;
+                }
+
                 if (CanDrop(group, folderPath) &&
                     DragAndDrop.GetGenericData(DragDataKey) is DragPayload payload)
                 {
@@ -390,6 +403,60 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 SetDropHighlight(null);
                 evt.StopPropagation();
             });
+        }
+
+        // ---------- Dropping files from the Project window ----------
+
+        // States, actions and conditions dragged in from the Project window (not a drag that started in
+        // this panel), from other files than this table's.
+        private List<ScriptableObject> DraggedFromProject()
+        {
+            if (_table == null || DragAndDrop.GetGenericData(DragDataKey) != null)
+            {
+                return new List<ScriptableObject>();
+            }
+
+            string tablePath = AssetDatabase.GetAssetPath(_table);
+            return DragAndDrop.objectReferences
+                .OfType<ScriptableObject>()
+                .Where(TableContents.IsContentItem)
+                .Where(item =>
+                {
+                    string itemPath = AssetDatabase.GetAssetPath(item);
+                    return !string.IsNullOrEmpty(itemPath) && itemPath != tablePath;
+                })
+                .Distinct()
+                .ToList();
+        }
+
+        // Copies into this table's file, used by nothing yet (○), like Ctrl+V but states stay off the
+        // graph. What they use from their own file comes along (see EmbeddedAssets.CopyInto). Copies of
+        // the dropped group's kind go into the folder dropped on. The original files are left alone.
+        // ○ items only show in the file's main table.
+        // Without Undo, like the other drops: Unity's own revert right after a drag ends would destroy
+        // the copies in memory while the file on disk kept them (they showed in Project, not here).
+        // Remove one again with Delete... in its right-click menu.
+        private void CopyFromProject(List<ScriptableObject> items, string group, string folderPath)
+        {
+            Dictionary<ScriptableObject, ScriptableObject> copies =
+                EmbeddedAssets.CopyInto(_table, items, recordUndo: false);
+
+            if (folderPath.Length > 0)
+            {
+                EditFolders(folders =>
+                {
+                    foreach (ScriptableObject copy in copies.Values.Where(copy => GroupOf(copy) == group))
+                    {
+                        folders.SetItemFolder(copy, folderPath);
+                    }
+                }, recordUndo: false);
+            }
+            else
+            {
+                Rebuild();
+            }
+
+            Selection.objects = copies.Values.Cast<Object>().ToArray();
         }
 
         // Same group only, and a folder can't go inside itself.

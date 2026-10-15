@@ -28,6 +28,67 @@ MonoBehaviour:
   _selfAnchor: {fileID: 0}
   usePercent: 1
   healthAmount: 50
+--- !u!114 &-7288117152054017958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a48a3fe258ddd694c9275385226bddde, type: 3}
+  m_Name: SetZeroHealthFloor_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SetHealthFloorActionSO
+  _selfAnchor: {fileID: 0}
+  _percent: 0
+  _resetOnStateExit: 0
+--- !u!114 &-7205683746137457426
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: Glory_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 4149478314942255615}
+  - {fileID: -1199960815894179324}
+  - {fileID: -7288117152054017958}
+  - {fileID: -5373914862388642512}
+--- !u!114 &-6158984333126601592
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 828323aa1aace154891a3661130da74b, type: 3}
+  m_Name: HasGloryFlag_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::FlagConditionSO
+  _selfAnchor: {fileID: 0}
+  flag: {fileID: 11400000, guid: 02fbf06f3aae8a04b8dee37780e76d4b, type: 2}
+--- !u!114 &-5373914862388642512
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 980dfb7f48049f446a18747273209362, type: 3}
+  m_Name: GlorySubSM_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SubStateMachineActionSO
+  _selfAnchor: {fileID: 0}
+  _transitionTable: {fileID: 11400000}
+  _forceExitState: {fileID: 0}
 --- !u!114 &-5311765413985277102
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -92,6 +153,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExitSubStateMachineActionSO
   _selfAnchor: {fileID: 0}
   _exitId: Idle
+--- !u!114 &-1199960815894179324
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c807c0fe937f0941bc0ea49af3c0c0a, type: 3}
+  m_Name: SetHasGloryTrueFlagOnEnter_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SetFlagOnEnterActionSO
+  _selfAnchor: {fileID: 0}
+  flag: {fileID: 11400000, guid: 02fbf06f3aae8a04b8dee37780e76d4b, type: 2}
+  value: 1
+  changeValueOnExit: 0
 --- !u!114 &-1175100846876381625
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -118,7 +195,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a5492ed31ba40b643aaf3d94f1de0aa7, type: 3}
-  m_Name: EnemyGlory_TransitionTable
+  m_Name: Glory_TransitionTable
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
   _initialState: {fileID: 5915766744438744071}
   _anyTransitions: []
@@ -160,17 +237,68 @@ MonoBehaviour:
   - State: {fileID: -7697187629325707054}
     Position: {x: 200, y: 144}
   - State: {fileID: 6835993060265228890}
-    Position: {x: 200, y: 214}
+    Position: {x: 200, y: 208}
   - State: {fileID: -1175100846876381625}
-    Position: {x: 390, y: 144}
+    Position: {x: 393, y: 144}
   - State: {fileID: 7104421076876634507}
     Position: {x: 200, y: 71}
   - State: {fileID: 4502117098256472725}
-    Position: {x: 393, y: 73}
+    Position: {x: 393, y: 71}
   _entryNodePosition: {x: 0, y: 0}
   _anyStateNodePosition: {x: 0, y: 71}
-  _contentsFolders: []
-  _contentsFolderPaths: []
+  _contentsFolders:
+  - Item: {fileID: -3388517999227729585}
+    Folder: Animator
+  - Item: {fileID: 3277091789363071656}
+    Folder: Animator
+  - Item: {fileID: -7542713600389139656}
+    Folder: Health
+  - Item: {fileID: 4274260957089055237}
+    Folder: Health
+  - Item: {fileID: 11400000, guid: a12119121bfba5544aa437d4d5f52d32, type: 2}
+    Folder: Other
+  - Item: {fileID: -5311765413985277102}
+    Folder: Other
+  - Item: {fileID: 11400000, guid: 018e8d68359039e4e803cf119d207d7a, type: 2}
+    Folder: Other
+  - Item: {fileID: 7639330717782058312}
+    Folder: Other
+  - Item: {fileID: -4837618158548908663}
+    Folder: Animator
+  - Item: {fileID: 9098446477136170823}
+    Folder: Animator
+  - Item: {fileID: 8686617805095668356}
+    Folder: Animator
+  - Item: {fileID: 6012101341605234845}
+    Folder: Other
+  - Item: {fileID: 11400000, guid: 7d89bad5a0e5b044ba0c890f451eee50, type: 2}
+    Folder: Other
+  _contentsFolderPaths:
+  - Group: Actions
+    Path: Animator
+  - Group: Actions
+    Path: Health
+  - Group: Actions
+    Path: Other
+  - Group: Conditions
+    Path: Animator
+  - Group: Conditions
+    Path: Other
+--- !u!114 &3149816570201561003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b704c2b6ed1c1a34bb707b5901839188, type: 3}
+  m_Name: HealthPercent_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::HealthPercentConditionSO
+  _selfAnchor: {fileID: 0}
+  _percent: 10
+  _compare: 0
 --- !u!114 &3277091789363071656
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -191,6 +319,21 @@ MonoBehaviour:
   _exitStateName: 
   _exitTransitionDuration: 0.25
   _exitNormalizedStartTime: 0
+--- !u!114 &4149478314942255615
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 533d6a08cc4a8c4458904c793e9f85fe, type: 3}
+  m_Name: SetIgnoreDamageDontReset_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SetIgnoreDamageActionSO
+  _selfAnchor: {fileID: 0}
+  value: 1
+  resetValueOnExit: 0
 --- !u!114 &4274260957089055237
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -249,6 +392,20 @@ MonoBehaviour:
   _selfAnchor: {fileID: 0}
   minDuration: 10
   maxDuration: 0
+--- !u!114 &6335553505640395995
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae75f5365ad06ad4ebb6bb2bce623372, type: 3}
+  m_Name: GloryToIdleSubSMExited_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::SubStateMachineExitedConditionSO
+  _selfAnchor: {fileID: 0}
+  _exitId: Idle
 --- !u!114 &6835993060265228890
 MonoBehaviour:
   m_ObjectHideFlags: 0
