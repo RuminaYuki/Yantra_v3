@@ -7,7 +7,7 @@ using SDFcl.GamePlay.Interactable;
 [RequiresOwnerComponent(typeof(Iinteractor))]
 [CreateAssetMenu(
     fileName = "NewTriggerInteractor_Condition",
-    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/InteractSystem/Interactor/Trigger Interactor")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/GamePlayMechanic/InteractSystem/Interactor/Trigger Interactor")]
 public class TriggerInteractorSO : StateConditionSO
 {
     protected override Condition OnCreateCondition()

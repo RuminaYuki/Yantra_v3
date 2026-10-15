@@ -3,7 +3,7 @@ using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
-    fileName = "NewExitSubStateMachine_Action",
+    fileName = "NewExitSubSM_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/SubStateMachine/ExitStateAction")]
 public class ExitSubStateMachineActionSO : StateActionSO
 {

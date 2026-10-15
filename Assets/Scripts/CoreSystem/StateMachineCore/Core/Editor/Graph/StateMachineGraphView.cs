@@ -11,7 +11,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 namespace Yuki.Learning.StateMachine.Editor.Graph
 {
     // The canvas that shows a TransitionTableSO as nodes and edges.
-    // Node positions are saved here; states and conditions are edited in GraphInspectorPanel.
+    // Node positions are saved here; states and conditions are edited in Unity's Inspector (StateSOEditor, TransitionSelectionEditor).
     // Adding / removing states and transitions is in StateMachineGraphView.Editing.cs.
     public partial class StateMachineGraphView : GraphView
     {
@@ -44,6 +44,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             _window = window;
             graphViewChanged = OnGraphViewChanged;
             RegisterTransitionCreationCallbacks();
+            RegisterStateDropCallbacks();
 
             // Mouse wheel zoom.
             SetupZoom(
@@ -61,27 +62,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             grid.StretchToParentSize();
 
             // GridBackground needs a stylesheet for its colors, otherwise the lines are almost invisible.
-            StyleSheet styleSheet = LoadStyleSheet();
-            if (styleSheet != null)
-            {
-                styleSheets.Add(styleSheet);
-            }
-        }
-
-        private static StyleSheet LoadStyleSheet()
-        {
-            // Find by name so the Graph folder can be moved without breaking the path.
-            foreach (string guid in AssetDatabase.FindAssets($"{StyleSheetName} t:StyleSheet"))
-            {
-                string path = AssetDatabase.GUIDToAssetPath(guid);
-                if (System.IO.Path.GetFileNameWithoutExtension(path) == StyleSheetName)
-                {
-                    return AssetDatabase.LoadAssetAtPath<StyleSheet>(path);
-                }
-            }
-
-            Debug.LogWarning($"{StyleSheetName}.uss not found. The graph will have no grid colors.");
-            return null;
+            GraphStyleSheets.AddTo(this, StyleSheetName);
         }
 
         public override void AddToSelection(ISelectable selectable)
@@ -112,7 +93,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         }
 
         // Rebuilds the current table and selects the same node or edge again if it still exists,
-        // so Undo or a data change doesn't close the inspector panel.
+        // so Undo or a data change doesn't change what the Inspector shows.
         public void Reload()
         {
             GraphElement previous = selection.Count == 1 ? selection[0] as GraphElement : null;
@@ -132,7 +113,21 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             }
         }
 
-        // Called from the panel's transition lists. fromKey is a StateSO, or SpecialNodeView.Kind.AnyState.
+        // Called from the Inspector's transition lists (StateSOEditor). fromKey is a StateSO, or SpecialNodeView.Kind.AnyState.
+        // Called from the Contents panel. Returns false when the state has no node in this graph.
+        public bool SelectStateNode(StateSO state)
+        {
+            Node node = FindNode(state);
+            if (node == null)
+            {
+                return false;
+            }
+
+            ClearSelection();
+            AddToSelection(node);
+            return true;
+        }
+
         public void SelectTransitionEdge(object fromKey, StateSO to)
         {
             SelectEdge(fromKey, to);

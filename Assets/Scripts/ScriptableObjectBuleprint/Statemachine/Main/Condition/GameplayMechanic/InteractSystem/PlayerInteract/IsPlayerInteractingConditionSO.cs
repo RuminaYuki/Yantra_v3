@@ -7,7 +7,7 @@ using SDFcl.GamePlay.Interactable;
 [RequiresOwnerComponent(typeof(PlayerInteract))]
 [CreateAssetMenu(
     fileName = "NewIsPlayerInteracting_Condition",
-    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/InteractSystem/PlayerInteract/Is Player Interacting")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/GamePlayMechanic/InteractSystem/PlayerInteract/Is Player Interacting")]
 public class IsPlayerInteractingConditionSO : StateConditionSO
 {
     protected override Condition OnCreateCondition()

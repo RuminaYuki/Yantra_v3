@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Yuki.Learning.StateMachine.Editor
 {
     // IMGUI drawing for a transition's condition groups.
-    // Shared by TransitionTableSOEditor (Inspector) and the graph's GraphInspectorPanel,
+    // Shared by TransitionTableSOEditor and TransitionSelectionEditor (a selected graph arrow),
     // so both always look and behave the same.
     public static class TransitionGUI
     {

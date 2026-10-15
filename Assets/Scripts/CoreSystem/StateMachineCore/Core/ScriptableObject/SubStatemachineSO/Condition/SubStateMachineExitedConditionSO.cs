@@ -3,7 +3,7 @@ using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
-    fileName = "NewSubStateMachineExited_Condition",
+    fileName = "NewSubSMExited_Condition",
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/SubStateMachine/Sub State Machine Exited")]
 public class SubStateMachineExitedConditionSO : StateConditionSO
 {

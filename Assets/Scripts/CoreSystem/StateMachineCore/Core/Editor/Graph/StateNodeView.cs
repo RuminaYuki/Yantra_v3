@@ -60,7 +60,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             RegisterCallback<MouseDownEvent>(OnMouseDown);
         }
 
-        private static List<TransitionTableSO> FindSubTables(StateSO state)
+        // Also used by the Contents panel to mark sub-state machines.
+        internal static List<TransitionTableSO> FindSubTables(StateSO state)
         {
             var tables = new List<TransitionTableSO>();
 

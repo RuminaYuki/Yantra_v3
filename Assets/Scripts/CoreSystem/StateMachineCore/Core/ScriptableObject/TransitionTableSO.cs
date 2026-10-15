@@ -31,6 +31,14 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
         [SerializeField, HideInInspector]
         private Vector2 _anyStateNodePosition = new Vector2(0f, 120f);
 
+        [SerializeField, HideInInspector]
+        private ContentsFolderEntry[] _contentsFolders =
+            Array.Empty<ContentsFolderEntry>();
+
+        [SerializeField, HideInInspector]
+        private ContentsFolderPath[] _contentsFolderPaths =
+            Array.Empty<ContentsFolderPath>();
+
         public State CreateInitialState(StateMachine stateMachine)
         {
             return CreateInitialState(stateMachine, out _);
@@ -344,5 +352,20 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
             public StateSO State;
             public Vector2 Position;
         }
+        
+        [Serializable]
+        public struct ContentsFolderEntry
+        {
+            public ScriptableObject Item;   // a State, Action or Condition this table uses
+            public string Folder;           // "Combat", or "Combat/Melee" for a folder inside a folder
+        }
+
+        [Serializable]
+        public struct ContentsFolderPath
+        {
+            public string Group;   // "States", "Actions" or "Conditions"
+            public string Path;    // "Combat", or "Combat/Melee" for a folder inside a folder
+        }
+
     }
 }

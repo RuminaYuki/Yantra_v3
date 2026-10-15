@@ -3,7 +3,7 @@ using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
-    fileName = "NewSubStateMachine_Action",
+    fileName = "NewSubSM_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/SubStateMachine/SubStateMachineAction")]
 public class SubStateMachineActionSO : StateActionSO
 {

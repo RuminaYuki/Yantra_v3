@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -28,6 +29,49 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             RegisterCallback<KeyDownEvent>(OnKeyDownWhileConnecting);
 
             RegisterCallback<DetachFromPanelEvent>(_ => DestroyStateSearchProvider());
+        }
+
+        // ---------- Dropping states onto the graph ----------
+
+        // A StateSO dragged from the Contents panel (or the Project window) and dropped on the graph is
+        // placed where it was dropped: added to the table if it isn't on the graph yet, moved if it is.
+        private void RegisterStateDropCallbacks()
+        {
+            RegisterCallback<DragUpdatedEvent>(evt =>
+            {
+                if (_table == null || !DraggedStates().Any())
+                {
+                    return;
+                }
+
+                DragAndDrop.visualMode = DragAndDropVisualMode.Link;
+                evt.StopPropagation();
+            });
+
+            RegisterCallback<DragPerformEvent>(evt =>
+            {
+                List<StateSO> states = DraggedStates().ToList();
+                if (_table == null || states.Count == 0)
+                {
+                    return;
+                }
+
+                DragAndDrop.AcceptDrag();
+                evt.StopPropagation();
+
+                // Several at once are stepped down so they don't land on top of each other.
+                Vector2 position = contentViewContainer.WorldToLocal(evt.mousePosition);
+                foreach (StateSO state in states)
+                {
+                    AddStateToTable(state, position);
+                    position += new Vector2(30f, 40f);
+                }
+            });
+        }
+
+        private static IEnumerable<StateSO> DraggedStates()
+        {
+            return DragAndDrop.objectReferences.OfType<StateSO>();
         }
 
         // ---------- Right-click menu ----------
@@ -71,7 +115,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                     _ => SetInitialState(stateNode.State),
                     isInitial ? DropdownMenuAction.Status.Disabled : DropdownMenuAction.Status.Normal);
                 evt.menu.AppendSeparator();
-                evt.menu.AppendAction("Remove from Table", _ => DeleteFromMenu(stateNode));
+                // A state inside this table's file is deleted with it; a shared state file stays.
+                bool isEmbedded = AssetDatabase.GetAssetPath(stateNode.State) == AssetDatabase.GetAssetPath(_table);
+                evt.menu.AppendAction(isEmbedded ? "Delete" : "Remove from Table", _ => DeleteFromMenu(stateNode));
             }
             else if (node is SpecialNodeView { NodeKind: SpecialNodeView.Kind.AnyState } anyStateNode)
             {
@@ -125,8 +171,13 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
         // ---------- Delete ----------
 
+        // Deleted states that live inside the table's file also leave the file (with what only they
+        // used), like Animator; shared state files are only taken out of this table. One Undo step.
         private void RemoveFromTable(List<GraphElement> elements)
         {
+            Undo.IncrementCurrentGroup();
+            int undoGroup = Undo.GetCurrentGroup();
+
             _serializedTable.Update();
 
             SerializedProperty transitions = _serializedTable.FindProperty("_transitions");
@@ -199,6 +250,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             DeleteArrayIndices(anyTransitions, anyToRemove);
 
             _serializedTable.ApplyModifiedProperties();
+
+            EmbeddedAssets.DestroyUnreachable(_table, removedStates);
+            Undo.CollapseUndoOperations(undoGroup);
         }
 
         private static void DeleteArrayIndices(SerializedProperty array, HashSet<int> indices)
@@ -359,7 +413,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             _stateSearchProvider.Setup(
                 alreadyInTable,
                 state => AddStateToTable(state, graphPosition),
-                () => CreateNewState(graphPosition));
+                () => CreateNewState(graphPosition),
+                () => CreateNewSubStateMachine(graphPosition),
+                () => CreateNewStateFile(graphPosition));
 
             // SearchWindow wants screen coordinates.
             Vector2 screenPosition = _window.position.position + mousePosition;
@@ -392,7 +448,32 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             }
         }
 
+        // The new state goes inside the table's file; it can be renamed in the Contents panel.
         private void CreateNewState(Vector2 position)
+        {
+            Undo.IncrementCurrentGroup();
+            int undoGroup = Undo.GetCurrentGroup();
+
+            StateSO state = EmbeddedAssets.Create<StateSO>(_table, "New_State");
+            AddStateToTable(state, position);
+
+            Undo.CollapseUndoOperations(undoGroup);
+        }
+
+        // A sub-state machine with its action and child table, already wired (see EmbeddedAssets).
+        private void CreateNewSubStateMachine(Vector2 position)
+        {
+            Undo.IncrementCurrentGroup();
+            int undoGroup = Undo.GetCurrentGroup();
+
+            StateSO state = EmbeddedAssets.CreateSubStateMachine(_table);
+            AddStateToTable(state, position);
+
+            Undo.CollapseUndoOperations(undoGroup);
+        }
+
+        // The new state is its own file, for a state meant to be shared by several tables.
+        private void CreateNewStateFile(Vector2 position)
         {
             // Default to the table's folder, where its states usually live.
             string folder = System.IO.Path.GetDirectoryName(AssetDatabase.GetAssetPath(_table))?.Replace('\\', '/');
@@ -414,6 +495,12 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             AssetDatabase.CreateAsset(state, path);
 
             AddStateToTable(state, position);
+        }
+
+        // Called from the Contents panel: puts a state in the middle of what's on screen.
+        public void AddStateAtViewCenter(StateSO state)
+        {
+            AddStateToTable(state, contentViewContainer.WorldToLocal(worldBound.center));
         }
     }
 }
