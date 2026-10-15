@@ -84,6 +84,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             _onStateCreated = onStateCreated;
             _onOpenSubStateMachine = onOpenSubStateMachine;
 
+            // From Parent starts closed.
+            _collapsed.Add(ParentGroupKey);
+
             GraphStyleSheets.AddTo(this, StyleSheetName);
             AddToClassList("contents");
 
@@ -136,6 +139,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             _list.Clear();
             _rows.Clear();
             _rowGroups.Clear();
+            _parentRows.Clear();
             ResetDropHighlight();
             ResetRenameState();
 
@@ -157,9 +161,15 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             Dictionary<StateSO, TableContents.SubStateParts> subStates = TableContents.FindSubStateParts(_table, used);
 
+            // Inside a sub-state machine's table in its parent's file: the parent's actions and conditions.
+            (TransitionTableSO parentTable, StateSO parentState) = TableContents.FindParentInFile(_table);
+            List<ScriptableObject> parentItems = parentTable != null
+                ? ParentItems(parentTable, used)
+                : new List<ScriptableObject>();
+
             if (_search.Length > 0)
             {
-                AddSearchResults(shown.Concat(subStates.Values.Select(parts => parts.Table)), used, subStates, tablePath);
+                AddSearchResults(shown.Concat(subStates.Values.Select(parts => parts.Table)), used, subStates, tablePath, parentItems);
                 ShowSelection();
                 return;
             }
@@ -170,7 +180,6 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             // Inside a sub-state machine's own table: its exit states and their exit actions (SubStates group).
             Dictionary<StateSO, List<ScriptableObject>> exits = TableContents.FindExitStates(_table, used);
-            (TransitionTableSO parentTable, StateSO parentState) = TableContents.FindParentInFile(_table);
             VisualElement exitsSection = null;
             if (parentTable != null || exits.Count > 0)
             {
@@ -191,6 +200,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 shown.OfType<StateConditionSO>().Where(item => !shownElsewhere.Contains(item)),
                 used, folders, tablePath);
             AddUnusedTablesGroup(unused.OfType<TransitionTableSO>().ToList(), tablePath);
+            AddParentGroup(parentTable, parentItems, tablePath);
 
             ShowSelection();
         }
@@ -222,13 +232,18 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
         // Every item whose name contains the search text, in one list like the Project window's search,
         // each with what kind it is. Double-clicking a sub-state machine still goes inside.
+        // parentItems: From Parent's items, found too and marked "Parent".
         private void AddSearchResults(
             IEnumerable<ScriptableObject> items,
             HashSet<ScriptableObject> used,
             Dictionary<StateSO, TableContents.SubStateParts> subStates,
-            string tablePath)
+            string tablePath,
+            List<ScriptableObject> parentItems)
         {
+            var fromParent = new HashSet<ScriptableObject>(parentItems);
+
             List<ScriptableObject> matches = items
+                .Concat(fromParent)
                 .Where(item => item != null && item.name.IndexOf(_search, StringComparison.OrdinalIgnoreCase) >= 0)
                 .Distinct()
                 .OrderBy(item => item.name)
@@ -242,6 +257,13 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             foreach (ScriptableObject item in matches)
             {
+                if (fromParent.Contains(item))
+                {
+                    _list.Add(CreateRow(item, null, null, true, tablePath, null,
+                        hint: $"Parent {KindOf(item, subStates)}", isFromParent: true));
+                    continue;
+                }
+
                 Action open = item is StateSO state && subStates.TryGetValue(state, out TableContents.SubStateParts parts)
                     ? () => _onOpenSubStateMachine?.Invoke(state, parts.Table)
                     : (Action)null;
@@ -337,10 +359,12 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 .ToArray();
         }
 
-        // Selected things that have a row here (not a graph arrow, not something from another table).
+        // Selected things that have a row here (not a graph arrow, not something from another table,
+        // not a From Parent row).
         private IEnumerable<Object> SelectedRowItems()
         {
-            return Selection.objects.Where(selected => selected != null && _rows.ContainsKey(selected));
+            return Selection.objects.Where(selected =>
+                selected != null && _rows.ContainsKey(selected) && !_parentRows.Contains(selected));
         }
 
         // Rows top to bottom as drawn, skipping ones inside a closed group, folder or fold arrow.
@@ -543,6 +567,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // [mark] [icon] [name] [hint]. Renaming swaps the name label for a text field.
         // group / groupFolders null: the row can't go into folders (e.g. it belongs to a sub-state machine).
         // onDoubleClick null: double-click renames. hint: small grey text after the name (search results).
+        // isFromParent: a From Parent row, which can be selected and dragged but not edited from here.
         private VisualElement CreateRow(
             ScriptableObject item,
             string group,
@@ -551,7 +576,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             string tablePath,
             List<string> groupFolders,
             Action onDoubleClick = null,
-            string hint = null)
+            string hint = null,
+            bool isFromParent = false)
         {
             // A sub-asset has the same asset path as the file it lives in.
             string itemPath = AssetDatabase.GetAssetPath(item);
@@ -591,6 +617,11 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 row.tooltip += $"\nSub-state machine ({subTable.name}): double-click to open it.";
             }
 
+            if (isFromParent)
+            {
+                row.tooltip += "\nFrom the parent table: drag it into a transition or an action list to use it here.";
+            }
+
             var label = new Label(string.IsNullOrEmpty(item.name) ? "(no name)" : item.name);
             label.AddToClassList("contents-row__name");
             row.Add(label);
@@ -608,9 +639,18 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 _rowGroups[item] = group;
             }
 
+            if (isFromParent)
+            {
+                _parentRows.Add(item);
+            }
+
             row.RegisterCallback<ClickEvent>(evt =>
             {
-                if (evt.clickCount == 2 && onDoubleClick != null)
+                if (evt.clickCount == 2 && isFromParent)
+                {
+                    // Not renamed from here.
+                }
+                else if (evt.clickCount == 2 && onDoubleClick != null)
                 {
                     onDoubleClick();
                 }
@@ -633,9 +673,14 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 }
             });
 
-            RegisterRowKeys(row, label, item, isEmbedded);
-            row.AddManipulator(new ContextualMenuManipulator(evt =>
-                BuildRowMenu(evt, row, label, item, isEmbedded, group, folder, groupFolders)));
+            // From Parent: no F2 / Delete and no menu, so nothing of the parent is changed from here.
+            if (!isFromParent)
+            {
+                RegisterRowKeys(row, label, item, isEmbedded);
+                row.AddManipulator(new ContextualMenuManipulator(evt =>
+                    BuildRowMenu(evt, row, label, item, isEmbedded, group, folder, groupFolders)));
+            }
+
             RegisterDragSource(row, new DragPayload { Group = group, Item = item });
 
             return row;

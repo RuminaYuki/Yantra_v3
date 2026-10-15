@@ -269,9 +269,21 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // Things in other files stay shared. The original file and the tables that use it are left alone.
         public static ScriptableObject MakeLocalCopy(TransitionTableSO table, ScriptableObject item)
         {
-            var copies = new Dictionary<Object, Object>();
+            return MakeLocalCopy(table, item, Array.Empty<ScriptableObject>());
+        }
 
-            foreach (ScriptableObject original in TableContents.ReachableInSameFile(item))
+        // The same, with `alongWith` copied in the same go (e.g. a sub-state machine's action, exit
+        // conditions and table, from their own files), so the copies point at each other.
+        // Returns the copy of `item`.
+        public static ScriptableObject MakeLocalCopy(
+            TransitionTableSO table,
+            ScriptableObject item,
+            IEnumerable<ScriptableObject> alongWith)
+        {
+            var copies = new Dictionary<Object, Object>();
+            List<ScriptableObject> items = alongWith.Prepend(item).Distinct().ToList();
+
+            foreach (ScriptableObject original in items.SelectMany(TableContents.ReachableInSameFile).Distinct())
             {
                 ScriptableObject copy = Object.Instantiate(original);
                 copy.name = UniqueName(table, original.name);
@@ -279,13 +291,13 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 copies[original] = copy;
             }
 
-            // The copies point at each other, then this table's file points at the copy.
+            // The copies point at each other, then this table's file points at the copies.
             foreach (Object copy in copies.Values)
             {
                 Remap(copy, copies);
             }
 
-            ReplaceReferences(table, new Dictionary<Object, Object> { [item] = copies[item] });
+            ReplaceReferences(table, items.ToDictionary(original => (Object)original, original => copies[original]));
             AssetDatabase.SaveAssets();
 
             return (ScriptableObject)copies[item];

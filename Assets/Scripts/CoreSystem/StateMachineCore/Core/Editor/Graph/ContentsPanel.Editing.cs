@@ -140,9 +140,26 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             AfterSwap(EmbeddedAssets.MakeShared(_table, item, path));
         }
 
+        // A shared sub-state machine brings its wiring listed under it along (its Sub State Machine
+        // action, exit conditions and table), so they become this file's. Its other actions (e.g. a
+        // speed setter) and what's inside the child table stay shared.
         private void MakeLocalCopy(ScriptableObject item)
         {
-            AfterSwap(EmbeddedAssets.MakeLocalCopy(_table, item));
+            var alongWith = new List<ScriptableObject>();
+
+            var used = new HashSet<ScriptableObject>(TableContents.CollectUsed(_table));
+            if (item is StateSO state &&
+                TableContents.FindSubStateParts(_table, used).TryGetValue(state, out TableContents.SubStateParts parts))
+            {
+                alongWith.AddRange(parts.Actions.Where(action => action is SubStateMachineActionSO));
+                alongWith.AddRange(parts.ExitConditions);
+                alongWith.Add(parts.Table);
+
+                // Already in this file: nothing to copy.
+                alongWith.RemoveAll(part => part == null || TableContents.IsInSameFile(part, _table));
+            }
+
+            AfterSwap(EmbeddedAssets.MakeLocalCopy(_table, item, alongWith));
         }
 
         // The graph's nodes and the Inspector still hold the old object.
