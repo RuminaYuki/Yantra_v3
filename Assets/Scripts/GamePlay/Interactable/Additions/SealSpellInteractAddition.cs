@@ -92,7 +92,7 @@ public class SealSpellInteractAddition : MonoBehaviour
     }
 
     // BaseInteractor มาถาม: กดได้ไหม / ยกเลิกได้ไหม
-    private bool CanCancel()
+    private bool CanCancel(GameObject rootPlayer)
     {
         return !_drawing || (allowCancel && !IsFinishing);
     }

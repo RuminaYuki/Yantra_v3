@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 public class PlayerInventory : MonoBehaviour
 {
     [Header("Reference")]
-    [SerializeField] private InputActionReference inputAction;
+
     [SerializeField] private InventoryUI ui;
     [Tooltip("Where dropped items spawn. Leave empty to spawn in front of this object.")]
     [SerializeField] private Transform dropPoint;
@@ -22,6 +22,12 @@ public class PlayerInventory : MonoBehaviour
     [SerializeField] private float dropForwardDistance = 1f;
     [SerializeField] private float dropUpOffset = 0.5f;
 
+#if UNITY_EDITOR
+    [Header("Debug")]
+    public bool debugLog = false;
+    [SerializeField] private InputActionReference inputAction;
+#endif
+
     public Inventory Inventory { get; private set; }
 
     private void Awake()
@@ -31,28 +37,42 @@ public class PlayerInventory : MonoBehaviour
 
     private void OnEnable()
     {
-        if (inputAction != null)
+
+#if UNITY_EDITOR
+        if (inputAction != null && debugLog)
         {
             inputAction.action.started += HandleOpenInventory;
         }
+#endif
     }
 
     private void OnDisable()
     {
-        if (inputAction != null)
+#if UNITY_EDITOR
+        if (inputAction != null && debugLog)
         {
             inputAction.action.started -= HandleOpenInventory;
         }
+#endif
     }
 
-    private void HandleOpenInventory(InputAction.CallbackContext context)
+#if UNITY_EDITOR
+    public void HandleOpenInventory(InputAction.CallbackContext context)
     {
         if (ui != null)
         {
             ui.Toggle();
         }
     }
+#endif
 
+    public void OpenInventory(bool value)
+    {
+        if (ui != null)
+        {
+            ui.SetOpen(value);
+        }
+    }
     // Picks up as much as fits. The world item keeps whatever did not fit,
     // so its quantity becomes 0 when everything was taken.
     // Returns true if at least one item was picked up.

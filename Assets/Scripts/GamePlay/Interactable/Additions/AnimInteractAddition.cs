@@ -52,7 +52,7 @@ public class AnimInteractAddition : MonoBehaviour
         }
     }
 
-    private bool CanInteract()
+    private bool CanInteract(GameObject rootPlayer)
     {
         return !IsPlayAnimation;
     }

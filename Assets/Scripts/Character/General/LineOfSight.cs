@@ -2,8 +2,11 @@ using UnityEngine;
 
 public class LineOfSight : MonoBehaviour
 {
-    [Tooltip("Leave empty to find the object named PlayerController with tag Player on Start")]
+    [Header("Target Setting")]
     [SerializeField] Transform target;
+    [SerializeField] string targetTag = "Player";
+    [SerializeField] string targetObjectName = "IKTarget";
+    [Header("")]
     [SerializeField] Transform viewpoint;
     [SerializeField] bool showGizmos = true;
 
@@ -67,9 +70,9 @@ public class LineOfSight : MonoBehaviour
         if (target == null)
         {
             // Only objects tagged Player, and of those only the one named PlayerController.
-            foreach (GameObject player in GameObject.FindGameObjectsWithTag("Player"))
+            foreach (GameObject player in GameObject.FindGameObjectsWithTag(targetTag))
             {
-                if (player.name == "PlayerController")
+                if (player.name == targetObjectName)
                 {
                     target = player.transform;
                     break;

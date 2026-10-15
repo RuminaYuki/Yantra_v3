@@ -42,6 +42,8 @@ public class PlayerLocomotion : BaseLocomotion
     protected override void Awake()
     {
         base.Awake();
+        // ผู้เล่นเดินด้วยโค้ดเสมอ — ตั้งตรงนี้แทน Inspector เพราะมีผู้เล่นที่ unpack ไว้หลาย scene
+        _moveMode = LocomotionMoveMode.Velocity;
         _playerInput = new InputSystem_Actions();
         _turnAngleHash = Animator.StringToHash(_nameTurnAngle);
         _isTurningHash = Animator.StringToHash(_nameIsTurning);
@@ -71,10 +73,12 @@ public class PlayerLocomotion : BaseLocomotion
 
         base.Update();
 
+        // ผู้เล่นใช้ Full แค่ตอนหันตัว — เจอค้างอยู่ตอนว่าง = ค่าเก่าที่ใครคืนมา คืนกลับเป็น Velocity
+        if (!_isTurning && !IsMovementLocked && MoveMode == LocomotionMoveMode.FullRootMotion)
+            MoveMode = LocomotionMoveMode.Velocity;
+
         if (_turnbyCamera)
             UpdateTurnByCamera(direction);
-
-        PlayerVelocityLogic(direction);
     }
 
     private void OnMovePerformed(InputAction.CallbackContext ctx)
@@ -85,18 +89,6 @@ public class PlayerLocomotion : BaseLocomotion
     {
         _directionMove = Vector3.zero;
     }
-    protected override void OnAnimatorMove()
-    {
-        if (_rootMotionEnabled && IsMovementLocked)
-            transform.rotation *= Animator.deltaRotation;
-    }
-    private void PlayerVelocityLogic(Vector3 direction)
-    {
-        Vector3 clampedDirection = Vector3.ClampMagnitude(direction, 1f);
-        Vector3 movement = !IsMovementLocked ? clampedDirection * _currentspeed * Time.deltaTime : Vector3.zero;
-        CharacterController.Move(movement + Gravity.Gravity());
-    }
-
     #region SetAnimation
     private void UpdateTurnByCamera(Vector3 direction)
     {
@@ -115,6 +107,10 @@ public class PlayerLocomotion : BaseLocomotion
                 _isTurning = false;
                 SetIsTurning(false);
                 UnlockLocomotion(this);
+
+                // คืนเฉพาะถ้ายังเป็นของเราอยู่ — ถ้าระบบอื่นเปลี่ยน mode ไปแล้ว (เช่นปีน) อย่าไปทับ
+                if (MoveMode == LocomotionMoveMode.FullRootMotion)
+                    MoveMode = LocomotionMoveMode.Velocity;
             }
             return;
         }
@@ -129,6 +125,8 @@ public class PlayerLocomotion : BaseLocomotion
             _lastRawAngle = startAngle;
             _unwrappedAngle = startAngle;
             LockLocomotion(this);
+            // ระหว่างหันตัว ให้คลิปคุมทั้งตำแหน่งและการหมุน
+            MoveMode = LocomotionMoveMode.FullRootMotion;
             SetIsTurning(true);
             SetTurnAngleContinuous(startAngle);
         }
