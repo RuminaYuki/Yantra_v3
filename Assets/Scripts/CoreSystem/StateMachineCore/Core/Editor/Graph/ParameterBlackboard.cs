@@ -747,9 +747,10 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             public StateElementSO Item;
             public string FieldName;
             public bool IsTaken;
+            public string Table;   // see Candidates
         }
 
-        // Every [Exposed] field of the table's actions and conditions, only of `valueType` when given.
+        // Every [Exposed] field of the file's actions and conditions, only of `valueType` when given.
         private IEnumerable<FieldChoice> FieldChoices(Type valueType = null)
         {
             if (_table == null)
@@ -759,7 +760,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             ExposedParametersSO parameters = Find(_table);
 
-            foreach (StateElementSO item in Candidates())
+            foreach ((StateElementSO item, string table) in Candidates())
             {
                 foreach ((string path, Type type) in ExposedPathsOf(item.GetType()))
                 {
@@ -772,7 +773,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                     {
                         Item = item,
                         FieldName = path,
-                        IsTaken = IsBound(parameters, item, path)
+                        IsTaken = IsBound(parameters, item, path),
+                        Table = table
                     };
                 }
             }
@@ -799,7 +801,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                     Item = choice.Item,
                     FieldName = choice.FieldName,
                     Label = PathLabel(choice.FieldName),
-                    IsTaken = choice.IsTaken
+                    IsTaken = choice.IsTaken,
+                    Table = choice.Table
                 })
                 .ToList();
 
@@ -842,14 +845,66 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             menu.ShowAsContext();
         }
 
-        // Actions and conditions in the table's file, plus shared ones this table uses.
-        private IEnumerable<StateElementSO> Candidates()
+        // Actions and conditions any table in the file uses (shared ones too, since the Blackboard is the
+        // whole file's), plus ones in the file nothing uses. Each once, with where the popup lists it:
+        // null for the open table, else the first other table that uses it ("Attack" for
+        // "Attack_TransitionTable"), or FieldSearchProvider.UnusedTable.
+        private List<(StateElementSO Item, string Table)> Candidates()
         {
-            return TableContents.CollectEmbedded(_table)
-                .Concat(TableContents.CollectUsed(_table))
-                .OfType<StateElementSO>()
-                .Distinct()
-                .OrderBy(item => item.name);
+            var candidates = new List<(StateElementSO Item, string Table)>();
+            if (_table == null)
+            {
+                return candidates;
+            }
+
+            var seen = new HashSet<StateElementSO>();
+            void AddFrom(IEnumerable<ScriptableObject> items, string table)
+            {
+                foreach (StateElementSO item in items.OfType<StateElementSO>())
+                {
+                    if (seen.Add(item))
+                    {
+                        candidates.Add((item, table));
+                    }
+                }
+            }
+
+            AddFrom(TableContents.CollectUsed(_table), null);
+
+            foreach (TransitionTableSO other in RelatedTables().Where(table => table != _table).OrderBy(table => table.name))
+            {
+                AddFrom(TableContents.CollectUsed(other), EmbeddedAssets.TablePrefix(other.name));
+            }
+
+            AddFrom(TableContents.CollectEmbedded(_table), FieldSearchProvider.UnusedTable);
+
+            return candidates.OrderBy(candidate => candidate.Item.name).ToList();
+        }
+
+        // The tables in this table's file, and the sub-state machine tables they run (down through
+        // nested ones), in whatever file those are. At runtime a character resolves bindings through
+        // every Blackboard it registered, so a binding here reaches a child table's items too.
+        private List<TransitionTableSO> RelatedTables()
+        {
+            var tables = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(_table))
+                .OfType<TransitionTableSO>()
+                .ToList();
+
+            for (int i = 0; i < tables.Count; i++)
+            {
+                foreach (StateSO state in TableContents.CollectUsed(tables[i]).OfType<StateSO>())
+                {
+                    foreach (TransitionTableSO subTable in StateNodeView.FindSubTables(state))
+                    {
+                        if (subTable != null && !tables.Contains(subTable))
+                        {
+                            tables.Add(subTable);
+                        }
+                    }
+                }
+            }
+
+            return tables;
         }
 
         // ---------- Edits ----------
@@ -1129,7 +1184,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 return new List<StateElementSO>();
             }
 
-            var candidates = new HashSet<StateElementSO>(Candidates());
+            var candidates = new HashSet<StateElementSO>(Candidates().Select(candidate => candidate.Item));
             return DragAndDrop.objectReferences
                 .OfType<StateElementSO>()
                 .Distinct()
@@ -1353,15 +1408,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 rank[order[i]] = i;
             }
 
-            // TEMP debug: remove once reordering works.
-            Debug.Log($"[CategoryDrag] move '{category}' {(isAfter ? "after" : "before")} '{targetCategory}' -> wanted: {string.Join(" | ", order)}");
-
             EditParameters(list => SortByCategory(list, rank), recordUndo: false);
-
-            // TEMP debug: what the data says right after, and a moment later (in case something reverts it).
-            Debug.Log($"[CategoryDrag] after edit: {string.Join(" | ", CategoriesOf(Find(_table)))}");
-            schedule.Execute(() =>
-                Debug.Log($"[CategoryDrag] 0.5s later: {string.Join(" | ", CategoriesOf(Find(_table)))}")).ExecuteLater(500);
         }
 
         // Puts the parameters in category order, keeping their order inside each category.

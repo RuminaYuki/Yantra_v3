@@ -353,6 +353,7 @@ MonoBehaviour:
   _actions:
   - {fileID: 11400000, guid: 6eae33dd140d454449b194e609f8dcba, type: 2}
   - {fileID: -3044851564253865135}
+  - {fileID: -3517771076736875507}
 --- !u!114 &-6511436339678336874
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -393,7 +394,7 @@ MonoBehaviour:
   m_Name: A1-3GianSkillPointAction
   m_EditorClassIdentifier: Assembly-CSharp::GianSkillPointActionSO
   _selfAnchor: {fileID: 0}
-  gianSkillPointAmount: 1
+  gianSkillPointAmount: 0.4
 --- !u!114 &-6242332528130949996
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -457,6 +458,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6eae33dd140d454449b194e609f8dcba, type: 2}
   - {fileID: -3044851564253865135}
   - {fileID: -7103210771783147224}
+  - {fileID: -3517771076736875507}
 --- !u!114 &-5708123363941132723
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -639,6 +641,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: -8264602920639441770}
+--- !u!114 &-3517771076736875507
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c93ef58ce9ec37d40ad7673b3728821c, type: 3}
+  m_Name: SetWalkSpeedDontResetAction
+  m_EditorClassIdentifier: Assembly-CSharp::SetCurrentSpeedActionSO
+  _selfAnchor: {fileID: 0}
+  _speed: 3
+  _resetOnStateExit: 0
 --- !u!114 &-3203814133111262979
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -720,6 +737,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6eae33dd140d454449b194e609f8dcba, type: 2}
   - {fileID: -3044851564253865135}
   - {fileID: -2680126851520885937}
+  - {fileID: -3517771076736875507}
 --- !u!114 &-2688183219991940725
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -938,6 +956,56 @@ MonoBehaviour:
     - _target: {fileID: -5209419744961019733}
       _fieldName: minDuration
     _category: Block
+  - _name: WalkSpeed
+    _bindings:
+    - _target: {fileID: -3517771076736875507}
+      _fieldName: _speed
+    _category: Movement
+  - _name: 1-3DamageAmount
+    _bindings:
+    - _target: {fileID: -2688183219991940725}
+      _fieldName: _attackParameters.damageAmount
+    _category: Attack
+  - _name: 1-3.AttackRange
+    _bindings:
+    - _target: {fileID: -2688183219991940725}
+      _fieldName: _attackParameters.attackRange
+    _category: Attack
+  - _name: 1-3AttackRadius
+    _bindings:
+    - _target: {fileID: -2688183219991940725}
+      _fieldName: _attackParameters.attackRadius
+    _category: Attack
+  - _name: 1-3SkillPointAmount
+    _bindings:
+    - _target: {fileID: -6291850586370427187}
+      _fieldName: gianSkillPointAmount
+    _category: Attack
+  - _name: 4DamageAmount
+    _bindings:
+    - _target: {fileID: -379918208249940726}
+      _fieldName: _attackParameters.damageAmount
+    _category: Attack
+  - _name: 4AttackRange
+    _bindings:
+    - _target: {fileID: -379918208249940726}
+      _fieldName: _attackParameters.attackRange
+    _category: Attack
+  - _name: 4AttackRadius
+    _bindings:
+    - _target: {fileID: -379918208249940726}
+      _fieldName: _attackParameters.attackRadius
+    _category: Attack
+  - _name: 4SkillPointAmount
+    _bindings:
+    - _target: {fileID: 7666076097710857000}
+      _fieldName: gianSkillPointAmount
+    _category: Attack
+  - _name: FinishTimer
+    _bindings:
+    - _target: {fileID: 5325564258262602981}
+      _fieldName: extraSeconds
+    _category: Attack
 --- !u!114 &-564858410961468598
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1788,6 +1856,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6eae33dd140d454449b194e609f8dcba, type: 2}
   - {fileID: -3044851564253865135}
   - {fileID: -3203814133111262979}
+  - {fileID: -3517771076736875507}
 --- !u!114 &6672756542367253335
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1990,9 +2059,6 @@ MonoBehaviour:
         ExpectedResult: 1
       - Condition: {fileID: -7123984726283537296}
         ExpectedResult: 1
-    - Conditions:
-      - Condition: {fileID: 1942262165438113421}
-        ExpectedResult: 0
     ToState: {fileID: -6242332528130949996}
   - FromState: {fileID: 8272187635369190716}
     ConditionGroups:
@@ -2159,15 +2225,71 @@ MonoBehaviour:
   - State: {fileID: 8969437880881959208}
     Position: {x: 470, y: 66}
   - State: {fileID: 6670265286702352496}
-    Position: {x: 220, y: 183}
+    Position: {x: 220, y: 182}
   - State: {fileID: -2789887014011031364}
-    Position: {x: 220, y: 128}
+    Position: {x: 220, y: 127}
   - State: {fileID: -6130488365527246910}
-    Position: {x: 220, y: 238}
+    Position: {x: 220, y: 237}
   _entryNodePosition: {x: 0, y: 0}
   _anyStateNodePosition: {x: 0, y: 120}
-  _contentsFolders: []
-  _contentsFolderPaths: []
+  _contentsFolders:
+  - Item: {fileID: -8200212754630124856}
+    Folder: Animator
+  - Item: {fileID: 4175371618800386177}
+    Folder: Animator
+  - Item: {fileID: -5146936932185573294}
+    Folder: Animator
+  - Item: {fileID: -5623226520888454611}
+    Folder: Animator
+  - Item: {fileID: -6291850586370427187}
+    Folder: SkillPoint
+  - Item: {fileID: 7666076097710857000}
+    Folder: SkillPoint
+  - Item: {fileID: -3044851564253865135}
+    Folder: Animator
+  - Item: {fileID: -2688183219991940725}
+    Folder: AttackSystem
+  - Item: {fileID: -379918208249940726}
+    Folder: AttackSystem
+  - Item: {fileID: 6825589020098769331}
+    Folder: Animator
+  - Item: {fileID: -2888220224417743614}
+    Folder: Animator
+  - Item: {fileID: 2725419633125318152}
+    Folder: Animator
+  - Item: {fileID: -162011267551215395}
+    Folder: Animator
+  - Item: {fileID: 670086000666491939}
+    Folder: Animator
+  - Item: {fileID: 5325564258262602981}
+    Folder: Animator
+  - Item: {fileID: 3948874016495024156}
+    Folder: InputSystem
+  - Item: {fileID: 2165669171770484589}
+    Folder: InputSystem
+  - Item: {fileID: 8165531841799119906}
+    Folder: InputSystem
+  - Item: {fileID: 4062891677593580901}
+    Folder: InputSystem
+  - Item: {fileID: -6145865688711788712}
+    Folder: InputSystem
+  - Item: {fileID: 11400000, guid: 6eae33dd140d454449b194e609f8dcba, type: 2}
+    Folder: Locomotion
+  - Item: {fileID: -3517771076736875507}
+    Folder: Locomotion
+  _contentsFolderPaths:
+  - Group: Actions
+    Path: Animator
+  - Group: Actions
+    Path: SkillPoint
+  - Group: Actions
+    Path: AttackSystem
+  - Group: Conditions
+    Path: Animator
+  - Group: Conditions
+    Path: InputSystem
+  - Group: Actions
+    Path: Locomotion
 --- !u!114 &8969437880881959208
 MonoBehaviour:
   m_ObjectHideFlags: 0

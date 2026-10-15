@@ -9,7 +9,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Attack/AttackShpereCast/Set Attack Damage Parameter")]
 public class SetAttackDamageParameterActionSO : StateActionSO
 {
-    [SerializeField] private AttackParameters _attackParameters;
+    [SerializeField,Exposed] private AttackParameters _attackParameters;
     [Header("Damage Type (Optional)")]
     [Tooltip("Not required - leave empty if this attack doesn't need a specific damage type.")]
     [SerializeField] private DamageTypeID _damageType;

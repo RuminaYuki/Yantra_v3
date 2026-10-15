@@ -13,7 +13,7 @@ public class AnimationFinishedConditionSO : StateConditionSO
     [SerializeField] private string stateName;
     [SerializeField] private int layerIndex;
     [SerializeField, Range(0f, 1f)] private float finishTime = 1f;
-    [SerializeField, Min(0f)] private float extraSeconds = 0f;
+    [SerializeField, Min(0f), Exposed] private float extraSeconds = 0f;
 
     public float ExtraSeconds
     {

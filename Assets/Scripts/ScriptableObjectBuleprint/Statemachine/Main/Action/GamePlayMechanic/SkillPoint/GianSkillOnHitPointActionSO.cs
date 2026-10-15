@@ -10,7 +10,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/GamePlayMechanic/SkillPoint/Gian Skill On Hit Point")]
 public class GianSkillOnHitPointActionSO : StateActionSO
 {
-    [SerializeField] private float gianSkillPointAmount = 1f;
+    [SerializeField,Exposed] private float gianSkillPointAmount = 1f;
 
     public float GianSkillPointAmount
     {
