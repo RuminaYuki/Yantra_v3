@@ -35,6 +35,12 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         private ToolbarBreadcrumbs _breadcrumbs;
         private ContentsPanel _contentsPanel;
 
+        // Exposed parameters panel floating over the graph (like VFX Graph's Blackboard).
+        private ParameterBlackboard _blackboard;
+
+        [SerializeField]
+        private bool _showParameters = true;
+
         // What Unity's Inspector shows while an arrow is selected. See TransitionSelection.
         private TransitionSelection _transitionSelection;
 
@@ -85,6 +91,12 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             _graphView.SelectionChanged += ShowInUnityInspector;
             _graphView.SubStateMachineOpenRequested += EnterSubStateMachine;
 
+            // Added to the view itself, not as a graph element, so it doesn't pan/zoom
+            // and Load() doesn't clear it.
+            _blackboard = new ParameterBlackboard(_graphView);
+            _graphView.Add(_blackboard);
+            CreateParametersToggle(toolbar);
+
             _contentsPanel = new ContentsPanel(
                 this,
                 ShowContentsItem,
@@ -96,6 +108,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             var split = new TwoPaneSplitView(0, 220f, TwoPaneSplitViewOrientation.Horizontal);
             split.style.flexGrow = 1;
             split.Add(_contentsPanel);
+
+            // Renaming on a node uses the Contents panel's rename, so both work the same way.
+            _graphView.StateRenameRequested += (state, newName) => _contentsPanel.RenameFromGraph(state, newName);
             split.Add(_graphView);
             rootVisualElement.Add(split);
 
@@ -169,6 +184,27 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             _contentsPanel.SetTable(_table);
             _graphView.Load(_table);
+            _blackboard.SetTable(_table);
+        }
+
+        private void CreateParametersToggle(Toolbar toolbar)
+        {
+            var toggle = new ToolbarToggle
+            {
+                text = "Parameters",
+                tooltip = "Show the exposed parameters of this table."
+            };
+            toggle.SetValueWithoutNotify(_showParameters);
+            toggle.RegisterValueChangedCallback(evt =>
+            {
+                _showParameters = evt.newValue;
+                _blackboard.style.display = _showParameters ? DisplayStyle.Flex : DisplayStyle.None;
+                _graphView.ShowParameterTags = _showParameters;
+            });
+            toolbar.Add(toggle);
+
+            _blackboard.style.display = _showParameters ? DisplayStyle.Flex : DisplayStyle.None;
+            _graphView.ShowParameterTags = _showParameters;
         }
 
         // PlayerAction_TransitionTable > PlayerGun_State (PlayerGun_TransitionTable)
@@ -203,6 +239,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         {
             _graphView?.Reload();
             _contentsPanel?.Rebuild();
+            _blackboard?.Rebuild();
         }
 
         // Like Animator: the selected state or arrow also shows in Unity's own Inspector.

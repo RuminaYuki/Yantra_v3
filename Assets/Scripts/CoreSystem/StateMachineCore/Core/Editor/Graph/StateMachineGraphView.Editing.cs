@@ -27,6 +27,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             // TrickleDown: runs before the clicked node/edge and the GraphView manipulators see the click.
             RegisterCallback<MouseDownEvent>(OnMouseDownWhileConnecting, TrickleDown.TrickleDown);
             RegisterCallback<KeyDownEvent>(OnKeyDownWhileConnecting);
+            RegisterCallback<KeyDownEvent>(OnKeyDownRename);
 
             RegisterCallback<DetachFromPanelEvent>(_ => DestroyStateSearchProvider());
         }
@@ -115,6 +116,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                     _ => SetInitialState(stateNode.State),
                     isInitial ? DropdownMenuAction.Status.Disabled : DropdownMenuAction.Status.Normal);
                 evt.menu.AppendSeparator();
+                evt.menu.AppendAction("Rename", _ => BeginRename(stateNode));
                 // A state inside this table's file is deleted with it; a shared state file stays.
                 bool isEmbedded = AssetDatabase.GetAssetPath(stateNode.State) == AssetDatabase.GetAssetPath(_table);
                 evt.menu.AppendAction(isEmbedded ? "Delete" : "Remove from Table", _ => DeleteFromMenu(stateNode));
@@ -348,6 +350,24 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             {
                 CreateTransition(source, target);
             }
+        }
+
+        // ---------- Rename ----------
+
+        // F2 renames the selected state, like the Project window.
+        private void OnKeyDownRename(KeyDownEvent evt)
+        {
+            if (evt.keyCode == KeyCode.F2 && selection.Count == 1 && selection[0] is StateNodeView stateNode)
+            {
+                BeginRename(stateNode);
+                evt.StopPropagation();
+            }
+        }
+
+        // The window does the rename (the Contents panel's rules: Undo, sub-state machine pieces follow).
+        public void BeginRename(StateNodeView stateNode)
+        {
+            stateNode.BeginRename(newName => StateRenameRequested?.Invoke(stateNode.State, newName));
         }
 
         private void OnKeyDownWhileConnecting(KeyDownEvent evt)

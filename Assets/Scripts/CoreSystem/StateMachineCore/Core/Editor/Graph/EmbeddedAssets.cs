@@ -91,6 +91,51 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             return asset;
         }
 
+        // Ctrl+D / Ctrl+V in Contents: copies of the items in this table's file, with the next free
+        // names ("Chase_Condition 1"). Nothing uses them yet. Returns original -> copy.
+        // From this file: only the items (a copied state shares its actions, like Animator's Duplicate).
+        // From another file: also whatever they use there, so no copy points into someone else's file.
+        public static Dictionary<ScriptableObject, ScriptableObject> CopyInto(
+            TransitionTableSO table,
+            IEnumerable<ScriptableObject> items)
+        {
+            string path = AssetDatabase.GetAssetPath(table);
+            var copies = new Dictionary<Object, Object>();
+            var result = new Dictionary<ScriptableObject, ScriptableObject>();
+
+            foreach (ScriptableObject item in items)
+            {
+                IEnumerable<ScriptableObject> needed = AssetDatabase.GetAssetPath(item) == path
+                    ? new[] { item }
+                    : TableContents.ReachableInSameFile(item).Where(original => original is not TransitionTableSO);
+
+                foreach (ScriptableObject original in needed)
+                {
+                    if (copies.ContainsKey(original))
+                    {
+                        continue;
+                    }
+
+                    ScriptableObject copy = Object.Instantiate(original);
+                    copy.name = UniqueName(table, original.name);
+                    Undo.RegisterCreatedObjectUndo(copy, $"Copy {original.name}");
+                    AssetDatabase.AddObjectToAsset(copy, table);
+                    copies[original] = copy;
+                }
+
+                result[item] = (ScriptableObject)copies[item];
+            }
+
+            // Copies that use each other point at each other (only happens for another file's items).
+            foreach (Object copy in copies.Values)
+            {
+                Remap(copy, copies);
+            }
+
+            AssetDatabase.SaveAssetIfDirty(table);
+            return result;
+        }
+
         // A ready-to-run sub-state machine, all inside the table's file and already wired:
         //   NewSub_State -> NewSubSubStateMachine_Action -> NewSub_TransitionTable (initial: NewSubStart_State)
         // A table needs an initial state to run, so the child gets an empty one to start from.
@@ -365,6 +410,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // break at runtime: the innermost array entry holding it is removed (an action in a state's
         // list, a transition from or to it, a condition in its group, a node position, a folder entry);
         // a field outside any array (e.g. the initial state) becomes None. The item itself stays.
+        // Exposed parameters are the exception: the row stays with no source (shown as Missing), so
+        // characters that override it by name keep their value until it's pointed at a new source.
         public static void RemoveUses(TransitionTableSO table, Object item)
         {
             foreach (Object asset in AssetsInFile(table).Where(asset => asset != item))
@@ -378,7 +425,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                     if (property.propertyType == SerializedPropertyType.ObjectReference &&
                         property.objectReferenceValue == item)
                     {
-                        targets.Add(InnermostArrayElement(property.propertyPath));
+                        targets.Add(asset is ExposedParametersSO
+                            ? property.propertyPath
+                            : InnermostArrayElement(property.propertyPath));
                     }
                 }
 

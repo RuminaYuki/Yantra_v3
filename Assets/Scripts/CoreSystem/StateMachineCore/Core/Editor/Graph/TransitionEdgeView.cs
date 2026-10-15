@@ -17,9 +17,12 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         private const float SideOffset = 8f;
         private const float ArrowLength = 10f;
         private const float ArrowHalfWidth = 6f;
-        // Arrow sits this many pixels after the source node's border, the same on every line.
+        // Arrow sits this many pixels after the source node's border, the same on every line, so lines
+        // that cross keep their arrows apart.
         private const float ArrowDistanceFromStart = 15f;
         private const float LineWidth = 2f;
+        // How far the ⚙ badge sits beside the middle of the line.
+        private const float BadgeOffset = 6f;
         private const float ClickDistance = 6f;
         private const float BoundsPadding = 12f;
 
@@ -114,7 +117,13 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 return;
             }
 
-            Vector2 direction = toRect.center - fromRect.center;
+            // Aim between the title bars, not the node centers: nodes are different heights (a sub-state
+            // machine has an extra line, a state with parameters has a badge), so two nodes placed in a
+            // row would get a slanted line from center to center.
+            Vector2 fromAnchor = AnchorOf(From, fromRect);
+            Vector2 toAnchor = AnchorOf(To, toRect);
+
+            Vector2 direction = toAnchor - fromAnchor;
             if (direction.sqrMagnitude < 1f)
             {
                 return;
@@ -123,8 +132,11 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             direction.Normalize();
             Vector2 side = new Vector2(-direction.y, direction.x) * SideOffset;
 
-            Vector2 start = PointOnBorder(fromRect, direction) + side;
-            Vector2 end = PointOnBorder(toRect, -direction) + side;
+            // Shift the whole line sideways first, then find where it leaves each node, so both ends sit
+            // exactly on the borders. (Shifting the border points afterwards could push an end, and the
+            // arrow near it, under the node.)
+            Vector2 start = ExitPoint(fromRect, fromAnchor + side, direction);
+            Vector2 end = ExitPoint(toRect, toAnchor + side, -direction);
 
             // This element only covers the line, so clicks elsewhere reach the nodes/background.
             Rect bounds = Rect.MinMaxRect(
@@ -140,20 +152,93 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             _start = start - bounds.position;
             _end = end - bounds.position;
+            PlaceParameterTags();
             MarkDirtyRepaint();
         }
 
-        // Where a ray from the rect's center in this direction leaves the rect.
-        private static Vector2 PointOnBorder(Rect rect, Vector2 direction)
-        {
-            float toSide = direction.x != 0f
-                ? rect.width * 0.5f / Mathf.Abs(direction.x)
-                : float.PositiveInfinity;
-            float toTopBottom = direction.y != 0f
-                ? rect.height * 0.5f / Mathf.Abs(direction.y)
-                : float.PositiveInfinity;
+        private ParameterTagLabel _parameterTags;
 
-            return rect.center + direction * Mathf.Min(toSide, toTopBottom);
+        // Exposed parameters set on this arrow's conditions, written beside its middle (see
+        // StateMachineGraphView.RefreshParameterTags).
+        public void SetParameterTags(IReadOnlyList<string> names)
+        {
+            if (_parameterTags == null)
+            {
+                _parameterTags = new ParameterTagLabel();
+                _parameterTags.style.position = Position.Absolute;
+                hierarchy.Add(_parameterTags);
+            }
+
+            _parameterTags.Show(names);
+            PlaceParameterTags();
+        }
+
+        // Centered under the middle of the line, pushed to the side the line is shifted to, so the
+        // text of A -> B and B -> A don't overlap.
+        private void PlaceParameterTags()
+        {
+            if (_parameterTags == null)
+            {
+                return;
+            }
+
+            Vector2 line = _end - _start;
+            Vector2 side = line.sqrMagnitude > 1f
+                ? new Vector2(-line.y, line.x).normalized
+                : Vector2.up;
+            Vector2 middle = (_start + _end) * 0.5f + side * BadgeOffset;
+
+            _parameterTags.style.left = middle.x;
+            _parameterTags.style.top = middle.y;
+            _parameterTags.style.translate = new Translate(
+                Length.Percent(-50),
+                side.y < 0f ? Length.Percent(-100) : Length.Percent(0));
+        }
+
+        // The middle of the node's title bar (in the same space as nodeRect), or the node's center if it
+        // has none / isn't laid out yet.
+        private Vector2 AnchorOf(Node node, Rect nodeRect)
+        {
+            VisualElement title = node.titleContainer;
+            if (title == null || title.resolvedStyle.display == DisplayStyle.None || float.IsNaN(title.layout.height))
+            {
+                return nodeRect.center;
+            }
+
+            Rect titleRect = title.ChangeCoordinatesTo(parent, new Rect(Vector2.zero, title.layout.size));
+            return new Vector2(nodeRect.center.x, titleRect.center.y);
+        }
+
+        // Where a ray from `origin` (inside the rect) going in `direction` leaves the rect. An origin
+        // already outside (a tiny node shifted sideways) stays where it is.
+        private static Vector2 ExitPoint(Rect rect, Vector2 origin, Vector2 direction)
+        {
+            float t = float.PositiveInfinity;
+
+            if (direction.x > 0.0001f)
+            {
+                t = Mathf.Min(t, (rect.xMax - origin.x) / direction.x);
+            }
+            else if (direction.x < -0.0001f)
+            {
+                t = Mathf.Min(t, (rect.xMin - origin.x) / direction.x);
+            }
+
+            if (direction.y > 0.0001f)
+            {
+                t = Mathf.Min(t, (rect.yMax - origin.y) / direction.y);
+            }
+            else if (direction.y < -0.0001f)
+            {
+                t = Mathf.Min(t, (rect.yMin - origin.y) / direction.y);
+            }
+
+            if (float.IsInfinity(t) || t < 0f)
+            {
+                t = 0f;
+            }
+
+            return origin + direction * t;
         }
 
         private void OnGenerateVisualContent(MeshGenerationContext context)

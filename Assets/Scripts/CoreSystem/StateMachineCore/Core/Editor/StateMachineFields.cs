@@ -13,6 +13,7 @@ namespace Yuki.Learning.StateMachine.Editor
         public const string NodePositions = "_nodePositions";
         public const string ContentsFolders = "_contentsFolders";
         public const string ContentsFolderPaths = "_contentsFolderPaths";
+        public const string ExposedParameters = "_exposedParameters";
 
         // StateSO
         public const string Actions = "_actions";

@@ -75,6 +75,22 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             AfterCreate(state, folderPath, undoGroup);
         }
 
+        // Plain states, actions and conditions (this file's or shared). Sub-state machine pieces are wired
+        // to each other by exit ids and child tables, so a copy of one on its own would be broken.
+        private static bool CanCopy(ScriptableObject item)
+        {
+            if (item is TransitionTableSO ||
+                item is SubStateMachineActionSO ||
+                item is ExitSubStateMachineActionSO ||
+                item is SubStateMachineExitedConditionSO)
+            {
+                return false;
+            }
+
+            return item is not StateSO state ||
+                   !TableContents.ActionsOf(state).Any(action => action is SubStateMachineActionSO);
+        }
+
         // A new State goes on the graph; a new Action / Condition is shown in the Inspector (and as ○
         // until something uses it). Then it goes in the folder, the Undo steps become one, and its name
         // is ready to type.
@@ -300,6 +316,12 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             });
         }
 
+        // A state renamed from its node in the graph, same rules as renaming its row here.
+        public void RenameFromGraph(Object item, string newName)
+        {
+            Rename(item, newName);
+        }
+
         private void Rename(Object item, string newName)
         {
             newName = newName?.Trim();
@@ -490,6 +512,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
                 return;
             }
+
+            AppendClipboardActions(evt.menu, item);
 
             if (isEmbedded)
             {

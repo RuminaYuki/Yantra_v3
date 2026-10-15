@@ -35,12 +35,16 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             public string Group;
             public Object Item;
             public string FolderPath;
+
+            // Set when the drag starts: Item, plus the rest of the selection in its group if Item was selected.
+            public Object[] Items;
         }
 
         // ---------- Folder data ----------
 
-        // Loads the table's two folder arrays, runs the edit, writes them back (one Undo step), redraws.
-        private void EditFolders(Action<FolderData> edit)
+        // Loads the table's two folder arrays, runs the edit, writes them back (one Undo step unless
+        // recordUndo is false), redraws.
+        private void EditFolders(Action<FolderData> edit, bool recordUndo = true)
         {
             FolderData folders = FolderData.Load(_table);
             edit(folders);
@@ -48,7 +52,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             // Entries may stay for anything the table uses or holds in its file.
             var known = new HashSet<ScriptableObject>(TableContents.CollectUsed(_table));
             known.UnionWith(TableContents.CollectEmbedded(_table));
-            folders.Save(_table, known);
+            folders.Save(_table, known, recordUndo);
 
             Rebuild();
         }
@@ -95,7 +99,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             }
 
             // Also cleans up: entries for items not in `known`, empty names and duplicate folders are dropped.
-            public void Save(TransitionTableSO table, HashSet<ScriptableObject> known)
+            public void Save(TransitionTableSO table, HashSet<ScriptableObject> known, bool recordUndo = true)
             {
                 var serializedTable = new SerializedObject(table);
 
@@ -123,7 +127,15 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                     entry.FindPropertyRelative("Path").stringValue = keptPaths[i].Path;
                 }
 
-                serializedTable.ApplyModifiedProperties();
+                if (recordUndo)
+                {
+                    serializedTable.ApplyModifiedProperties();
+                }
+                else
+                {
+                    serializedTable.ApplyModifiedPropertiesWithoutUndo();
+                    EditorUtility.SetDirty(table);
+                }
             }
 
             // Every folder to draw in a group: created ones, ones holding items, and all their parents.
@@ -322,13 +334,35 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
                 _dragCandidate = null;
 
+                // A new payload per drag: the row's own one is reused, but the selection changes.
+                DragPayload dragged = payload.Item != null
+                    ? new DragPayload { Group = payload.Group, Item = payload.Item, Items = DraggedItems(payload) }
+                    : payload;
+
                 DragAndDrop.PrepareStartDrag();
-                DragAndDrop.SetGenericData(DragDataKey, payload);
-                DragAndDrop.objectReferences = payload.Item != null ? new[] { payload.Item } : Array.Empty<Object>();
-                DragAndDrop.StartDrag(payload.Item != null ? payload.Item.name : NameOf(payload.FolderPath));
+                DragAndDrop.SetGenericData(DragDataKey, dragged);
+                DragAndDrop.objectReferences = dragged.Items ?? Array.Empty<Object>();
+                DragAndDrop.StartDrag(
+                    dragged.Items == null ? NameOf(dragged.FolderPath) :
+                    dragged.Items.Length > 1 ? $"{dragged.Items.Length} items" :
+                    dragged.Item.name);
             });
 
             element.RegisterCallback<PointerUpEvent>(_ => _dragCandidate = null);
+        }
+
+        // Like the Project window: dragging a selected row takes everything selected in its group along;
+        // dragging a row that isn't selected takes only that one.
+        private Object[] DraggedItems(DragPayload payload)
+        {
+            if (payload.Group == null || !IsSelected(payload.Item))
+            {
+                return new[] { payload.Item };
+            }
+
+            return SelectedRowItems()
+                .Where(item => _rowGroups.TryGetValue(item, out string group) && group == payload.Group)
+                .ToArray();
         }
 
         // The whole foldout takes drops (rows inside it too), but only the innermost one handles it.
@@ -369,16 +403,24 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             return payload.Item != null || !IsSameOrInside(targetFolder, payload.FolderPath);
         }
 
+        // Without Undo: right after a drag ends, Unity can revert the current Undo group on its own
+        // (undoRedoPerformed fires), which would throw the move away. Folders only organize this panel.
         private void Drop(DragPayload payload, string group, string targetFolder)
         {
             if (payload.Item != null)
             {
-                EditFolders(folders => folders.SetItemFolder(payload.Item, targetFolder));
+                EditFolders(folders =>
+                {
+                    foreach (Object item in payload.Items)
+                    {
+                        folders.SetItemFolder(item, targetFolder);
+                    }
+                }, recordUndo: false);
             }
             else
             {
                 string newPath = JoinPath(targetFolder, NameOf(payload.FolderPath));
-                EditFolders(folders => folders.MoveFolder(group, payload.FolderPath, newPath));
+                EditFolders(folders => folders.MoveFolder(group, payload.FolderPath, newPath), recordUndo: false);
             }
         }
 

@@ -20,6 +20,10 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
         private TransitionItem[] _transitions =
             Array.Empty<TransitionItem>();
 
+        [SerializeField, HideInInspector]
+        private ExposedParametersSO _exposedParameters;
+        public ExposedParametersSO ExposedParameters => _exposedParameters;
+
         // Graph editor layout only (StateMachineGraphWindow). Not used at runtime.
         [SerializeField, HideInInspector]
         private NodePosition[] _nodePositions =
@@ -59,6 +63,8 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
                 throw new InvalidOperationException(
                     $"Transition table {name} does not have an initial state.");
             }
+
+            StateMachineParameters.Register(stateMachine, _exposedParameters);
 
             var runtimeStates =
                 new Dictionary<StateSO, State>();
@@ -289,7 +295,7 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
             }
 
             Condition newCondition =
-                conditionSO.CreateCondition();
+                StateMachineParameters.Resolve(stateMachine, conditionSO).CreateCondition();
 
             if (newCondition == null)
             {

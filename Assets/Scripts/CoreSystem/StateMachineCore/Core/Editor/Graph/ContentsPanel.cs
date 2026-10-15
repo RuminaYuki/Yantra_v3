@@ -19,7 +19,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
     //   Actions     (with folders)
     //   Conditions  (with folders)
     // Marks: ● inside this table's file (a sub-asset), ◆ a separate shared file, ○ inside the file but
-    // nothing uses it. Clicking a row shows it in Unity's Inspector; the right-click menus create,
+    // nothing uses it. Clicking a row shows it in Unity's Inspector (Ctrl / Shift-click select several,
+    // and dragging a selected row drags them all); the right-click menus create,
     // rename, share, copy and delete. Typing in the search field shows a flat list of matches instead.
     // Looks are in ContentsPanel.uss. The code is split by job:
     //   ContentsPanel.cs            layout, rows, selection, search
@@ -53,6 +54,13 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // Each item's row, for the selection highlight and so a new item can go straight into rename.
         private readonly Dictionary<Object, (VisualElement Row, Label Label)> _rows =
             new Dictionary<Object, (VisualElement Row, Label Label)>();
+
+        // Which group (States, Actions, Conditions) each row is in; rows outside those groups aren't here.
+        // Shift-click ranges and multi-item drags stay inside one group.
+        private readonly Dictionary<Object, string> _rowGroups = new Dictionary<Object, string>();
+
+        // The last row clicked without Shift: where a Shift-click range starts.
+        private Object _selectionAnchor;
 
         // Groups, folders and fold arrows the user closed, so a rebuild keeps them closed.
         private readonly HashSet<string> _collapsed = new HashSet<string>();
@@ -114,6 +122,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             });
 
             RegisterDragEndCallbacks();
+            RegisterClipboardCommands();
         }
 
         public void SetTable(TransitionTableSO table)
@@ -126,6 +135,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         {
             _list.Clear();
             _rows.Clear();
+            _rowGroups.Clear();
             ResetDropHighlight();
             ResetRenameState();
 
@@ -276,6 +286,87 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         }
 
         private static bool IsSelected(Object item) => Array.IndexOf(Selection.objects, item) >= 0;
+
+        // ---------- Multi-select (like the Project window) ----------
+
+        // Ctrl / Cmd-click: adds the item to the selection, or takes it out.
+        private void ToggleSelected(Object item)
+        {
+            List<Object> selected = SelectedRowItems().ToList();
+            if (!selected.Remove(item))
+            {
+                selected.Add(item);
+            }
+
+            _selectionAnchor = item;
+            Selection.objects = selected.ToArray();
+        }
+
+        // Shift-click: everything shown between the anchor and this item, in the same group.
+        // Without an anchor in that group, just this item.
+        private void SelectRange(Object item)
+        {
+            if (_selectionAnchor == null ||
+                !_rowGroups.TryGetValue(item, out string group) ||
+                !_rowGroups.TryGetValue(_selectionAnchor, out string anchorGroup) ||
+                group != anchorGroup)
+            {
+                _selectionAnchor = item;
+                Selection.objects = new[] { item };
+                return;
+            }
+
+            List<Object> shown = ShownItemsInOrder()
+                .Where(shownItem => _rowGroups.TryGetValue(shownItem, out string shownGroup) && shownGroup == group)
+                .ToList();
+
+            int from = shown.IndexOf(_selectionAnchor);
+            int to = shown.IndexOf(item);
+            if (from < 0 || to < 0)
+            {
+                Selection.objects = new[] { item };
+                return;
+            }
+
+            // The anchor stays where it is, so the next Shift-click grows or shrinks from it.
+            Selection.objects = shown
+                .Skip(Math.Min(from, to))
+                .Take(Math.Abs(to - from) + 1)
+                .ToArray();
+        }
+
+        // Selected things that have a row here (not a graph arrow, not something from another table).
+        private IEnumerable<Object> SelectedRowItems()
+        {
+            return Selection.objects.Where(selected => selected != null && _rows.ContainsKey(selected));
+        }
+
+        // Rows top to bottom as drawn, skipping ones inside a closed group, folder or fold arrow.
+        private IEnumerable<Object> ShownItemsInOrder()
+        {
+            var itemsByRow = _rows.ToDictionary(pair => pair.Value.Row, pair => pair.Key);
+
+            foreach (VisualElement row in _list.Query(className: RowClass).ToList())
+            {
+                if (itemsByRow.TryGetValue(row, out Object item) && !IsInsideHidden(row))
+                {
+                    yield return item;
+                }
+            }
+        }
+
+        private bool IsInsideHidden(VisualElement element)
+        {
+            for (VisualElement parent = element.parent; parent != null && parent != _list; parent = parent.parent)
+            {
+                if (parent.resolvedStyle.display == DisplayStyle.None)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
 
         // ---------- Groups ----------
 
@@ -493,6 +584,10 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             }
 
             _rows[item] = (row, label);
+            if (group != null)
+            {
+                _rowGroups[item] = group;
+            }
 
             row.RegisterCallback<ClickEvent>(evt =>
             {
@@ -504,8 +599,17 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 {
                     BeginRename(row, label, item);
                 }
+                else if (evt.actionKey)
+                {
+                    ToggleSelected(item);
+                }
+                else if (evt.shiftKey)
+                {
+                    SelectRange(item);
+                }
                 else
                 {
+                    _selectionAnchor = item;
                     _onItemClicked?.Invoke(item);
                 }
             });
@@ -520,8 +624,11 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
         // F2 renames. Delete, like the Project window: Delete... for something in this file, Remove from
         // Table... for a shared file. Unity sends Delete as a "SoftDelete" / "Delete" command.
+        // With several rows selected, Delete asks once for all of them (see ContentsPanel.Clipboard.cs).
+        // Copy / Paste / Duplicate / Select All are handled for the whole panel there too.
         private void RegisterRowKeys(VisualElement row, Label label, ScriptableObject item, bool isEmbedded)
         {
+
             row.RegisterCallback<KeyDownEvent>(evt =>
             {
                 if (evt.keyCode == KeyCode.F2)
@@ -551,7 +658,12 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 // Running the dialog while the command is still being sent around isn't safe.
                 schedule.Execute(() =>
                 {
-                    if (isEmbedded)
+                    List<ScriptableObject> targets = SelectionTargetsFor(item);
+                    if (targets.Count > 1)
+                    {
+                        DeleteItems(targets);
+                    }
+                    else if (isEmbedded)
                     {
                         DeleteItem(item);
                     }

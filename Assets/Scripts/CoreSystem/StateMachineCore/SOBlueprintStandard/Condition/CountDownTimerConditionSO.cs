@@ -8,8 +8,8 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 public class CountDownTimerConditionSO : StateConditionSO
 {
     [Header("Set Max Duration to 0 to disable randomization")]
-    [SerializeField] private float minDuration = 0f;
-    [SerializeField] private float maxDuration = 0f;
+    [SerializeField,Exposed] private float minDuration = 0f;
+    [SerializeField,Exposed] private float maxDuration = 0f;
 
     #region Properties
     public float MinDuration

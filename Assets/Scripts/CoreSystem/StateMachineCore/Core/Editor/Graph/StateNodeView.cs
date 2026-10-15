@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
@@ -96,6 +97,24 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         {
         }
 
+        private ParameterTagLabel _parameterTags;
+
+        // How many exposed parameters this state's actions have, as a badge inside the node under the
+        // title (see StateMachineGraphView.RefreshParameterTags). Inside, so it never runs into arrows.
+        public void SetParameterTags(IReadOnlyList<string> names)
+        {
+            if (_parameterTags == null)
+            {
+                _parameterTags = new ParameterTagLabel();
+                _parameterTags.style.marginLeft = 6f;
+                _parameterTags.style.marginTop = 3f;
+                _parameterTags.style.marginBottom = 3f;
+                mainContainer.Add(_parameterTags);
+            }
+
+            _parameterTags.Show(names);
+        }
+
         // Play Mode: outline the state the running StateMachine is in.
         public void SetActive(bool active)
         {
@@ -114,6 +133,80 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             mainContainer.style.borderRightColor = color;
         }
 
+        // Like the Contents panel: the title becomes a text field. Enter or clicking away keeps
+        // the new name, Escape cancels. onRenamed gets the typed name (the node is rebuilt after).
+        public void BeginRename(Action<string> onRenamed)
+        {
+            Label titleLabel = titleContainer.Q<Label>("title-label");
+
+            // Already renaming.
+            if (titleLabel == null || titleLabel.style.display == DisplayStyle.None)
+            {
+                return;
+            }
+
+            var field = new TextField { value = State.name };
+            field.style.flexGrow = 1;
+            field.style.marginLeft = 4;
+            field.style.marginRight = 4;
+            titleLabel.style.display = DisplayStyle.None;
+            titleContainer.Insert(titleContainer.IndexOf(titleLabel) + 1, field);
+
+            bool isFinished = false;
+            void Finish(bool keep)
+            {
+                if (isFinished)
+                {
+                    return;
+                }
+
+                isFinished = true;
+                string newName = field.value;
+                field.RemoveFromHierarchy();
+                titleLabel.style.display = DisplayStyle.Flex;
+
+                // Renaming reloads the graph, which isn't safe while this event is still being sent.
+                if (keep)
+                {
+                    schedule.Execute(() => onRenamed(newName));
+                }
+            }
+
+            // TrickleDown: catch Enter / Escape before the text field itself uses them.
+            field.RegisterCallback<KeyDownEvent>(evt =>
+            {
+                if (evt.keyCode == KeyCode.Return || evt.keyCode == KeyCode.KeypadEnter)
+                {
+                    Finish(true);
+                    evt.StopPropagation();
+                }
+                else if (evt.keyCode == KeyCode.Escape)
+                {
+                    Finish(false);
+                    evt.StopPropagation();
+                }
+            }, TrickleDown.TrickleDown);
+            field.RegisterCallback<FocusOutEvent>(_ => Finish(true));
+
+            // Keys typed here are for the text, not the graph (Delete must not delete the node).
+            field.RegisterCallback<KeyDownEvent>(evt => evt.StopPropagation());
+            field.RegisterCallback<ValidateCommandEvent>(evt => evt.StopPropagation());
+            field.RegisterCallback<ExecuteCommandEvent>(evt => evt.StopPropagation());
+
+            // Selecting text with the mouse must not drag the node or open it (double-click).
+            field.RegisterCallback<MouseDownEvent>(evt => evt.StopPropagation());
+            field.RegisterCallback<MouseMoveEvent>(evt => evt.StopPropagation());
+            field.RegisterCallback<PointerDownEvent>(evt => evt.StopPropagation());
+            field.RegisterCallback<PointerMoveEvent>(evt => evt.StopPropagation());
+
+            // The field has to be on screen before it can take focus.
+            field.schedule.Execute(() =>
+            {
+                field.Focus();
+                field.SelectAll();
+            });
+        }
+
         private void OnMouseDown(MouseDownEvent evt)
         {
             if (evt.clickCount != 2)
@@ -128,9 +221,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             }
             else
             {
-                // Double-click shows the StateSO (and its actions) in the Inspector.
-                Selection.activeObject = State;
-                EditorGUIUtility.PingObject(State);
+                // Double-click renames (a click already shows the state in the Inspector).
+                GetFirstAncestorOfType<StateMachineGraphView>()?.BeginRename(this);
             }
 
             evt.StopPropagation();

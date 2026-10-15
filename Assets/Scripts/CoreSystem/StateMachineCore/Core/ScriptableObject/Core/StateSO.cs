@@ -19,7 +19,7 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
             for (int i = 0; i < _actions.Length; i++)
             {
                 runtimeActions[i] =
-                    _actions[i].CreateAction(stateMachine);
+                    StateMachineParameters.Resolve(stateMachine, _actions[i]).CreateAction(stateMachine);
             }
 
             State state = new State(

@@ -10,7 +10,7 @@ public class DistanceConditionSO : StateConditionSO
 {
     [Tooltip("Required. Self Anchor is where the distance is measured from (empty = Owner).")]
     [SerializeField] private AnchorIDSO _targetAnchor;
-    [SerializeField, Min(0f)] private float _distance = 1f;
+    [SerializeField, Min(0f),Exposed] private float _distance = 1f;
 
     public float Distance
     {

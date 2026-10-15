@@ -45,6 +45,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                     if (property.propertyType != SerializedPropertyType.ObjectReference ||
                         property.objectReferenceValue is not ScriptableObject child ||
                         child is TransitionTableSO ||
+                        child is ExposedParametersSO ||   // naming a field doesn't use the item
                         !visited.Add(child))
                     {
                         continue;
@@ -78,9 +79,11 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 SerializedProperty property = new SerializedObject(current).GetIterator();
                 while (property.Next(true))
                 {
-                    // A Contents folder entry only files an item away; it doesn't use it.
+                    // A Contents folder entry only files an item away, and an exposed parameter only
+                    // names one of its fields; neither uses it.
                     if (current is TransitionTableSO &&
-                        property.propertyPath.StartsWith(StateMachineFields.ContentsFolders, StringComparison.Ordinal))
+                        (property.propertyPath.StartsWith(StateMachineFields.ContentsFolders, StringComparison.Ordinal) ||
+                         property.propertyPath.StartsWith(StateMachineFields.ExposedParameters, StringComparison.Ordinal)))
                     {
                         continue;
                     }
@@ -165,7 +168,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         private static bool IsEditorOnly(string path)
         {
             return path.StartsWith(StateMachineFields.NodePositions, StringComparison.Ordinal) ||
-                path.StartsWith(StateMachineFields.ContentsFolders, StringComparison.Ordinal);
+                path.StartsWith(StateMachineFields.ContentsFolders, StringComparison.Ordinal) ||
+                path.StartsWith(StateMachineFields.ExposedParameters, StringComparison.Ordinal);
         }
 
         // "_transitions.Array.data[3].ConditionGroups..." -> 3; anything else -> -1.

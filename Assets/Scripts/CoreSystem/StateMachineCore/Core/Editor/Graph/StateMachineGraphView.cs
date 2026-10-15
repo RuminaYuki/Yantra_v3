@@ -39,6 +39,15 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // Asks the window to show a sub-state machine's table (the state it belongs to, its table).
         public event Action<StateSO, TransitionTableSO> SubStateMachineOpenRequested;
 
+        // The window this graph is in, for popups that need screen positions (e.g. the Parameters panel).
+        public EditorWindow Window => _window;
+
+        // Delete key on rows of the Parameters panel (ParameterBlackboard listens).
+        public event Action<List<BlackboardField>> ParameterFieldsDeleted;
+
+        // A state's new name typed on its node (the state, the new name).
+        public event Action<StateSO, string> StateRenameRequested;
+
         public StateMachineGraphView(EditorWindow window)
         {
             _window = window;
@@ -245,9 +254,147 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             }
 
             CreateEdges(_serializedTable, initialState, entryNode, anyStateNode, stateNodes);
+            RefreshParameterTags();
 
             // New nodes start un-highlighted, so apply the Play Mode highlight again.
             ApplyActiveState();
+        }
+
+        // ---------- Parameter tags ----------
+
+        // Off when the window's Parameters toggle hides the panel.
+        private bool _showParameterTags = true;
+
+        public bool ShowParameterTags
+        {
+            get => _showParameterTags;
+            set
+            {
+                _showParameterTags = value;
+                RefreshParameterTags();
+            }
+        }
+
+        // Writes each exposed parameter's name where it's used: under the state whose action it sets,
+        // beside the arrow whose condition it sets. Called after Load and whenever the panel rebuilds.
+        public void RefreshParameterTags()
+        {
+            var namesByTarget = new Dictionary<ScriptableObject, List<string>>();
+            ExposedParametersSO parameters = _table != null ? ParameterBlackboard.Find(_table) : null;
+
+            if (parameters != null && _showParameterTags)
+            {
+                foreach (ExposedParameter parameter in parameters.Parameters)
+                foreach (ExposedBinding binding in parameter.Bindings)
+                {
+                    if (binding.Target == null)
+                    {
+                        continue;
+                    }
+
+                    if (!namesByTarget.TryGetValue(binding.Target, out List<string> names))
+                    {
+                        names = new List<string>();
+                        namesByTarget[binding.Target] = names;
+                    }
+
+                    names.Add(parameter.Name);
+                }
+            }
+
+            _serializedTable?.Update();
+
+            foreach (GraphElement element in graphElements.ToList())
+            {
+                switch (element)
+                {
+                    case StateNodeView node when node.State != null:
+                        node.SetParameterTags(NamesFor(TableContents.ActionsOf(node.State), namesByTarget));
+                        break;
+                    case TransitionEdgeView edge:
+                        edge.SetParameterTags(NamesFor(ConditionsOf(edge), namesByTarget));
+                        break;
+                }
+            }
+        }
+
+        private static List<string> NamesFor(
+            IEnumerable<ScriptableObject> items,
+            Dictionary<ScriptableObject, List<string>> namesByTarget)
+        {
+            var result = new List<string>();
+            foreach (ScriptableObject item in items)
+            {
+                if (item != null && namesByTarget.TryGetValue(item, out List<string> names))
+                {
+                    foreach (string name in names)
+                    {
+                        if (!result.Contains(name))
+                        {
+                            result.Add(name);
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        // Every condition in the arrow's transitions, and the ones wrapped inside those (e.g. a delayed
+        // condition holding another).
+        private List<ScriptableObject> ConditionsOf(TransitionEdgeView edge)
+        {
+            var found = new List<ScriptableObject>();
+            if (_serializedTable == null)
+            {
+                return found;
+            }
+
+            SerializedProperty list = _serializedTable.FindProperty(
+                edge.IsAnyState ? StateMachineFields.AnyTransitions : StateMachineFields.Transitions);
+
+            foreach (int index in edge.TransitionIndices)
+            {
+                if (index >= list.arraySize)
+                {
+                    continue;
+                }
+
+                SerializedProperty transition = list.GetArrayElementAtIndex(index);
+                SerializedProperty end = transition.GetEndProperty();
+                SerializedProperty property = transition.Copy();
+
+                while (property.Next(true) && !SerializedProperty.EqualContents(property, end))
+                {
+                    if (property.propertyType == SerializedPropertyType.ObjectReference &&
+                        property.objectReferenceValue is StateConditionSO condition)
+                    {
+                        AddWithInner(condition, found);
+                    }
+                }
+            }
+
+            return found;
+        }
+
+        private static void AddWithInner(StateConditionSO condition, List<ScriptableObject> found)
+        {
+            if (found.Contains(condition))
+            {
+                return;
+            }
+
+            found.Add(condition);
+
+            SerializedProperty property = new SerializedObject(condition).GetIterator();
+            while (property.Next(true))
+            {
+                if (property.propertyType == SerializedPropertyType.ObjectReference &&
+                    property.objectReferenceValue is StateConditionSO inner)
+                {
+                    AddWithInner(inner, found);
+                }
+            }
         }
 
         // From a sub-state node's double-click or its right-click menu.
@@ -356,6 +503,15 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             if (change.movedElements != null && change.movedElements.Count > 0)
             {
                 SavePositions(change.movedElements);
+            }
+
+            // Rows of the Parameters panel aren't part of the table: that panel deletes them from its own
+            // data and rebuilds (see ParameterBlackboard).
+            if (change.elementsToRemove != null && change.elementsToRemove.Exists(element => element is BlackboardField))
+            {
+                var fields = change.elementsToRemove.FindAll(element => element is BlackboardField);
+                change.elementsToRemove.RemoveAll(element => element is BlackboardField);
+                ParameterFieldsDeleted?.Invoke(fields.ConvertAll(element => (BlackboardField)element));
             }
 
             // elementsToRemove is filled by the Delete key or the "Delete" menu item.
