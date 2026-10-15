@@ -398,6 +398,10 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5297182538942025389, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: minHealthPercent
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6252579542559560056, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: collapsed
       value: 0
@@ -2740,6 +2744,10 @@ PrefabInstance:
       propertyPath: maxHealth
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 1266268304763540292, guid: 4cdd45ece38eee449998c03d63f40c87, type: 3}
+      propertyPath: minHealthPercent
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1726900685335145504, guid: 4cdd45ece38eee449998c03d63f40c87, type: 3}
       propertyPath: m_Name
       value: PKa(Enemy) TBotModel Variant
@@ -2816,14 +2824,14 @@ PrefabInstance:
       addedObject: {fileID: 1562232285}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 305783127027506018, guid: 4cdd45ece38eee449998c03d63f40c87, type: 3}
+      insertIndex: 7
+      addedObject: {fileID: 1771877557}
+    - targetCorrespondingSourceObject: {fileID: 305783127027506018, guid: 4cdd45ece38eee449998c03d63f40c87, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1771877518}
     - targetCorrespondingSourceObject: {fileID: 305783127027506018, guid: 4cdd45ece38eee449998c03d63f40c87, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1771877537}
-    - targetCorrespondingSourceObject: {fileID: 305783127027506018, guid: 4cdd45ece38eee449998c03d63f40c87, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1771877519}
     - targetCorrespondingSourceObject: {fileID: 305783127027506018, guid: 4cdd45ece38eee449998c03d63f40c87, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1771877538}
@@ -2854,25 +2862,6 @@ MonoBehaviour:
   _armAnimator: {fileID: 0}
   _requestTimeout: 0.5
   _stateEnterTimeout: 1
---- !u!114 &1771877519
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1518992788}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0bb0d945dba0c0441a748d56f2d7f25f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerTargetLinker
-  _targets:
-  - Anchor: {fileID: 11400000, guid: ded8b5ee8f0dd57488cc9fa0e5c0d061, type: 2}
-    Tag: Player
-    Name: PlayerController
-  - Anchor: {fileID: 11400000, guid: 7e0c6e6867689484fb85c18d09184466, type: 2}
-    Tag: Player
-    Name: IKTarget
 --- !u!4 &1771877520 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 808064932975650933, guid: 4cdd45ece38eee449998c03d63f40c87, type: 3}
@@ -2928,6 +2917,22 @@ MonoBehaviour:
   _onDissolveFinished:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1771877557
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1518992788}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f24cbbf5a9d30cf478e51c6e1abd23e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StateFlags
+  flags:
+  - Flag: {fileID: 11400000, guid: 02fbf06f3aae8a04b8dee37780e76d4b, type: 2}
+    InitialValue: 0
+    runtimeValue: 0
 --- !u!1 &1944258205
 GameObject:
   m_ObjectHideFlags: 0

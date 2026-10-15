@@ -4,6 +4,15 @@ using UnityEngine;
 public class Health : MonoBehaviour, IDamageable,IHeal
 {
     [SerializeField] protected float maxHealth = 10f;
+    [SerializeField, Range(0f, 100f)] private float minHealthPercent = 0f;   // 0 = ตายได้ปกติ
+    private float MinHealth => maxHealth * minHealthPercent / 100f;
+    public float MinHealthPercent => minHealthPercent;
+
+    // Set by SetHealthFloorActionSO from the state machine.
+    public void SetMinHealthPercent(float percent)
+    {
+        minHealthPercent = Mathf.Clamp(percent, 0f, 100f);
+    }
     [SerializeField] protected bool assignValue = false;
     public float MaxHealth
     {
@@ -68,7 +77,9 @@ public class Health : MonoBehaviour, IDamageable,IHeal
         _lastDamageApplied = !(IsDead || IgnoreDamage);
         if (!_lastDamageApplied) return;
 
-        CurrentHP -= damage;
+        CurrentHP = CurrentHP > MinHealth
+        ? Mathf.Max(CurrentHP - damage, MinHealth)
+        : CurrentHP - damage;
         OnHealthChangedEventChannel?.Raise(CurrentHP);
         OnHealthChanged?.Invoke(CurrentHP);
         OnHurtEventChannel?.Raise();

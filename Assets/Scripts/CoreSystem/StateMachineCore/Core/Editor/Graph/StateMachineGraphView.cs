@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -54,6 +55,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             graphViewChanged = OnGraphViewChanged;
             RegisterTransitionCreationCallbacks();
             RegisterStateDropCallbacks();
+            RegisterActionDropCallbacks();
 
             // Mouse wheel zoom.
             SetupZoom(
@@ -72,6 +74,38 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             // GridBackground needs a stylesheet for its colors, otherwise the lines are almost invisible.
             GraphStyleSheets.AddTo(this, StyleSheetName);
+
+            // An action / condition selected anywhere lights up where it's used here.
+            RegisterCallback<AttachToPanelEvent>(_ => Selection.selectionChanged += HighlightUsesOfSelection);
+            RegisterCallback<DetachFromPanelEvent>(_ => Selection.selectionChanged -= HighlightUsesOfSelection);
+        }
+
+        // ---------- Uses of the selection ----------
+
+        // The selected actions outline the states that run them, the selected conditions color the arrows
+        // that check them (wrapped ones too), without selecting anything in the graph. Selecting a state
+        // or an arrow here selects it as usual and lights nothing extra.
+        private void HighlightUsesOfSelection()
+        {
+            var selectedActions = new HashSet<ScriptableObject>(Selection.objects.OfType<StateActionSO>());
+            var selectedConditions = new HashSet<ScriptableObject>(Selection.objects.OfType<StateConditionSO>());
+
+            _serializedTable?.Update();
+
+            foreach (GraphElement element in graphElements.ToList())
+            {
+                switch (element)
+                {
+                    case StateNodeView node when node.State != null:
+                        node.SetUsesSelection(selectedActions.Count > 0 &&
+                                              TableContents.ActionsOf(node.State).Any(selectedActions.Contains));
+                        break;
+                    case TransitionEdgeView edge:
+                        edge.SetUsesSelection(selectedConditions.Count > 0 &&
+                                              ConditionsOf(edge).Any(selectedConditions.Contains));
+                        break;
+                }
+            }
         }
 
         public override void AddToSelection(ISelectable selectable)
@@ -258,6 +292,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             // New nodes start un-highlighted, so apply the Play Mode highlight again.
             ApplyActiveState();
+            HighlightUsesOfSelection();
         }
 
         // ---------- Parameter tags ----------

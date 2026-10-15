@@ -115,12 +115,48 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             _parameterTags.Show(names);
         }
 
+        private static readonly Color UsesSelectionBorderColor = new Color(1f, 0.65f, 0.2f);
+        private const float UsesSelectionBorderWidth = 2f;
+
+        private static readonly Color DropTargetBorderColor = new Color(0.27f, 0.6f, 1f);
+
+        private bool _isActive;
+        private bool _usesSelection;
+        private bool _isDropTarget;
+
+        // An action is being dragged over this node (see StateMachineGraphView.RegisterActionDropCallbacks).
+        public void SetDropTarget(bool isTarget)
+        {
+            _isDropTarget = isTarget;
+            ApplyBorder();
+        }
+
         // Play Mode: outline the state the running StateMachine is in.
         public void SetActive(bool active)
         {
+            _isActive = active;
+            ApplyBorder();
+        }
+
+        // An action selected elsewhere (Contents, Project, Inspector) is one of this state's actions.
+        // The Play Mode outline wins when both are on.
+        public void SetUsesSelection(bool uses)
+        {
+            _usesSelection = uses;
+            ApplyBorder();
+        }
+
+        private void ApplyBorder()
+        {
             // StyleKeyword.Null removes the inline value, back to GraphView's own style.
-            StyleFloat width = active ? ActiveBorderWidth : new StyleFloat(StyleKeyword.Null);
-            StyleColor color = active ? ActiveBorderColor : new StyleColor(StyleKeyword.Null);
+            StyleFloat width = _isDropTarget ? ActiveBorderWidth
+                : _isActive ? ActiveBorderWidth
+                : _usesSelection ? UsesSelectionBorderWidth
+                : new StyleFloat(StyleKeyword.Null);
+            StyleColor color = _isDropTarget ? DropTargetBorderColor
+                : _isActive ? ActiveBorderColor
+                : _usesSelection ? UsesSelectionBorderColor
+                : new StyleColor(StyleKeyword.Null);
 
             mainContainer.style.borderTopWidth = width;
             mainContainer.style.borderBottomWidth = width;

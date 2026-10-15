@@ -75,6 +75,106 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             return DragAndDrop.objectReferences.OfType<StateSO>();
         }
 
+        // ---------- Dropping actions on a state ----------
+
+        // Actions dragged from Contents or the Project window onto a state node go at the end of its
+        // action list (ones it already has are skipped). The node under the mouse is outlined while
+        // dragging. Without Undo, like the panel drops: Unity can revert the current Undo group right
+        // after a drag ends. Remove one again with − in the state's Inspector.
+        private StateNodeView _actionDropTarget;
+
+        private void RegisterActionDropCallbacks()
+        {
+            RegisterCallback<DragUpdatedEvent>(evt =>
+            {
+                if (_table == null || !DraggedActions().Any())
+                {
+                    return;
+                }
+
+                StateNodeView node = (evt.target as VisualElement)?.GetFirstOfType<StateNodeView>();
+                SetActionDropTarget(node);
+                DragAndDrop.visualMode = node != null ? DragAndDropVisualMode.Copy : DragAndDropVisualMode.Rejected;
+                evt.StopPropagation();
+            });
+
+            RegisterCallback<DragLeaveEvent>(_ => SetActionDropTarget(null));
+            RegisterCallback<DragExitedEvent>(_ => SetActionDropTarget(null));
+
+            RegisterCallback<DragPerformEvent>(evt =>
+            {
+                List<StateActionSO> actions = DraggedActions().ToList();
+                StateNodeView node = (evt.target as VisualElement)?.GetFirstOfType<StateNodeView>();
+                SetActionDropTarget(null);
+
+                if (_table == null || actions.Count == 0 || node?.State == null)
+                {
+                    return;
+                }
+
+                DragAndDrop.AcceptDrag();
+                evt.StopPropagation();
+
+                // Editing while the drop event is still being sent around is unsafe, so wait a frame.
+                StateSO state = node.State;
+                schedule.Execute(() => AddActions(state, actions));
+            });
+        }
+
+        private static IEnumerable<StateActionSO> DraggedActions()
+        {
+            return DragAndDrop.objectReferences.OfType<StateActionSO>().Distinct();
+        }
+
+        private void SetActionDropTarget(StateNodeView node)
+        {
+            if (_actionDropTarget == node)
+            {
+                return;
+            }
+
+            _actionDropTarget?.SetDropTarget(false);
+            _actionDropTarget = node;
+            _actionDropTarget?.SetDropTarget(true);
+        }
+
+        private static void AddActions(StateSO state, List<StateActionSO> actions)
+        {
+            var serializedState = new SerializedObject(state);
+            SerializedProperty list = serializedState.FindProperty(StateMachineFields.Actions);
+
+            var existing = new HashSet<Object>();
+            for (int i = 0; i < list.arraySize; i++)
+            {
+                existing.Add(list.GetArrayElementAtIndex(i).objectReferenceValue);
+            }
+
+            int added = 0;
+            foreach (StateActionSO action in actions)
+            {
+                if (!existing.Add(action))
+                {
+                    continue;
+                }
+
+                list.InsertArrayElementAtIndex(list.arraySize);
+                list.GetArrayElementAtIndex(list.arraySize - 1).objectReferenceValue = action;
+                added++;
+            }
+
+            if (added == 0)
+            {
+                return;
+            }
+
+            serializedState.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(state);
+            AssetDatabase.SaveAssetIfDirty(state);
+
+            // A Sub State Machine action turns the node into a sub-state machine, so redraw everything.
+            StateMachineGraphWindow.ReloadAll();
+        }
+
         // ---------- Right-click menu ----------
 
         public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)

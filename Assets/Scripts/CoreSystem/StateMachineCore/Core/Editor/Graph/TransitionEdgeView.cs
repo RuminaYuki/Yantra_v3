@@ -28,6 +28,21 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
         private static readonly Color NormalColor = new Color(0.85f, 0.85f, 0.85f);
         private static readonly Color SelectedColor = new Color(0.27f, 0.6f, 1f);
+        private static readonly Color UsesSelectionColor = new Color(1f, 0.65f, 0.2f);
+
+        // On when a condition selected elsewhere (Contents, Project, Inspector) is checked by this arrow.
+        private bool _usesSelection;
+
+        public void SetUsesSelection(bool uses)
+        {
+            if (_usesSelection == uses)
+            {
+                return;
+            }
+
+            _usesSelection = uses;
+            MarkDirtyRepaint();
+        }
 
         public Node From { get; }
         public Node To { get; }
@@ -249,11 +264,11 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 return;
             }
 
-            Color color = selected ? SelectedColor : NormalColor;
+            Color color = selected ? SelectedColor : _usesSelection ? UsesSelectionColor : NormalColor;
             Painter2D painter = context.painter2D;
 
             painter.strokeColor = color;
-            painter.lineWidth = LineWidth;
+            painter.lineWidth = _usesSelection && !selected ? LineWidth + 1f : LineWidth;
             painter.lineCap = LineCap.Round;
             painter.BeginPath();
             painter.MoveTo(_start);

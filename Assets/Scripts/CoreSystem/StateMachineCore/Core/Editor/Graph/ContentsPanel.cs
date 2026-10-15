@@ -290,22 +290,26 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // change, not on every rebuild, so a folder closed with something selected inside stays closed.
         private void RevealSelection()
         {
-            VisualElement firstSelected = _rows
-                .Where(pair => IsSelected(pair.Key))
-                .Select(pair => pair.Value.Row)
-                .FirstOrDefault();
-
-            if (firstSelected != null)
+            Object selectedItem = _rows.Keys.FirstOrDefault(IsSelected);
+            if (selectedItem != null)
             {
-                OpenAncestors(firstSelected);
+                OpenAncestors(_rows[selectedItem].Row);
             }
 
             ShowSelection();
 
-            // Opened containers lay out next frame; scroll once they have a size.
-            if (firstSelected != null)
+            // Opened containers lay out next frame; scroll once they have a size. By then the panel may
+            // have been rebuilt (new rows), so look the row up again and skip it if it's gone.
+            if (selectedItem != null)
             {
-                schedule.Execute(() => _list.ScrollTo(firstSelected));
+                schedule.Execute(() =>
+                {
+                    if (_rows.TryGetValue(selectedItem, out (VisualElement Row, Label Label) entry) &&
+                        _list.contentContainer.Contains(entry.Row))
+                    {
+                        _list.ScrollTo(entry.Row);
+                    }
+                });
             }
         }
 
