@@ -84,9 +84,6 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             _onStateCreated = onStateCreated;
             _onOpenSubStateMachine = onOpenSubStateMachine;
 
-            // From Parent starts closed.
-            _collapsed.Add(ParentGroupKey);
-
             GraphStyleSheets.AddTo(this, StyleSheetName);
             AddToClassList("contents");
 
@@ -116,12 +113,12 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             RegisterCallback<AttachToPanelEvent>(_ =>
             {
                 ObjectChangeEvents.changesPublished += OnChangesPublished;
-                Selection.selectionChanged += ShowSelection;
+                Selection.selectionChanged += RevealSelection;
             });
             RegisterCallback<DetachFromPanelEvent>(_ =>
             {
                 ObjectChangeEvents.changesPublished -= OnChangesPublished;
-                Selection.selectionChanged -= ShowSelection;
+                Selection.selectionChanged -= RevealSelection;
             });
 
             RegisterDragEndCallbacks();
@@ -131,6 +128,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         public void SetTable(TransitionTableSO table)
         {
             _table = table;
+            LoadCollapsed();
             Rebuild();
         }
 
@@ -286,6 +284,46 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         }
 
         // ---------- Selection highlight ----------
+
+        // Selected anywhere (here, the graph, the Inspector, the Project window): highlight it, and open
+        // the groups, folders and fold arrows hiding its row so it can be seen. Only on a selection
+        // change, not on every rebuild, so a folder closed with something selected inside stays closed.
+        private void RevealSelection()
+        {
+            VisualElement firstSelected = _rows
+                .Where(pair => IsSelected(pair.Key))
+                .Select(pair => pair.Value.Row)
+                .FirstOrDefault();
+
+            if (firstSelected != null)
+            {
+                OpenAncestors(firstSelected);
+            }
+
+            ShowSelection();
+
+            // Opened containers lay out next frame; scroll once they have a size.
+            if (firstSelected != null)
+            {
+                schedule.Execute(() => _list.ScrollTo(firstSelected));
+            }
+        }
+
+        // Opens every closed Foldout and fold arrow between the row and the list.
+        private void OpenAncestors(VisualElement row)
+        {
+            for (VisualElement parent = row.parent; parent != null && parent != _list; parent = parent.parent)
+            {
+                if (parent is Foldout foldout && !foldout.value)
+                {
+                    foldout.value = true;   // its callback remembers it as open
+                }
+                else if (parent.userData is Action openFold && parent.style.display == DisplayStyle.None)
+                {
+                    openFold();
+                }
+            }
+        }
 
         private void ShowSelection()
         {
@@ -510,14 +548,23 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             var arrow = new Label(isOpen ? "▼" : "▶");
             arrow.AddToClassList("contents-fold-arrow");
-            arrow.RegisterCallback<ClickEvent>(evt =>
+
+            void SetOpen(bool open)
             {
-                isOpen = !isOpen;
+                isOpen = open;
                 children.style.display = isOpen ? DisplayStyle.Flex : DisplayStyle.None;
                 arrow.text = isOpen ? "▼" : "▶";
                 SetCollapsed(collapseKey, !isOpen);
+            }
+
+            arrow.RegisterCallback<ClickEvent>(evt =>
+            {
+                SetOpen(!isOpen);
                 evt.StopPropagation();
             });
+
+            // RevealSelection opens it through this when something inside is selected elsewhere.
+            children.userData = (Action)(() => SetOpen(true));
 
             row.Insert(0, arrow);
         }
@@ -531,6 +578,49 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             else
             {
                 _collapsed.Remove(collapseKey);
+            }
+
+            SaveCollapsed();
+        }
+
+        // What's folded is remembered per table in EditorPrefs, so it survives reopening the table,
+        // closing the window and script reloads. A table seen for the first time has only From Parent closed.
+        private const string CollapsedPrefsKey = "StateMachineGraph.Contents.Collapsed.";
+
+        private string CollapsedPrefsKeyOf(TransitionTableSO table)
+        {
+            return CollapsedPrefsKey + GlobalObjectId.GetGlobalObjectIdSlow(table);
+        }
+
+        private void LoadCollapsed()
+        {
+            _collapsed.Clear();
+            if (_table == null)
+            {
+                return;
+            }
+
+            string key = CollapsedPrefsKeyOf(_table);
+            if (!EditorPrefs.HasKey(key))
+            {
+                _collapsed.Add(ParentGroupKey);
+                return;
+            }
+
+            foreach (string collapseKey in EditorPrefs.GetString(key).Split('\n'))
+            {
+                if (collapseKey.Length > 0)
+                {
+                    _collapsed.Add(collapseKey);
+                }
+            }
+        }
+
+        private void SaveCollapsed()
+        {
+            if (_table != null)
+            {
+                EditorPrefs.SetString(CollapsedPrefsKeyOf(_table), string.Join("\n", _collapsed));
             }
         }
 

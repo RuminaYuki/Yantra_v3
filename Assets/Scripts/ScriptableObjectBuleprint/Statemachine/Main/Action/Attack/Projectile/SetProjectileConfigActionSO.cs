@@ -9,7 +9,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Attack/Projectile/Set Projectile Config")]
 public class SetProjectileConfigActionSO : StateActionSO
 {
-    [SerializeField] private ProjectileBullet.ProjectileConfig _config;
+    [SerializeField, Exposed] private ProjectileBullet.ProjectileConfig _config;
 
     [Header("Bullet Type (leave Pool Tag empty to not change it)")]
     [SerializeField] private string _poolTag;

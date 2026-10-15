@@ -9,9 +9,9 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 public class DetectConditionSO : StateConditionSO
 {
     [Header("Notice Settings (overrides values on LineOfSight)")]
-    [SerializeField, Min(0f)] private float _detectRange = 10f;
-    [SerializeField, Min(0f)] private float _minTimeToNotice = 0.5f;
-    [SerializeField, Min(0f)] private float _maxTimeToNotice = 3f;
+    [SerializeField, Min(0f), Exposed] private float _detectRange = 10f;
+    [SerializeField, Min(0f), Exposed] private float _minTimeToNotice = 0.5f;
+    [SerializeField, Min(0f), Exposed] private float _maxTimeToNotice = 3f;
     [Tooltip("X = normalized distance (0 = closest, 1 = farthest), Y = 0-1 ratio between min-max")]
     [SerializeField] private AnimationCurve _noticeCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 

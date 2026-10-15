@@ -10,7 +10,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 public class SetPathNavigatorTargetActionSO : StateActionSO
 {
     [SerializeField] private AnchorIDSO _targetAnchor;
-    [SerializeField] private Vector3 _offset;
+    [SerializeField, Exposed] private Vector3 _offset;
     [Header("Randomize offset per axis (+-range) each time the state is entered")]
     [SerializeField] private Vector3 _randomOffsetRange = Vector3.zero;
 

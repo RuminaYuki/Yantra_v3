@@ -9,7 +9,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Attack/AttackShpereCast/Continuous Attack")]
 public class ContinuousAttackActionSO : StateActionSO
 {
-    [SerializeField] private AttackParameters _attackParameters;
+    [SerializeField, Exposed] private AttackParameters _attackParameters;
     [SerializeField] private DamageTypeID _damageType;
 
     public AttackParameters AttackParameters

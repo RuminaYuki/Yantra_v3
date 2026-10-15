@@ -22,7 +22,7 @@ public class DelayedConditionSO : StateConditionSO
     [Tooltip("What the inner condition has to be: true, or false (e.g. \"not detected for 2 s\").")]
     [SerializeField] private bool _innerExpected = true;
 
-    [SerializeField, Min(0f)] private float _delay = 1f;
+    [SerializeField, Min(0f), Exposed] private float _delay = 1f;
     [SerializeField] private DelayMode _mode = DelayMode.Sustained;
 
     public float Delay

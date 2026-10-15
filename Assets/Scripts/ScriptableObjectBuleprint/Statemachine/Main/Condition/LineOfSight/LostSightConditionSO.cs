@@ -9,7 +9,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 public class LostSightConditionSO : StateConditionSO
 {
     [Tooltip("How long the target must be continuously out of raw sight (LineOfSight.CanSeeTarget) before this is true.")]
-    [SerializeField, Min(0f)] private float _loseSightDuration = 3f;
+    [SerializeField, Min(0f), Exposed] private float _loseSightDuration = 3f;
 
     public float LoseSightDuration
     {

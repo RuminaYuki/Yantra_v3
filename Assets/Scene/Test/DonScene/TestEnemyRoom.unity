@@ -1405,19 +1405,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 8849103926970512020, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
   m_PrefabInstance: {fileID: 789030942}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &634635973
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 634635939}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b0b8499ae391816429fb11f3497f8e10, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::StateMachineParameters
-  _overrides: []
 --- !u!1001 &789030942
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1468,27 +1455,24 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 809213569433171308, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: collapsed
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 998187679989262526, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_Name
       value: Rin(Player)
       objectReference: {fileID: 0}
-    - target: {fileID: 4368828265564020728, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
-      propertyPath: collapsed
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 4968871862757283367, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_SizeDelta.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6252579542559560056, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: collapsed
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 8849103926970512020, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
-      insertIndex: 5
-      addedObject: {fileID: 634635973}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
 --- !u!43 &1201421373
 Mesh:
@@ -4523,13 +4507,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4532415093309662986, guid: 6df2064968e38404cb4cb50a3f51d5cd, type: 3}
-      propertyPath: target
-      value: 
-      objectReference: {fileID: 2121305186}
     - target: {fileID: 8630104500090987892, guid: 6df2064968e38404cb4cb50a3f51d5cd, type: 3}
       propertyPath: m_Name
-      value: Krasue(Enemy)
+      value: PKrasue(Enemy)
       objectReference: {fileID: 0}
     - target: {fileID: 8630104500090987892, guid: 6df2064968e38404cb4cb50a3f51d5cd, type: 3}
       propertyPath: m_IsActive
@@ -4540,11 +4520,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6df2064968e38404cb4cb50a3f51d5cd, type: 3}
---- !u!4 &2121305186 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 134270428320340259, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
-  m_PrefabInstance: {fileID: 789030942}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2125110585 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 998187679989262526, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
@@ -4561,10 +4536,6 @@ PrefabInstance:
     - target: {fileID: 3980447771441699500, guid: c9a3ef6e807026940bc3ff829d4161e8, type: 3}
       propertyPath: m_Name
       value: PThahan(Enemy)
-      objectReference: {fileID: 0}
-    - target: {fileID: 3980447771441699500, guid: c9a3ef6e807026940bc3ff829d4161e8, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6305422926065418550, guid: c9a3ef6e807026940bc3ff829d4161e8, type: 3}
       propertyPath: m_LocalPosition.x

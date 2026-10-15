@@ -11,7 +11,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 public class SetRandomPositionNavRadiusActionSO : StateActionSO
 {
     [Header("This action will use Waypoint Root at Homepoint")]
-    [SerializeField] private RingSampleParameters _ringParameters =
+    [SerializeField, Exposed] private RingSampleParameters _ringParameters =
         new() { radius = 5f, minDistance = 1.5f, directionCount = 16 };
     [SerializeField, Min(1)] private int _maxAttempts = 10;
     [SerializeField] private bool _requireNavMeshBaked = false;
