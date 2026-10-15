@@ -5,11 +5,11 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 [UseSelfAnchor]
 [RequiresOwnerComponent(typeof(BaseLocomotion))]
 [CreateAssetMenu(
-    fileName = "SetSpeedAction",
+    fileName = "SetSpeed_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Locomotion/SetBaseLocomotionValue/SetCurrentSpeed")]
 public class SetCurrentSpeedActionSO : StateActionSO
 {
-    [SerializeField, Min(0f)] private float _speed = 5f;
+    [SerializeField, Min(0f),Exposed] private float _speed = 5f;
     [SerializeField] private bool _resetOnStateExit = true;
     public float Speed
     {

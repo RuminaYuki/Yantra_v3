@@ -30,7 +30,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // Every State, Action and Condition reachable from the table through its fields: states ->
         // actions, transitions -> conditions, wrapper conditions -> the conditions inside them.
         // Stops at other tables, so a sub-state machine's contents stay in its own table.
-        public static List<ScriptableObject> CollectUsed(TransitionTableSO table)
+        // A state that an action or condition only names in a field (e.g. a sub-state machine's
+        // force exit state) isn't used by this table; it goes into referenced instead, when given.
+        public static List<ScriptableObject> CollectUsed(TransitionTableSO table, List<StateSO> referenced = null)
         {
             var used = new List<ScriptableObject>();
             var visited = new HashSet<ScriptableObject> { table };
@@ -39,14 +41,31 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             while (pending.Count > 0)
             {
-                SerializedProperty property = new SerializedObject(pending.Pop()).GetIterator();
+                ScriptableObject current = pending.Pop();
+                bool isActionOrCondition = current is StateActionSO || current is StateConditionSO;
+
+                SerializedProperty property = new SerializedObject(current).GetIterator();
                 while (property.Next(true))
                 {
                     if (property.propertyType != SerializedPropertyType.ObjectReference ||
                         property.objectReferenceValue is not ScriptableObject child ||
                         child is TransitionTableSO ||
-                        child is ExposedParametersSO ||   // naming a field doesn't use the item
-                        !visited.Add(child))
+                        child is ExposedParametersSO)   // naming a field doesn't use the item
+                    {
+                        continue;
+                    }
+
+                    if (isActionOrCondition && child is StateSO referencedState)
+                    {
+                        if (referenced != null && !referenced.Contains(referencedState))
+                        {
+                            referenced.Add(referencedState);
+                        }
+
+                        continue;
+                    }
+
+                    if (!visited.Add(child))
                     {
                         continue;
                     }

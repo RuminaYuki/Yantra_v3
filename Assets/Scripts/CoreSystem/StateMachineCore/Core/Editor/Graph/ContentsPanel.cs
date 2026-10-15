@@ -146,7 +146,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             }
 
             // What the table uses, plus (in the file's main table) anything in the file nothing uses yet.
-            var used = new HashSet<ScriptableObject>(TableContents.CollectUsed(_table));
+            var referenced = new List<StateSO>();
+            var used = new HashSet<ScriptableObject>(TableContents.CollectUsed(_table, referenced));
+            referenced.RemoveAll(state => used.Contains(state));
             List<ScriptableObject> unused = AssetDatabase.IsMainAsset(_table)
                 ? TableContents.UnusedInFile(_table)
                 : new List<ScriptableObject>();
@@ -180,7 +182,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             FolderData folders = FolderData.Load(_table);
             AddGroup(StatesGroup,
                 shown.OfType<StateSO>().Where(item => !shownElsewhere.Contains(item) && !subStates.ContainsKey(item)),
-                used, folders, tablePath);
+                used, folders, tablePath, referenced);
             AddSubStatesGroup(subStates, used, tablePath, exitsSection);
             AddGroup(ActionsGroup,
                 shown.OfType<StateActionSO>().Where(item => !shownElsewhere.Contains(item)),
@@ -371,12 +373,15 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // ---------- Groups ----------
 
         // States, Actions or Conditions: folders first, then the items not in a folder.
+        // referenced: states that an action or condition here names, but this table doesn't run;
+        // they go under a Referenced heading at the end, outside folders.
         private void AddGroup(
             string group,
             IEnumerable<ScriptableObject> items,
             HashSet<ScriptableObject> used,
             FolderData folders,
-            string tablePath)
+            string tablePath,
+            IEnumerable<StateSO> referenced = null)
         {
             List<ScriptableObject> sorted = items.OrderBy(item => item.name).ToList();
             List<string> groupFolders = folders.FoldersIn(group, sorted);
@@ -400,6 +405,20 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 folders.ItemFolders.TryGetValue(item, out string folder);
                 VisualElement parent = folder != null ? folderViews[folder] : groupView;
                 parent.Add(CreateRow(item, group, folder, used.Contains(item), tablePath, groupFolders));
+            }
+
+            List<StateSO> referencedSorted = referenced?.OrderBy(item => item.name).ToList();
+            if (referencedSorted != null && referencedSorted.Count > 0)
+            {
+                VisualElement heading = CreateHeading("Referenced");
+                heading.tooltip = "Named by an action or condition here, but not a state of this table.";
+                heading.style.paddingLeft = 12;   // lines up with the rows, like "Sub State Machine"
+                groupView.Add(heading);
+
+                foreach (StateSO item in referencedSorted)
+                {
+                    groupView.Add(CreateRow(item, null, null, true, tablePath, null));
+                }
             }
 
             _list.Add(groupView);

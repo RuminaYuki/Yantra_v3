@@ -102,13 +102,30 @@ MonoBehaviour:
       - Condition: {fileID: -1351078938063520381}
         ExpectedResult: 1
     ToState: {fileID: -4671652051541761311}
+  _exposedParameters: {fileID: 6603286857386878101}
   _nodePositions:
   - State: {fileID: 7177098204527859533}
-    Position: {x: 250, y: 76}
+    Position: {x: 250, y: 117}
   _entryNodePosition: {x: 0, y: 0}
   _anyStateNodePosition: {x: 0, y: 120}
-  _contentsFolders: []
-  _contentsFolderPaths: []
+  _contentsFolders:
+  - Item: {fileID: 11400000, guid: 8e4bc9c1f360d7a4f8e2078d5d3bf73c, type: 2}
+    Folder: LocomotionAnim
+  - Item: {fileID: 11400000, guid: 2958ea6d68a7b7242af443657f008670, type: 2}
+    Folder: LocomotionAnim
+  - Item: {fileID: 2092774505280099472}
+    Folder: Animator
+  - Item: {fileID: 656709667518212777}
+    Folder: SetCurrentSpeed
+  - Item: {fileID: 7131296688426119115}
+    Folder: SetCurrentSpeed
+  _contentsFolderPaths:
+  - Group: Actions
+    Path: LocomotionAnim
+  - Group: Actions
+    Path: SetCurrentSpeed
+  - Group: Actions
+    Path: Animator
 --- !u!114 &656709667518212777
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -122,7 +139,7 @@ MonoBehaviour:
   m_Name: SetRunSpeedAction
   m_EditorClassIdentifier: Assembly-CSharp::SetCurrentSpeedActionSO
   _selfAnchor: {fileID: 0}
-  _speed: 8
+  _speed: 3
   _resetOnStateExit: 1
 --- !u!114 &2092774505280099472
 MonoBehaviour:
@@ -142,6 +159,29 @@ MonoBehaviour:
     ParameterName: IsRun
     BoolValueOnEnter: 1
     ResetOnExit: 1
+--- !u!114 &6603286857386878101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e20e27464dc08eb44ac14238e4b68ebb, type: 3}
+  m_Name: Exposed_Parameters
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.ExposedParametersSO
+  _parameters:
+  - _name: SetRunSpeedAction.Speed
+    _bindings:
+    - _target: {fileID: 656709667518212777}
+      _fieldName: _speed
+    _category: Movement
+  - _name: SetWalkSpeedDontResetAction.Speed
+    _bindings:
+    - _target: {fileID: 7131296688426119115}
+      _fieldName: _speed
+    _category: Movement
 --- !u!114 &7131296688426119115
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -155,7 +195,7 @@ MonoBehaviour:
   m_Name: SetWalkSpeedDontResetAction
   m_EditorClassIdentifier: Assembly-CSharp::SetCurrentSpeedActionSO
   _selfAnchor: {fileID: 0}
-  _speed: 5
+  _speed: 6
   _resetOnStateExit: 0
 --- !u!114 &7177098204527859533
 MonoBehaviour:

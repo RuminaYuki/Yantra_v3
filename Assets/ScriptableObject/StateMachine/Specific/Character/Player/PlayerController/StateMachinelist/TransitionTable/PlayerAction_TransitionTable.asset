@@ -1,5 +1,51 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-7211707292879326982
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: Interact_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 11400000, guid: a8a1a640b18cad44b82b9b8463f2d188, type: 2}
+  - {fileID: 11400000, guid: 444fd74aaa458234f8808601466c62e6, type: 2}
+--- !u!114 &-5503831819247816735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: Stagger_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 11400000, guid: 664963cf5359ee24680fb6f52bcd3085, type: 2}
+  - {fileID: 11400000, guid: 6eae33dd140d454449b194e609f8dcba, type: 2}
+--- !u!114 &-965407122019689890
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: Inventory_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 11400000, guid: 93eabe364b9a8894ab35af1a3469a938, type: 2}
+  - {fileID: 11400000, guid: a8a1a640b18cad44b82b9b8463f2d188, type: 2}
+  - {fileID: 11400000, guid: a7b76efb78dd3f6438414807deea280d, type: 2}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12,9 +58,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5492ed31ba40b643aaf3d94f1de0aa7, type: 3}
   m_Name: PlayerAction_TransitionTable
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
-  _initialState: {fileID: 11400000, guid: 9b03be382e028a34b8b91e0341e8b28f, type: 2}
+  _initialState: {fileID: 6999762553843621200}
   _anyTransitions:
-  - ToState: {fileID: 11400000, guid: 6936ac72c9d3f5b4fa1af6e969ba1a6d, type: 2}
+  - ToState: {fileID: -5503831819247816735}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: 11400000, guid: 7fa7420e375fa1742a4abbabd7e6e94f, type: 2}
@@ -23,47 +69,47 @@ MonoBehaviour:
         ExpectedResult: 1
       - Condition: {fileID: 11400000, guid: 45d2dd7c3a55599428b14c8cd6c4c8d4, type: 2}
         ExpectedResult: 1
-  - ToState: {fileID: 11400000, guid: 2388c62025b28d54fadac765a79be5d3, type: 2}
+  - ToState: {fileID: -7211707292879326982}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: 11400000, guid: 45d2dd7c3a55599428b14c8cd6c4c8d4, type: 2}
         ExpectedResult: 0
-  - ToState: {fileID: 11400000, guid: 01ddd4e0761d19b46849c7f5156836de, type: 2}
+  - ToState: {fileID: -965407122019689890}
     ConditionGroups:
     - Conditions:
-      - Condition: {fileID: 11400000, guid: bc6b5deeabb845d419b442cc9ebcbfa0, type: 2}
+      - Condition: {fileID: 1283755340812005396}
         ExpectedResult: 0
       - Condition: {fileID: 11400000, guid: 45d2dd7c3a55599428b14c8cd6c4c8d4, type: 2}
         ExpectedResult: 1
   _transitions:
-  - FromState: {fileID: 11400000, guid: 6936ac72c9d3f5b4fa1af6e969ba1a6d, type: 2}
+  - FromState: {fileID: -5503831819247816735}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: 11400000, guid: 29bb909f141c059499c5b78e148ac451, type: 2}
         ExpectedResult: 0
-    ToState: {fileID: 11400000, guid: 9b03be382e028a34b8b91e0341e8b28f, type: 2}
-  - FromState: {fileID: 11400000, guid: 9b03be382e028a34b8b91e0341e8b28f, type: 2}
+    ToState: {fileID: 6999762553843621200}
+  - FromState: {fileID: 6999762553843621200}
     ConditionGroups:
     - Conditions:
-      - Condition: {fileID: 11400000, guid: b64cd54db55c16b42a97569f187d0bcb, type: 2}
+      - Condition: {fileID: 2165669171770484589}
         ExpectedResult: 0
     ToState: {fileID: 11400000, guid: 30909b92a8730694da9eba98b6d02b35, type: 2}
-  - FromState: {fileID: 11400000, guid: 9b03be382e028a34b8b91e0341e8b28f, type: 2}
+  - FromState: {fileID: 6999762553843621200}
     ConditionGroups:
     - Conditions:
-      - Condition: {fileID: 11400000, guid: 5930d199d7a3ec34f97cf32651351bbe, type: 2}
+      - Condition: {fileID: 3948874016495024156}
         ExpectedResult: 0
     ToState: {fileID: 11400000, guid: f58c07346369cbc419ba02555004dc07, type: 2}
-  - FromState: {fileID: 11400000, guid: 9b03be382e028a34b8b91e0341e8b28f, type: 2}
+  - FromState: {fileID: 6999762553843621200}
     ConditionGroups:
     - Conditions:
-      - Condition: {fileID: 11400000, guid: 919c707f1f4b9fe4d854c21630d9c85d, type: 2}
+      - Condition: {fileID: 4062891677593580901}
         ExpectedResult: 0
     ToState: {fileID: 11400000, guid: 78abb9a98a15b7348a9a3cc4591ca792, type: 2}
-  - FromState: {fileID: 11400000, guid: 9b03be382e028a34b8b91e0341e8b28f, type: 2}
+  - FromState: {fileID: 6999762553843621200}
     ConditionGroups:
     - Conditions:
-      - Condition: {fileID: 11400000, guid: c066837b978e15743a42d5dbef2907fc, type: 2}
+      - Condition: {fileID: 8165531841799119906}
         ExpectedResult: 0
     ToState: {fileID: 11400000, guid: f5b66c33ee9ed944ba4dae71328d1a3c, type: 2}
   - FromState: {fileID: 11400000, guid: 30909b92a8730694da9eba98b6d02b35, type: 2}
@@ -71,13 +117,13 @@ MonoBehaviour:
     - Conditions:
       - Condition: {fileID: 11400000, guid: bcc36d17fff1eb04ab8fbf5c6fc29341, type: 2}
         ExpectedResult: 0
-    ToState: {fileID: 11400000, guid: 9b03be382e028a34b8b91e0341e8b28f, type: 2}
+    ToState: {fileID: 6999762553843621200}
   - FromState: {fileID: 11400000, guid: f58c07346369cbc419ba02555004dc07, type: 2}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: 11400000, guid: 238cbeec00acee442b27a5248e2f2747, type: 2}
         ExpectedResult: 0
-    ToState: {fileID: 11400000, guid: 9b03be382e028a34b8b91e0341e8b28f, type: 2}
+    ToState: {fileID: 6999762553843621200}
   - FromState: {fileID: 11400000, guid: f58c07346369cbc419ba02555004dc07, type: 2}
     ConditionGroups:
     - Conditions:
@@ -101,27 +147,28 @@ MonoBehaviour:
     - Conditions:
       - Condition: {fileID: 11400000, guid: ad64a6b33b77c57409d1a1c67b32f34d, type: 2}
         ExpectedResult: 0
-    ToState: {fileID: 11400000, guid: 9b03be382e028a34b8b91e0341e8b28f, type: 2}
+    ToState: {fileID: 6999762553843621200}
   - FromState: {fileID: 11400000, guid: f5b66c33ee9ed944ba4dae71328d1a3c, type: 2}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: 11400000, guid: 00e989453b5fbef4f91ced558dbc4663, type: 2}
         ExpectedResult: 0
-    ToState: {fileID: 11400000, guid: 9b03be382e028a34b8b91e0341e8b28f, type: 2}
-  - FromState: {fileID: 11400000, guid: 2388c62025b28d54fadac765a79be5d3, type: 2}
+    ToState: {fileID: 6999762553843621200}
+  - FromState: {fileID: -7211707292879326982}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: 11400000, guid: 45d2dd7c3a55599428b14c8cd6c4c8d4, type: 2}
         ExpectedResult: 1
-    ToState: {fileID: 11400000, guid: 9b03be382e028a34b8b91e0341e8b28f, type: 2}
-  - FromState: {fileID: 11400000, guid: 01ddd4e0761d19b46849c7f5156836de, type: 2}
+    ToState: {fileID: 6999762553843621200}
+  - FromState: {fileID: -965407122019689890}
     ConditionGroups:
     - Conditions:
-      - Condition: {fileID: 11400000, guid: bc6b5deeabb845d419b442cc9ebcbfa0, type: 2}
+      - Condition: {fileID: 1283755340812005396}
         ExpectedResult: 0
-    ToState: {fileID: 11400000, guid: 9b03be382e028a34b8b91e0341e8b28f, type: 2}
+    ToState: {fileID: 6999762553843621200}
+  _exposedParameters: {fileID: 0}
   _nodePositions:
-  - State: {fileID: 11400000, guid: 6936ac72c9d3f5b4fa1af6e969ba1a6d, type: 2}
+  - State: {fileID: -5503831819247816735}
     Position: {x: 44, y: 107}
   - State: {fileID: 11400000, guid: 30909b92a8730694da9eba98b6d02b35, type: 2}
     Position: {x: 244, y: 107}
@@ -130,12 +177,126 @@ MonoBehaviour:
   - State: {fileID: 11400000, guid: f5b66c33ee9ed944ba4dae71328d1a3c, type: 2}
     Position: {x: 449, y: 107}
   - State: {fileID: 11400000, guid: f58c07346369cbc419ba02555004dc07, type: 2}
-    Position: {x: 443, y: 1}
-  - State: {fileID: 11400000, guid: 9b03be382e028a34b8b91e0341e8b28f, type: 2}
+    Position: {x: 449, y: 1}
+  - State: {fileID: 6999762553843621200}
     Position: {x: 244, y: 1}
-  - State: {fileID: 11400000, guid: 2388c62025b28d54fadac765a79be5d3, type: 2}
+  - State: {fileID: -7211707292879326982}
     Position: {x: 44, y: -98}
-  - State: {fileID: 11400000, guid: 01ddd4e0761d19b46849c7f5156836de, type: 2}
+  - State: {fileID: -965407122019689890}
     Position: {x: 44, y: 1}
   _entryNodePosition: {x: 264, y: -98}
   _anyStateNodePosition: {x: -122, y: 107}
+  _contentsFolders:
+  - Item: {fileID: 3948874016495024156}
+    Folder: InputSystem
+  - Item: {fileID: 2165669171770484589}
+    Folder: InputSystem
+  - Item: {fileID: 8165531841799119906}
+    Folder: InputSystem
+  - Item: {fileID: 1283755340812005396}
+    Folder: InputSystem
+  - Item: {fileID: 4062891677593580901}
+    Folder: InputSystem
+  _contentsFolderPaths:
+  - Group: Conditions
+    Path: InputSystem
+--- !u!114 &1283755340812005396
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01fdba5d7f32bbd48875a3ab7fbda341, type: 3}
+  m_Name: InventoryInputAction_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::InputActionConditionSO
+  _selfAnchor: {fileID: 0}
+  _inputAction: {fileID: 1138664736820775389, guid: 35845fe01580c41289b024647b1d1c53, type: 3}
+  _checkType: 0
+  _bufferTime: 0.15
+  _jumpBuffering: 0
+--- !u!114 &2165669171770484589
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01fdba5d7f32bbd48875a3ab7fbda341, type: 3}
+  m_Name: BlockInputAction_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::InputActionConditionSO
+  _selfAnchor: {fileID: 0}
+  _inputAction: {fileID: 3940194669444547086, guid: 35845fe01580c41289b024647b1d1c53, type: 3}
+  _checkType: 1
+  _bufferTime: 0.15
+  _jumpBuffering: 0
+--- !u!114 &3948874016495024156
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01fdba5d7f32bbd48875a3ab7fbda341, type: 3}
+  m_Name: AttackInputAction_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::InputActionConditionSO
+  _selfAnchor: {fileID: 0}
+  _inputAction: {fileID: 1120369429361536294, guid: 35845fe01580c41289b024647b1d1c53, type: 3}
+  _checkType: 0
+  _bufferTime: 0.15
+  _jumpBuffering: 0
+--- !u!114 &4062891677593580901
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01fdba5d7f32bbd48875a3ab7fbda341, type: 3}
+  m_Name: SpellHoldInputAction_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::InputActionConditionSO
+  _selfAnchor: {fileID: 0}
+  _inputAction: {fileID: 2706282352127273476, guid: 35845fe01580c41289b024647b1d1c53, type: 3}
+  _checkType: 1
+  _bufferTime: 0.15
+  _jumpBuffering: 0
+--- !u!114 &6999762553843621200
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: Idle_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 11400000, guid: 93eabe364b9a8894ab35af1a3469a938, type: 2}
+  - {fileID: 11400000, guid: a8a1a640b18cad44b82b9b8463f2d188, type: 2}
+--- !u!114 &8165531841799119906
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01fdba5d7f32bbd48875a3ab7fbda341, type: 3}
+  m_Name: EquipGunInputAction_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::InputActionConditionSO
+  _selfAnchor: {fileID: 0}
+  _inputAction: {fileID: -2825592562620478643, guid: 35845fe01580c41289b024647b1d1c53, type: 3}
+  _checkType: 0
+  _bufferTime: 0.15
+  _jumpBuffering: 0

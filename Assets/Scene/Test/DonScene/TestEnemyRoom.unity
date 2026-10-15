@@ -1405,6 +1405,33 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 8849103926970512020, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
   m_PrefabInstance: {fileID: 789030942}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &634635973
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 634635939}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0b8499ae391816429fb11f3497f8e10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StateMachineParameters
+  _overrides:
+  - _name: SetRunSpeedAction.Speed
+    _value: 3
+    _bool: 0
+    _string: 
+    _vector: {x: 0, y: 0, z: 0}
+    _color: {r: 0, g: 0, b: 0, a: 0}
+    _object: {fileID: 0}
+  - _name: SetWalkSpeedDontResetAction.Speed
+    _value: 6
+    _bool: 0
+    _string: 
+    _vector: {x: 0, y: 0, z: 0}
+    _color: {r: 0, g: 0, b: 0, a: 0}
+    _object: {fileID: 0}
 --- !u!1001 &789030942
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1461,6 +1488,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Rin(Player)
       objectReference: {fileID: 0}
+    - target: {fileID: 4368828265564020728, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: collapsed
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4968871862757283367, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_SizeDelta.y
       value: 0
@@ -1468,7 +1499,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8849103926970512020, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      insertIndex: 5
+      addedObject: {fileID: 634635973}
   m_SourcePrefab: {fileID: 100100000, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
 --- !u!43 &1201421373
 Mesh:
