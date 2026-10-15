@@ -34,6 +34,7 @@ namespace SDFcl.GamePlay.Interactable
             }
             return hideInteract? canInteract : true; 
         }
+
         public bool HoldInteract => holdInteract;
 
         public Action<GameObject> OnInteract { get; set; }
@@ -80,6 +81,14 @@ namespace SDFcl.GamePlay.Interactable
         public virtual void OnLoseFocus()
         {
             if (highlightObject == null || focusObject == null) return;
+
+            if (!canInteract && hideInteract)
+            {
+                focusObject.SetActive(false);
+                highlightObject.SetActive(false);
+                return;
+            }
+
             focusObject.SetActive(false);
             highlightObject.SetActive(true);
         }
