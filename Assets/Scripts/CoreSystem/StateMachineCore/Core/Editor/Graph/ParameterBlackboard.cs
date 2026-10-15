@@ -19,7 +19,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
     // value in several places, like a VFX property wired to several nodes.
     // Grouped into categories (ExposedParameter._category, "" = Uncategorized).
     // + adds a parameter or a category, double-click the name renames it, right-click adds a binding, moves it to a category or
-    // deletes it, right-click a category header renames it. A row's fold-out lists its bindings: each
+    // deletes it, right-click a category header renames it, drag a category header to reorder the
+    // categories. A row's fold-out lists its bindings: each
     // edits its default value (the value in the SO) and can be changed or removed.
     public class ParameterBlackboard : Blackboard
     {
@@ -249,6 +250,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             if (category != string.Empty)
             {
+                RegisterCategoryDrag(section, category);
+
                 // Only for clicks on the header: a row's own menu bubbles up through the section.
                 section.AddManipulator(new ContextualMenuManipulator(evt =>
                 {
@@ -954,6 +957,16 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         {
             RegisterCallback<DragUpdatedEvent>(evt =>
             {
+                // A category header dragged to a new place (see RegisterCategoryDrag).
+                if (DraggedCategory() != null)
+                {
+                    DragAndDrop.visualMode = DragAndDropVisualMode.Move;
+                    (BlackboardSection section, bool isAfter) = InsertTargetAt(evt.target, evt.mousePosition);
+                    MarkInsert(section, isAfter);
+                    evt.StopPropagation();
+                    return;
+                }
+
                 // Rows dragged to another category (BlackboardField's own drag, see DraggedRows).
                 if (DraggedRows().Count > 0)
                 {
@@ -973,12 +986,37 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 evt.StopPropagation();
             });
 
-            RegisterCallback<DragLeaveEvent>(_ => HighlightDropSection(null));
-            RegisterCallback<DragExitedEvent>(_ => HighlightDropSection(null));
+            RegisterCallback<DragLeaveEvent>(_ =>
+            {
+                HighlightDropSection(null);
+                MarkInsert(null, false);
+            });
+            RegisterCallback<DragExitedEvent>(_ =>
+            {
+                HighlightDropSection(null);
+                MarkInsert(null, false);
+            });
 
             RegisterCallback<DragPerformEvent>(evt =>
             {
                 HighlightDropSection(null);
+
+                string draggedCategory = DraggedCategory();
+                if (draggedCategory != null)
+                {
+                    (BlackboardSection section, bool isAfter) = InsertTargetAt(evt.target, evt.mousePosition);
+                    MarkInsert(null, false);
+                    DragAndDrop.AcceptDrag();
+                    evt.StopPropagation();
+
+                    if (section != null)
+                    {
+                        string targetCategory = section.userData as string ?? string.Empty;
+                        schedule.Execute(() => MoveCategory(draggedCategory, targetCategory, isAfter));
+                    }
+
+                    return;
+                }
 
                 List<int> draggedRows = DraggedRows();
                 if (draggedRows.Count > 0)
@@ -1155,6 +1193,204 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             if (_highlightedSection != null)
             {
                 _highlightedSection.style.backgroundColor = new Color(0.27f, 0.6f, 1f, 0.15f);
+            }
+        }
+
+        // ---------- Dragging categories ----------
+
+        // Like VFX Graph: drag a category's header above or below another one. The order is the order of
+        // the _parameters list (see CategoriesOf), so a category's parameters move there as one block.
+        // Uncategorized stays on top. Empty categories (only in this window) keep their order among
+        // themselves, after the others, until something is put in them.
+        private const string CategoryDragKey = "ParameterCategoryDrag";
+        private const float CategoryDragStartDistance = 5f;
+        private static readonly Color InsertLineColor = new Color(0.27f, 0.6f, 1f, 0.9f);
+
+        // Press on a header, then move a few pixels: starts the drag.
+        private string _categoryDragCandidate;
+        private Vector2 _categoryDragStart;
+
+        // The section showing the insert line.
+        private BlackboardSection _insertMarked;
+
+        // On the section, in the trickle-down phase, by where the mouse is: the header and its label may
+        // not take clicks themselves (the section gets them), and the Blackboard's own Dragger (which
+        // moves the whole panel) would take the mouse on MouseDown. So the section stops a press on its
+        // header before anything else sees it and holds the mouse until the drag starts.
+        private void RegisterCategoryDrag(BlackboardSection section, string category)
+        {
+            VisualElement header = section.Q("sectionHeader");
+            if (header == null)
+            {
+                return;
+            }
+
+            section.RegisterCallback<MouseDownEvent>(evt =>
+            {
+                if (evt.button != 0 || !header.worldBound.Contains(evt.mousePosition))
+                {
+                    return;
+                }
+
+                _categoryDragCandidate = category;
+                _categoryDragStart = evt.mousePosition;
+                section.CaptureMouse();
+                evt.StopImmediatePropagation();
+            }, TrickleDown.TrickleDown);
+
+            section.RegisterCallback<MouseMoveEvent>(evt =>
+            {
+                if (_categoryDragCandidate != category ||
+                    (evt.pressedButtons & 1) == 0 ||
+                    Vector2.Distance(evt.mousePosition, _categoryDragStart) < CategoryDragStartDistance)
+                {
+                    return;
+                }
+
+                _categoryDragCandidate = null;
+                section.ReleaseMouse();
+
+                DragAndDrop.PrepareStartDrag();
+                DragAndDrop.SetGenericData(CategoryDragKey, category);
+                DragAndDrop.objectReferences = Array.Empty<UnityEngine.Object>();
+                DragAndDrop.StartDrag(category);
+                evt.StopPropagation();
+            }, TrickleDown.TrickleDown);
+
+            section.RegisterCallback<MouseUpEvent>(evt =>
+            {
+                if (evt.button != 0 || _categoryDragCandidate != category)
+                {
+                    return;
+                }
+
+                _categoryDragCandidate = null;
+                if (section.HasMouseCapture())
+                {
+                    section.ReleaseMouse();
+                }
+            }, TrickleDown.TrickleDown);
+        }
+
+        private static string DraggedCategory()
+        {
+            return DragAndDrop.GetGenericData(CategoryDragKey) as string;
+        }
+
+        // The section the dragged category goes next to: before it (mouse on its upper half) or after it.
+        // Below every section = after the last one. Nothing goes above Uncategorized.
+        private (BlackboardSection Section, bool IsAfter) InsertTargetAt(IEventHandler target, Vector2 mouse)
+        {
+            BlackboardSection section = SectionAt(target);
+            if (section == null)
+            {
+                return (_sections.LastOrDefault(), true);
+            }
+
+            bool isAfter = mouse.y > section.worldBound.center.y ||
+                           (section.userData as string ?? string.Empty) == string.Empty;
+            return (section, isAfter);
+        }
+
+        // A blue line over or under the section where the category would go.
+        private void MarkInsert(BlackboardSection section, bool isAfter)
+        {
+            if (_insertMarked != null)
+            {
+                _insertMarked.style.borderTopWidth = new StyleFloat(StyleKeyword.Null);
+                _insertMarked.style.borderBottomWidth = new StyleFloat(StyleKeyword.Null);
+            }
+
+            _insertMarked = section;
+            if (section == null)
+            {
+                return;
+            }
+
+            if (isAfter)
+            {
+                section.style.borderBottomWidth = 2f;
+                section.style.borderBottomColor = InsertLineColor;
+            }
+            else
+            {
+                section.style.borderTopWidth = 2f;
+                section.style.borderTopColor = InsertLineColor;
+            }
+        }
+
+        // Without Undo, like the other drops (see EditParameters).
+        private void MoveCategory(string category, string targetCategory, bool isAfter)
+        {
+            if (category == targetCategory)
+            {
+                return;
+            }
+
+            ExposedParametersSO parameters = Find(_table);
+            List<string> order = ShownCategories(parameters);
+            order.Remove(category);
+
+            int index = order.IndexOf(targetCategory);
+            index = index < 0 ? order.Count : isAfter ? index + 1 : index;
+
+            int first = order.Count > 0 && order[0] == string.Empty ? 1 : 0;
+            order.Insert(Mathf.Clamp(index, first, order.Count), category);
+
+            List<string> empties = order.Where(_emptyCategories.Contains).ToList();
+            _emptyCategories.Clear();
+            _emptyCategories.AddRange(empties);
+
+            if (parameters == null || empties.Contains(category))
+            {
+                Rebuild();
+                return;
+            }
+
+            var rank = new Dictionary<string, int>();
+            for (int i = 0; i < order.Count; i++)
+            {
+                rank[order[i]] = i;
+            }
+
+            // TEMP debug: remove once reordering works.
+            Debug.Log($"[CategoryDrag] move '{category}' {(isAfter ? "after" : "before")} '{targetCategory}' -> wanted: {string.Join(" | ", order)}");
+
+            EditParameters(list => SortByCategory(list, rank), recordUndo: false);
+
+            // TEMP debug: what the data says right after, and a moment later (in case something reverts it).
+            Debug.Log($"[CategoryDrag] after edit: {string.Join(" | ", CategoriesOf(Find(_table)))}");
+            schedule.Execute(() =>
+                Debug.Log($"[CategoryDrag] 0.5s later: {string.Join(" | ", CategoriesOf(Find(_table)))}")).ExecuteLater(500);
+        }
+
+        // Puts the parameters in category order, keeping their order inside each category.
+        private static void SortByCategory(SerializedProperty list, Dictionary<string, int> rank)
+        {
+            var categories = new List<string>();
+            for (int i = 0; i < list.arraySize; i++)
+            {
+                categories.Add(list.GetArrayElementAtIndex(i).FindPropertyRelative(CategoryProperty).stringValue ?? string.Empty);
+            }
+
+            List<int> wanted = Enumerable.Range(0, categories.Count)
+                .OrderBy(i => rank.TryGetValue(categories[i], out int r) ? r : int.MaxValue)
+                .ToList();
+
+            // current[position] = the element's original index.
+            List<int> current = Enumerable.Range(0, categories.Count).ToList();
+            for (int target = 0; target < wanted.Count; target++)
+            {
+                int from = current.IndexOf(wanted[target]);
+                if (from == target)
+                {
+                    continue;
+                }
+
+                list.MoveArrayElement(from, target);
+                int moved = current[from];
+                current.RemoveAt(from);
+                current.Insert(target, moved);
             }
         }
 
