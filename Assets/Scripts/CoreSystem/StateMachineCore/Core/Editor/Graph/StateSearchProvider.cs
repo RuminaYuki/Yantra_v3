@@ -2,15 +2,18 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
+using Object = UnityEngine.Object;
 
 namespace Yuki.Learning.StateMachine.Editor.Graph
 {
     // The searchable popup behind "Add State...": create a new StateSO (inside the table's file, or
-    // as its own file to share), or pick an existing one.
+    // as its own file to share), or pick an existing one, including states embedded in other tables' files.
     // SearchWindow needs the provider to be a ScriptableObject.
     public class StateSearchProvider : ScriptableObject, ISearchWindowProvider
     {
@@ -49,24 +52,65 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 new SearchTreeGroupEntry(new GUIContent("Existing States"), 1)
             };
 
-            var states = new List<StateSO>();
-            foreach (string guid in AssetDatabase.FindAssets($"t:{nameof(StateSO)}"))
+            // States in their own file sit right under Existing States; states embedded in a table's
+            // file (e.g. a shared Glory sub-state machine) are grouped under that file's name.
+            var ownFile = new List<StateSO>();
+            var embedded = new SortedDictionary<string, List<StateSO>>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (string path in FilesWithStates())
             {
-                var state = AssetDatabase.LoadAssetAtPath<StateSO>(AssetDatabase.GUIDToAssetPath(guid));
-                if (state != null && !_alreadyInTable.Contains(state))
+                Object main = AssetDatabase.LoadMainAssetAtPath(path);
+                foreach (StateSO state in AssetDatabase.LoadAllAssetsAtPath(path).OfType<StateSO>())
                 {
-                    states.Add(state);
+                    if (_alreadyInTable.Contains(state))
+                    {
+                        continue;
+                    }
+
+                    if (state == main)
+                    {
+                        ownFile.Add(state);
+                        continue;
+                    }
+
+                    string file = main != null ? main.name : Path.GetFileNameWithoutExtension(path);
+                    if (!embedded.TryGetValue(file, out List<StateSO> list))
+                    {
+                        list = new List<StateSO>();
+                        embedded[file] = list;
+                    }
+
+                    list.Add(state);
                 }
             }
 
-            states.Sort((a, b) => string.Compare(a.name, b.name, StringComparison.OrdinalIgnoreCase));
-
-            foreach (StateSO state in states)
+            foreach (KeyValuePair<string, List<StateSO>> file in embedded)
             {
-                tree.Add(new SearchTreeEntry(new GUIContent(state.name)) { level = 2, userData = state });
+                tree.Add(new SearchTreeGroupEntry(new GUIContent(file.Key), 2));
+                AddStates(tree, file.Value, 3);
             }
 
+            AddStates(tree, ownFile, 2);
+
             return tree;
+        }
+
+        private static void AddStates(List<SearchTreeEntry> tree, List<StateSO> states, int level)
+        {
+            states.Sort((a, b) => string.Compare(a.name, b.name, StringComparison.OrdinalIgnoreCase));
+            foreach (StateSO state in states)
+            {
+                tree.Add(new SearchTreeEntry(new GUIContent(state.name)) { level = level, userData = state });
+            }
+        }
+
+        // Files that are a state, or a table whose file may hold embedded states.
+        private static IEnumerable<string> FilesWithStates()
+        {
+            return AssetDatabase.FindAssets($"t:{nameof(StateSO)}")
+                .Concat(AssetDatabase.FindAssets($"t:{nameof(TransitionTableSO)}"))
+                .Select(AssetDatabase.GUIDToAssetPath)
+                .Distinct();
         }
 
         public bool OnSelectEntry(SearchTreeEntry entry, SearchWindowContext context)
