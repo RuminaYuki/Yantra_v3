@@ -60,6 +60,22 @@ MonoBehaviour:
   - {fileID: -1199960815894179324}
   - {fileID: -7288117152054017958}
   - {fileID: -5373914862388642512}
+--- !u!114 &-6187443331379349236
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: ExampleDead_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 11400000, guid: a12119121bfba5544aa437d4d5f52d32, type: 2}
+  - {fileID: 7639330717782058312}
+  - {fileID: -5311765413985277102}
 --- !u!114 &-6158984333126601592
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -195,7 +211,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a5492ed31ba40b643aaf3d94f1de0aa7, type: 3}
-  m_Name: Glory_TransitionTable
+  m_Name: EnemyMinnionGlory_TransitionTable
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
   _initialState: {fileID: 5915766744438744071}
   _anyTransitions: []
@@ -230,6 +246,28 @@ MonoBehaviour:
       - Condition: {fileID: -4837618158548908663}
         ExpectedResult: 0
     ToState: {fileID: -1175100846876381625}
+  - FromState: {fileID: 5578770796759330943}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -6158984333126601592}
+        ExpectedResult: 0
+      - Condition: {fileID: 6618708587281662626}
+        ExpectedResult: 0
+    ToState: {fileID: -6187443331379349236}
+  - FromState: {fileID: 5578770796759330943}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -6158984333126601592}
+        ExpectedResult: 1
+      - Condition: {fileID: 3149816570201561003}
+        ExpectedResult: 0
+    ToState: {fileID: -7205683746137457426}
+  - FromState: {fileID: -7205683746137457426}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 6335553505640395995}
+        ExpectedResult: 0
+    ToState: {fileID: 5653134990403189456}
   _exposedParameters: {fileID: 0}
   _nodePositions:
   - State: {fileID: 5915766744438744071}
@@ -244,6 +282,16 @@ MonoBehaviour:
     Position: {x: 200, y: 71}
   - State: {fileID: 4502117098256472725}
     Position: {x: 393, y: 71}
+  - State: {fileID: 3380706913005244941}
+    Position: {x: 14, y: -278}
+  - State: {fileID: 5653134990403189456}
+    Position: {x: 380, y: -208}
+  - State: {fileID: 5578770796759330943}
+    Position: {x: 14, y: -208}
+  - State: {fileID: -6187443331379349236}
+    Position: {x: 200, y: -146}
+  - State: {fileID: -7205683746137457426}
+    Position: {x: 200, y: -208}
   _entryNodePosition: {x: 0, y: 0}
   _anyStateNodePosition: {x: 0, y: 71}
   _contentsFolders:
@@ -273,6 +321,24 @@ MonoBehaviour:
     Folder: Other
   - Item: {fileID: 11400000, guid: 7d89bad5a0e5b044ba0c890f451eee50, type: 2}
     Folder: Other
+  - Item: {fileID: 3380706913005244941}
+    Folder: Example
+  - Item: {fileID: -7205683746137457426}
+    Folder: Example
+  - Item: {fileID: 6335553505640395995}
+    Folder: ForParant
+  - Item: {fileID: -6158984333126601592}
+    Folder: ForParant
+  - Item: {fileID: 3149816570201561003}
+    Folder: ForParant
+  - Item: {fileID: 6618708587281662626}
+    Folder: ForParant
+  - Item: {fileID: -6187443331379349236}
+    Folder: Example
+  - Item: {fileID: 5578770796759330943}
+    Folder: Example
+  - Item: {fileID: 5653134990403189456}
+    Folder: Example
   _contentsFolderPaths:
   - Group: Actions
     Path: Animator
@@ -284,6 +350,10 @@ MonoBehaviour:
     Path: Animator
   - Group: Conditions
     Path: Other
+  - Group: States
+    Path: Example
+  - Group: Conditions
+    Path: ForParant
 --- !u!114 &3149816570201561003
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -294,7 +364,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b704c2b6ed1c1a34bb707b5901839188, type: 3}
-  m_Name: HealthPercent_Condition
+  m_Name: Health10Percent_Condition
   m_EditorClassIdentifier: Assembly-CSharp::HealthPercentConditionSO
   _selfAnchor: {fileID: 0}
   _percent: 10
@@ -319,6 +389,19 @@ MonoBehaviour:
   _exitStateName: 
   _exitTransitionDuration: 0.25
   _exitNormalizedStartTime: 0
+--- !u!114 &3380706913005244941
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: Example
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions: []
 --- !u!114 &4149478314942255615
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -363,6 +446,32 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: 3277091789363071656}
+--- !u!114 &5578770796759330943
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: ExampleAny_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions: []
+--- !u!114 &5653134990403189456
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: ExampleIdle_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions: []
 --- !u!114 &5915766744438744071
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -406,6 +515,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SubStateMachineExitedConditionSO
   _selfAnchor: {fileID: 0}
   _exitId: Idle
+--- !u!114 &6618708587281662626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d0a7d53c3c15fb4b800d8d16c222d7b, type: 3}
+  m_Name: OnDead_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::OnDeadConditionSO
+  _selfAnchor: {fileID: 0}
 --- !u!114 &6835993060265228890
 MonoBehaviour:
   m_ObjectHideFlags: 0
