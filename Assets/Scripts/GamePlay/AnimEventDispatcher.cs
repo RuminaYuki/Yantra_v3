@@ -19,6 +19,9 @@ public class SerializableAction
 
 public class AnimEventDispatcher : MonoBehaviour
 {
+    [SerializeField] string ID = string.Empty;
+    public string GetID => ID;
+
     [SerializeField]
     private Dictionary<string, SerializableAction> events = new();
 

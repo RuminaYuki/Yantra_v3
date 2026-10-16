@@ -1,7 +1,5 @@
 using UnityEngine;
 
-// Item lying on the ground. Needs a Collider (child is fine) and a Rigidbody.
-[RequireComponent(typeof(Rigidbody))]
 public class WorldItem : MonoBehaviour
 {
     [SerializeField] private ItemStack stack;

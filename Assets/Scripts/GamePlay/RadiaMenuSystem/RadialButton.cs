@@ -9,6 +9,7 @@ public class RadialButton : MonoBehaviour
     [SerializeField] GameObject _pivot;
     [SerializeField] GameObject _sprintIcon;
     [SerializeField] Image thisImage;
+    [SerializeField] Image _lockedImage; // แสดงทับตอนมี item ไม่ครบ (fill เหมือน thisImage)
     [SerializeField] float _angleOffset = 15f;
     [SerializeField] float _selectedScale = 1.1f; // ขนาดตอนถูกเลือก (ปรับใน Inspector)
     float _angleThreshold = 15f;
@@ -17,6 +18,7 @@ public class RadialButton : MonoBehaviour
 
     private Vector3 _normalScale;
     private RadialManuController _radialManu;
+    private bool _available = true;
 
     private void Awake()
     {
@@ -39,10 +41,19 @@ public class RadialButton : MonoBehaviour
         }
     }
 
-    public void SetClass(float fillAmount, int Id, RadialManuController radialManu, RadialMenuButtonData dataSO)
+    public void SetClass(float fillAmount, int Id, RadialManuController radialManu, RadialMenuButtonData dataSO, bool available)
     {
         _buttonID = Id;
         _radialManu = radialManu;
+        _available = available;
+
+        thisImage.fillAmount = fillAmount;
+
+        if (_lockedImage != null)
+        {
+            _lockedImage.fillAmount = fillAmount;
+            _lockedImage.gameObject.SetActive(!available);
+        }
 
         fillAmount = (fillAmount / 2f);
         float angle = fillAmount * 360f;
@@ -62,15 +73,8 @@ public class RadialButton : MonoBehaviour
 
     private void Update()
     {
-        if (_radialManu != null)
-        {
-            if (!_radialManu.GetActive()) return;
-        }
-        else
-        {
-            Debug.LogWarning($"Wait what {this.gameObject.name} มายังไง??");
-            return;
-        }
+        // ปุ่มใน pool ที่ยังไม่เคยถูก SetClass จะไม่มี _radialManu
+        if (_radialManu == null || !_radialManu.GetActive()) return;
 
         if (_radialManu.IsSystemEnabled() && Mouse.current != null)
         {
@@ -99,9 +103,18 @@ public class RadialButton : MonoBehaviour
                 _radialManu.GetActive() &&
                 _radialIntID_IEC != null)
             {
-                _radialIntID_IEC.Raise(_buttonID);
-                if (_onSelected != null)
-                    _onSelected.Raise();
+                if (_available)
+                {
+                    _radialIntID_IEC.Raise(_buttonID);
+                    if (_onSelected != null)
+                        _onSelected.Raise();
+                }
+                else
+                {
+                    // item ไม่ครบ: ล้างการเลือก (เลือกไม่ได้) แต่ยังโชว์ว่าต้องใช้อะไร
+                    _radialIntID_IEC.Raise(-1);
+                    _radialManu.ShowLockedHover(_buttonID);
+                }
             }
         }
     }

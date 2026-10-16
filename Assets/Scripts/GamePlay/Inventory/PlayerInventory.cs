@@ -1,132 +1,114 @@
-using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 // Owns the Inventory and connects it to the game world:
 // pickup, drop and equip.
 public class PlayerInventory : MonoBehaviour
 {
-    [SerializeField] private int slotCount = 20;
+    [Header("Reference")]
+
+    [SerializeField] private InventoryUI ui;
+    [Tooltip("Where dropped items spawn. Leave empty to spawn in front of this object.")]
     [SerializeField] private Transform dropPoint;
-    [SerializeField] private Transform handSocket;
-    [SerializeField] private float dropForce = 3f;
+
+    [Header("Board")]
+    [SerializeField, Min(1)] private int width = 8;
+    [SerializeField, Min(1)] private int height = 6;
+    [Tooltip("Cells that are always storage. Cells outside it only become storage under a bag.\n" +
+             "Not using bags: make it cover the whole board (0, 0, width, height).")]
+    [SerializeField] private RectInt startArea = new RectInt(0, 0, 8, 6);
+
+    [Header("Setting")]
+    [SerializeField] private float dropForwardDistance = 1f;
+    [SerializeField] private float dropUpOffset = 0.5f;
+
+#if UNITY_EDITOR
+    [Header("Debug")]
+    public bool debugLog = false;
+    [SerializeField] private InputActionReference inputAction;
+#endif
 
     public Inventory Inventory { get; private set; }
-    public int EquippedSlot { get; private set; } = -1;
-    public HeldItem CurrentHeld { get; private set; }
-
-    // Argument = equipped slot index, or -1 when nothing is equipped
-    public event Action<int> OnEquippedChanged;
 
     private void Awake()
     {
-        Inventory = new Inventory(slotCount);
-        Inventory.OnSlotChanged += HandleSlotChanged;
+        Inventory = new Inventory(width, height, startArea);
     }
 
-    private void OnDestroy()
+    private void OnEnable()
     {
-        if (Inventory != null) Inventory.OnSlotChanged -= HandleSlotChanged;
+
+#if UNITY_EDITOR
+        if (inputAction != null && debugLog)
+        {
+            inputAction.action.started += HandleOpenInventory;
+        }
+#endif
     }
 
-    // ---------- Pickup ----------
+    private void OnDisable()
+    {
+#if UNITY_EDITOR
+        if (inputAction != null && debugLog)
+        {
+            inputAction.action.started -= HandleOpenInventory;
+        }
+#endif
+    }
 
+#if UNITY_EDITOR
+    public void HandleOpenInventory(InputAction.CallbackContext context)
+    {
+        if (ui != null)
+        {
+            ui.Toggle();
+        }
+    }
+#endif
+
+    public void OpenInventory(bool value)
+    {
+        if (ui != null)
+        {
+            ui.SetOpen(value);
+        }
+    }
+    // Picks up as much as fits. The world item keeps whatever did not fit,
+    // so its quantity becomes 0 when everything was taken.
+    // Returns true if at least one item was picked up.
     public bool TryPickup(WorldItem worldItem)
     {
         ItemStack s = worldItem.Stack;
         if (s.IsEmpty) return false;
 
         int left = Inventory.TryAdd(s.item, s.quantity);
-        if (left <= 0)
-        {
-            Destroy(worldItem.gameObject);
-            return true;
-        }
-
-        // Inventory was full: leave the remainder on the ground
         worldItem.SetQuantity(left);
         return left < s.quantity;
     }
 
-    // ---------- Drop ----------
-
-    public void DropFromSlot(int index, int amount)
+    // Removes items from a placed stack and spawns them on the ground as one stack.
+    public void DropItem(PlacedItem target, int amount)
     {
-        if (!Inventory.IsValid(index) || Inventory[index].IsEmpty) return;
+        if (!Inventory.CanRemove(target) || target.Item.worldPrefab == null) return;
 
-        ItemData item = Inventory[index].item;
-        if (item.worldPrefab == null)
-        {
-            Debug.LogWarning($"{item.name} has no worldPrefab, cannot drop.");
-            return;
-        }
-
-        int removed = Inventory.TryRemoveAt(index, amount);
+        ItemData item = target.Item;
+        int removed = Inventory.TryRemove(target, amount);
         if (removed <= 0) return;
 
-        WorldItem dropped = Instantiate(item.worldPrefab, dropPoint.position, dropPoint.rotation);
+        Vector3 pos;
+        Quaternion rot;
+        if (dropPoint != null)
+        {
+            pos = dropPoint.position;
+            rot = dropPoint.rotation;
+        }
+        else
+        {
+            pos = transform.position + transform.forward * dropForwardDistance + Vector3.up * dropUpOffset;
+            rot = Quaternion.LookRotation(transform.forward, Vector3.up);
+        }
+
+        WorldItem dropped = Instantiate(item.worldPrefab, pos, rot);
         dropped.Initialize(new ItemStack(item, removed));
-        if (dropped.TryGetComponent(out Rigidbody rb))
-            rb.AddForce(dropPoint.forward * dropForce, ForceMode.VelocityChange);
-    }
-
-    // ---------- Equip ----------
-
-    // Equipping the already equipped slot unequips it.
-    public void ToggleEquip(int index)
-    {
-        if (index == EquippedSlot) { Unequip(); return; }
-        Equip(index);
-    }
-
-    public void Equip(int index)
-    {
-        Unequip();
-        if (!Inventory.IsValid(index)) return;
-
-        ItemStack s = Inventory[index];
-        if (s.IsEmpty || s.item.heldPrefab == null) return;
-
-        CurrentHeld = Instantiate(s.item.heldPrefab, handSocket);
-        CurrentHeld.transform.localPosition = Vector3.zero;
-        CurrentHeld.transform.localRotation = Quaternion.identity;
-        CurrentHeld.Initialize(s.item);
-
-        EquippedSlot = index;
-        CurrentHeld.OnEquip();
-        OnEquippedChanged?.Invoke(EquippedSlot);
-    }
-
-    public void Unequip()
-    {
-        if (CurrentHeld != null)
-        {
-            CurrentHeld.OnUnequip();
-            Destroy(CurrentHeld.gameObject);
-            CurrentHeld = null;
-        }
-
-        if (EquippedSlot != -1)
-        {
-            EquippedSlot = -1;
-            OnEquippedChanged?.Invoke(-1);
-        }
-    }
-
-    public void UseEquipped()
-    {
-        if (CurrentHeld != null) CurrentHeld.Use();
-    }
-
-    // Keep the held object in sync when the equipped slot changes
-    // (item dropped, moved or swapped).
-    private void HandleSlotChanged(int index)
-    {
-        if (index != EquippedSlot) return;
-
-        ItemStack s = Inventory[index];
-        if (s.IsEmpty)
-            Unequip();
-        else if (CurrentHeld == null || CurrentHeld.Data != s.item)
-            Equip(index);
     }
 }

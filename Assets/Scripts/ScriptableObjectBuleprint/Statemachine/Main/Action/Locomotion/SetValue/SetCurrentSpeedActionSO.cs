@@ -2,13 +2,14 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[UseSelfAnchor]
 [RequiresOwnerComponent(typeof(BaseLocomotion))]
 [CreateAssetMenu(
-    fileName = "SetSpeedAction",
+    fileName = "SetSpeed_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Locomotion/SetBaseLocomotionValue/SetCurrentSpeed")]
 public class SetCurrentSpeedActionSO : StateActionSO
 {
-    [SerializeField, Min(0f)] private float _speed = 5f;
+    [SerializeField, Min(0f),Exposed] private float _speed = 5f;
     [SerializeField] private bool _resetOnStateExit = true;
     public float Speed
     {
@@ -24,7 +25,7 @@ public class SetCurrentSpeedActionSO : StateActionSO
         }
     }
 
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
         return new SetCurrentSpeedAction(
             _speed,
@@ -36,7 +37,7 @@ public class SetCurrentSpeedAction : StateAction
 {
     private readonly float _speed;
     private readonly bool _resetOnStateExit;
-    private BaseLocomotion _locomotion;
+    private AnchorReference<BaseLocomotion> _locomotion;
     private float _previousSpeed;
     private bool _isApplied;
 
@@ -50,23 +51,24 @@ public class SetCurrentSpeedAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        stateMachine.TryGetRequired(out _locomotion, this);
+        _locomotion = new AnchorReference<BaseLocomotion>(stateMachine, this);
     }
 
     public override void OnStateEnter()
     {
-        _previousSpeed = _locomotion.CurrentSpeed;
-        _locomotion.CurrentSpeed = _speed;
+        if (!_locomotion.TryGet(out BaseLocomotion locomotion)) return;
+        _previousSpeed = locomotion.CurrentSpeed;
+        locomotion.CurrentSpeed = _speed;
         _isApplied = true;
     }
 
     public override void OnStateExit()
     {
-        if (!_isApplied)
+        if (!_isApplied || !_locomotion.TryGet(out BaseLocomotion locomotion))
             return;
 
         if (_resetOnStateExit)
-            _locomotion.CurrentSpeed = _previousSpeed;
+            locomotion.CurrentSpeed = _previousSpeed;
 
         _isApplied = false;
     }

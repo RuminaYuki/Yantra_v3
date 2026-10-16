@@ -11,7 +11,7 @@ public class SetEffectInputEnabledActionSO : StateActionSO
     [SerializeField] private bool enabledOnEnter = true;
     [SerializeField] private bool enabledOnExit;
 
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
         return new SetEffectInputEnabledAction(
             enabledOnEnter,
@@ -23,7 +23,7 @@ public class SetEffectInputEnabledAction : StateAction
 {
     private readonly bool enabledOnEnter;
     private readonly bool enabledOnExit;
-    private EffectController effectController;
+    private AnchorReference<EffectController> effectController;
 
     public SetEffectInputEnabledAction(
         bool enabledOnEnter,
@@ -35,17 +35,19 @@ public class SetEffectInputEnabledAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        stateMachine.TryGetRequired(out effectController, this);
+        effectController = new AnchorReference<EffectController>(stateMachine, this);
     }
 
     public override void OnStateEnter()
     {
-        effectController.SetEnabled(enabledOnEnter);
+        if (!effectController.TryGet(out EffectController controller)) return;
+        controller.SetEnabled(enabledOnEnter);
     }
 
     public override void OnStateExit()
     {
-        effectController.SetEnabled(enabledOnExit);
+        if (!effectController.TryGet(out EffectController controller)) return;
+        controller.SetEnabled(enabledOnExit);
     }
 
     public override void OnUpdate()

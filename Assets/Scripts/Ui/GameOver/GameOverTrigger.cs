@@ -2,28 +2,14 @@ using System.Collections;
 using UnityEngine;
 using Yantra.UI;
 
-/// <summary>
-/// ฟัง event ตายจาก Health แล้วสั่งเปิดหน้า Game Over
-///
-/// ไม่แตะไฟล์ Health เลย — subscribe ผ่าน VoidEventChannelSO
-/// แปะบน GameObject เดียวกับ Health (Rin/Player)
-///
-/// แยกจาก GameOverScreen เพราะหน้าจอไม่ควรรู้จักระบบ Health
-/// วันหน้าถ้าอยากให้ตายจากเหตุอื่น (ตกเหว, หมดเวลา) ก็แค่เพิ่มตัวเรียกใหม่
-/// </summary>
+// ฟัง event ตายของผู้เล่นแล้วเปิดหน้า Game Over
+// ไม่ผูกกับ Health — วางบน GameObject ไหนก็ได้ (เช่น Manager) แค่ใส่ช่อง On Dead ให้ถูก
 public class GameOverTrigger : MonoBehaviour
 {
-    [Tooltip("ลาก channel ตัวเดียวกับช่อง On Dead ของ Health\nถ้าเว้นว่างจะดึงจาก Health ให้เอง")]
+    [Tooltip("PlayerOnDead_VoidEventChannel — ตัวเดียวกับช่อง On Dead ของ Health ผู้เล่น")]
     [SerializeField] private VoidEventChannelSO _onDead;
 
-    private Health _health;
     private bool _triggered;
-
-    private void Awake()
-    {
-        _health = GetComponent<Health>();
-        if (_onDead == null && _health != null) _onDead = _health.OnDeadEventChannel;
-    }
 
     private void OnEnable()
     {
@@ -60,5 +46,9 @@ public class GameOverTrigger : MonoBehaviour
         yield return new WaitForSecondsRealtime(delay);
 
         UIManager.Instance?.Open(ScreenId.GameOver);
+
+        // รีเซ็ตหลังเปิดหน้าแล้ว — ถ้า Manager อยู่ข้ามฉาก (DontDestroyOnLoad) OnEnable จะไม่ถูกเรียกอีก
+        // ไม่รีเซ็ตตรงนี้ เล่นใหม่แล้วตายรอบสอง หน้า Game Over จะไม่ขึ้น
+        _triggered = false;
     }
 }

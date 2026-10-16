@@ -9,9 +9,9 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 public class DetectConditionSO : StateConditionSO
 {
     [Header("Notice Settings (overrides values on LineOfSight)")]
-    [SerializeField, Min(0f)] private float _detectRange = 10f;
-    [SerializeField, Min(0f)] private float _minTimeToNotice = 0.5f;
-    [SerializeField, Min(0f)] private float _maxTimeToNotice = 3f;
+    [SerializeField, Min(0f), Exposed] private float _detectRange = 10f;
+    [SerializeField, Min(0f), Exposed] private float _minTimeToNotice = 0.5f;
+    [SerializeField, Min(0f), Exposed] private float _maxTimeToNotice = 3f;
     [Tooltip("X = normalized distance (0 = closest, 1 = farthest), Y = 0-1 ratio between min-max")]
     [SerializeField] private AnimationCurve _noticeCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
@@ -74,7 +74,7 @@ public class DetectConditionSO : StateConditionSO
         }
     }
 
-    public override Condition CreateCondition()
+    protected override Condition OnCreateCondition()
     {
         return new DetectCondition(_detectRange, _minTimeToNotice, _maxTimeToNotice, _noticeCurve);
     }
@@ -86,7 +86,7 @@ public class DetectCondition : Condition
     private readonly float _minTimeToNotice;
     private readonly float _maxTimeToNotice;
     private readonly AnimationCurve _noticeCurve;
-    private LineOfSight _lineOfSight;
+    private AnchorReference<LineOfSight> _lineOfSight;
 
     public DetectCondition(
         float detectRange,
@@ -102,18 +102,19 @@ public class DetectCondition : Condition
 
     public override void Awake(StateMachine stateMachine)
     {
-        stateMachine.TryGetRequired(out _lineOfSight, this);
+        _lineOfSight = new AnchorReference<LineOfSight>(stateMachine, this);
     }
     public override void OnStateEnter()
     {
-        _lineOfSight.DetectRange = _detectRange;
-        _lineOfSight.MinTimeToNotice = _minTimeToNotice;
-        _lineOfSight.MaxTimeToNotice = _maxTimeToNotice;
-        _lineOfSight.NoticeCurve = _noticeCurve;
-        _lineOfSight.ResetnoticTimer();
+        if (!_lineOfSight.TryGet(out LineOfSight lineOfSight)) return;
+        lineOfSight.DetectRange = _detectRange;
+        lineOfSight.MinTimeToNotice = _minTimeToNotice;
+        lineOfSight.MaxTimeToNotice = _maxTimeToNotice;
+        lineOfSight.NoticeCurve = _noticeCurve;
+        lineOfSight.ResetnoticTimer();
     }
     protected override bool Statement()
     {
-        return _lineOfSight.HasNoticed;
+        return _lineOfSight.TryGet(out LineOfSight lineOfSight) && lineOfSight.HasNoticed;
     }
 }

@@ -9,7 +9,7 @@ public class RaiseEventChannelActionSO : StateActionSO
 {
     [SerializeField] private VoidEventChannelSO _eventChannel;
 
-    public override StateAction CreateAction(
+    protected override StateAction OnCreateAction(
         StateMachine stateMachine)
     {
         return new RaiseEventChannelAction(

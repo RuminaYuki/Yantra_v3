@@ -5,6 +5,8 @@ public class PlayerCameraController : MonoBehaviour
 {
     [Header("Cinemachine")]
     public CinemachineCamera vcamGameplay;
+    [Tooltip("กล้องที่ล็อกติดกับกระดูกหัวของแอนิเมชัน Glory")]
+    public CinemachineCamera vcamGlory;
 
     [Header("Targets")]
     [Tooltip("จุดตากล้อง — กล้องจะอยู่ตรงนี้ตลอด")]
@@ -38,8 +40,8 @@ public class PlayerCameraController : MonoBehaviour
              "ปิดไว้ถ้าอยากให้ค้างที่มุมเดิม")]
     [SerializeField] private bool _recenterPitchOnLock = true;
 
-    [Tooltip("องศาต่อวินาทีที่ pitch วิ่งกลับ — 90 ≈ จาก 45 องศากลับถึงกลางใน 0.5 วิ")]
-    [SerializeField] private float _recenterSpeed = 90f;
+    [Tooltip("องศาต่อวินาทีที่ pitch/yaw วิ่งกลับ — 90 ≈ จาก 45 องศากลับถึงกลางใน 0.5 วิ")]
+    [SerializeField] private float _recenterSpeed = 180f;
 
     [Tooltip("มุมที่ถือว่ากลับถึงกลางแล้ว กันการคำนวณต่อไม่รู้จบ")]
     [SerializeField] private float _recenterThreshold = 0.05f;
@@ -66,6 +68,9 @@ public class PlayerCameraController : MonoBehaviour
     private bool _isPaused = false;
 
     private bool _isLookLocked = false;
+    private bool _hasTargetYaw = false;
+    private float _targetYaw = 0f;
+    private float _customYawSpeed = 0f;
 
     #region Public Properties API
 
@@ -120,6 +125,7 @@ public class PlayerCameraController : MonoBehaviour
         get => _isFreeLookingInBook;
         set => _isFreeLookingInBook = value;
     }
+
     public bool IsLookLocked
     {
         get => _isLookLocked;
@@ -135,9 +141,52 @@ public class PlayerCameraController : MonoBehaviour
     /// <summary>เวอร์ชันเมธอด เผื่อใช้กับ UnityEvent ใน Inspector</summary>
     public void SetLookLocked(bool locked) => IsLookLocked = locked;
 
+    /// <summary>สั่งให้กล้องหมุนแกนซ้าย-ขวา (Yaw) ไปยังทิศเป้าหมายระหว่างที่ล็อกกล้อง</summary>
+    public void SetLookTargetYaw(float targetYaw, float snapDuration = 0f)
+    {
+        _hasTargetYaw = true;
+        _targetYaw = targetYaw;
+
+        if (snapDuration > 0.001f)
+        {
+            float angleDiff = Mathf.Abs(Mathf.DeltaAngle(_yaw, _targetYaw));
+            _customYawSpeed = Mathf.Max(_recenterSpeed, angleDiff / snapDuration);
+        }
+        else
+        {
+            _customYawSpeed = 0f;
+            _yaw = _targetYaw;
+            _pitch = 0f;
+            transform.rotation = Quaternion.Euler(_pitch, _yaw, 0f);
+        }
+    }
+
+    public void ClearLookTargetYaw()
+    {
+        _hasTargetYaw = false;
+        _customYawSpeed = 0f;
+    }
+
+    public bool IsYawAligned(float tolerance = 1f)
+    {
+        if (!_hasTargetYaw) return true;
+        return Mathf.Abs(Mathf.DeltaAngle(_yaw, _targetYaw)) <= tolerance &&
+               Mathf.Abs(Mathf.DeltaAngle(transform.eulerAngles.y, _targetYaw)) <= tolerance;
+    }
+
     public Vector2 CameraRotation => new Vector2(_yaw, _pitch);
     public float MinPitch => _minPitch;
     public float MaxPitch => _maxPitch;
+
+    public void SetGloryCameraActive(bool active)
+    {
+        IsCutsceneMode = active;
+
+        if (vcamGlory != null)
+        {
+            vcamGlory.Priority = active ? 20 : 0;
+        }
+    }
 
     #endregion
 
@@ -164,7 +213,6 @@ public class PlayerCameraController : MonoBehaviour
 
     private void LateUpdate()
     {
-
         if (_isPaused || _isCutsceneMode || _fppEyePosition == null)
         {
             _currentLookDelta = Vector2.zero;
@@ -173,12 +221,10 @@ public class PlayerCameraController : MonoBehaviour
 
         float dt = Time.deltaTime;
 
-        // ล็อกแค่การหมุน — ตำแหน่งกับ FOV ยังทำงานต่อ
-        // เพราะกล้องต้องติดหัวผู้เล่นอยู่ดี ถ้าหยุดหมดจะหลุดออกจากตัวละคร
         if (_isLookLocked)
         {
             _currentLookDelta = Vector2.zero;
-            RecenterPitch(dt);
+            RecenterPitchAndYaw(dt);
         }
 
         UpdateRotation(dt);
@@ -188,8 +234,18 @@ public class PlayerCameraController : MonoBehaviour
         _currentLookDelta = Vector2.zero;
     }
 
-    private void RecenterPitch(float dt)
+    private void RecenterPitchAndYaw(float dt)
     {
+        if (_hasTargetYaw)
+        {
+            float speed = _customYawSpeed > 0f ? _customYawSpeed : _recenterSpeed;
+            _yaw = Mathf.MoveTowardsAngle(_yaw, _targetYaw, speed * dt);
+            if (Mathf.Abs(Mathf.DeltaAngle(_yaw, _targetYaw)) <= _recenterThreshold)
+            {
+                _yaw = _targetYaw;
+            }
+        }
+
         if (!_recenterPitchOnLock) return;
         if (Mathf.Abs(_pitch) <= _recenterThreshold)
         {
@@ -197,7 +253,8 @@ public class PlayerCameraController : MonoBehaviour
             return;
         }
 
-        _pitch = Mathf.MoveTowards(_pitch, 0f, _recenterSpeed * dt);
+        float pitchSpeed = _customYawSpeed > 0f ? Mathf.Max(_recenterSpeed, _customYawSpeed) : _recenterSpeed;
+        _pitch = Mathf.MoveTowards(_pitch, 0f, pitchSpeed * dt);
     }
 
     // ---------- Rotation ----------
@@ -227,7 +284,6 @@ public class PlayerCameraController : MonoBehaviour
         {
             float sensitivity = _mouseSensitivity * GameSettings.MouseSensitivity;
 
-            // จอยส่งค่าต่อเนื่อง ต้องคูณ deltaTime ไม่งั้นความเร็วหมุนผูกกับ FPS
             if (_inputIsAnalog) sensitivity *= dt * 60f;
 
             float pitchDelta = _currentLookDelta.y * sensitivity;
@@ -247,7 +303,6 @@ public class PlayerCameraController : MonoBehaviour
 
     private void UpdatePosition(float dt)
     {
-
         Vector3 desiredPosition = _fppEyePosition.position;
 
         if (_isGunAiming && !_isYantraAiming && _otsPivot != null)
@@ -278,7 +333,6 @@ public class PlayerCameraController : MonoBehaviour
         return 1f - Mathf.Exp(-speed * deltaTime);
     }
 
-    /// <summary>แปลง 0..360 เป็น -180..180</summary>
     private static float NormalizeAngle(float angle)
     {
         return Mathf.Repeat(angle + 180f, 360f) - 180f;

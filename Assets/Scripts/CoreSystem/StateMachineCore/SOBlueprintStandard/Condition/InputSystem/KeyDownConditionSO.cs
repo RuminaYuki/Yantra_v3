@@ -9,7 +9,7 @@ public class KeyDownConditionSO : StateConditionSO
 {
     [SerializeField] private KeyCode _keyCode = KeyCode.Alpha1;
 
-    public override Condition CreateCondition()
+    protected override Condition OnCreateCondition()
     {
         return new KeyDownCondition(_keyCode);
     }

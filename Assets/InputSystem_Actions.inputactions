@@ -37,16 +37,6 @@
                     "priority": 0
                 },
                 {
-                    "name": "DrawGun",
-                    "type": "Button",
-                    "id": "64e3f1c4-c181-4f2d-969d-ce1c1ddb0e43",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false,
-                    "priority": 0
-                },
-                {
                     "name": "Aim",
                     "type": "Button",
                     "id": "f9897c47-a32a-4f24-8689-3fd120fa5495",
@@ -164,6 +154,26 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true,
+                    "priority": 0
+                },
+                {
+                    "name": "Inventory",
+                    "type": "Button",
+                    "id": "c2d114de-29f7-4772-964c-11a9df839fb0",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
+                    "priority": 0
+                },
+                {
+                    "name": "Rotate",
+                    "type": "Button",
+                    "id": "4d7bdf35-aa4e-40b9-992c-e254f2aa3d43",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false,
                     "priority": 0
                 }
             ],
@@ -533,17 +543,6 @@
                 },
                 {
                     "name": "",
-                    "id": "ce59012c-6035-4179-87ff-5dab7e324d15",
-                    "path": "<Keyboard>/q",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "DrawGun",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "9aa1e346-0fa3-4079-9307-ec5219cd344b",
                     "path": "<Keyboard>/f",
                     "interactions": "",
@@ -594,6 +593,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "Shot",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3cd44c17-9360-4126-a7c7-30c2eb93d9a1",
+                    "path": "<Keyboard>/tab",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "Inventory",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5b51deb1-8c09-4b2e-9083-3fae1f1e5ac0",
+                    "path": "<Keyboard>/r",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "Rotate",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

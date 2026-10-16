@@ -2,7 +2,8 @@ using UnityEngine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 using Yuki.Learning.StateMachine;
 
-[RequiresOwnerComponent(typeof(Animator), UnlessAnchorField = "targetAnchor")]
+[UseSelfAnchor]
+[RequiresOwnerComponent(typeof(Animator))]
 [CreateAssetMenu(
     fileName = "SetParametersAnimator_Action", 
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Standard/Animator/SetParametersAnimatorAction")]
@@ -10,62 +11,60 @@ public class SetAnimatorParameterActionSO : StateActionSO
 {
     public ParameterSetting ParameterSetting;
 
-    [Header("If the TargetAnchor is set, Check target flag instead")]
-    [SerializeField] private GameObjectAnchor targetAnchor;
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
-        return new SetParameterAnimatorAction(ParameterSetting, targetAnchor);
+        return new SetParameterAnimatorAction(ParameterSetting);
     }
 }
 
 public class SetParameterAnimatorAction : StateAction
 {
-    private Animator _animator;
+    private AnchorReference<Animator> _animator;
 
     private readonly ParameterType _parameterType;
     private readonly string _parameterName;
     private readonly bool _boolValueOnEnter;
     private readonly bool _resetOnExit;
-    private readonly GameObjectAnchor _targetAnchor;
 
     private bool _previousBoolValue;
     private bool _isApplied;
 
-    public SetParameterAnimatorAction(ParameterSetting parameterSetting, GameObjectAnchor targetAnchor = null)
+    public SetParameterAnimatorAction(ParameterSetting parameterSetting)
     {
         _parameterType = parameterSetting.ParameterType;
         _parameterName = parameterSetting.ParameterName;
         _boolValueOnEnter = parameterSetting.BoolValueOnEnter;
         _resetOnExit = parameterSetting.ResetOnExit;
-
-        this._targetAnchor = targetAnchor;
     }
     public override void Awake(StateMachine stateMachine)
     {
-        _targetAnchor.TryGetComponentOrOwner(stateMachine, out _animator, this);
+        _animator = new AnchorReference<Animator>(stateMachine, this);
     }
     public override void OnStateEnter()
     {
+        if (!_animator.TryGet(out Animator animator)) return;
+
         switch (_parameterType)
         {
             case ParameterType.Bool:
-                _previousBoolValue = _animator.GetBool(_parameterName);
-                _animator.SetBool(_parameterName, _boolValueOnEnter);
+                _previousBoolValue = animator.GetBool(_parameterName);
+                animator.SetBool(_parameterName, _boolValueOnEnter);
                 _isApplied = true;
                 break;
             case ParameterType.Trigger:
-                _animator.SetTrigger(_parameterName);
+                animator.SetTrigger(_parameterName);
                 break;
         }
     }
 
     public override void OnStateExit()
     {
-        if (_animator == null || _parameterType != ParameterType.Bool || !_isApplied)
+        if (_parameterType != ParameterType.Bool || !_isApplied ||
+            !_animator.TryGet(out Animator animator))
             return;
 
         if (_resetOnExit)
-            _animator.SetBool(_parameterName, _previousBoolValue);
+            animator.SetBool(_parameterName, _previousBoolValue);
 
         _isApplied = false;
     }

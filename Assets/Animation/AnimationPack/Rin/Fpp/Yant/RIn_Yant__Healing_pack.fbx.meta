@@ -33,10 +33,10 @@ ModelImporter:
     clipAnimations:
     - serializedVersion: 16
       name: Rin_Yant_Cast_healing
-      takeName: Rin_Yant_Cast_healingSlot 1
+      takeName: Rin_Yant_Cast_healing
       internalID: 7682897658288520299
       firstFrame: 0
-      lastFrame: 33
+      lastFrame: 30
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -55,17 +55,24 @@ ModelImporter:
       mirror: 0
       bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000u
       curves: []
-      events: []
+      events:
+      - time: 0.8352273
+        functionName: OnSpawnEvent
+        data: SelfHeal
+        objectReferenceParameter: {fileID: 11500000, guid: 87666c3b2a23f764c9611cc8991ff8a7, type: 3}
+        floatParameter: 0
+        intParameter: 0
+        messageOptions: 0
       transformMask: []
       maskType: 3
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
       name: Rin_Yant_Draw_healing
-      takeName: Rin_Yant_Draw_healingSlot 1
+      takeName: Rin_Yant_Draw_healing
       internalID: 7438869296062595926
       firstFrame: 0
-      lastFrame: 55
+      lastFrame: 99
       wrapMode: 0
       orientationOffsetY: 0
       level: 0

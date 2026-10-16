@@ -4,7 +4,7 @@ namespace SDFcl.GamePlay.Interactable
 {
     public class ButtonInteractor : BaseInteractor
     {
-        public override bool Interact(GameObject rootplayer)
+        public override bool Interact(GameObject rootplayer, bool force = false)
         {
             if (!base.Interact(rootplayer)) return false;
 
@@ -13,7 +13,7 @@ namespace SDFcl.GamePlay.Interactable
             return true;
         }
 
-        public override bool CancelInteraction(GameObject rootplayer)
+        public override bool CancelInteraction(GameObject rootplayer, bool force = false)
         {
             return base.CancelInteraction(rootplayer);
         }

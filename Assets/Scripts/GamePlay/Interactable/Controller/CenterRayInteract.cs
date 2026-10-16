@@ -92,7 +92,7 @@ namespace SDFcl.GamePlay.Interactable
 
                 detectedThisFrame.Add(interactable);
 
-                if (!highlightedInteractors.Contains(interactable) && interactable.CanInteract)
+                if (!highlightedInteractors.Contains(interactable) && interactable.CanInteract(playerRoot))
                 {
                     interactable.ShowHighlight();
                     highlightedInteractors.Add(interactable);
@@ -189,7 +189,7 @@ namespace SDFcl.GamePlay.Interactable
 
         private void SetFocus(IbaseInteractor interactable)
         {
-            if (!IsAlive(interactable) || interactable == currentInteractable)
+            if (!IsAlive(interactable) || (interactable == currentInteractable && !interactable.CanInteract(playerRoot)))
                 return;
 
             ClearCurrentInteractable();

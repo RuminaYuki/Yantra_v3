@@ -73,15 +73,20 @@ public class SplineToLineRenderer : MonoBehaviour
         // จำนวนจุดที่ต้องใช้ในการร่ายตาม Progress
         int pointCount = Mathf.Max(2, Mathf.CeilToInt(resolutions * CurrentProgress));
 
+        // ส่งตำแหน่งเป็น Local ของ LineRenderer
+        lineRenderer.useWorldSpace = false;
+        Transform lineTransform = lineRenderer.transform;
+
         lineRenderer.positionCount = pointCount;
         for (int i = 0; i < pointCount; i++)
         {
             // คำนวณ t ให้อยู่ตั้งแต่ 0 ถึง progress
             float t = CurrentProgress * ((float)i / (pointCount - 1));
 
+            // EvaluatePosition คืนค่าเป็น World -> แปลงเป็น Local ก่อนส่งให้ LineRenderer
             currentPosition = splineContainer.EvaluatePosition(t);
 
-            lineRenderer.SetPosition(i, currentPosition);
+            lineRenderer.SetPosition(i, lineTransform.InverseTransformPoint(currentPosition));
             if (t >= 1f && !finishedSpellRaised)
             {
                 finishedSpellRaised = true;

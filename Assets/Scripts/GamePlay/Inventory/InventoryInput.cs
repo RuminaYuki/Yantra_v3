@@ -4,8 +4,8 @@ using UnityEngine;
 // Uses the legacy Input Manager (UnityEngine.Input).
 public class InventoryInput : MonoBehaviour
 {
-    [SerializeField] private PlayerInventory inventory;
-    [SerializeField] private InventoryUI ui;
+/*    [SerializeField] private PlayerInventory inventory;
+
     [SerializeField] private float pickupRadius = 2f;
     [SerializeField] private LayerMask pickupMask = ~0;
 
@@ -41,5 +41,5 @@ public class InventoryInput : MonoBehaviour
         }
 
         if (best != null) inventory.TryPickup(best);
-    }
+    }*/
 }

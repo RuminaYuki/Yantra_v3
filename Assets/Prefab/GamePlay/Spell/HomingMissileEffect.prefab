@@ -51,7 +51,7 @@ MonoBehaviour:
   duration: 0
   cooldown: 0
   destroyAfterFinished: 1
-  destroyDelayAfterUse: 2
+  destroyDelayAfterUse: 0.5
   finishedEventChannel: {fileID: 11400000, guid: a6c6e57fef32dcb48bda4838e8fdab90, type: 2}
   forceEnabledEventChannel: {fileID: 11400000, guid: 2af626199a8cd8e428f546c312fcd348, type: 2}
   remainingDuration: 10
@@ -68,12 +68,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HomingMissileEffect
   owner: {fileID: 0}
+  spawners:
+  - {fileID: 2648723491680359916}
   useAnimation: 1
   animatorAnchor: {fileID: 11400000, guid: 6dc3f03200b18494388337ab5bf989c2, type: 2}
   animationName: HomingMissleCast
   layerIndex: 0
-  spawners:
-  - {fileID: 2648723491680359916}
   eventKey: HomingMissle
   animEvent: {fileID: 0}
 --- !u!1 &5830205724476910581

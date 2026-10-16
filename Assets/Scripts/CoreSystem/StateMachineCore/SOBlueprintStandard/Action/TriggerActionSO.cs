@@ -9,7 +9,7 @@ public class TriggerActionSO : StateActionSO
 {
     [SerializeField] private TriggerConditionSO _triggerConditionSO;
 
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
         return new TriggerAction(_triggerConditionSO);
     }

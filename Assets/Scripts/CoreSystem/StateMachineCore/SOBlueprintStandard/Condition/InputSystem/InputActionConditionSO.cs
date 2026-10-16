@@ -8,14 +8,14 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/InputSystem/Input Action")]
 public class InputActionConditionSO : StateConditionSO
 {
-    [SerializeField] private InputActionReference _inputAction;
+    [SerializeField,Exposed] private InputActionReference _inputAction;
     [SerializeField] private InputCheckType _checkType;
 
     [Tooltip("Buffer window (seconds) for PerformedThisFrame/ReleasedThisFrame so the press isn't lost while waiting on other AND-conditions. 0 = old single-frame behavior.")]
-    [SerializeField, Min(0f)] private float _bufferTime = 0.15f;
-    [SerializeField] private bool _jumpBuffering = false;
+    [SerializeField, Min(0f),Exposed] private float _bufferTime = 0.15f;
+    [SerializeField,Exposed] private bool _jumpBuffering = false;
 
-    public override Condition CreateCondition()
+    protected override Condition OnCreateCondition()
     {
         return new InputActionCondition(_inputAction, _checkType, _bufferTime,_jumpBuffering);
     }

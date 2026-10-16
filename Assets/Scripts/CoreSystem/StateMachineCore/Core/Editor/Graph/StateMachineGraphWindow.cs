@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.Callbacks;
+using UnityEditor.Experimental.GraphView;
 using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -31,8 +32,17 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         private List<StateSO> _pathStates = new List<StateSO>();
 
         private StateMachineGraphView _graphView;
-        private GraphInspectorPanel _inspectorPanel;
         private ToolbarBreadcrumbs _breadcrumbs;
+        private ContentsPanel _contentsPanel;
+
+        // Exposed parameters panel floating over the graph (like VFX Graph's Blackboard).
+        private ParameterBlackboard _blackboard;
+
+        [SerializeField]
+        private bool _showParameters = true;
+
+        // What Unity's Inspector shows while an arrow is selected. See TransitionSelection.
+        private TransitionSelection _transitionSelection;
 
         // The table at the top of the navigation path, the one a StateMachineController runs.
         private TransitionTableSO RootTable => _path.Count > 0 ? _path[0] : _table;
@@ -66,6 +76,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         {
             Undo.undoRedoPerformed -= Reload;
             StopWatching();
+            DestroyImmediate(_transitionSelection);
         }
 
         private void CreateGUI()
@@ -77,15 +88,30 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             rootVisualElement.Add(toolbar);
 
             _graphView = new StateMachineGraphView(this);
-            _inspectorPanel = new GraphInspectorPanel(Reload, _graphView.SelectTransitionEdge);
-            _graphView.SelectionChanged += _inspectorPanel.ShowSelection;
+            _graphView.SelectionChanged += ShowInUnityInspector;
             _graphView.SubStateMachineOpenRequested += EnterSubStateMachine;
 
-            // Graph on the left, panel on the right with a draggable divider. Panel starts 320px wide.
-            var split = new TwoPaneSplitView(1, 320f, TwoPaneSplitViewOrientation.Horizontal);
+            // Added to the view itself, not as a graph element, so it doesn't pan/zoom
+            // and Load() doesn't clear it.
+            _blackboard = new ParameterBlackboard(_graphView);
+            _graphView.Add(_blackboard);
+            CreateParametersToggle(toolbar);
+
+            _contentsPanel = new ContentsPanel(
+                this,
+                ShowContentsItem,
+                state => _graphView.AddStateAtViewCenter(state),
+                EnterSubStateMachine);
+
+            // Contents on the left, graph on the right, with a draggable divider. Contents starts 220px wide.
+            // Details of the selection show in Unity's own Inspector (see ShowInUnityInspector).
+            var split = new TwoPaneSplitView(0, 220f, TwoPaneSplitViewOrientation.Horizontal);
             split.style.flexGrow = 1;
+            split.Add(_contentsPanel);
+
+            // Renaming on a node uses the Contents panel's rename, so both work the same way.
+            _graphView.StateRenameRequested += (state, newName) => _contentsPanel.RenameFromGraph(state, newName);
             split.Add(_graphView);
-            split.Add(_inspectorPanel);
             rootVisualElement.Add(split);
 
             ShowTable();
@@ -156,8 +182,29 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             RebuildBreadcrumbs();
 
-            _inspectorPanel.SetTable(_table);
+            _contentsPanel.SetTable(_table);
             _graphView.Load(_table);
+            _blackboard.SetTable(_table);
+        }
+
+        private void CreateParametersToggle(Toolbar toolbar)
+        {
+            var toggle = new ToolbarToggle
+            {
+                text = "Parameters",
+                tooltip = "Show the exposed parameters of this table."
+            };
+            toggle.SetValueWithoutNotify(_showParameters);
+            toggle.RegisterValueChangedCallback(evt =>
+            {
+                _showParameters = evt.newValue;
+                _blackboard.style.display = _showParameters ? DisplayStyle.Flex : DisplayStyle.None;
+                _graphView.ShowParameterTags = _showParameters;
+            });
+            toolbar.Add(toggle);
+
+            _blackboard.style.display = _showParameters ? DisplayStyle.Flex : DisplayStyle.None;
+            _graphView.ShowParameterTags = _showParameters;
         }
 
         // PlayerAction_TransitionTable > PlayerGun_State (PlayerGun_TransitionTable)
@@ -191,7 +238,70 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         private void Reload()
         {
             _graphView?.Reload();
+            _contentsPanel?.Rebuild();
+            _blackboard?.Rebuild();
         }
+
+        // Like Animator: the selected state or arrow also shows in Unity's own Inspector.
+        private void ShowInUnityInspector(GraphElement element)
+        {
+            if (element is StateNodeView stateNode && stateNode.State != null)
+            {
+                Selection.activeObject = stateNode.State;
+            }
+            else if (element is TransitionEdgeView edge)
+            {
+                SelectStandIn(TransitionSelection.Create(_table, edge));
+            }
+            else if (element is SpecialNodeView { NodeKind: SpecialNodeView.Kind.AnyState })
+            {
+                SelectStandIn(TransitionSelection.CreateForAnyState(_table));
+            }
+        }
+
+        // A row clicked in the Contents panel. A state selects its node, which also shows it in
+        // the Inspector; anything else (or a state with no node) goes to the Inspector directly.
+        private void ShowContentsItem(UnityEngine.Object item)
+        {
+            if (item is StateSO state && _graphView.SelectStateNode(state))
+            {
+                return;
+            }
+
+            Selection.activeObject = item;
+        }
+
+        // A new stand-in per click, so the Inspector rebuilds for the new selection.
+        private void SelectStandIn(TransitionSelection selection)
+        {
+            TransitionSelection previous = _transitionSelection;
+            _transitionSelection = selection;
+            Selection.activeObject = selection;
+            DestroyImmediate(previous);
+        }
+
+        // A table was changed from outside the graph (e.g. reordered in the StateSO Inspector).
+        public static void ReloadAll()
+        {
+            foreach (StateMachineGraphWindow window in Resources.FindObjectsOfTypeAll<StateMachineGraphWindow>())
+            {
+                window.Reload();
+            }
+        }
+
+        // Selects the from → to arrow in every open graph showing this table
+        // (e.g. a transition row clicked in the Inspector). fromKey is a StateSO, or SpecialNodeView.Kind.AnyState.
+        public static void SelectTransition(TransitionTableSO table, object fromKey, StateSO to)
+        {
+            foreach (StateMachineGraphWindow window in Resources.FindObjectsOfTypeAll<StateMachineGraphWindow>())
+            {
+                if (window._table == table)
+                {
+                    window._graphView?.SelectTransitionEdge(fromKey, to);
+                }
+            }
+        }
+
     }
 }
 

@@ -34,4 +34,10 @@ public class RadialMenuButtonData
 
     public string buttonName;
     public Texture buttonIcon;
+
+    [Header("Item")]
+    [Tooltip("Item needed to pick this button. Empty = always available.")]
+    public ItemData itemData;
+    [Tooltip("Minimum amount of itemData in the inventory.")]
+    [Min(0)] public int itemReq;
 }

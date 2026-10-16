@@ -1,0 +1,1068 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-9142475050934719203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: HardStager_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: -495829620269271038}
+--- !u!114 &-9086568540705967280
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: CoolDownAttack_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 6158474955204310738}
+  - {fileID: 11400000, guid: 3fd49921c564c0144ba896c52333a883, type: 2}
+  - {fileID: 11400000, guid: 90eeccc02183fc545b624e1fb8ddb919, type: 2}
+  - {fileID: 11400000, guid: bd18bf852ec29134cb29a121f2024876, type: 2}
+  - {fileID: 11400000, guid: f136b1b9866aa294bb8dc985b6dd4cd2, type: 2}
+--- !u!114 &-8544828399458302064
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: WeakStager_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: -6459541696696547762}
+--- !u!114 &-8405437298675211634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae75f5365ad06ad4ebb6bb2bce623372, type: 3}
+  m_Name: PatrolToChaseSubSMExited_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::SubStateMachineExitedConditionSO
+  _selfAnchor: {fileID: 0}
+  _exitId: Chase
+--- !u!114 &-7387805079813364312
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: Attack_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 3674154901680672156}
+--- !u!114 &-6665630544707791696
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: Stance_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 6158474955204310738}
+  - {fileID: 11400000, guid: 3fd49921c564c0144ba896c52333a883, type: 2}
+  - {fileID: 11400000, guid: 90eeccc02183fc545b624e1fb8ddb919, type: 2}
+  - {fileID: 11400000, guid: fe0fa4b380c14694e8e6393f856ef3fa, type: 2}
+  - {fileID: 11400000, guid: e8cd736b00348544a8e59cc00b297b6f, type: 2}
+  - {fileID: 11400000, guid: f136b1b9866aa294bb8dc985b6dd4cd2, type: 2}
+--- !u!114 &-6607439959730550105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: Patrol_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: -6600925846593957033}
+  - {fileID: 11400000, guid: a12119121bfba5544aa437d4d5f52d32, type: 2}
+--- !u!114 &-6600925846593957033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 980dfb7f48049f446a18747273209362, type: 3}
+  m_Name: PatrolSubStateMachine_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SubStateMachineActionSO
+  _selfAnchor: {fileID: 0}
+  _transitionTable: {fileID: 7437739985722048334}
+  _forceExitState: {fileID: 0}
+--- !u!114 &-6459541696696547762
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77e8ae40d928604408f37497243c6985, type: 3}
+  m_Name: PlayWeakHurtAnimatorState_Action
+  m_EditorClassIdentifier: Assembly-CSharp::PlayAnimatorStateActionSO
+  _selfAnchor: {fileID: 0}
+  _stateName: WeakHurt
+  _layerIndex: 0
+  _transitionDuration: 0.25
+  _normalizedStartTime: 0
+  _exitStateName: BaseMovement
+  _exitTransitionDuration: 0.25
+  _exitNormalizedStartTime: 0
+--- !u!114 &-6433301286439908800
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: AttackToPatrolExit_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 11400000, guid: bd18bf852ec29134cb29a121f2024876, type: 2}
+  - {fileID: 11400000, guid: 6eae33dd140d454449b194e609f8dcba, type: 2}
+  - {fileID: -1731832575130198423}
+--- !u!114 &-6404125172355619043
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bc33c17855b7944f975cd6048bf5471, type: 3}
+  m_Name: PatrolIdleCDTimer_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::CountDownTimerConditionSO
+  _selfAnchor: {fileID: 0}
+  minDuration: 3
+  maxDuration: 0
+--- !u!114 &-5916791635501509908
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: ExecuteAttack_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 4890663039576948243}
+  - {fileID: 1516896451935990835}
+  - {fileID: 11400000, guid: 8f0e3acef9909804da3544cc29bf8389, type: 2}
+  - {fileID: 11400000, guid: f136b1b9866aa294bb8dc985b6dd4cd2, type: 2}
+--- !u!114 &-5724900484914872438
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77e8ae40d928604408f37497243c6985, type: 3}
+  m_Name: PlayDeadAnimatorState_Action
+  m_EditorClassIdentifier: Assembly-CSharp::PlayAnimatorStateActionSO
+  _selfAnchor: {fileID: 0}
+  _stateName: Dead
+  _layerIndex: 0
+  _transitionDuration: 0.25
+  _normalizedStartTime: 0
+  _exitStateName: 
+  _exitTransitionDuration: 0.25
+  _exitNormalizedStartTime: 0
+--- !u!114 &-5684113865947481881
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: PatrolExitToAlert_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 6144958969394957115}
+--- !u!114 &-4716508605988815988
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08213a7885bcb1e4f984dccbb0183890, type: 3}
+  m_Name: AnimationFinished_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::AnimationFinishedConditionSO
+  _selfAnchor: {fileID: 0}
+  stateName: 
+  layerIndex: 0
+  finishTime: 1
+  extraSeconds: 0
+--- !u!114 &-3280333336497672141
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bc33c17855b7944f975cd6048bf5471, type: 3}
+  m_Name: AttackCDTimer_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::CountDownTimerConditionSO
+  _selfAnchor: {fileID: 0}
+  minDuration: 3
+  maxDuration: 0
+--- !u!114 &-2213541606384760985
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: Chase_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 11400000, guid: 3b455ca2c9a623647b7a2dbb10c3cf51, type: 2}
+  - {fileID: 5520359603778580302}
+  - {fileID: 11400000, guid: 2958ea6d68a7b7242af443657f008670, type: 2}
+  - {fileID: 11400000, guid: f136b1b9866aa294bb8dc985b6dd4cd2, type: 2}
+  - {fileID: 11400000, guid: 3f2af0769ccdbf9409f7500cef12bc0b, type: 2}
+--- !u!114 &-2100716820089249640
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: Dead_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: -5724900484914872438}
+  - {fileID: 11400000, guid: a12119121bfba5544aa437d4d5f52d32, type: 2}
+  - {fileID: 11400000, guid: 8dc86c4af3c90ed40b81307877ec830e, type: 2}
+--- !u!114 &-2084456843265894982
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d0a7d53c3c15fb4b800d8d16c222d7b, type: 3}
+  m_Name: OnDead_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::OnDeadConditionSO
+  _selfAnchor: {fileID: 0}
+--- !u!114 &-1731832575130198423
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2ef262a749aaf741855b6e4bddb2add, type: 3}
+  m_Name: AttackExitToPatrolSubStateMachine_Action
+  m_EditorClassIdentifier: Assembly-CSharp::ExitSubStateMachineActionSO
+  _selfAnchor: {fileID: 0}
+  _exitId: Patrol
+--- !u!114 &-1607774097075941729
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c1427dc6da266b44b5aa1bfd7496f81, type: 3}
+  m_Name: Detect_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::DetectConditionSO
+  _selfAnchor: {fileID: 0}
+  _detectRange: 14
+  _minTimeToNotice: 0
+  _maxTimeToNotice: 8
+  _noticeCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0.25
+      value: 0
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &-495829620269271038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4dead1015d073a946b9c11eae9bc964e, type: 3}
+  m_Name: HurtAnimationAction
+  m_EditorClassIdentifier: Assembly-CSharp::HurtAnimationActionSO
+  _selfAnchor: {fileID: 0}
+--- !u!114 &-243095206415016895
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a57e2730040a82443aea81f5be59cd4b, type: 3}
+  m_Name: AlertLostSight_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::LostSightConditionSO
+  _selfAnchor: {fileID: 0}
+  _loseSightDuration: 5
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5492ed31ba40b643aaf3d94f1de0aa7, type: 3}
+  m_Name: PKrasue_TransitionTable
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
+  _initialState: {fileID: -6607439959730550105}
+  _anyTransitions:
+  - ToState: {fileID: -2100716820089249640}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -2084456843265894982}
+        ExpectedResult: 0
+  - ToState: {fileID: -8544828399458302064}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 6417865794579400801}
+        ExpectedResult: 0
+  - ToState: {fileID: -9142475050934719203}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: de4a2ff3a75d3164584a30ed79d22307, type: 2}
+        ExpectedResult: 0
+  _transitions:
+  - FromState: {fileID: -6607439959730550105}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 7647076248596034616}
+        ExpectedResult: 0
+    ToState: {fileID: 7581903216582384149}
+  - FromState: {fileID: -6607439959730550105}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -8405437298675211634}
+        ExpectedResult: 0
+    ToState: {fileID: -2213541606384760985}
+  - FromState: {fileID: 7581903216582384149}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -1607774097075941729}
+        ExpectedResult: 0
+    - Conditions:
+      - Condition: {fileID: 8533985618227623645}
+        ExpectedResult: 0
+    ToState: {fileID: -2213541606384760985}
+  - FromState: {fileID: 7581903216582384149}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -243095206415016895}
+        ExpectedResult: 0
+      - Condition: {fileID: 8533985618227623645}
+        ExpectedResult: 1
+    ToState: {fileID: -6607439959730550105}
+  - FromState: {fileID: -2213541606384760985}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 3450423854783271006}
+        ExpectedResult: 0
+    ToState: {fileID: -7387805079813364312}
+  - FromState: {fileID: -2213541606384760985}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 1657887496226377186}
+        ExpectedResult: 1
+    ToState: {fileID: -6607439959730550105}
+  - FromState: {fileID: -7387805079813364312}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 622217952300443433}
+        ExpectedResult: 0
+    ToState: {fileID: -6607439959730550105}
+  - FromState: {fileID: -8544828399458302064}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -4716508605988815988}
+        ExpectedResult: 0
+    ToState: {fileID: -2213541606384760985}
+  - FromState: {fileID: -9142475050934719203}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -4716508605988815988}
+        ExpectedResult: 0
+    ToState: {fileID: -2213541606384760985}
+  _exposedParameters: {fileID: 349741613760096112}
+  _nodePositions:
+  - State: {fileID: 7581903216582384149}
+    Position: {x: 483, y: 0}
+  - State: {fileID: -2213541606384760985}
+    Position: {x: 250, y: 98}
+  - State: {fileID: -8544828399458302064}
+    Position: {x: 56, y: 98}
+  - State: {fileID: -9142475050934719203}
+    Position: {x: 56, y: 164}
+  - State: {fileID: -2100716820089249640}
+    Position: {x: 57, y: 221}
+  - State: {fileID: -7387805079813364312}
+    Position: {x: 483, y: 80}
+  - State: {fileID: -6607439959730550105}
+    Position: {x: 250, y: 0}
+  _entryNodePosition: {x: 0, y: 0}
+  _anyStateNodePosition: {x: -193, y: 120}
+  _contentsFolders:
+  - Item: {fileID: -1607774097075941729}
+    Folder: LineOfSight
+  - Item: {fileID: 8533985618227623645}
+    Folder: Distance
+  - Item: {fileID: -243095206415016895}
+    Folder: LineOfSight
+  - Item: {fileID: 3450423854783271006}
+    Folder: Distance
+  - Item: {fileID: 1657887496226377186}
+    Folder: Distance
+  - Item: {fileID: 11400000, guid: 3b455ca2c9a623647b7a2dbb10c3cf51, type: 2}
+    Folder: Navigator
+  - Item: {fileID: 5520359603778580302}
+    Folder: Locomotion
+  - Item: {fileID: 11400000, guid: 2958ea6d68a7b7242af443657f008670, type: 2}
+    Folder: Locomotion
+  - Item: {fileID: 11400000, guid: 3f2af0769ccdbf9409f7500cef12bc0b, type: 2}
+    Folder: Reservation
+  - Item: {fileID: -495829620269271038}
+    Folder: Health
+  - Item: {fileID: 11400000, guid: a12119121bfba5544aa437d4d5f52d32, type: 2}
+    Folder: Reservation
+  - Item: {fileID: 11400000, guid: 8dc86c4af3c90ed40b81307877ec830e, type: 2}
+    Folder: Layer
+  _contentsFolderPaths: []
+--- !u!114 &15294862054688600
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77e8ae40d928604408f37497243c6985, type: 3}
+  m_Name: IdlePlayAnimatorState_Action
+  m_EditorClassIdentifier: Assembly-CSharp::PlayAnimatorStateActionSO
+  _selfAnchor: {fileID: 0}
+  _stateName: BaseMovement
+  _layerIndex: 0
+  _transitionDuration: 0.25
+  _normalizedStartTime: 0
+  _exitStateName: 
+  _exitTransitionDuration: 0.25
+  _exitNormalizedStartTime: 0
+--- !u!114 &275781021768988274
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: PatrolExitToChase_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 7767174901967438601}
+--- !u!114 &349741613760096112
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e20e27464dc08eb44ac14238e4b68ebb, type: 3}
+  m_Name: Exposed_Parameters
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.ExposedParametersSO
+  _parameters:
+  - _name: ChaseRange
+    _bindings:
+    - _target: {fileID: 8533985618227623645}
+      _fieldName: _distance
+    _category: General
+  - _name: OutOfPatrolRange
+    _bindings:
+    - _target: {fileID: 1657887496226377186}
+      _fieldName: _distance
+    _category: General
+  - _name: PatrolSetRanPosNav_Radius
+    _bindings:
+    - _target: {fileID: 7411131746467336072}
+      _fieldName: _ringParameters.radius
+    _category: Patrol
+  - _name: PatrolSetRanPosNav_MinDistance
+    _bindings:
+    - _target: {fileID: 7411131746467336072}
+      _fieldName: _ringParameters.minDistance
+    _category: Patrol
+  - _name: PatrolIdleTime
+    _bindings:
+    - _target: {fileID: -6404125172355619043}
+      _fieldName: minDuration
+    _category: Patrol
+  - _name: PatrolDetectToAlert_DetectRange
+    _bindings:
+    - _target: {fileID: 1817966935459295926}
+      _fieldName: _detectRange
+    _category: Patrol
+  - _name: DetectAlertToChase_DetectRange
+    _bindings:
+    - _target: {fileID: -1607774097075941729}
+      _fieldName: _detectRange
+    _category: Alert
+  - _name: DetectAlertToChase_MinTimeToNotice
+    _bindings:
+    - _target: {fileID: -1607774097075941729}
+      _fieldName: _minTimeToNotice
+    _category: Alert
+  - _name: DetectAlertToChase_MaxTimeToNotice
+    _bindings:
+    - _target: {fileID: -1607774097075941729}
+      _fieldName: _maxTimeToNotice
+    _category: Alert
+  - _name: AlertLoseSightDuration
+    _bindings:
+    - _target: {fileID: -243095206415016895}
+      _fieldName: _loseSightDuration
+    _category: Alert
+  - _name: ChaseToAttackRange
+    _bindings:
+    - _target: {fileID: 3450423854783271006}
+      _fieldName: _distance
+    _category: Chase
+  - _name: AttackTime
+    _bindings:
+    - _target: {fileID: -3280333336497672141}
+      _fieldName: minDuration
+    _category: Attack
+  - _name: PlayerPathNavigatorOffset
+    _bindings:
+    - _target: {fileID: 6158474955204310738}
+      _fieldName: _offset
+    _category: Attack
+  - _name: SetProjectileHeight
+    _bindings:
+    - _target: {fileID: 4890663039576948243}
+      _fieldName: _config.apexHeight
+    _category: Attack
+  - _name: SetProjectileDamage
+    _bindings:
+    - _target: {fileID: 4890663039576948243}
+      _fieldName: _config.damage
+    _category: Attack
+--- !u!114 &622217952300443433
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae75f5365ad06ad4ebb6bb2bce623372, type: 3}
+  m_Name: AttackToPatrolSubSMExited_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::SubStateMachineExitedConditionSO
+  _selfAnchor: {fileID: 0}
+  _exitId: Patrol
+--- !u!114 &1516896451935990835
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77e8ae40d928604408f37497243c6985, type: 3}
+  m_Name: PlayAttackAnimatorState_Action
+  m_EditorClassIdentifier: Assembly-CSharp::PlayAnimatorStateActionSO
+  _selfAnchor: {fileID: 0}
+  _stateName: Attack
+  _layerIndex: 0
+  _transitionDuration: 0.25
+  _normalizedStartTime: 0
+  _exitStateName: BaseMovement
+  _exitTransitionDuration: 0.25
+  _exitNormalizedStartTime: 0
+--- !u!114 &1651377035273497085
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: PatrolWalk_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 7411131746467336072}
+  - {fileID: 5520359603778580302}
+--- !u!114 &1657887496226377186
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e735da92d11765a4c84d56b861424d90, type: 3}
+  m_Name: PatrolRange_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::DistanceConditionSO
+  _selfAnchor: {fileID: 0}
+  _targetAnchor: {fileID: 11400000, guid: ded8b5ee8f0dd57488cc9fa0e5c0d061, type: 2}
+  _distance: 16
+--- !u!114 &1817966935459295926
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c1427dc6da266b44b5aa1bfd7496f81, type: 3}
+  m_Name: PatrolToAlertDetect_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::DetectConditionSO
+  _selfAnchor: {fileID: 0}
+  _detectRange: 14
+  _minTimeToNotice: 0
+  _maxTimeToNotice: 0
+  _noticeCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &3450423854783271006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e735da92d11765a4c84d56b861424d90, type: 3}
+  m_Name: AttackRange_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::DistanceConditionSO
+  _selfAnchor: {fileID: 0}
+  _targetAnchor: {fileID: 11400000, guid: ded8b5ee8f0dd57488cc9fa0e5c0d061, type: 2}
+  _distance: 7
+--- !u!114 &3562662514831412505
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: PatrolIdle_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 15294862054688600}
+--- !u!114 &3674154901680672156
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 980dfb7f48049f446a18747273209362, type: 3}
+  m_Name: AttackSubStateMachine_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SubStateMachineActionSO
+  _selfAnchor: {fileID: 0}
+  _transitionTable: {fileID: 5987755306130065699}
+  _forceExitState: {fileID: -6433301286439908800}
+--- !u!114 &4890663039576948243
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1688494d2319f3d4db952a48839e8d50, type: 3}
+  m_Name: SetProjectileConfig_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SetProjectileConfigActionSO
+  _selfAnchor: {fileID: 0}
+  _config:
+    aimMode: 1
+    apexHeight: 5
+    projectileSpeed: 0
+    gravity: 9.81
+    lifetime: 5
+    damage: 1
+    damageType: {fileID: 0}
+  _poolTag: KrasueProjectileBullet
+  _fallbackPrefab: {fileID: 0}
+  _targetAnchor: {fileID: 11400000, guid: ded8b5ee8f0dd57488cc9fa0e5c0d061, type: 2}
+--- !u!114 &5520359603778580302
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a99bcdd4bdd53a749a61018a243d8b1f, type: 3}
+  m_Name: FollowPathLocomotion_Action
+  m_EditorClassIdentifier: Assembly-CSharp::FollowPathLocomotionActionSO
+  _selfAnchor: {fileID: 0}
+  _updateFacing: 1
+--- !u!114 &5987755306130065699
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5492ed31ba40b643aaf3d94f1de0aa7, type: 3}
+  m_Name: Attack_TransitionTable
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
+  _initialState: {fileID: -6665630544707791696}
+  _anyTransitions:
+  - ToState: {fileID: -6433301286439908800}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 1657887496226377186}
+        ExpectedResult: 1
+  _transitions:
+  - FromState: {fileID: -6665630544707791696}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 4c2705aeb35f1a24a8f1239f4003cf46, type: 2}
+        ExpectedResult: 0
+      - Condition: {fileID: 11400000, guid: 2694bdd4e0c1aa04e8b8373dc6844cc9, type: 2}
+        ExpectedResult: 0
+      - Condition: {fileID: 11400000, guid: 7bffa4ee31af1c140a9799282ee558f9, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: -5916791635501509908}
+  - FromState: {fileID: -5916791635501509908}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -4716508605988815988}
+        ExpectedResult: 0
+    ToState: {fileID: -9086568540705967280}
+  - FromState: {fileID: -9086568540705967280}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -3280333336497672141}
+        ExpectedResult: 0
+    ToState: {fileID: -6665630544707791696}
+  _exposedParameters: {fileID: 349741613760096112}
+  _nodePositions:
+  - State: {fileID: -6433301286439908800}
+    Position: {x: 250, y: 206}
+  - State: {fileID: -5916791635501509908}
+    Position: {x: 250, y: 98}
+  - State: {fileID: -9086568540705967280}
+    Position: {x: 476, y: 0}
+  _entryNodePosition: {x: 82, y: 0}
+  _anyStateNodePosition: {x: 83, y: 206}
+  _contentsFolders:
+  - Item: {fileID: 1657887496226377186}
+    Folder: Distance
+  - Item: {fileID: 11400000, guid: 4c2705aeb35f1a24a8f1239f4003cf46, type: 2}
+    Folder: AttackToken
+  - Item: {fileID: 11400000, guid: 3fd49921c564c0144ba896c52333a883, type: 2}
+    Folder: Locomotion
+  - Item: {fileID: 11400000, guid: 90eeccc02183fc545b624e1fb8ddb919, type: 2}
+    Folder: Navigator
+  - Item: {fileID: 11400000, guid: bd18bf852ec29134cb29a121f2024876, type: 2}
+    Folder: AttackToken
+  - Item: {fileID: 11400000, guid: 8f0e3acef9909804da3544cc29bf8389, type: 2}
+    Folder: Locomotion
+  - Item: {fileID: 11400000, guid: 6eae33dd140d454449b194e609f8dcba, type: 2}
+    Folder: Locomotion
+  - Item: {fileID: 11400000, guid: fe0fa4b380c14694e8e6393f856ef3fa, type: 2}
+    Folder: AttackToken
+  - Item: {fileID: 11400000, guid: e8cd736b00348544a8e59cc00b297b6f, type: 2}
+    Folder: Locomotion
+  _contentsFolderPaths: []
+--- !u!114 &6144958969394957115
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2ef262a749aaf741855b6e4bddb2add, type: 3}
+  m_Name: PatrolExitToAlertSubStateMachine_Action
+  m_EditorClassIdentifier: Assembly-CSharp::ExitSubStateMachineActionSO
+  _selfAnchor: {fileID: 0}
+  _exitId: Alert
+--- !u!114 &6158474955204310738
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 064477ec6286dbb46971440740c727ae, type: 3}
+  m_Name: SetPlayerStancePNTarget_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SetPathNavigatorTargetActionSO
+  _selfAnchor: {fileID: 0}
+  _targetAnchor: {fileID: 11400000, guid: ded8b5ee8f0dd57488cc9fa0e5c0d061, type: 2}
+  _offset: {x: 0, y: 0, z: 7}
+  _randomOffsetRange: {x: 0, y: 0, z: 0}
+--- !u!114 &6417865794579400801
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79513bdaba7c38f4fb67c2374ce1cf31, type: 3}
+  m_Name: OnHurt_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::OnHurtConditionSO
+  _selfAnchor: {fileID: 0}
+--- !u!114 &7411131746467336072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b20167e0442bedf4b81e2c27e855aa86, type: 3}
+  m_Name: SetRandomPositionNavRadius_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SetRandomPositionNavRadiusActionSO
+  _selfAnchor: {fileID: 0}
+  _ringParameters:
+    radius: 10
+    minDistance: 1.5
+    directionCount: 16
+  _maxAttempts: 10
+  _requireNavMeshBaked: 0
+--- !u!114 &7437739985722048334
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5492ed31ba40b643aaf3d94f1de0aa7, type: 3}
+  m_Name: Patrol_TransitionTable
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
+  _initialState: {fileID: 1651377035273497085}
+  _anyTransitions:
+  - ToState: {fileID: -5684113865947481881}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 1817966935459295926}
+        ExpectedResult: 0
+  - ToState: {fileID: 275781021768988274}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 8533985618227623645}
+        ExpectedResult: 0
+  _transitions:
+  - FromState: {fileID: 1651377035273497085}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 2694bdd4e0c1aa04e8b8373dc6844cc9, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: 3562662514831412505}
+  - FromState: {fileID: 3562662514831412505}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -6404125172355619043}
+        ExpectedResult: 0
+    ToState: {fileID: 1651377035273497085}
+  _exposedParameters: {fileID: 349741613760096112}
+  _nodePositions: []
+  _entryNodePosition: {x: 0, y: 0}
+  _anyStateNodePosition: {x: 0, y: 120}
+  _contentsFolders:
+  - Item: {fileID: 8533985618227623645}
+    Folder: Distance
+  - Item: {fileID: 7411131746467336072}
+    Folder: Navigator
+  - Item: {fileID: 5520359603778580302}
+    Folder: Locomotion
+  _contentsFolderPaths: []
+--- !u!114 &7581903216582384149
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: Alert_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 11400000, guid: f136b1b9866aa294bb8dc985b6dd4cd2, type: 2}
+--- !u!114 &7647076248596034616
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae75f5365ad06ad4ebb6bb2bce623372, type: 3}
+  m_Name: PatrolToAlertSubSMExited_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::SubStateMachineExitedConditionSO
+  _selfAnchor: {fileID: 0}
+  _exitId: Alert
+--- !u!114 &7767174901967438601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2ef262a749aaf741855b6e4bddb2add, type: 3}
+  m_Name: PatrolExitToChaseSubStateMachine_Action
+  m_EditorClassIdentifier: Assembly-CSharp::ExitSubStateMachineActionSO
+  _selfAnchor: {fileID: 0}
+  _exitId: Chase
+--- !u!114 &8533985618227623645
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e735da92d11765a4c84d56b861424d90, type: 3}
+  m_Name: ChaseRange_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::DistanceConditionSO
+  _selfAnchor: {fileID: 0}
+  _targetAnchor: {fileID: 11400000, guid: ded8b5ee8f0dd57488cc9fa0e5c0d061, type: 2}
+  _distance: 2

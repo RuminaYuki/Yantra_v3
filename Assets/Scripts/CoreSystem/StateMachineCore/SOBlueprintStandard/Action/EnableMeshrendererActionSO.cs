@@ -2,7 +2,8 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
-[RequiresOwnerComponent(typeof(MeshRenderer), UnlessAnchorField = "meshRendererAnchor")]
+[UseSelfAnchor]
+[RequiresOwnerComponent(typeof(MeshRenderer))]
 [CreateAssetMenu(
     fileName = "NewEnableMeshrenderer_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Standard/Enable Mesh Renderer")]
@@ -12,45 +13,40 @@ public class EnableMeshrendererActionSO : StateActionSO
     [Tooltip("Change opposite Value On Exit")]
     [SerializeField] private bool resetValueOnExit = true;
 
-    [Header("If the TargetAnchor is set, Use that anchor instead")]
-    [SerializeField] private GameObjectAnchor meshRendererAnchor;
-
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
-        return new EnableMeshrendererAction(value, resetValueOnExit, meshRendererAnchor);
+        return new EnableMeshrendererAction(value, resetValueOnExit);
     }
 }
 
 public class EnableMeshrendererAction : StateAction
 {
-    private readonly GameObjectAnchor meshRendererAnchor;
     private readonly bool value;
     private readonly bool resetValueOnExit;
-    private MeshRenderer meshRenderer;
+    private AnchorReference<MeshRenderer> meshRenderer;
 
-    public EnableMeshrendererAction(bool value, bool changeValueOnExit,GameObjectAnchor meshRendererAnchor = null)
+    public EnableMeshrendererAction(bool value, bool changeValueOnExit)
     {
-        this.meshRendererAnchor = meshRendererAnchor;
         this.value = value;
         this.resetValueOnExit = changeValueOnExit;
     }
 
     public override void Awake(StateMachine stateMachine)
     {
-        meshRendererAnchor.TryGetComponentOrOwner(stateMachine, out meshRenderer, this);
+        meshRenderer = new AnchorReference<MeshRenderer>(stateMachine, this);
     }
 
     public override void OnStateEnter()
     {
-        if (meshRenderer == null) return;
-        meshRenderer.enabled = value;
+        if (!meshRenderer.TryGet(out MeshRenderer renderer)) return;
+        renderer.enabled = value;
     }
 
     public override void OnUpdate() { }
 
     public override void OnStateExit()
     {
-        if (meshRenderer == null || !resetValueOnExit) return;
-        meshRenderer.enabled = !value;
+        if (!resetValueOnExit || !meshRenderer.TryGet(out MeshRenderer renderer)) return;
+        renderer.enabled = !value;
     }
 }

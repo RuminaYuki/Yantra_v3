@@ -22,10 +22,25 @@ public class DelayedConditionSO : StateConditionSO
     [Tooltip("What the inner condition has to be: true, or false (e.g. \"not detected for 2 s\").")]
     [SerializeField] private bool _innerExpected = true;
 
-    [SerializeField, Min(0f)] private float _delay = 1f;
+    [SerializeField, Min(0f), Exposed] private float _delay = 1f;
     [SerializeField] private DelayMode _mode = DelayMode.Sustained;
 
-    public override Condition CreateCondition()
+    public float Delay
+    {
+        get => _delay;
+        set
+        {
+            if (value < 0f)
+            {
+                Debug.LogWarning("Delay cannot be negative. Setting to 0.");
+                _delay = 0f;
+                return;
+            }
+            _delay = value;
+        }
+    }
+
+    protected override Condition OnCreateCondition()
     {
         // Its own copy of the inner condition, separate from any other use of that asset.
         Condition inner = _innerCondition != null ? _innerCondition.CreateCondition() : null;

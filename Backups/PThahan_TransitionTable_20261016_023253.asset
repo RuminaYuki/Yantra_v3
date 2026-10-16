@@ -1,0 +1,122 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5492ed31ba40b643aaf3d94f1de0aa7, type: 3}
+  m_Name: PThahan_TransitionTable
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
+  _initialState: {fileID: 11400000, guid: eae9ade1bde949747aace4048337f389, type: 2}
+  _anyTransitions:
+  - ToState: {fileID: 11400000, guid: 860ff3a41dc13444483f1da14238228a, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: c59538011f4b21044b6eec4ba18009b2, type: 2}
+        ExpectedResult: 0
+  - ToState: {fileID: 11400000, guid: 2bc1bf9260a0970419ed8f5b243fc82f, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 7fa7420e375fa1742a4abbabd7e6e94f, type: 2}
+        ExpectedResult: 0
+  - ToState: {fileID: 11400000, guid: a3f4f96b7e99ee841a95fe454e8c746b, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: de4a2ff3a75d3164584a30ed79d22307, type: 2}
+        ExpectedResult: 0
+  _transitions:
+  - FromState: {fileID: 11400000, guid: eae9ade1bde949747aace4048337f389, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 7bdaa31236090f341aa9ab74ab37c1e2, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: 11400000, guid: f84c0c1e4fa28dc48980719579c6224d, type: 2}
+  - FromState: {fileID: 11400000, guid: f84c0c1e4fa28dc48980719579c6224d, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: c2d1c21813fa875469a538dabc0af930, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: 11400000, guid: 147f1a43e8f53044f8efaf16118353f1, type: 2}
+  - FromState: {fileID: 11400000, guid: f84c0c1e4fa28dc48980719579c6224d, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 3efe1193afaad764ba0adff7f6a7f46e, type: 2}
+        ExpectedResult: 0
+      - Condition: {fileID: 11400000, guid: c2d1c21813fa875469a538dabc0af930, type: 2}
+        ExpectedResult: 1
+    ToState: {fileID: 11400000, guid: eae9ade1bde949747aace4048337f389, type: 2}
+  - FromState: {fileID: 11400000, guid: 147f1a43e8f53044f8efaf16118353f1, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: c795b771b8484b847b19489ec123a3fa, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: 11400000, guid: 1d9263ba0e0f0fb4db4a34a0827ad92f, type: 2}
+  - FromState: {fileID: 11400000, guid: 147f1a43e8f53044f8efaf16118353f1, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: d14adabbec0818c448b3cc5bc20411e0, type: 2}
+        ExpectedResult: 1
+    ToState: {fileID: 11400000, guid: eae9ade1bde949747aace4048337f389, type: 2}
+  - FromState: {fileID: 11400000, guid: 1d9263ba0e0f0fb4db4a34a0827ad92f, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 702238fe95b772245b18861207bdbc01, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: 11400000, guid: eae9ade1bde949747aace4048337f389, type: 2}
+  - FromState: {fileID: 11400000, guid: 2bc1bf9260a0970419ed8f5b243fc82f, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: ac905eeab3e18ea47a16ed7106bcab10, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: 11400000, guid: 147f1a43e8f53044f8efaf16118353f1, type: 2}
+  - FromState: {fileID: 11400000, guid: a3f4f96b7e99ee841a95fe454e8c746b, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: ac905eeab3e18ea47a16ed7106bcab10, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: 11400000, guid: 147f1a43e8f53044f8efaf16118353f1, type: 2}
+  - FromState: {fileID: 11400000, guid: eae9ade1bde949747aace4048337f389, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 35f39b8f9d66bb14380f9720617cb891, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: 11400000, guid: 147f1a43e8f53044f8efaf16118353f1, type: 2}
+  - FromState: {fileID: 11400000, guid: f84c0c1e4fa28dc48980719579c6224d, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 7186e5fb4438da44cbe2ba9a76cf14c1, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: 11400000, guid: bc36590ef98dd9e4183c6a63e7fbdbb3, type: 2}
+  - FromState: {fileID: 11400000, guid: bc36590ef98dd9e4183c6a63e7fbdbb3, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: d886d5c707bf27e4792b3148c7d73a29, type: 2}
+        ExpectedResult: 0
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 084ec0bd7e111564883f41cdcb381585, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: 11400000, guid: 147f1a43e8f53044f8efaf16118353f1, type: 2}
+  _nodePositions:
+  - State: {fileID: 11400000, guid: 2bc1bf9260a0970419ed8f5b243fc82f, type: 2}
+    Position: {x: 290, y: 70}
+  - State: {fileID: 11400000, guid: a3f4f96b7e99ee841a95fe454e8c746b, type: 2}
+    Position: {x: 293, y: 143}
+  - State: {fileID: 11400000, guid: 860ff3a41dc13444483f1da14238228a, type: 2}
+    Position: {x: 302, y: 216}
+  - State: {fileID: 11400000, guid: 147f1a43e8f53044f8efaf16118353f1, type: 2}
+    Position: {x: 550, y: 70}
+  - State: {fileID: 11400000, guid: eae9ade1bde949747aace4048337f389, type: 2}
+    Position: {x: 550, y: -42}
+  - State: {fileID: 11400000, guid: f84c0c1e4fa28dc48980719579c6224d, type: 2}
+    Position: {x: 799, y: -42}
+  - State: {fileID: 11400000, guid: 1d9263ba0e0f0fb4db4a34a0827ad92f, type: 2}
+    Position: {x: 799, y: 165}
+  - State: {fileID: 11400000, guid: bc36590ef98dd9e4183c6a63e7fbdbb3, type: 2}
+    Position: {x: 799, y: 70}
+  _entryNodePosition: {x: 342, y: -42}
+  _anyStateNodePosition: {x: 90, y: 70}

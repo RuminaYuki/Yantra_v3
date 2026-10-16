@@ -1,21 +1,34 @@
+using System.Collections;
 using UnityEngine;
 
 public class SelfHealEffect : BaseEffectClass, IEffectExecutor
 {
     [Header("Heal")]
     [SerializeField] float healAmount;
+    [SerializeField] float OverTime = 0f;
+
+    [SerializeField] private HealOverTime healOverTimePrefab;
+    private HealOverTime overTime;
 
     public void Execute(GameObject owner)
     {
-        base.owner = owner;
+        if (owner != null) base.owner = owner;
+        if (base.owner == null)
+        {
+            Debug.LogError("SelfHealEffect requires an owner.", this);
+            return;
+        }
 
         if (useAnimation)
         {
-            GameObject animatorObject = animatorAnchor.Value;
-            if (animatorObject == null || !animatorObject.TryGetComponent(out Animator animator)) return;
-
-            animEvent = animatorObject.GetComponent<AnimEventDispatcher>();
-            if (animEvent == null) return;
+            animEvent = base.owner.GetComponentInChildren<AnimEventDispatcher>();
+            if (animEvent == null)
+            {
+                Debug.LogError("Owner has no AnimEventDispatcher.", base.owner);
+                return;
+            }
+            Animator animator = animEvent.GetComponent<Animator>();
+            if (animator == null) return;
 
             if (!string.IsNullOrEmpty(eventKey))
                 animEvent.GetEvent(eventKey).AddListener(Heal);
@@ -52,7 +65,17 @@ public class SelfHealEffect : BaseEffectClass, IEffectExecutor
         IHeal heal = owner.GetComponentInChildren<IHeal>();
         if (heal == null) return;
 
-        heal.Heal(healAmount);
+        if (OverTime > 0f)
+        {
+            GameObject healOverTimeObject = Instantiate(healOverTimePrefab.gameObject, owner.transform);
+            overTime = healOverTimeObject.GetComponent<HealOverTime>();
+
+            overTime.StartHealing(healAmount, OverTime, heal);
+        }
+        else
+        {
+            heal.Heal(healAmount);
+        }
     }
 
     private void OnEnable()

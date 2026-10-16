@@ -9,21 +9,22 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 public class HurtAnimationTypeActionSO : StateActionSO
 {
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
         return new HurtAnimationTypeAction();
     }
 }
 public class HurtAnimationTypeAction : StateAction
 {
-    private DamageTypeAnimationActor _damageTypeAnimationActor;
+    private AnchorReference<DamageTypeAnimationActor> _damageTypeAnimationActor;
     public override void Awake(StateMachine stateMachine)
     {
-        stateMachine.TryGetRequired(out _damageTypeAnimationActor, this);
+        _damageTypeAnimationActor = new AnchorReference<DamageTypeAnimationActor>(stateMachine, this);
     }
     public override void OnStateEnter()
     {
-        _damageTypeAnimationActor.PlayAnimationWithDamageType();
+        if (!_damageTypeAnimationActor.TryGet(out DamageTypeAnimationActor actor)) return;
+        actor.PlayAnimationWithDamageType();
     }
     public override void OnUpdate(){}
     public override void OnStateExit()

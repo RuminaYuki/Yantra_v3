@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[UseSelfAnchor]
 [RequiresOwnerComponent(typeof(BaseLocomotion))]
 [CreateAssetMenu(
     fileName = "SetTurnSmoothSpeedAction",
@@ -11,7 +12,7 @@ public class SetRotateSmoothSpeedActionSO : StateActionSO
     [SerializeField, Min(0f)] private float _rotateSmoothSpeed = 1f;
     [SerializeField] private bool _resetOnStateExit = true;
 
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
         return new SetRotateSmoothSpeedAction(
             _rotateSmoothSpeed,
@@ -23,7 +24,7 @@ public class SetRotateSmoothSpeedAction : StateAction
 {
     private readonly float _rotateSmoothSpeed;
     private readonly bool _resetOnStateExit;
-    private BaseLocomotion _locomotion;
+    private AnchorReference<BaseLocomotion> _locomotion;
     private float _previousRotateSmoothSpeed;
     private bool _isApplied;
 
@@ -37,25 +38,26 @@ public class SetRotateSmoothSpeedAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        stateMachine.TryGetRequired(out _locomotion, this);
+        _locomotion = new AnchorReference<BaseLocomotion>(stateMachine, this);
     }
 
     public override void OnStateEnter()
     {
+        if (!_locomotion.TryGet(out BaseLocomotion locomotion)) return;
         _previousRotateSmoothSpeed =
-            _locomotion.GetRotateSmoothSpeed();
-        _locomotion.SetRotateSmoothSpeed(_rotateSmoothSpeed);
+            locomotion.GetRotateSmoothSpeed();
+        locomotion.SetRotateSmoothSpeed(_rotateSmoothSpeed);
         _isApplied = true;
     }
 
     public override void OnStateExit()
     {
-        if (!_isApplied)
+        if (!_isApplied || !_locomotion.TryGet(out BaseLocomotion locomotion))
             return;
 
         if (_resetOnStateExit)
         {
-            _locomotion.SetRotateSmoothSpeed(
+            locomotion.SetRotateSmoothSpeed(
                 _previousRotateSmoothSpeed);
         }
 

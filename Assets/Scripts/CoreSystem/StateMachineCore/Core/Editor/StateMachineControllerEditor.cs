@@ -157,7 +157,10 @@ namespace Yuki.Learning.StateMachine.Editor
             foreach (RequiresOwnerComponentAttribute requirement in
                      asset.GetType().GetCustomAttributes<RequiresOwnerComponentAttribute>(true))
             {
-                if (IsAnchorAssigned(asset, requirement.UnlessAnchorField))
+                // Self Anchor (or the named anchor field) points at another object, which is only
+                // known at runtime through the owner's Provider, so the owner can't be checked here.
+                if (IsAnchorAssigned(asset, StateElementSO.SelfAnchorFieldName) ||
+                    IsAnchorAssigned(asset, requirement.UnlessAnchorField))
                 {
                     continue;
                 }
