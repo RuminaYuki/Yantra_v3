@@ -10,6 +10,12 @@ public class MainMenuScreen : UIScreen
         SceneLoader.Instance.LoadGameplay();
     }
 
+    // ยังไม่มีระบบเซฟ — ตอนนี้เปิดหน้าเลือก scene mock-up ไว้โชว์แทน
+    public void OnLoadGameClicked()
+    {
+        UIManager.Instance.Open(ScreenId.LoadGame);
+    }
+
     public void OnSettingsClicked()
     {
         UIManager.Instance.Open(ScreenId.Settings);

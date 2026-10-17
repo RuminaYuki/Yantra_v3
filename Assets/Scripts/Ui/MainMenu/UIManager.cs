@@ -112,11 +112,10 @@ namespace Yantra.UI
                 return;
             }
 
-            // ซ่อนหน้าที่อยู่ข้างล่างถ้าหน้าใหม่เป็นเมนูเต็มจอ
-            if (screen.HidesScreensBelow && _stack.Count > 0)
-                _stack[^1].SetCovered(true);
-            else if (_stack.Count > 0)
-                _stack[^1].SetCovered(true); // popup ก็ยังต้องบล็อกการคลิกทะลุ
+            // เมนูเต็มจอ = ซ่อนหน้าข้างล่าง
+            // popup (ไม่ติ๊ก Hides Screens Below) = ยังเห็นหน้าข้างล่าง แต่กดทะลุไม่ได้
+            if (_stack.Count > 0)
+                _stack[^1].SetCovered(true, hide: screen.HidesScreensBelow);
 
             _stack.Add(screen);
             SortStackOrder();

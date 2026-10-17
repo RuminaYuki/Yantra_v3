@@ -1,7 +1,10 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using Yantra.UI;
 
+// จุดเดียวที่รวม feedback ตอนโดนตี — สั่นกล้อง + จอแดง
+// ระบบ damage เรียกแค่ HurtFeedback.Instance.Play(...) พอ
 public class HurtFeedback : MonoBehaviour
 {
     public static HurtFeedback Instance { get; private set; }
@@ -14,13 +17,11 @@ public class HurtFeedback : MonoBehaviour
     [SerializeField] private float _maxTrauma = 0.75f;
 
     [Header("Screen Flash (ไม่ใส่ก็ได้)")]
-    [Tooltip("Image สีแดงเต็มจอ ตั้ง alpha = 0 ไว้ และ Raycast Target ติ๊กออก\n" +
-             "เว้นว่างได้ จะหาจากชื่อ GameObject ให้เอง")]
+    [Tooltip("เว้นว่างไว้ — จะหาจาก UIRoot ตัวที่ใช้งานอยู่ให้เอง\n" +
+             "ลากใส่เองไม่ได้อยู่แล้ว เพราะแผ่นแฟลชอยู่ใน UIRoot ที่ข้ามซีน")]
     [SerializeField] private Image _flashImage;
 
-    [Tooltip("ชื่อ GameObject ของแผ่นแฟลช ใช้ตอนหาอัตโนมัติ\n" +
-             "จำเป็นเพราะแผ่นแฟลชอยู่ใน prefab UIRoot ส่วนตัวนี้อยู่ใน scene\n" +
-             "Unity ลาก reference ข้ามกันไม่ได้ เลยต้องหาตอน runtime แทน")]
+    [Tooltip("ชื่อ GameObject ของแผ่นแฟลชใน UIRoot")]
     [SerializeField] private string _flashObjectName = "HurtFlash";
 
     [SerializeField] private float _flashMaxAlpha = 0.35f;
@@ -41,37 +42,20 @@ public class HurtFeedback : MonoBehaviour
 
     private void Start()
     {
-        // หาใน Start ไม่ใช่ Awake เพื่อให้ UIRoot สร้างเสร็จก่อน
-        if (_flashImage == null) _flashImage = FindFlashImage();
-
-        if (_flashImage != null)
-        {
-            _flashImage.raycastTarget = false;
-            SetFlashAlpha(0f);
-        }
-        else
-        {
+        if (!EnsureFlashImage())
             Debug.Log($"[HurtFeedback] ไม่พบแผ่นแฟลชชื่อ '{_flashObjectName}' — จะมีแค่จอสั่น", this);
-        }
     }
 
-    /// <summary>
-    /// หาจากชื่อ แม้ GameObject จะปิดอยู่ก็ตาม
-    /// FindObjectsByType หาเฉพาะที่ active เลยต้องไล่จาก UIRoot เอง
-    /// </summary>
-    private Image FindFlashImage()
+    // แผ่นแฟลชอยู่ข้ามซีน ถ้าซีนเปลี่ยนตอนกำลังแดงอยู่ จอจะแดงค้าง
+    private void OnDisable()
     {
-        if (string.IsNullOrEmpty(_flashObjectName)) return null;
-
-        var allImages = FindObjectsByType<Image>(
-            FindObjectsInactive.Include);
-
-        foreach (var image in allImages)
+        if (_flashRoutine != null)
         {
-            if (image.gameObject.name == _flashObjectName) return image;
+            StopCoroutine(_flashRoutine);
+            _flashRoutine = null;
         }
 
-        return null;
+        SetFlashAlpha(0f);
     }
 
     private void OnDestroy()
@@ -79,10 +63,6 @@ public class HurtFeedback : MonoBehaviour
         if (Instance == this) Instance = null;
     }
 
-    /// <summary>
-    /// เรียกตอนผู้เล่นโดนตี
-    /// normalizedDamage: 0 = เบาสุด, 1 = หนักสุด
-    /// </summary>
     public void Play(float normalizedDamage = 0.5f)
     {
         normalizedDamage = Mathf.Clamp01(normalizedDamage);
@@ -90,27 +70,65 @@ public class HurtFeedback : MonoBehaviour
         if (CameraShaker.Instance != null)
             CameraShaker.Instance.AddTrauma(Mathf.Lerp(_minTrauma, _maxTrauma, normalizedDamage));
 
-        if (_flashImage != null)
-        {
-            if (_flashRoutine != null) StopCoroutine(_flashRoutine);
-            _flashRoutine = StartCoroutine(FlashRoutine(normalizedDamage));
-        }
+        if (!EnsureFlashImage())
+            return;
+
+        if (_flashRoutine != null) StopCoroutine(_flashRoutine);
+        _flashRoutine = StartCoroutine(FlashRoutine(normalizedDamage));
     }
 
-    /// <summary>เวอร์ชันสะดวก — ส่งค่าดาเมจกับเลือดเต็มมา แล้วมันคำนวณเอง</summary>
     public void PlayFromDamage(float damage, float maxHealth)
     {
         if (maxHealth <= 0f) { Play(0.5f); return; }
         Play(damage / maxHealth);
     }
 
+    // แผ่นที่หาไว้อาจโดนลบไปแล้ว — เช็คทุกครั้งก่อนใช้ หายก็หาใหม่
+    private bool EnsureFlashImage()
+    {
+        if (_flashImage != null)
+            return true;
+
+        _flashImage = FindFlashImage();
+        if (_flashImage == null)
+            return false;
+
+        _flashImage.raycastTarget = false;
+        SetFlashAlpha(0f);
+        return true;
+    }
+
+    // หาจาก UIRoot ตัวที่อยู่รอด (ตัวที่มี UIManager.Instance) ก่อน
+    // ตอนเข้าซีนใหม่ UIRoot ตัวซ้ำยังไม่ถูกลบจนจบเฟรม ถ้าหาทั้งซีนอาจหยิบได้แผ่นที่กำลังจะหาย
+    private Image FindFlashImage()
+    {
+        if (string.IsNullOrEmpty(_flashObjectName))
+            return null;
+
+        UIManager ui = UIManager.Instance;
+        if (ui != null)
+        {
+            foreach (Image image in ui.transform.root.GetComponentsInChildren<Image>(true))
+            {
+                if (image.gameObject.name == _flashObjectName)
+                    return image;
+            }
+        }
+
+        foreach (Image image in FindObjectsByType<Image>(FindObjectsInactive.Include))
+        {
+            if (image.gameObject.name == _flashObjectName)
+                return image;
+        }
+
+        return null;
+    }
+
     private IEnumerator FlashRoutine(float strength)
     {
         float peak = _flashMaxAlpha * Mathf.Lerp(0.6f, 1f, strength);
 
-        // ขึ้นเร็ว
         yield return FadeAlpha(_flashImage.color.a, peak, _flashInDuration);
-        // ลงช้า
         yield return FadeAlpha(peak, 0f, _flashOutDuration);
 
         _flashRoutine = null;
