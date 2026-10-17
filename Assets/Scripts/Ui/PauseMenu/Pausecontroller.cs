@@ -46,10 +46,7 @@ public class PauseController : MonoBehaviour
     {
         // หาใน Start ไม่ใช่ Awake เผื่อ Player ถูก spawn ทีหลัง
         if (_playerHealth == null)
-        {
-            var playerObj = GameObject.FindGameObjectWithTag("Player");
-            if (playerObj != null) _playerHealth = playerObj.GetComponent<Health>();
-        }
+            _playerHealth = PlayerLookup.Find<Health>();
     }
 
     private void OnDestroy()
@@ -72,8 +69,15 @@ public class PauseController : MonoBehaviour
         if (_blockDuringCutscene && _cameraController != null && _cameraController.IsCutsceneMode)
             return false;
 
-        if (_blockWhenDead && _playerHealth != null && _playerHealth.IsDead)
-            return false;
+        if (_blockWhenDead)
+        {
+            // Start หาไม่เจอ (ผู้เล่น spawn ทีหลัง) ลองหาใหม่ตอนกด ESC
+            if (_playerHealth == null)
+                _playerHealth = PlayerLookup.Find<Health>();
+
+            if (_playerHealth != null && _playerHealth.IsDead)
+                return false;
+        }
 
         // มีหน้าจออื่นเปิดอยู่ (Game Over, Loading) ไม่ต้อง pause ซ้อน
         var ui = UIManager.Instance;

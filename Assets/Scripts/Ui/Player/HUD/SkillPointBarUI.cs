@@ -96,9 +96,7 @@ public class SkillPointBarUI : MonoBehaviour
         if (_retryTimer < 0.5f) return false;
         _retryTimer = 0f;
 
-        var playerObj = GameObject.FindGameObjectWithTag(_playerTag);
-        if (playerObj != null) _skillPoints = playerObj.GetComponent<SkillPoints>();
-
+        _skillPoints = PlayerLookup.Find<SkillPoints>(_playerTag);
         return _skillPoints != null;
     }
 

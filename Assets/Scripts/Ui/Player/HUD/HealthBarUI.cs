@@ -27,9 +27,7 @@ public class HealthBarUI : StatBarUI
             if (_retryTimer < 0.5f) return false;
             _retryTimer = 0f;
 
-            var playerObj = GameObject.FindGameObjectWithTag(_playerTag);
-            if (playerObj != null) _health = playerObj.GetComponent<Health>();
-
+            _health = PlayerLookup.Find<Health>(_playerTag);
             if (_health == null) return false;
         }
 
