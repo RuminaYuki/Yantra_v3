@@ -5,7 +5,7 @@ namespace SDFcl.GamePlay.QuestSystem
 {
     // The whole quest graph: nodes, edges and their positions.
     // Edit it with the Quest Graph window. QuestSO assets are stored inside it as sub-assets.
-    [CreateAssetMenu(fileName = "QuestGraph", menuName = "Yantra/Quest/Quest Graph")]
+    [CreateAssetMenu(fileName = "QuestGraph", menuName = "Quest/Quest Graph")]
     public class QuestGraphSO : ScriptableObject
     {
         [SerializeReference] private List<QuestGraphNode> nodes = new List<QuestGraphNode>();
