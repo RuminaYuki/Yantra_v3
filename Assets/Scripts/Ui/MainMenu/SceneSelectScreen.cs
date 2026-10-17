@@ -26,8 +26,13 @@ public class SceneSelectScreen : UIScreen
         [Tooltip("ชื่อบนปุ่ม — เว้นว่าง = ใช้ชื่อไฟล์ scene")]
         public string Label;
 
+#if UNITY_EDITOR
         [Tooltip("ลากไฟล์ scene จาก Project มาใส่\nต้องอยู่ใน Build Profiles ด้วย ไม่งั้นตอน export โหลดไม่ได้")]
-        public SceneReference Scene;
+        public UnityEditor.SceneAsset Scene;
+#endif
+
+        // ไฟล์ scene ใช้ได้แค่ใน Editor — จดชื่อเก็บไว้ ตอน export จะได้มีชื่อติดไปด้วย
+        [HideInInspector] public string SceneName;
     }
 
     [Header("Layout")]
@@ -84,7 +89,7 @@ public class SceneSelectScreen : UIScreen
             _countText.text = $"{shown} scene";
 
         if (shown == 0)
-            Debug.LogWarning($"[SceneSelectScreen] {name} ไม่มี scene ให้เลือก", this);
+            Debug.LogWarning($"[SceneSelectScreen] {name} ไม่มี scene ให้เลือก (Source = {_source}, Scenes = {(_scenes == null ? 0 : _scenes.Length)} แถว)", this);
 
         _built = true;
     }
@@ -109,15 +114,25 @@ public class SceneSelectScreen : UIScreen
 
     private int BuildFromList()
     {
-        if (_scenes == null) return 0;
+        if (_scenes == null || _scenes.Length == 0)
+        {
+            Debug.LogWarning($"[SceneSelectScreen] {name}: ลิสต์ Scenes ว่าง — ยังไม่ได้กด + หรือค่าที่ใส่หายไป (ใส่ตอน Play อยู่?)", this);
+            return 0;
+        }
 
         int shown = 0;
 
-        foreach (SceneEntry entry in _scenes)
+        for (int i = 0; i < _scenes.Length; i++)
         {
-            if (entry == null || !entry.Scene.IsValid) continue;
+            SceneEntry entry = _scenes[i];
 
-            string sceneName = entry.Scene.SceneName;
+            if (entry == null || string.IsNullOrEmpty(entry.SceneName))
+            {
+                Debug.LogWarning($"[SceneSelectScreen] {name}: แถวที่ {i + 1} ไม่มีไฟล์ scene — ลากไฟล์ใส่ช่อง Scene", this);
+                continue;
+            }
+
+            string sceneName = entry.SceneName;
 
             // กันปุ่มที่กดแล้วไม่ไปไหน — scene ที่ไม่อยู่ใน Build Profiles โหลดไม่ได้ตอน export
             if (!Application.CanStreamedLevelBeLoaded(sceneName))
@@ -183,4 +198,22 @@ public class SceneSelectScreen : UIScreen
         }
         _spawnedButtons.Clear();
     }
+
+#if UNITY_EDITOR
+    // จดชื่อ scene ตอนแก้ใน Inspector — ทำตรงนี้แทนตอนเซฟไฟล์
+    // เพราะตอนเซฟ prefab Unity อาจไม่ยอมให้อ่านชื่อไฟล์ ชื่อเลยหายไปเงียบ ๆ
+    private void OnValidate()
+    {
+        if (_scenes == null) return;
+
+        foreach (SceneEntry entry in _scenes)
+        {
+            if (entry == null) continue;
+
+            string sceneName = entry.Scene != null ? entry.Scene.name : string.Empty;
+            if (entry.SceneName != sceneName)
+                entry.SceneName = sceneName;
+        }
+    }
+#endif
 }
