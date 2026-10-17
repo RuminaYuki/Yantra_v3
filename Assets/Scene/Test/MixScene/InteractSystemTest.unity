@@ -2549,6 +2549,27 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0be4c18a988caa24d8db9f6fe5d94589, type: 3}
   m_PrefabInstance: {fileID: 588301910}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &588872348 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4649701980442511749, guid: d3f1173d7694a994889b1bc0bfbfa68b, type: 3}
+  m_PrefabInstance: {fileID: 2088152166}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &588872354
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 588872348}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b4110cc0aa4868648ad5970fbb464080, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlagAddition
+  ListFlag:
+  - flagSO: {fileID: 11400000, guid: c74e338715f473e40a12992295979ef4, type: 2}
+    value: 1
+    forceAdd: 0
 --- !u!1001 &647411714
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9803,7 +9824,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4649701980442511749, guid: d3f1173d7694a994889b1bc0bfbfa68b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 588872354}
   m_SourcePrefab: {fileID: 100100000, guid: d3f1173d7694a994889b1bc0bfbfa68b, type: 3}
 --- !u!43 &2103849741
 Mesh:
