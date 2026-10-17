@@ -70,12 +70,14 @@ public class SoundManager : Singleton<SoundManager>
 
     private Coroutine duckRoutine;
     private bool duckHold;
+    private bool voicePaused;
 
     private SoundPooler cachedPooler;
 
     protected override bool UseDontDestroyOnLoad => false;
 
-    public bool IsVoicePlaying => voiceSource != null && voiceSource.isPlaying;
+    // นับตอนหยุดชั่วคราวด้วย — ไม่งั้นระหว่าง Pause เพลงจะดังกลับขึ้นมาทั้งที่ประโยคยังพูดไม่จบ
+    public bool IsVoicePlaying => voiceSource != null && (voiceSource.isPlaying || voicePaused);
 
     protected override void Awake()
     {
@@ -262,6 +264,7 @@ public class SoundManager : Singleton<SoundManager>
         if (clip == null || voiceSource == null) return 0f;
 
         voiceSource.Stop();
+        voicePaused = false;
         voiceSource.clip = clip;
         voiceSource.volume = Mathf.Clamp01(volume);
         voiceSource.pitch = 1f;
@@ -281,8 +284,26 @@ public class SoundManager : Singleton<SoundManager>
 
     public void StopVoice()
     {
+        voicePaused = false;
         if (voiceSource != null) voiceSource.Stop();
         if (duckBgmDuringVoice) StartDuck(false);
+    }
+
+    // AudioSource ไม่สนใจ timeScale — กด Pause แล้วเสียงพากย์ยังพูดต่อ ต้องสั่งหยุดเอง
+    public void PauseVoice()
+    {
+        if (voiceSource == null || !voiceSource.isPlaying) return;
+
+        voiceSource.Pause();
+        voicePaused = true;
+    }
+
+    public void ResumeVoice()
+    {
+        if (!voicePaused) return;
+
+        voicePaused = false;
+        if (voiceSource != null) voiceSource.UnPause();
     }
 
     public void SetVoiceDuckHold(bool hold)

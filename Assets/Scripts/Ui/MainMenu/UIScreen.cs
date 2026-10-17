@@ -15,6 +15,7 @@ namespace Yantra.UI
         GameOver = 11,
         Loading = 20,
         ConfirmDialog = 30,
+        Tutorial = 40,
         SceneSelect = 90,   // หน้าทดสอบ เลขห่างไว้กันชนกับหน้าจริงที่จะเพิ่มทีหลัง
     }
 

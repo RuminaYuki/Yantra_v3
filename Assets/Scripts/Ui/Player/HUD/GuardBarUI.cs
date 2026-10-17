@@ -29,9 +29,7 @@ public class GuardBarUI : StatBarUI
             if (_retryTimer < 0.5f) return false;
             _retryTimer = 0f;
 
-            var playerObj = GameObject.FindGameObjectWithTag(_playerTag);
-            if (playerObj != null) _blockSystem = playerObj.GetComponent<BlockSystem>();
-
+            _blockSystem = PlayerLookup.Find<BlockSystem>(_playerTag);
             if (_blockSystem == null) return false;
         }
 
