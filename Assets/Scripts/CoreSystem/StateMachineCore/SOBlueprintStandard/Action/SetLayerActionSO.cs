@@ -12,7 +12,7 @@ public class SetLayerActionSO : StateActionSO
     [Tooltip("Restore the owner's original layer when this state is exited.")]
     [SerializeField] private bool _restoreOnExit = true;
 
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
         return new SetLayerAction(_layer, _restoreOnExit);
     }

@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[UseSelfAnchor]
 [RequiresOwnerComponent(typeof(AttackSphereCast))]
 [RequiresOwnerComponent(typeof(SkillPoints))]
 [CreateAssetMenu(
@@ -9,7 +10,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/GamePlayMechanic/SkillPoint/Gian Skill On Hit Point")]
 public class GianSkillOnHitPointActionSO : StateActionSO
 {
-    [SerializeField] private float gianSkillPointAmount = 1f;
+    [SerializeField,Exposed] private float gianSkillPointAmount = 1f;
 
     public float GianSkillPointAmount
     {
@@ -26,7 +27,7 @@ public class GianSkillOnHitPointActionSO : StateActionSO
         }
     }
 
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
         return new GianSkillOnHitPointAction(gianSkillPointAmount);
     }
@@ -35,31 +36,37 @@ public class GianSkillOnHitPointActionSO : StateActionSO
 public class GianSkillOnHitPointAction : StateAction
 {
     private readonly float gianSkillPointAmount;
-    private AttackSphereCast attackSphereCast;
-    private SkillPoints skillPoints;
+    private AnchorReference<AttackSphereCast> attackSphereCast;
+    private AnchorReference<SkillPoints> skillPoints;
+    // The one we subscribed to, so exit unsubscribes the same object even if the anchor changed.
+    private AttackSphereCast subscribedSphereCast;
     public GianSkillOnHitPointAction(float gianSkillPointAmount)
     {
         this.gianSkillPointAmount = gianSkillPointAmount;
     }
     public override void Awake(StateMachine stateMachine)
     {
-        stateMachine.TryGetRequired(out attackSphereCast, this);
-        stateMachine.TryGetRequired(out skillPoints, this);
+        attackSphereCast = new AnchorReference<AttackSphereCast>(stateMachine, this);
+        skillPoints = new AnchorReference<SkillPoints>(stateMachine, this);
     }
     public override void OnStateEnter()
     {
-        attackSphereCast.OnHit += OnHit;
+        if (!attackSphereCast.TryGet(out subscribedSphereCast)) return;
+        subscribedSphereCast.OnHit += OnHit;
     }
 
     public override void OnUpdate(){}
     
     public override void OnStateExit()
     {
-        attackSphereCast.OnHit -= OnHit;
+        if (subscribedSphereCast != null)
+            subscribedSphereCast.OnHit -= OnHit;
+        subscribedSphereCast = null;
     }
     
     private void OnHit()
     {
-        skillPoints.gaint(gianSkillPointAmount);
+        if (skillPoints.TryGet(out SkillPoints points))
+            points.gaint(gianSkillPointAmount);
     }
 }

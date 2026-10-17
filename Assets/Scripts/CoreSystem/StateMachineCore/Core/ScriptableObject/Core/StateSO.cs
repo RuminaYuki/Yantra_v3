@@ -1,0 +1,34 @@
+using System;
+using UnityEngine;
+
+namespace Yuki.Learning.StateMachine.ScriptableObjects
+{
+    [CreateAssetMenu(
+        fileName = "New_State",
+        menuName = "YUKI Learning State Machine/StateMachineList/State")]
+    public class StateSO : ScriptableObject
+    {
+        [SerializeField]
+        private StateActionSO[] _actions = Array.Empty<StateActionSO>();
+
+        public State CreateState(StateMachine stateMachine)
+        {
+            StateAction[] runtimeActions =
+                new StateAction[_actions.Length];
+
+            for (int i = 0; i < _actions.Length; i++)
+            {
+                runtimeActions[i] =
+                    StateMachineParameters.Resolve(stateMachine, _actions[i]).CreateAction(stateMachine);
+            }
+
+            State state = new State(
+                name,
+                runtimeActions,
+                stateMachine
+            );
+
+            return state;
+        }
+    }
+}

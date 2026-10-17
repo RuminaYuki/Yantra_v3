@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -11,7 +12,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 namespace Yuki.Learning.StateMachine.Editor.Graph
 {
     // The canvas that shows a TransitionTableSO as nodes and edges.
-    // Node positions are saved here; states and conditions are edited in GraphInspectorPanel.
+    // Node positions are saved here; states and conditions are edited in Unity's Inspector (StateSOEditor, TransitionSelectionEditor).
     // Adding / removing states and transitions is in StateMachineGraphView.Editing.cs.
     public partial class StateMachineGraphView : GraphView
     {
@@ -39,11 +40,22 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // Asks the window to show a sub-state machine's table (the state it belongs to, its table).
         public event Action<StateSO, TransitionTableSO> SubStateMachineOpenRequested;
 
+        // The window this graph is in, for popups that need screen positions (e.g. the Parameters panel).
+        public EditorWindow Window => _window;
+
+        // Delete key on rows of the Parameters panel (ParameterBlackboard listens).
+        public event Action<List<BlackboardField>> ParameterFieldsDeleted;
+
+        // A state's new name typed on its node (the state, the new name).
+        public event Action<StateSO, string> StateRenameRequested;
+
         public StateMachineGraphView(EditorWindow window)
         {
             _window = window;
             graphViewChanged = OnGraphViewChanged;
             RegisterTransitionCreationCallbacks();
+            RegisterStateDropCallbacks();
+            RegisterActionDropCallbacks();
 
             // Mouse wheel zoom.
             SetupZoom(
@@ -61,27 +73,39 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             grid.StretchToParentSize();
 
             // GridBackground needs a stylesheet for its colors, otherwise the lines are almost invisible.
-            StyleSheet styleSheet = LoadStyleSheet();
-            if (styleSheet != null)
-            {
-                styleSheets.Add(styleSheet);
-            }
+            GraphStyleSheets.AddTo(this, StyleSheetName);
+
+            // An action / condition selected anywhere lights up where it's used here.
+            RegisterCallback<AttachToPanelEvent>(_ => Selection.selectionChanged += HighlightUsesOfSelection);
+            RegisterCallback<DetachFromPanelEvent>(_ => Selection.selectionChanged -= HighlightUsesOfSelection);
         }
 
-        private static StyleSheet LoadStyleSheet()
+        // ---------- Uses of the selection ----------
+
+        // The selected actions outline the states that run them, the selected conditions color the arrows
+        // that check them (wrapped ones too), without selecting anything in the graph. Selecting a state
+        // or an arrow here selects it as usual and lights nothing extra.
+        private void HighlightUsesOfSelection()
         {
-            // Find by name so the Graph folder can be moved without breaking the path.
-            foreach (string guid in AssetDatabase.FindAssets($"{StyleSheetName} t:StyleSheet"))
+            var selectedActions = new HashSet<ScriptableObject>(Selection.objects.OfType<StateActionSO>());
+            var selectedConditions = new HashSet<ScriptableObject>(Selection.objects.OfType<StateConditionSO>());
+
+            _serializedTable?.Update();
+
+            foreach (GraphElement element in graphElements.ToList())
             {
-                string path = AssetDatabase.GUIDToAssetPath(guid);
-                if (System.IO.Path.GetFileNameWithoutExtension(path) == StyleSheetName)
+                switch (element)
                 {
-                    return AssetDatabase.LoadAssetAtPath<StyleSheet>(path);
+                    case StateNodeView node when node.State != null:
+                        node.SetUsesSelection(selectedActions.Count > 0 &&
+                                              TableContents.ActionsOf(node.State).Any(selectedActions.Contains));
+                        break;
+                    case TransitionEdgeView edge:
+                        edge.SetUsesSelection(selectedConditions.Count > 0 &&
+                                              ConditionsOf(edge).Any(selectedConditions.Contains));
+                        break;
                 }
             }
-
-            Debug.LogWarning($"{StyleSheetName}.uss not found. The graph will have no grid colors.");
-            return null;
         }
 
         public override void AddToSelection(ISelectable selectable)
@@ -112,7 +136,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         }
 
         // Rebuilds the current table and selects the same node or edge again if it still exists,
-        // so Undo or a data change doesn't close the inspector panel.
+        // so Undo or a data change doesn't change what the Inspector shows.
         public void Reload()
         {
             GraphElement previous = selection.Count == 1 ? selection[0] as GraphElement : null;
@@ -132,7 +156,21 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             }
         }
 
-        // Called from the panel's transition lists. fromKey is a StateSO, or SpecialNodeView.Kind.AnyState.
+        // Called from the Inspector's transition lists (StateSOEditor). fromKey is a StateSO, or SpecialNodeView.Kind.AnyState.
+        // Called from the Contents panel. Returns false when the state has no node in this graph.
+        public bool SelectStateNode(StateSO state)
+        {
+            Node node = FindNode(state);
+            if (node == null)
+            {
+                return false;
+            }
+
+            ClearSelection();
+            AddToSelection(node);
+            return true;
+        }
+
         public void SelectTransitionEdge(object fromKey, StateSO to)
         {
             SelectEdge(fromKey, to);
@@ -250,9 +288,148 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             }
 
             CreateEdges(_serializedTable, initialState, entryNode, anyStateNode, stateNodes);
+            RefreshParameterTags();
 
             // New nodes start un-highlighted, so apply the Play Mode highlight again.
             ApplyActiveState();
+            HighlightUsesOfSelection();
+        }
+
+        // ---------- Parameter tags ----------
+
+        // Off when the window's Parameters toggle hides the panel.
+        private bool _showParameterTags = true;
+
+        public bool ShowParameterTags
+        {
+            get => _showParameterTags;
+            set
+            {
+                _showParameterTags = value;
+                RefreshParameterTags();
+            }
+        }
+
+        // Writes each exposed parameter's name where it's used: under the state whose action it sets,
+        // beside the arrow whose condition it sets. Called after Load and whenever the panel rebuilds.
+        public void RefreshParameterTags()
+        {
+            var namesByTarget = new Dictionary<ScriptableObject, List<string>>();
+            ExposedParametersSO parameters = _table != null ? ParameterBlackboard.Find(_table) : null;
+
+            if (parameters != null && _showParameterTags)
+            {
+                foreach (ExposedParameter parameter in parameters.Parameters)
+                foreach (ExposedBinding binding in parameter.Bindings)
+                {
+                    if (binding.Target == null)
+                    {
+                        continue;
+                    }
+
+                    if (!namesByTarget.TryGetValue(binding.Target, out List<string> names))
+                    {
+                        names = new List<string>();
+                        namesByTarget[binding.Target] = names;
+                    }
+
+                    names.Add(parameter.Name);
+                }
+            }
+
+            _serializedTable?.Update();
+
+            foreach (GraphElement element in graphElements.ToList())
+            {
+                switch (element)
+                {
+                    case StateNodeView node when node.State != null:
+                        node.SetParameterTags(NamesFor(TableContents.ActionsOf(node.State), namesByTarget));
+                        break;
+                    case TransitionEdgeView edge:
+                        edge.SetParameterTags(NamesFor(ConditionsOf(edge), namesByTarget));
+                        break;
+                }
+            }
+        }
+
+        private static List<string> NamesFor(
+            IEnumerable<ScriptableObject> items,
+            Dictionary<ScriptableObject, List<string>> namesByTarget)
+        {
+            var result = new List<string>();
+            foreach (ScriptableObject item in items)
+            {
+                if (item != null && namesByTarget.TryGetValue(item, out List<string> names))
+                {
+                    foreach (string name in names)
+                    {
+                        if (!result.Contains(name))
+                        {
+                            result.Add(name);
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        // Every condition in the arrow's transitions, and the ones wrapped inside those (e.g. a delayed
+        // condition holding another).
+        private List<ScriptableObject> ConditionsOf(TransitionEdgeView edge)
+        {
+            var found = new List<ScriptableObject>();
+            if (_serializedTable == null)
+            {
+                return found;
+            }
+
+            SerializedProperty list = _serializedTable.FindProperty(
+                edge.IsAnyState ? StateMachineFields.AnyTransitions : StateMachineFields.Transitions);
+
+            foreach (int index in edge.TransitionIndices)
+            {
+                if (index >= list.arraySize)
+                {
+                    continue;
+                }
+
+                SerializedProperty transition = list.GetArrayElementAtIndex(index);
+                SerializedProperty end = transition.GetEndProperty();
+                SerializedProperty property = transition.Copy();
+
+                while (property.Next(true) && !SerializedProperty.EqualContents(property, end))
+                {
+                    if (property.propertyType == SerializedPropertyType.ObjectReference &&
+                        property.objectReferenceValue is StateConditionSO condition)
+                    {
+                        AddWithInner(condition, found);
+                    }
+                }
+            }
+
+            return found;
+        }
+
+        private static void AddWithInner(StateConditionSO condition, List<ScriptableObject> found)
+        {
+            if (found.Contains(condition))
+            {
+                return;
+            }
+
+            found.Add(condition);
+
+            SerializedProperty property = new SerializedObject(condition).GetIterator();
+            while (property.Next(true))
+            {
+                if (property.propertyType == SerializedPropertyType.ObjectReference &&
+                    property.objectReferenceValue is StateConditionSO inner)
+                {
+                    AddWithInner(inner, found);
+                }
+            }
         }
 
         // From a sub-state node's double-click or its right-click menu.
@@ -361,6 +538,15 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             if (change.movedElements != null && change.movedElements.Count > 0)
             {
                 SavePositions(change.movedElements);
+            }
+
+            // Rows of the Parameters panel aren't part of the table: that panel deletes them from its own
+            // data and rebuilds (see ParameterBlackboard).
+            if (change.elementsToRemove != null && change.elementsToRemove.Exists(element => element is BlackboardField))
+            {
+                var fields = change.elementsToRemove.FindAll(element => element is BlackboardField);
+                change.elementsToRemove.RemoveAll(element => element is BlackboardField);
+                ParameterFieldsDeleted?.Invoke(fields.ConvertAll(element => (BlackboardField)element));
             }
 
             // elementsToRemove is filled by the Delete key or the "Delete" menu item.

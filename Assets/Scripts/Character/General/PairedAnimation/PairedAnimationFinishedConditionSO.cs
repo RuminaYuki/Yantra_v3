@@ -7,17 +7,18 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Paired Animation/Paired Animation Finished")]
 public class PairedAnimationFinishedConditionSO : StateConditionSO
 {
-    public override Condition CreateCondition() => new PairedAnimationFinishedCondition();
+    protected override Condition OnCreateCondition() => new PairedAnimationFinishedCondition();
 }
 
 public class PairedAnimationFinishedCondition : Condition
 {
-    private PairedAnimationActor _actor;
+    private AnchorReference<PairedAnimationActor> _actor;
 
     public override void Awake(StateMachine stateMachine)
     {
-        stateMachine.TryGetRequired(out _actor, this);
+        _actor = new AnchorReference<PairedAnimationActor>(stateMachine, this);
     }
 
-    protected override bool Statement() => _actor.IsFinished;
+    protected override bool Statement() =>
+        _actor.TryGet(out PairedAnimationActor actor) && actor.IsFinished;
 }

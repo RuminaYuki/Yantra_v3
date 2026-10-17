@@ -13,6 +13,11 @@ public class GravityCharacterCon
     }
     public Vector3 Gravity()
     {
+        if (Mathf.Approximately(_gravityMultiplier,0f))
+        {
+            _velocityY = 0f;
+            return Vector3.zero;
+        }
         if (_characterController.isGrounded && _velocityY < 0.0f)
         {
             _velocityY = -1.0f;

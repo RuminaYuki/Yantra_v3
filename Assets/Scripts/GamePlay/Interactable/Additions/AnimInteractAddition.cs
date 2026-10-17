@@ -44,7 +44,15 @@ public class AnimInteractAddition : MonoBehaviour
         }
     }
 
-    private bool CanInteract()
+    private void Update()
+    {
+        if (IsPlayAnimation)
+        {
+            serializableAction = playerInteract.PlayAnimation(AnimationID);
+        }
+    }
+
+    private bool CanInteract(GameObject rootPlayer)
     {
         return !IsPlayAnimation;
     }

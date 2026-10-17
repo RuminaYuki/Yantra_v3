@@ -43,7 +43,9 @@ GameObject:
   - component: {fileID: 325087586094652116}
   - component: {fileID: 4805423748601967255}
   - component: {fileID: 8773011137545376764}
+  - component: {fileID: 6604480954385932920}
   - component: {fileID: 3448401313642827807}
+  - component: {fileID: 9035622197156565843}
   - component: {fileID: 7524191408126414138}
   - component: {fileID: 8157027762539370649}
   - component: {fileID: 8327179935333160797}
@@ -54,7 +56,6 @@ GameObject:
   - component: {fileID: 2083003733806563787}
   - component: {fileID: 6721873065225400524}
   - component: {fileID: 627799562771445924}
-  - component: {fileID: 6047776931721334642}
   - component: {fileID: 838699188351223743}
   - component: {fileID: 8678444537738994160}
   - component: {fileID: 3794922379662316633}
@@ -143,6 +144,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StateMachineController
   _transitionTables:
   - {fileID: 11400000, guid: 90d19b74e9fd6214c83ff27452997725, type: 2}
+--- !u!114 &6604480954385932920
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3655578508217946147}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0b8499ae391816429fb11f3497f8e10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::StateMachineParameters
+  _overrides: []
 --- !u!114 &3448401313642827807
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -155,8 +169,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3b62f809a9c40c4a9f8e36828d69982, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Provider
-  Anchors:
-  - {fileID: 11400000, guid: 3f5600626c0d92845a79d02ae967a555, type: 2}
+  _anchorReferences: []
+--- !u!114 &9035622197156565843
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3655578508217946147}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0bb0d945dba0c0441a748d56f2d7f25f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerTargetLinker
+  _targets:
+  - Anchor: {fileID: 11400000, guid: ded8b5ee8f0dd57488cc9fa0e5c0d061, type: 2}
+    Tag: Player
+    Name: PlayerController
+  - Anchor: {fileID: 11400000, guid: 7e0c6e6867689484fb85c18d09184466, type: 2}
+    Tag: Player
+    Name: IKTarget
 --- !u!114 &7524191408126414138
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -174,6 +206,7 @@ MonoBehaviour:
   _multiply: 1
   _nameParameterMoveZ: VelocityZ
   _nameParameterMoveX: VelocityX
+  _moveMode: 1
   _rotateSpeed: 1
   _gravityMultiplier: 1
   _debugMoveMultiply: 0
@@ -205,10 +238,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 990231275b7ad3141ba8a0e5644328b6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RandomWalkPoint
-  _radius: 5
   _bodyRadius: 0.4
-  _minDistance: 1.5
-  _directionCount: 16
   _obstacleLayer:
     serializedVersion: 2
     m_Bits: 512
@@ -241,7 +271,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37724f921a0bd8842bc9734fd3920468, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Health
-  maxHealth: 10
+  maxHealth: 15
+  minHealthPercent: 0
   assignValue: 0
   <CurrentHP>k__BackingField: 0
   OnDeadEventChannel: {fileID: 0}
@@ -279,8 +310,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0fe60a42dfbdd134aa4ea8177d07828d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LineOfSight
-  targetAnchor: {fileID: 11400000, guid: ded8b5ee8f0dd57488cc9fa0e5c0d061, type: 2}
   target: {fileID: 0}
+  targetTag: Player
+  targetObjectName: IKTarget
   viewpoint: {fileID: 672988667831278726}
   showGizmos: 0
   detectRange: 10
@@ -372,19 +404,6 @@ MonoBehaviour:
   ignoreLayers:
     serializedVersion: 2
     m_Bits: 2048
---- !u!114 &6047776931721334642
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3655578508217946147}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 95f64f53f0ecfff46bf5c835423cae83, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ApplyAllStats
-  CharacterStatsSO: {fileID: 11400000, guid: ed041817682e3b94ea4fbee725cd3d83, type: 2}
 --- !u!114 &838699188351223743
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -412,7 +431,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 79759dfc8c63c05429d2f4bff73e2eb1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PrefabIdentity
-  prefabId: PKa
+  prefabId: PThahan
 --- !u!114 &3794922379662316633
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -456,7 +475,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &6305422926065418550
 Transform:
   m_ObjectHideFlags: 0

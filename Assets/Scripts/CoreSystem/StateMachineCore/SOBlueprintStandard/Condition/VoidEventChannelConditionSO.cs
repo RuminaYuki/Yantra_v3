@@ -9,7 +9,7 @@ public class VoidEventChannelConditionSO : StateConditionSO
 {
     [SerializeField] private VoidEventChannelSO _eventChannel;
 
-    public override Condition CreateCondition()
+    protected override Condition OnCreateCondition()
     {
         return new VoidEventChannelCondition(_eventChannel);
     }

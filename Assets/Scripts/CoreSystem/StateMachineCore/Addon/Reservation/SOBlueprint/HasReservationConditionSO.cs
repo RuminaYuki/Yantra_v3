@@ -9,7 +9,7 @@ public class HasReservationConditionSO : StateConditionSO
 {
     [SerializeField] private ReservationSO _reservationSet;
 
-    public override Condition CreateCondition() => new HasReservationCondition(_reservationSet);
+    protected override Condition OnCreateCondition() => new HasReservationCondition(_reservationSet);
 }
 
 public class HasReservationCondition : Condition

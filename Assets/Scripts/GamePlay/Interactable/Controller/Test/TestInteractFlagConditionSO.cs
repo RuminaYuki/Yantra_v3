@@ -8,17 +8,18 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Test/Test Interact Flag")]
 public class TestInteractFlagConditionSO : StateConditionSO
 {
-    public override Condition CreateCondition() => new TestInteractFlagCondition();
+    protected override Condition OnCreateCondition() => new TestInteractFlagCondition();
 }
 
 public class TestInteractFlagCondition : Condition
 {
-    private PlayerInteractFlagTest _interactFlagTest;
+    private AnchorReference<PlayerInteractFlagTest> _interactFlagTest;
 
     public override void Awake(StateMachine stateMachine)
     {
-        stateMachine.TryGetRequired(out _interactFlagTest, this);
+        _interactFlagTest = new AnchorReference<PlayerInteractFlagTest>(stateMachine, this);
     }
 
-    protected override bool Statement() => _interactFlagTest.IsInteracting;
+    protected override bool Statement() =>
+        _interactFlagTest.TryGet(out PlayerInteractFlagTest test) && test.IsInteracting;
 }

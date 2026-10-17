@@ -8,18 +8,19 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/GamePlayMechanic/Spell/Has Radial Selection")]
 public class HasRadialSelectionConditionSO : StateConditionSO
 {
-    public override Condition CreateCondition() => new HasRadialSelectionCondition();
+    protected override Condition OnCreateCondition() => new HasRadialSelectionCondition();
 }
 
 public class HasRadialSelectionCondition : Condition
 {
-    private SpellRadialMenuSelect _menuSelect;
+    private AnchorReference<SpellRadialMenuSelect> _menuSelect;
 
     public override void Awake(StateMachine stateMachine)
     {
-        stateMachine.TryGetRequired(out _menuSelect, this);
+        _menuSelect = new AnchorReference<SpellRadialMenuSelect>(stateMachine, this);
     }
 
-    protected override bool Statement() => _menuSelect.HasSelection;
+    protected override bool Statement() =>
+        _menuSelect.TryGet(out SpellRadialMenuSelect menu) && menu.HasSelection;
 }
 

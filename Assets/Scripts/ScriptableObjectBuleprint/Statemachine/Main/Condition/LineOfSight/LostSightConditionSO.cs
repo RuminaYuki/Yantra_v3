@@ -9,7 +9,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 public class LostSightConditionSO : StateConditionSO
 {
     [Tooltip("How long the target must be continuously out of raw sight (LineOfSight.CanSeeTarget) before this is true.")]
-    [SerializeField, Min(0f)] private float _loseSightDuration = 3f;
+    [SerializeField, Min(0f), Exposed] private float _loseSightDuration = 3f;
 
     public float LoseSightDuration
     {
@@ -26,7 +26,7 @@ public class LostSightConditionSO : StateConditionSO
         }
     }
 
-    public override Condition CreateCondition()
+    protected override Condition OnCreateCondition()
     {
         return new LostSightCondition(_loseSightDuration);
     }
@@ -35,7 +35,7 @@ public class LostSightConditionSO : StateConditionSO
 public class LostSightCondition : Condition
 {
     private readonly float _loseSightDuration;
-    private LineOfSight _lineOfSight;
+    private AnchorReference<LineOfSight> _lineOfSight;
 
     public LostSightCondition(float loseSightDuration)
     {
@@ -44,11 +44,12 @@ public class LostSightCondition : Condition
 
     public override void Awake(StateMachine stateMachine)
     {
-        stateMachine.TryGetRequired(out _lineOfSight, this);
+        _lineOfSight = new AnchorReference<LineOfSight>(stateMachine, this);
     }
 
     protected override bool Statement()
     {
-        return _lineOfSight.TimeSinceLastSeen >= _loseSightDuration;
+        return _lineOfSight.TryGet(out LineOfSight lineOfSight) &&
+               lineOfSight.TimeSinceLastSeen >= _loseSightDuration;
     }
 }

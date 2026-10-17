@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 
 [RequireComponent(typeof(CharacterController),typeof(Animator))]
-public class BaseLocomotion : MonoBehaviour,ILocomotionLock,IRootMotionControl
+public class BaseLocomotion : MonoBehaviour,ILocomotionLock,ILocomotionMoveMode
 {
     [Header("Velocity Logic")]
     [SerializeField] protected float _currentspeed = 5;
@@ -12,6 +12,9 @@ public class BaseLocomotion : MonoBehaviour,ILocomotionLock,IRootMotionControl
     [SerializeField] private float _multiply = 1f;
     [SerializeField] private string _nameParameterMoveZ = "VelocityZ";
     [SerializeField] private string _nameParameterMoveX = "VelocityX";
+
+    [Header("Movement")]
+    [SerializeField] protected LocomotionMoveMode _moveMode = LocomotionMoveMode.RootMotion;
 
     [Header("Rotation")]
     [SerializeField] private float _rotateSpeed = 1f;
@@ -37,7 +40,6 @@ public class BaseLocomotion : MonoBehaviour,ILocomotionLock,IRootMotionControl
 
     private Vector3 _movementDirection;
     private Vector3 _facingDirection;
-    protected bool _rootMotionEnabled = true;
 
     public bool IsMovementLocked => _movementLockOwners.Count > 0;
     public bool ShouldResetMoveAnimation => _moveAnimationResetOwners.Count > 0;
@@ -54,6 +56,9 @@ public class BaseLocomotion : MonoBehaviour,ILocomotionLock,IRootMotionControl
 
     protected virtual void Update()
     {
+        // ต้องอยู่ก่อนเช็ค Lock — ล็อกอยู่ก็ยังต้องตก
+        UpdateVelocityMovement();
+
         if (IsMovementLocked)
         {
             ResetLockedMovement();
@@ -66,16 +71,24 @@ public class BaseLocomotion : MonoBehaviour,ILocomotionLock,IRootMotionControl
 
     protected virtual void FixedUpdate()
     {
+        // Full = คลิปคุมการหมุนแล้ว โค้ดห้ามหมุนทับ
+        if (_moveMode == LocomotionMoveMode.FullRootMotion)
+            return;
+
         Vector3 direction = IsMovementLocked ? Vector3.zero : _facingDirection;
         Rotation.Rotate(direction);
     }
 
     protected virtual void OnAnimatorMove()
     {
-        Vector3 rootMotion = _rootMotionEnabled ? Animator.deltaPosition : Vector3.zero;
-        CharacterController.Move(rootMotion + Gravity.Gravity());
+        bool useRootPosition = _moveMode == LocomotionMoveMode.RootMotion
+                            || _moveMode == LocomotionMoveMode.FullRootMotion;
+        if (!useRootPosition)
+            return;
 
-        if (_rootMotionEnabled && IsMovementLocked)
+        CharacterController.Move(Animator.deltaPosition + Gravity.Gravity());
+
+        if (_moveMode == LocomotionMoveMode.FullRootMotion)
             transform.rotation *= Animator.deltaRotation;
     }
 
@@ -114,7 +127,11 @@ public class BaseLocomotion : MonoBehaviour,ILocomotionLock,IRootMotionControl
     }
 
     #region API
-    public void SetRootMotionEnabled(bool enabled) => _rootMotionEnabled = enabled;
+    public LocomotionMoveMode MoveMode
+    {
+        get => _moveMode;
+        set => _moveMode = value;
+    }
     public float GetMoveMultiply() => LocomotionAnim.Multiply;
     public void SetMoveMultiply(float multiply) => LocomotionAnim.Multiply = multiply;
     public float GetRotateSmoothSpeed() => Rotation.Speed;
@@ -133,6 +150,18 @@ public class BaseLocomotion : MonoBehaviour,ILocomotionLock,IRootMotionControl
             }
             _currentspeed = value;
         }
+    }
+
+    // Velocity = เดินด้วยโค้ด — _movementDirection ถูก clamp ไว้แล้วใน SetMovementDirection
+    private void UpdateVelocityMovement()
+    {
+        if (_moveMode != LocomotionMoveMode.Velocity)
+            return;
+
+        Vector3 movement = IsMovementLocked
+            ? Vector3.zero
+            : _movementDirection * _currentspeed * Time.deltaTime;
+        CharacterController.Move(movement + Gravity.Gravity());
     }
 
     private void ResetLockedMovement()

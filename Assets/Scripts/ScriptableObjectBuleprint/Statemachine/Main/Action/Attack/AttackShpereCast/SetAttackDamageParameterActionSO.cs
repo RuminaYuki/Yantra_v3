@@ -2,13 +2,14 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[UseSelfAnchor]
 [RequiresOwnerComponent(typeof(AttackSphereCast))]
 [CreateAssetMenu(
     fileName = "NewSetADParameter_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Attack/AttackShpereCast/Set Attack Damage Parameter")]
 public class SetAttackDamageParameterActionSO : StateActionSO
 {
-    [SerializeField] private AttackParameters _attackParameters;
+    [SerializeField,Exposed] private AttackParameters _attackParameters;
     [Header("Damage Type (Optional)")]
     [Tooltip("Not required - leave empty if this attack doesn't need a specific damage type.")]
     [SerializeField] private DamageTypeID _damageType;
@@ -43,7 +44,7 @@ public class SetAttackDamageParameterActionSO : StateActionSO
         set => _damageType = value;
     }
 
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
         return new SetAttackDamageParameterAction(_attackParameters, _damageType);
     }
@@ -54,7 +55,7 @@ public class SetAttackDamageParameterAction : StateAction
     private readonly AttackParameters _attackParameters;
     private readonly DamageTypeID _damageType;
 
-    private AttackSphereCast _attackSphereCast;
+    private AnchorReference<AttackSphereCast> _attackSphereCast;
 
     public SetAttackDamageParameterAction(
         AttackParameters attackParameters,
@@ -66,12 +67,13 @@ public class SetAttackDamageParameterAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        stateMachine.TryGetRequired(out _attackSphereCast, this);
+        _attackSphereCast = new AnchorReference<AttackSphereCast>(stateMachine, this);
     }
 
     public override void OnStateEnter()
     {
-        _attackSphereCast.SetDamageParameter(_attackParameters, _damageType);
+        if (!_attackSphereCast.TryGet(out AttackSphereCast attackSphereCast)) return;
+        attackSphereCast.SetDamageParameter(_attackParameters, _damageType);
     }
 
     public override void OnUpdate() { }

@@ -1,0 +1,212 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-7697143732921395198
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01fdba5d7f32bbd48875a3ab7fbda341, type: 3}
+  m_Name: SprintInputAction_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::InputActionConditionSO
+  _selfAnchor: {fileID: 0}
+  _inputAction: {fileID: -7471211009204490832, guid: 35845fe01580c41289b024647b1d1c53, type: 3}
+  _checkType: 1
+  _bufferTime: 0.15
+  _jumpBuffering: 0
+--- !u!114 &-5903299649454196196
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: Run_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 11400000, guid: 2958ea6d68a7b7242af443657f008670, type: 2}
+  - {fileID: 2092774505280099472}
+  - {fileID: 656709667518212777}
+--- !u!114 &-4671652051541761311
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: Move_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 11400000, guid: 8e4bc9c1f360d7a4f8e2078d5d3bf73c, type: 2}
+  - {fileID: 7131296688426119115}
+--- !u!114 &-1351078938063520381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 828323aa1aace154891a3661130da74b, type: 3}
+  m_Name: IsActionFlag_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::FlagConditionSO
+  _selfAnchor: {fileID: 0}
+  flag: {fileID: 11400000, guid: f0e59515b8b6a6a41892c5a105e99e0b, type: 2}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5492ed31ba40b643aaf3d94f1de0aa7, type: 3}
+  m_Name: PlayerLocomotion_TransitionTable
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
+  _initialState: {fileID: -4671652051541761311}
+  _anyTransitions:
+  - ToState: {fileID: 7177098204527859533}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -1351078938063520381}
+        ExpectedResult: 0
+  _transitions:
+  - FromState: {fileID: -4671652051541761311}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -7697143732921395198}
+        ExpectedResult: 0
+      - Condition: {fileID: -1351078938063520381}
+        ExpectedResult: 1
+    ToState: {fileID: -5903299649454196196}
+  - FromState: {fileID: -5903299649454196196}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -7697143732921395198}
+        ExpectedResult: 1
+    ToState: {fileID: -4671652051541761311}
+  - FromState: {fileID: 7177098204527859533}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -1351078938063520381}
+        ExpectedResult: 1
+    ToState: {fileID: -4671652051541761311}
+  _exposedParameters: {fileID: 6603286857386878101}
+  _nodePositions:
+  - State: {fileID: 7177098204527859533}
+    Position: {x: 250, y: 117}
+  _entryNodePosition: {x: 0, y: 0}
+  _anyStateNodePosition: {x: 0, y: 120}
+  _contentsFolders:
+  - Item: {fileID: 11400000, guid: 8e4bc9c1f360d7a4f8e2078d5d3bf73c, type: 2}
+    Folder: LocomotionAnim
+  - Item: {fileID: 11400000, guid: 2958ea6d68a7b7242af443657f008670, type: 2}
+    Folder: LocomotionAnim
+  - Item: {fileID: 2092774505280099472}
+    Folder: Animator
+  - Item: {fileID: 656709667518212777}
+    Folder: SetCurrentSpeed
+  - Item: {fileID: 7131296688426119115}
+    Folder: SetCurrentSpeed
+  _contentsFolderPaths:
+  - Group: Actions
+    Path: LocomotionAnim
+  - Group: Actions
+    Path: SetCurrentSpeed
+  - Group: Actions
+    Path: Animator
+--- !u!114 &656709667518212777
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c93ef58ce9ec37d40ad7673b3728821c, type: 3}
+  m_Name: SetRunSpeedAction
+  m_EditorClassIdentifier: Assembly-CSharp::SetCurrentSpeedActionSO
+  _selfAnchor: {fileID: 0}
+  _speed: 3
+  _resetOnStateExit: 1
+--- !u!114 &2092774505280099472
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d48b03d16d09bc14e8331bf650642277, type: 3}
+  m_Name: SetIsRunParametersAnimator_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SetAnimatorParameterActionSO
+  _selfAnchor: {fileID: 11400000, guid: 6dc3f03200b18494388337ab5bf989c2, type: 2}
+  ParameterSetting:
+    ParameterType: 0
+    ParameterName: IsRun
+    BoolValueOnEnter: 1
+    ResetOnExit: 1
+--- !u!114 &6603286857386878101
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e20e27464dc08eb44ac14238e4b68ebb, type: 3}
+  m_Name: Exposed_Parameters
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.ExposedParametersSO
+  _parameters:
+  - _name: SetRunSpeedAction.Speed
+    _bindings:
+    - _target: {fileID: 656709667518212777}
+      _fieldName: _speed
+    _category: Movement
+  - _name: SetWalkSpeedDontResetAction.Speed
+    _bindings:
+    - _target: {fileID: 7131296688426119115}
+      _fieldName: _speed
+    _category: Movement
+--- !u!114 &7131296688426119115
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c93ef58ce9ec37d40ad7673b3728821c, type: 3}
+  m_Name: SetWalkSpeedDontResetAction
+  m_EditorClassIdentifier: Assembly-CSharp::SetCurrentSpeedActionSO
+  _selfAnchor: {fileID: 0}
+  _speed: 6
+  _resetOnStateExit: 0
+--- !u!114 &7177098204527859533
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: None_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions: []

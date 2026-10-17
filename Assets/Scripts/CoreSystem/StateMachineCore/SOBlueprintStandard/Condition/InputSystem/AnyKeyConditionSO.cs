@@ -13,7 +13,7 @@ public class AnyKeyConditionSO : StateConditionSO
     [SerializeField] private InputCheckType _checkType;
     [SerializeField] private InputActionReference[] _excludedActions;
 
-    public override Condition CreateCondition()
+    protected override Condition OnCreateCondition()
     {
         return new AnyKeyCondition(_checkType, _excludedActions);
     }

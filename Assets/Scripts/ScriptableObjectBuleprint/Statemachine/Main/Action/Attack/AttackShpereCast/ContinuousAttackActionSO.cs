@@ -2,13 +2,14 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[UseSelfAnchor]
 [RequiresOwnerComponent(typeof(AttackSphereCast))]
 [CreateAssetMenu(
     fileName = "ContinuousAttack_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Attack/AttackShpereCast/Continuous Attack")]
 public class ContinuousAttackActionSO : StateActionSO
 {
-    [SerializeField] private AttackParameters _attackParameters;
+    [SerializeField, Exposed] private AttackParameters _attackParameters;
     [SerializeField] private DamageTypeID _damageType;
 
     public AttackParameters AttackParameters
@@ -35,7 +36,7 @@ public class ContinuousAttackActionSO : StateActionSO
         }
     }
 
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
         return new ContinuousAttackAction(_attackParameters, _damageType);
     }
@@ -48,7 +49,7 @@ public class ContinuousAttackAction : StateAction
     private readonly AttackParameters _attackParameters;
     private readonly DamageTypeID _damageType;
 
-    private AttackSphereCast _attackSphereCast;
+    private AnchorReference<AttackSphereCast> _attackSphereCast;
     private bool _hasHit;
 
     public ContinuousAttackAction(AttackParameters attackParameters, DamageTypeID damageType)
@@ -59,7 +60,7 @@ public class ContinuousAttackAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        stateMachine.TryGetRequired(out _attackSphereCast, this);
+        _attackSphereCast = new AnchorReference<AttackSphereCast>(stateMachine, this);
     }
 
     public override void OnStateEnter()
@@ -69,9 +70,9 @@ public class ContinuousAttackAction : StateAction
 
     public override void OnUpdate()
     {
-        if (_hasHit || _attackSphereCast == null)
+        if (_hasHit || !_attackSphereCast.TryGet(out AttackSphereCast attackSphereCast))
             return;
 
-        _hasHit = _attackSphereCast.TryToExecuteAttack(_attackParameters, _damageType);
+        _hasHit = attackSphereCast.TryToExecuteAttack(_attackParameters, _damageType);
     }
 }

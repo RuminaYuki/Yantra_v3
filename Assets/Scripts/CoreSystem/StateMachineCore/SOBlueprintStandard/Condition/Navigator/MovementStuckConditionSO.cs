@@ -24,7 +24,7 @@ public class MovementStuckConditionSO : StateConditionSO
         set => _stuckDuration = Mathf.Max(0f, value);
     }
 
-    public override Condition CreateCondition()
+    protected override Condition OnCreateCondition()
     {
         return new MovementStuckCondition(_minMoveSpeed, _stuckDuration);
     }

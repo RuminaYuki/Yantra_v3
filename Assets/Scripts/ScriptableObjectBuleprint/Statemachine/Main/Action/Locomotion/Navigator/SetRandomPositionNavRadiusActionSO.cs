@@ -3,7 +3,7 @@ using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [RequiresOwnerComponent(typeof(PathNavigator))]
-[RequiresOwnerComponent(typeof(RandomWalkPoint))]
+[RequiresOwnerComponent(typeof(StandablePointValidator))]
 [RequiresOwnerComponent(typeof(WaypointPath))]
 [CreateAssetMenu(
     fileName = "SetRandomPositionNavRadius_Action",
@@ -11,46 +11,45 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 public class SetRandomPositionNavRadiusActionSO : StateActionSO
 {
     [Header("This action will use Waypoint Root at Homepoint")]
-    [SerializeField, Min(0.01f)] private float _radius = 5f;
-    [SerializeField, Min(0.01f)] private float _minDistance = 1.5f;
+    [SerializeField, Exposed] private RingSampleParameters _ringParameters =
+        new() { radius = 5f, minDistance = 1.5f, directionCount = 16 };
     [SerializeField, Min(1)] private int _maxAttempts = 10;
     [SerializeField] private bool _requireNavMeshBaked = false;
 
     public float Radius
     {
-        get => _radius;
+        get => _ringParameters.radius;
         set
         {
            if (value < 0f)
             {
                 Debug.LogWarning("radius cannot be negative. Setting to 0.");
-                _radius = 0f;
+                _ringParameters.radius = 0f;
                 return;
             }
-            _radius = value; 
+            _ringParameters.radius = value; 
         }
     }
 
     public float MinDistance
     {
-        get => _minDistance;
+        get => _ringParameters.minDistance;
         set
         {
            if (value < 0f)
             {
                 Debug.LogWarning("minDistance cannot be negative. Setting to 0.");
-                _minDistance = 0f;
+                _ringParameters.minDistance = 0f;
                 return;
             }
-            _minDistance = value; 
+            _ringParameters.minDistance = value; 
         }
     }
 
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
         return new SetRandomPositionNavRadiusAction(
-            _radius,
-            _minDistance,
+            _ringParameters,
             _maxAttempts,
             _requireNavMeshBaked);
     }
@@ -58,25 +57,22 @@ public class SetRandomPositionNavRadiusActionSO : StateActionSO
 
 public class SetRandomPositionNavRadiusAction : StateAction
 {
-    private readonly float _radius;
-    private readonly float _minDistance;
+    private readonly RingSampleParameters _ringParameters;
     private readonly int _maxAttempts;
     private readonly bool _requireNavMeshBaked;
 
-    private PathNavigator _pathNavigator;
-    private RandomWalkPoint _randomWalkPoint;
-    private WaypointPath _waypointPath;
+    private AnchorReference<PathNavigator> _pathNavigator;
+    private AnchorReference<StandablePointValidator> _pointValidator;
+    private AnchorReference<WaypointPath> _waypointPath;
     private Transform _owner;
     private Transform _destination;
 
     public SetRandomPositionNavRadiusAction(
-        float radius,
-        float minDistance,
+        RingSampleParameters ringParameters,
         int maxAttempts,
         bool requireNavMeshBaked)
     {
-        _radius = Mathf.Max(0.01f, radius);
-        _minDistance = Mathf.Clamp(minDistance, 0.01f, _radius);
+        _ringParameters = ringParameters;
         _maxAttempts = Mathf.Max(1, maxAttempts);
         _requireNavMeshBaked = requireNavMeshBaked;
     }
@@ -84,26 +80,32 @@ public class SetRandomPositionNavRadiusAction : StateAction
     public override void Awake(StateMachine stateMachine)
     {
         _owner = stateMachine.Owner.transform;
-        stateMachine.TryGetRequired(out _pathNavigator, this);
-        stateMachine.TryGetRequired(out _randomWalkPoint, this);
-        stateMachine.TryGetRequired(out _waypointPath, this);
-
-        CreateDestination();
+        _pathNavigator = new AnchorReference<PathNavigator>(stateMachine, this);
+        _pointValidator = new AnchorReference<StandablePointValidator>(stateMachine, this);
+        _waypointPath = new AnchorReference<WaypointPath>(stateMachine, this);
     }
 
     public override void OnStateEnter()
     {
-        _pathNavigator.ClearTarget();
+        if (!_pathNavigator.TryGet(out PathNavigator pathNavigator) ||
+            !_pointValidator.TryGet(out StandablePointValidator pointValidator) ||
+            !_waypointPath.TryGet(out WaypointPath waypointPath))
+            return;
 
-        if (!TryGetTarget(out Transform target))
+        // Made on first use instead of in Awake: the components are only looked up when needed.
+        CreateDestination(waypointPath);
+        pathNavigator.ClearTarget();
+
+        Transform target = waypointPath.PathRoot != null ? waypointPath.PathRoot : _owner;
+        if (target == null)
             return;
 
         for (int i = 0; i < _maxAttempts; i++)
         {
-            if (!_randomWalkPoint.TryGetRandomPoint(
+            if (!RingPointSampler.TryGetPoint(
+                    pointValidator,
                     target.position,
-                    _radius,
-                    _minDistance,
+                    in _ringParameters,
                     out Vector3 candidate))
                 continue;
 
@@ -111,12 +113,12 @@ public class SetRandomPositionNavRadiusAction : StateAction
 
             if (_requireNavMeshBaked)
             {
-                if (!_pathNavigator.TrySetTarget(_destination))
+                if (!pathNavigator.TrySetTarget(_destination))
                     continue;
             }
             else
             {
-                _pathNavigator.Target = _destination;
+                pathNavigator.Target = _destination;
             }
 
             return;
@@ -131,16 +133,16 @@ public class SetRandomPositionNavRadiusAction : StateAction
 
     public override void OnStateExit()
     {
-        if (_pathNavigator.Target == _destination)
-            _pathNavigator.ClearTarget();
+        if (_pathNavigator.TryGet(out PathNavigator pathNavigator) && pathNavigator.Target == _destination)
+            pathNavigator.ClearTarget();
     }
 
-    private void CreateDestination()
+    private void CreateDestination(WaypointPath waypointPath)
     {
         if (_destination != null)
             return;
 
-        Transform pathRoot = _waypointPath != null ? _waypointPath.PathRoot : null;
+        Transform pathRoot = waypointPath.PathRoot;
 
         if (pathRoot != null && pathRoot.childCount > 0)
         {
@@ -151,19 +153,5 @@ public class SetRandomPositionNavRadiusAction : StateAction
         GameObject destinationObject = new("Random Position (Nav Radius) Destination");
         destinationObject.transform.SetParent(pathRoot != null ? pathRoot : _owner, worldPositionStays: false);
         _destination = destinationObject.transform;
-    }
-
-    private bool TryGetTarget(out Transform target)
-    {
-        target = null;
-
-        if (_waypointPath.PathRoot == null)
-        {
-            target = _owner;
-            return target != null;
-        }
-
-        target = _waypointPath.PathRoot;
-        return target != null;
     }
 }

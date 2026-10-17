@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[UseSelfAnchor]
 [RequiresOwnerComponent(typeof(Health))]
 [CreateAssetMenu(
     fileName = "SetIgnoreDamage_Action",
@@ -12,7 +13,7 @@ public class SetIgnoreDamageActionSO : StateActionSO
     [Tooltip("Change opposite Value On Exit")]
     [SerializeField] private bool resetValueOnExit = true;
 
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
         return new SetIgnoreDamageAction(value, resetValueOnExit);
     }
@@ -22,7 +23,7 @@ public class SetIgnoreDamageAction : StateAction
 {
     private readonly bool value;
     private readonly bool resetValueOnExit;
-    private Health health;
+    private AnchorReference<Health> healthRef;
 
     public SetIgnoreDamageAction(bool value, bool resetValueOnExit)
     {
@@ -32,11 +33,12 @@ public class SetIgnoreDamageAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        stateMachine.TryGetRequired(out health, this);
+        healthRef = new AnchorReference<Health>(stateMachine, this);
     }
 
     public override void OnStateEnter()
     {
+        if (!healthRef.TryGet(out Health health)) return;
         health.SetEnableIgnoreDamage(value);
     }
 
@@ -44,7 +46,7 @@ public class SetIgnoreDamageAction : StateAction
 
     public override void OnStateExit()
     {
-        if (!resetValueOnExit) return;
+        if (!resetValueOnExit || !healthRef.TryGet(out Health health)) return;
         health.SetEnableIgnoreDamage(!value);
     }
 }

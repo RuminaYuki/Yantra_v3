@@ -2,41 +2,32 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
-[RequiresOwnerComponent(typeof(GunController), UnlessAnchorField = "_gunAnchor")]
+[UseSelfAnchor]
+[RequiresOwnerComponent(typeof(GunController))]
 [CreateAssetMenu(
     fileName = "Reload_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/GamePlayMechanic/Gun/Reload")]
 public class ReloadActionSO : StateActionSO
 {
-    [SerializeField] private GameObjectAnchor _gunAnchor;
-
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
-        return new ReloadAction(_gunAnchor);
+        return new ReloadAction();
     }
 }
 
 public class ReloadAction : StateAction
 {
-    private readonly GameObjectAnchor _gunAnchor;
-    private GunController _gunController;
-
-    public ReloadAction(GameObjectAnchor gunAnchor)
-    {
-        _gunAnchor = gunAnchor;
-    }
+    private AnchorReference<GunController> _gunController;
 
     public override void Awake(StateMachine stateMachine)
     {
-        _gunAnchor.TryGetComponentOrOwner(stateMachine, out _gunController, this);
+        _gunController = new AnchorReference<GunController>(stateMachine, this);
     }
 
     public override void OnStateEnter()
     {
-        if (_gunController != null)
-        {
-            _gunController.Reload();
-        }
+        if (!_gunController.TryGet(out GunController gunController)) return;
+        gunController.Reload();
     }
 
     public override void OnUpdate() { }

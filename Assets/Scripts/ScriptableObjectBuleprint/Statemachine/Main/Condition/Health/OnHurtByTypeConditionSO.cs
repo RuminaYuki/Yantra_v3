@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[UseSelfAnchor]
 [RequiresOwnerComponent(typeof(Health))]
 [CreateAssetMenu(
     fileName = "OnHurtByType_Condition",
@@ -10,7 +11,7 @@ public class OnHurtByTypeConditionSO : StateConditionSO
 {
     [SerializeField] private DamageTypeID damageTypeID;
 
-    public override Condition CreateCondition()
+    protected override Condition OnCreateCondition()
     {
         return new OnHurtByTypeCondition(damageTypeID);
     }
@@ -20,7 +21,8 @@ public class OnHurtByTypeConditionSO : StateConditionSO
 public class OnHurtByTypeCondition : Condition
 {
     private readonly DamageTypeID damageTypeID;
-    private Health _health;
+    private AnchorReference<Health> _health;
+    private Health _subscribed;   // the Health we are listening to right now
     private bool _pending;   // matching hit happened, waiting for the next update
     private bool _active;    // true during this update
 
@@ -31,12 +33,24 @@ public class OnHurtByTypeCondition : Condition
 
     public override void Awake(StateMachine stateMachine)
     {
-        if (!stateMachine.TryGetRequired(out _health, this))
-        {
-            return;
-        }
+        _health = new AnchorReference<Health>(stateMachine, this);
+        SyncSubscription();
+    }
 
-        _health.OnHurtDamageType += HandleHurt;
+    // Follows the anchor: if it now points at another Health (or one appeared late), move the listener.
+    private void SyncSubscription()
+    {
+        _health.TryGet(out Health current);
+        if (current == _subscribed)
+            return;
+
+        if (_subscribed != null)
+            _subscribed.OnHurtDamageType -= HandleHurt;
+
+        _subscribed = current;
+
+        if (_subscribed != null)
+            _subscribed.OnHurtDamageType += HandleHurt;
     }
 
     public override void OnStateEnter()
@@ -49,6 +63,7 @@ public class OnHurtByTypeCondition : Condition
     // Start of every update: last update's hit expires, a new one becomes visible.
     protected override void OnTick()
     {
+        SyncSubscription();
         _active = _pending;
         _pending = false;
     }
@@ -60,8 +75,9 @@ public class OnHurtByTypeCondition : Condition
 
     public override void Dispose()
     {
-        if (_health != null)
-            _health.OnHurtDamageType -= HandleHurt;
+        if (_subscribed != null)
+            _subscribed.OnHurtDamageType -= HandleHurt;
+        _subscribed = null;
     }
 
     private void HandleHurt(DamageTypeID damageTypeID)

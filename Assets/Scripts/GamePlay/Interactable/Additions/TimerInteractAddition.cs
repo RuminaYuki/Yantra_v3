@@ -29,7 +29,7 @@ public class TimerInteractAddition : MonoBehaviour
     }
 
     // BaseInteractor มาถาม: กดได้ไหม / ยกเลิกได้ไหม
-    private bool IsTimerDone()
+    private bool IsTimerDone(GameObject rootPlayer)
     {
         return _timeLeft <= 0;
     }

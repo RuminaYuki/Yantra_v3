@@ -9,6 +9,7 @@ public class SpellRadialMenuSelect : MonoBehaviour
     [SerializeField] SpellController _spellController;
     [SerializeField] PlayerCameraController _playerCameraController;
     [SerializeField] RadialMenuDataSO _dataSO;
+    [SerializeField] PlayerInventory _playerInventory; // ว่างไว้ได้ จะหาจากตัว player ให้เอง
     [SerializeField] GameObject PositionReferences;
     [SerializeField] GameObject OwnerForEffect;
 
@@ -29,6 +30,11 @@ public class SpellRadialMenuSelect : MonoBehaviour
         if (_playerCameraController == null)
         {
             _playerCameraController = GetComponentInParent<PlayerCameraController>();
+        }
+
+        if (_playerInventory == null)
+        {
+            _playerInventory = transform.root.GetComponentInChildren<PlayerInventory>();
         }
     }
 
@@ -133,6 +139,7 @@ public class SpellRadialMenuSelect : MonoBehaviour
     public void InstantiateNewTemplat(int ID)
     {
         if (ID > _spellTypes.Count - 1 || ID < 0 || _spellController.GetHaveTemplat) return;
+        if (!TryConsumeRequiredItem(ID)) return;
 
         _spellController.SetSplineToLineRenderer(null);
 
@@ -145,12 +152,32 @@ public class SpellRadialMenuSelect : MonoBehaviour
             if (effectSpawner != null)
             {
                 effectSpawner.SetSpawnPoint(OwnerForEffect.transform != null ? OwnerForEffect.transform : transform);
+                effectSpawner.SetOwner(OwnerForEffect != null ? OwnerForEffect : transform.root.gameObject);
             }
 
             _spellController.SetSplineToLineRenderer(newTemplate.GetComponent<SplineToLineRenderer>());
             _spellController.SetActive(true);
             _spellController.AddProgress();
         }
+    }
+
+    // ใช้ item ตามที่ปุ่มกำหนดใน _dataSO ถ้าไม่ครบจะไม่หักอะไรเลยและคืน false
+    private bool TryConsumeRequiredItem(int ID)
+    {
+        if (_dataSO == null) return true;
+
+        var list = _dataSO.GetListData();
+        if (ID >= list.Count) return true;
+
+        RadialMenuButtonData data = list[ID];
+        if (data.itemData == null || data.itemReq <= 0) return true;
+        if (_playerInventory == null) return false;
+
+        Inventory inventory = _playerInventory.Inventory;
+        if (inventory.TryRemove(data.itemData, data.itemReq, simulate: true) < data.itemReq) return false;
+
+        inventory.TryRemove(data.itemData, data.itemReq);
+        return true;
     }
 
     private void HandleSpellFinished()

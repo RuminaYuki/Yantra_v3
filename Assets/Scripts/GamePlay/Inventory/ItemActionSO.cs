@@ -1,20 +1,21 @@
 using UnityEngine;
 
-// Everything the right-click menu needs to run an action on one slot.
+// Everything the right-click menu needs to run an action on one placed item.
 public readonly struct ItemActionContext
 {
     public readonly PlayerInventory Player;
     public readonly InventoryUI UI;
-    public readonly int SlotIndex;
+    public readonly PlacedItem Target;
 
-    public ItemActionContext(PlayerInventory player, InventoryUI ui, int slotIndex)
+    public ItemActionContext(PlayerInventory player, InventoryUI ui, PlacedItem target)
     {
         Player = player;
         UI = ui;
-        SlotIndex = slotIndex;
+        Target = target;
     }
 
-    public ItemStack Stack => Player.Inventory[SlotIndex];
+    // Empty if the item is no longer in the inventory.
+    public ItemStack Stack => Player.Inventory.Contains(Target) ? Target.Stack : default;
 }
 
 // Base class for anything that shows up in the right-click menu.
@@ -26,7 +27,7 @@ public abstract class ItemActionSO : ScriptableObject
 
     public string Label => string.IsNullOrEmpty(label) ? name : label;
 
-    // Return false to hide the action for this slot.
+    // Return false to hide the action for this item.
     public virtual bool CanExecute(in ItemActionContext ctx) => !ctx.Stack.IsEmpty;
 
     public abstract void Execute(in ItemActionContext ctx);

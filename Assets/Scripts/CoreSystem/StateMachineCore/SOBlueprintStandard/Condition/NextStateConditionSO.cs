@@ -7,7 +7,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/Next State")]
 public class NextStateConditionSO : StateConditionSO
 {
-    public override Condition CreateCondition()
+    protected override Condition OnCreateCondition()
     {
         return new NextStateCondition();
     }

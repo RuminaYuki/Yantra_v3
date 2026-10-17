@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5492ed31ba40b643aaf3d94f1de0aa7, type: 3}
+  m_Name: EnemyGloryForTest_TransitionTable
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
+  _initialState: {fileID: 11400000, guid: 4e9f193a05a04c041ac3f35904ebbd8f, type: 2}
+  _anyTransitions:
+  - ToState: {fileID: 6835993060265228890, guid: a706c8b7a35552b42ac95b90383456f7, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 6618708587281662626, guid: a706c8b7a35552b42ac95b90383456f7, type: 2}
+        ExpectedResult: 0
+      - Condition: {fileID: -6158984333126601592, guid: a706c8b7a35552b42ac95b90383456f7, type: 2}
+        ExpectedResult: 0
+  - ToState: {fileID: -7205683746137457426, guid: a706c8b7a35552b42ac95b90383456f7, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 3149816570201561003, guid: a706c8b7a35552b42ac95b90383456f7, type: 2}
+        ExpectedResult: 0
+      - Condition: {fileID: -6158984333126601592, guid: a706c8b7a35552b42ac95b90383456f7, type: 2}
+        ExpectedResult: 1
+  _transitions:
+  - FromState: {fileID: -7205683746137457426, guid: a706c8b7a35552b42ac95b90383456f7, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 6335553505640395995, guid: a706c8b7a35552b42ac95b90383456f7, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: 11400000, guid: 4e9f193a05a04c041ac3f35904ebbd8f, type: 2}
+  _exposedParameters: {fileID: 0}
+  _nodePositions:
+  - State: {fileID: 11400000, guid: 4e9f193a05a04c041ac3f35904ebbd8f, type: 2}
+    Position: {x: 173, y: 0}
+  - State: {fileID: -7205683746137457426, guid: a706c8b7a35552b42ac95b90383456f7, type: 2}
+    Position: {x: 173, y: 122}
+  - State: {fileID: 6835993060265228890, guid: a706c8b7a35552b42ac95b90383456f7, type: 2}
+    Position: {x: 173, y: 209}
+  _entryNodePosition: {x: 0, y: 0}
+  _anyStateNodePosition: {x: 0, y: 120}
+  _contentsFolders: []
+  _contentsFolderPaths: []

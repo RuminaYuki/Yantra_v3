@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[UseSelfAnchor]
 [RequiresOwnerComponent(typeof(PathNavigator))]
 [RequiresOwnerComponent(typeof(BaseLocomotion))]
 [CreateAssetMenu(
@@ -11,7 +12,7 @@ public class FollowPathLocomotionActionSO : StateActionSO
 {
     [SerializeField] private bool _updateFacing = true;
 
-    public override StateAction CreateAction(StateMachine stateMachine)
+    protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
         return new FollowPathLocomotionAction(_updateFacing);
     }
@@ -20,8 +21,9 @@ public class FollowPathLocomotionActionSO : StateActionSO
 public class FollowPathLocomotionAction : StateAction
 {
     private readonly bool _updateFacing;
-    private PathNavigator _pathNavigator;
-    private BaseLocomotion _locomotion;
+    // Both live on the same character, so both follow the one Self Anchor.
+    private AnchorReference<PathNavigator> _pathNavigator;
+    private AnchorReference<BaseLocomotion> _locomotion;
 
     public FollowPathLocomotionAction(bool updateFacing)
     {
@@ -30,23 +32,28 @@ public class FollowPathLocomotionAction : StateAction
 
     public override void Awake(StateMachine stateMachine)
     {
-        stateMachine.TryGetRequired(out _pathNavigator, this);
-        stateMachine.TryGetRequired(out _locomotion, this);
+        _pathNavigator = new AnchorReference<PathNavigator>(stateMachine, this);
+        _locomotion = new AnchorReference<BaseLocomotion>(stateMachine, this);
     }
 
     public override void OnUpdate()
     {
-        Vector3 direction = _pathNavigator.Direction;
-        _locomotion.SetMovementDirection(direction);
+        if (!_pathNavigator.TryGet(out PathNavigator pathNavigator) ||
+            !_locomotion.TryGet(out BaseLocomotion locomotion))
+            return;
+
+        Vector3 direction = pathNavigator.Direction;
+        locomotion.SetMovementDirection(direction);
 
         if (_updateFacing)
-            _locomotion.SetFacingDirection(direction);
+            locomotion.SetFacingDirection(direction);
     }
 
     public override void OnStateExit()
     {
-        _locomotion.ClearMovementDirection();
+        if (!_locomotion.TryGet(out BaseLocomotion locomotion)) return;
+        locomotion.ClearMovementDirection();
         if (_updateFacing)
-        _locomotion.ClearFacingDirection();
+            locomotion.ClearFacingDirection();
     }
 }
