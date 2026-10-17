@@ -39,6 +39,9 @@ public class SceneLoader : MonoBehaviour
     [Tooltip("เวลาที่จอค่อย ๆ สว่างขึ้นจากดำ")]
     [SerializeField, Min(0f)] private float _fadeFromBlackDuration = 0.6f;
 
+    [Tooltip("ตอนเปิดเกม (หรือกด Play ใน Editor) เริ่มจากจอดำแล้วค่อย ๆ สว่าง")]
+    [SerializeField] private bool _fadeInOnGameStart = true;
+
     [Header("Options")]
     [Tooltip("โหลดเสร็จแล้วรอให้กดปุ่มก่อนเข้าเกม")]
     [SerializeField] private bool _waitForKeyPress = false;
@@ -69,10 +72,16 @@ public class SceneLoader : MonoBehaviour
 
         if (_fader != null)
         {
-            _fader.alpha = 0f;
+            _fader.alpha = _fadeInOnGameStart ? 1f : 0f;
             _fader.interactable = false;
-            _fader.blocksRaycasts = false;
+            _fader.blocksRaycasts = _fadeInOnGameStart;
         }
+    }
+
+    private void Start()
+    {
+        if (_fadeInOnGameStart && _fader != null)
+            StartCoroutine(FadeTo(0f, _fadeFromBlackDuration));
     }
 
     /// <summary>โหลดหน้าเมนูหลัก — ไม่ต้องรู้ชื่อ scene</summary>
@@ -181,14 +190,23 @@ public class SceneLoader : MonoBehaviour
 
         var ui = UIManager.Instance;
 
+        // หยุดฉากเดิมทั้งหมดระหว่างโหลด — ผู้เล่นต่อย/เดินไม่ได้ ศัตรูก็ไม่ตีตอนจอดำ
+        // ทุกอย่างของหน้าโหลด (fade, tip, วิดีโอ) ใช้ unscaled time อยู่แล้ว ไม่ค้าง
+        float prevTimeScale = Time.timeScale;
+        bool prevSmPaused = StateMachineController.IsPaused;
+        Time.timeScale = 0f;
+        StateMachineController.IsPaused = true;
+
         // 1) ดำลงทับเมนูที่เปิดอยู่
         yield return FadeTo(1f, _fadeToBlackDuration);
 
-        // 2) เริ่มโหลด — ถ้าโหลดไม่ได้ สว่างกลับมาที่เมนูเดิม
+        // 2) เริ่มโหลด — ถ้าโหลดไม่ได้ คืนทุกอย่างแล้วสว่างกลับมาที่เดิม
         var op = SceneManager.LoadSceneAsync(sceneName);
         if (op == null)
         {
             Debug.LogError($"[SceneLoader] โหลด '{sceneName}' ไม่ได้ — เพิ่มใน Build Settings หรือยัง");
+            Time.timeScale = prevTimeScale;
+            StateMachineController.IsPaused = prevSmPaused;
             yield return FadeTo(0f, _fadeFromBlackDuration);
             IsLoading = false;
             yield break;
@@ -196,15 +214,12 @@ public class SceneLoader : MonoBehaviour
 
         op.allowSceneActivation = false;
 
-        // 3) กันเคสโหลดตอนเกม pause อยู่
-        Time.timeScale = 1f;
-
-        // 4) ตอนจอดำ: เปิดหน้าโหลด ปิดเมนูทั้งหมด (มันข้าม scene มาด้วยเพราะอยู่ใต้ UIRoot)
+        // 3) ตอนจอดำ: เปิดหน้าโหลด ปิดเมนูทั้งหมด (มันข้าม scene มาด้วยเพราะอยู่ใต้ UIRoot)
         ui.Open(ScreenId.Loading, instant: true);
         ui.CloseAllExcept(ScreenId.Loading, instant: true);
         UIManager.TryGet<LoadingScreen>(ScreenId.Loading, out var screen);
 
-        // 5) สว่างขึ้นเห็นหน้าโหลด
+        // 4) สว่างขึ้นเห็นหน้าโหลด
         yield return FadeTo(0f, _fadeFromBlackDuration);
 
         float startTime = Time.unscaledTime;
@@ -218,11 +233,11 @@ public class SceneLoader : MonoBehaviour
 
         screen?.SetProgress(1f);
 
-        // 6) รอให้ครบเวลาขั้นต่ำ (นับตั้งแต่เห็นหน้าโหลด)
+        // 5) รอให้ครบเวลาขั้นต่ำ (นับตั้งแต่เห็นหน้าโหลด)
         while (Time.unscaledTime - startTime < _minLoadingTime)
             yield return null;
 
-        // 7) รอกดปุ่ม (ถ้าเปิดออปชันไว้)
+        // 6) รอกดปุ่ม (ถ้าเปิดออปชันไว้)
         if (_waitForKeyPress)
         {
             screen?.ShowPressAnyKey(true);
@@ -230,11 +245,20 @@ public class SceneLoader : MonoBehaviour
             screen?.ShowPressAnyKey(false);
         }
 
-        // 8) ดำลงอีกรอบ แล้วค่อยสลับ scene ตอนมืด
+        // 7) ดำลงอีกรอบ แล้วค่อยสลับ scene ตอนมืด
         yield return FadeTo(1f, _fadeToBlackDuration);
 
         op.allowSceneActivation = true;
         while (!op.isDone) yield return null;
+
+        // ปลดหลังซีนเก่าหายไปแล้วเท่านั้น — ถ้าปลดก่อน ตัวละครเก่ายังอยู่อีกไม่กี่เฟรม
+        // แล้วจะต่อยตามคลิกที่ค้างไว้ตอนโหลด (จอดำอยู่ เลยได้ยินแค่เสียง)
+        // ถ้ามีหน้าจออื่นเปิดขึ้นมาแล้ว (เช่น tutorial ตอนเกิด) ปล่อยให้หน้านั้นเป็นคนปลดเอง
+        if (ui.Current == ScreenId.Loading)
+        {
+            Time.timeScale = 1f;
+            StateMachineController.IsPaused = false;
+        }
 
         if (_unloadUnusedAssets)
         {
@@ -244,14 +268,14 @@ public class SceneLoader : MonoBehaviour
 
         yield return new WaitForSecondsRealtime(_postLoadHold);
 
-        // 9) ยังมืดอยู่ — เปิดหน้าที่ต้องการ ปิดหน้าโหลด
+        // 8) ยังมืดอยู่ — เปิดหน้าที่ต้องการ ปิดหน้าโหลด
         if (openAfterLoad != ScreenId.None)
             ui.Open(openAfterLoad, instant: true);
 
         ui.Close(ScreenId.Loading, instant: true);
         LoadCompleted?.Invoke(sceneName);
 
-        // 10) สว่างเข้าซีนใหม่
+        // 9) สว่างเข้าซีนใหม่
         yield return FadeTo(0f, _fadeFromBlackDuration);
 
         IsLoading = false;
