@@ -23,7 +23,48 @@ public class DissolveVFXPlayer : MonoBehaviour
     [SerializeField] private float _visibleAmount = 0f;
     [SerializeField] private float _hiddenAmount = 1f;
 
-    [Header("เอฟเฟกต์เสริม (ไม่จำเป็นต้องใส่)")]
+    [System.Serializable]
+    private class EffectSlot
+    {
+        [Tooltip("ลาก Prefab เอฟเฟกต์ใส่ได้เลย (Particle System / VFX Graph / Effekseer)\n" +
+                 "หรือลาก object ในฉากที่ปิด active ไว้ ระบบจะก๊อปแล้วเปิดเล่นให้")]
+        public GameObject Effect;
+
+        [Tooltip("จุดที่เอฟเฟกต์เกิด — เว้นว่าง = Visual Root หรือตัวนี้")]
+        public Transform Point;
+
+        [Tooltip("ติ๊ก = เอฟเฟกต์ขยับตามจุดเกิด\nไม่ติ๊ก = เกิดแล้วอยู่กับที่ ไม่หายไปพร้อมโมเดล")]
+        public bool FollowPoint = true;
+
+        [Tooltip("ให้ Particle ตัวหลักพ่นออกมาจากผิวโมเดล — ใช้ได้กับ Particle System เท่านั้น")]
+        public bool EmitFromMesh;
+
+        [Tooltip("ลบเอฟเฟกต์ทิ้งหลังกี่วินาที — 0 = ไม่ลบเอง (ลบตอน Reset)")]
+        [Min(0f)] public float Lifetime = 3f;
+    }
+
+    [Header("วนเล่นซ้ำ (ไว้โชว์ mockup)")]
+    [Tooltip("ติ๊ก = เล่นเองตอนเริ่ม แล้ววน หาย → กลับมา → หายใหม่ ไปเรื่อยๆ\n" +
+             "ไม่ต้องมีระบบอื่นเรียก PlayDissolve — ห้ามติ๊กกับตัวที่ใช้ในเกมจริง")]
+    [SerializeField] private bool _loop;
+
+    [Tooltip("ติ๊ก = ค่อยๆ ปรากฏกลับมา (dissolve ย้อนกลับ)\nไม่ติ๊ก = โผล่กลับมาทันที")]
+    [SerializeField] private bool _loopFadeIn = true;
+
+    [Tooltip("หายไปนานกี่วินาทีก่อนกลับมา")]
+    [SerializeField, Min(0f)] private float _loopHiddenTime = 1f;
+
+    [Tooltip("กลับมาแล้วโชว์อยู่กี่วินาทีก่อนหายรอบใหม่")]
+    [SerializeField, Min(0f)] private float _loopVisibleTime = 1f;
+
+    [Header("เอฟเฟกต์ (ลากใส่ได้เลย ไม่ใส่ก็ได้)")]
+    [Tooltip("เล่นตอนเริ่มหาย")]
+    [SerializeField] private EffectSlot _startEffect = new EffectSlot();
+
+    [Tooltip("เล่นตอนหายหมดแล้ว")]
+    [SerializeField] private EffectSlot _finishEffect = new EffectSlot { FollowPoint = false };
+
+    [Header("Event เพิ่มเติม (ไม่ใส่ก็ได้)")]
     [Tooltip("เรียกเมื่อเริ่มหาย ต่อ ParticleSystem.Play หรือ VisualEffect.Play ของโมเดลตัวนี้ได้")]
     [SerializeField] private UnityEvent _onDissolveStarted = new UnityEvent();
     [SerializeField] private UnityEvent _onDissolveFinished = new UnityEvent();
@@ -41,7 +82,9 @@ public class DissolveVFXPlayer : MonoBehaviour
     }
 
     private readonly List<RendererState> _states = new List<RendererState>();
+    private readonly List<GameObject> _attachedEffects = new List<GameObject>();
     private bool _played;
+    private bool _finished;
     private int _amountId;
     private int _runVersion;
 
@@ -51,6 +94,7 @@ public class DissolveVFXPlayer : MonoBehaviour
             return;
 
         _played = true;
+        _finished = false;
         _runVersion++;
         StartCoroutine(DissolveRoutine(_runVersion));
     }
@@ -165,6 +209,7 @@ public class DissolveVFXPlayer : MonoBehaviour
             state.MaterialsApplied = true;
         }
         ApplyAmount(_visibleAmount);
+        PlayEffect(_startEffect);
         _onDissolveStarted?.Invoke();
         if (!IsCurrentRun(version))
             yield break;
@@ -189,7 +234,158 @@ public class DissolveVFXPlayer : MonoBehaviour
 
         // Hidden renderers no longer need material instances. Keep visibility snapshots for pooling.
         RestoreMaterials();
+        PlayEffect(_finishEffect);
+        _finished = true;
         _onDissolveFinished?.Invoke();
+    }
+
+    private IEnumerator LoopRoutine()
+    {
+        // รอ 1 เฟรม ให้สคริปต์อื่นเปิด/ตั้งค่าโมเดลเสร็จก่อน
+        yield return null;
+
+        while (true)
+        {
+            PlayDissolve();
+            if (!_played)
+                yield break;
+
+            while (!_finished)
+                yield return null;
+
+            if (_loopHiddenTime > 0f)
+                yield return new WaitForSeconds(_loopHiddenTime);
+
+            ResetState();
+            if (_loopFadeIn)
+                yield return AppearRoutine();
+
+            if (_loopVisibleTime > 0f)
+                yield return new WaitForSeconds(_loopVisibleTime);
+        }
+    }
+
+    // ทุกอย่างเกิดในเฟรมเดียวก่อนจอวาด โมเดลเลยไม่โผล่วับก่อนเริ่มจาง
+    private IEnumerator AppearRoutine()
+    {
+        if (!PrepareMaterials())
+            yield break;
+
+        foreach (RendererState state in _states)
+        {
+            if (state.Renderer == null)
+                continue;
+            state.Renderer.sharedMaterials = state.RuntimeMaterials;
+            state.MaterialsApplied = true;
+        }
+        ApplyAmount(_hiddenAmount);
+
+        float elapsed = 0f;
+        float duration = Mathf.Max(0.01f, _duration);
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            ApplyAmount(Mathf.Lerp(_hiddenAmount, _visibleAmount, Mathf.Clamp01(elapsed / duration)));
+            yield return null;
+        }
+
+        ApplyAmount(_visibleAmount);
+        ResetState();
+    }
+
+    private void PlayEffect(EffectSlot slot)
+    {
+        if (slot == null || slot.Effect == null)
+            return;
+
+        Transform point = slot.Point != null ? slot.Point : (_visualRoot != null ? _visualRoot : transform);
+        GameObject instance = slot.FollowPoint
+            ? Instantiate(slot.Effect, point.position, point.rotation, point)
+            : Instantiate(slot.Effect, point.position, point.rotation);
+
+        if (slot.EmitFromMesh)
+            BindToMesh(instance);
+
+        instance.SetActive(true);
+        PlayParticles(instance);
+
+        // เอฟเฟกต์ที่ไม่ติดตัวและมีเวลาหมดอายุ ปล่อยให้เล่นจนจบเอง แม้โมเดลจะถูกปิดไปแล้ว
+        if (slot.FollowPoint || slot.Lifetime <= 0f)
+            _attachedEffects.Add(instance);
+        if (slot.Lifetime > 0f)
+            Destroy(instance, slot.Lifetime);
+    }
+
+    // Particle ที่ไม่ได้ติ๊ก Play On Awake จะไม่เล่นเอง — สั่งเฉพาะตัวบนสุด ตัวลูกเล่นตาม
+    private static void PlayParticles(GameObject instance)
+    {
+        foreach (ParticleSystem ps in instance.GetComponentsInChildren<ParticleSystem>(true))
+        {
+            if (IsTopParticle(ps, instance.transform) && !ps.isPlaying)
+                ps.Play(true);
+        }
+    }
+
+    private static bool IsTopParticle(ParticleSystem ps, Transform root)
+    {
+        if (ps.transform == root)
+            return true;
+
+        for (Transform t = ps.transform.parent; t != null; t = t.parent)
+        {
+            if (t.TryGetComponent<ParticleSystem>(out _))
+                return false;
+            if (t == root)
+                break;
+        }
+        return true;
+    }
+
+    // เลือกชิ้นที่ใหญ่สุด (ปกติคือตัว) ไม่ใช่ชิ้นแรก เผื่อชิ้นแรกเป็นอาวุธหรือของประดับ
+    private void BindToMesh(GameObject instance)
+    {
+        Renderer target = null;
+        float biggest = -1f;
+        foreach (RendererState state in _states)
+        {
+            if (state.Renderer == null)
+                continue;
+            float size = state.Renderer.bounds.size.sqrMagnitude;
+            if (size > biggest)
+            {
+                biggest = size;
+                target = state.Renderer;
+            }
+        }
+        if (target == null)
+            return;
+
+        foreach (ParticleSystem ps in instance.GetComponentsInChildren<ParticleSystem>(true))
+        {
+            if (!IsTopParticle(ps, instance.transform))
+                continue;
+
+            ParticleSystem.ShapeModule shape = ps.shape;
+            shape.enabled = true;
+            if (target is SkinnedMeshRenderer skinned)
+            {
+                shape.shapeType = ParticleSystemShapeType.SkinnedMeshRenderer;
+                shape.skinnedMeshRenderer = skinned;
+            }
+            else if (target is MeshRenderer mesh)
+            {
+                shape.shapeType = ParticleSystemShapeType.MeshRenderer;
+                shape.meshRenderer = mesh;
+            }
+        }
+    }
+
+    private void ClearEffects()
+    {
+        foreach (GameObject effect in _attachedEffects)
+            if (effect != null)
+                Destroy(effect);
+        _attachedEffects.Clear();
     }
 
     private void ApplyAmount(float amount)
@@ -232,14 +428,28 @@ public class DissolveVFXPlayer : MonoBehaviour
 
     public void ResetDissolve()
     {
-        _runVersion++;
         StopAllCoroutines();
+        ResetState();
+    }
+
+    // ไม่หยุด coroutine — LoopRoutine เรียกตัวนี้ระหว่างวนได้ ส่วน DissolveRoutine เก่าจะหยุดเองเพราะ _runVersion เปลี่ยน
+    private void ResetState()
+    {
+        _runVersion++;
         RestoreMaterials();
+        ClearEffects();
         foreach (RendererState state in _states)
             if (state.Renderer != null)
                 state.Renderer.enabled = state.OriginalEnabled;
         _states.Clear();
         _played = false;
+        _finished = false;
+    }
+
+    private void OnEnable()
+    {
+        if (_loop)
+            StartCoroutine(LoopRoutine());
     }
 
     private void OnDisable() => ResetDissolve();
