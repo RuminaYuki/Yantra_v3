@@ -113358,6 +113358,59 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &1173178789
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1173178790}
+  - component: {fileID: 1173178791}
+  m_Layer: 0
+  m_Name: Colider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1173178790
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1173178789}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.4073223, y: 0.027651941, z: -0.9053762, w: 0.11669555}
+  m_LocalPosition: {x: 0.851, y: 3.276, z: 21.167}
+  m_LocalScale: {x: 1.9998004, y: 2.418802, z: 1.6673337}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1270677205}
+  m_LocalEulerAnglesHint: {x: -2.579, y: 48.139, z: -166.463}
+--- !u!65 &1173178791
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1173178789}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.8328447, y: 2.6875582, z: 0.48589444}
+  m_Center: {x: -0.029118823, y: 0.079280615, z: -0.051583417}
 --- !u!1001 &1174531168
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -117387,6 +117440,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1836370759}
+  - {fileID: 1173178790}
   - {fileID: 767738831}
   - {fileID: 1786686850}
   - {fileID: 1800614565}
@@ -161780,6 +161834,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1173178791}
+        m_TargetAssemblyTypeName: UnityEngine.BoxCollider, UnityEngine
+        m_MethodName: set_isTrigger
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
   OnEndInteract:
     m_PersistentCalls:
       m_Calls:
@@ -164666,13 +164732,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1836370754}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.31955805, y: 0.038602233, z: -0.93994695, w: 0.11354449}
+  m_LocalRotation: {x: -0.4073223, y: 0.027651941, z: -0.9053762, w: 0.11669555}
   m_LocalPosition: {x: 0.851, y: 3.276, z: 21.167}
   m_LocalScale: {x: 1.9998004, y: 2.418802, z: 1.6673337}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1270677205}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -2.579, y: 48.139, z: -166.463}
 --- !u!43 &1838592570
 Mesh:
   m_ObjectHideFlags: 0
@@ -166869,7 +166935,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 134270428320340259, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -57.6
+      value: -57.321
       objectReference: {fileID: 0}
     - target: {fileID: 134270428320340259, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_LocalPosition.y
@@ -166877,7 +166943,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 134270428320340259, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -103.34
+      value: -103.846
       objectReference: {fileID: 0}
     - target: {fileID: 134270428320340259, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_LocalRotation.w
