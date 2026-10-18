@@ -19,7 +19,7 @@ MonoBehaviour:
   objectives:
   - id: 'Kill all ghosts '
     description: 'Kill all ghosts in this area '
-    requiredCount: 3
+    requiredCount: 4
   repeatMode: 0
   maxCompletions: 0
   dailyResetHour: 4
@@ -48,6 +48,30 @@ MonoBehaviour:
   maxCompletions: 0
   dailyResetHour: 4
   whenRouteLost: 0
+--- !u!114 &-1358368654251670828
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2acb854183d80214fb783df50e5f1185, type: 3}
+  m_Name: Save 2
+  m_EditorClassIdentifier: Assembly-CSharp::SDFcl.GamePlay.QuestSystem.QuestSO
+  questId: ccd6260f855f40ba9ecc917029bc4d0d
+  title: Save 2
+  description: 
+  track: 1
+  objectives:
+  - id: Position
+    description: 
+    requiredCount: 1
+  repeatMode: 0
+  maxCompletions: 0
+  dailyResetHour: 4
+  whenRouteLost: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -66,15 +90,18 @@ MonoBehaviour:
   - rid: 271060794861420640
   - rid: 271060794861420641
   - rid: 271060794861420642
+  - rid: 271060814816346198
   edges:
   - fromNode: e31bf9b77c0d4809b226f720e4e5d3de
     toNode: 6cd6e9eb46d84aa6b941253fa311bdfe
   - fromNode: 6cd6e9eb46d84aa6b941253fa311bdfe
     toNode: c06f444bb57e4b0aac4f317df22f3666
-  - fromNode: c06f444bb57e4b0aac4f317df22f3666
-    toNode: e18f4e209cad42fca996e346fad20006
   - fromNode: c3e5d8edc50f4be2b1de3fa011f3f2b2
     toNode: e31bf9b77c0d4809b226f720e4e5d3de
+  - fromNode: c06f444bb57e4b0aac4f317df22f3666
+    toNode: 0b0809a207584b1ea5bdb297df4450db
+  - fromNode: c06f444bb57e4b0aac4f317df22f3666
+    toNode: e18f4e209cad42fca996e346fad20006
   laneSplitY: 0
   references:
     version: 2
@@ -101,7 +128,7 @@ MonoBehaviour:
       type: {class: QuestNode, ns: SDFcl.GamePlay.QuestSystem, asm: Assembly-CSharp}
       data:
         guid: e18f4e209cad42fca996e346fad20006
-        position: {x: 1094, y: -200}
+        position: {x: 1099, y: -200}
         quest: {fileID: -5308543602531092420}
     - rid: 271060794861420642
       type: {class: QuestNode, ns: SDFcl.GamePlay.QuestSystem, asm: Assembly-CSharp}
@@ -109,6 +136,12 @@ MonoBehaviour:
         guid: c3e5d8edc50f4be2b1de3fa011f3f2b2
         position: {x: -136, y: -200}
         quest: {fileID: 449228718644776888}
+    - rid: 271060814816346198
+      type: {class: QuestNode, ns: SDFcl.GamePlay.QuestSystem, asm: Assembly-CSharp}
+      data:
+        guid: 0b0809a207584b1ea5bdb297df4450db
+        position: {x: 1099, y: 46}
+        quest: {fileID: -1358368654251670828}
 --- !u!114 &449228718644776888
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -167,10 +200,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2acb854183d80214fb783df50e5f1185, type: 3}
-  m_Name: Main Quest 3
+  m_Name: Hunter's House
   m_EditorClassIdentifier: Assembly-CSharp::SDFcl.GamePlay.QuestSystem.QuestSO
   questId: 43e965d650964ed4876c031acfddd4f6
-  title: Main Quest 3
+  title: Hunter's House
   description: 
   track: 0
   objectives:
