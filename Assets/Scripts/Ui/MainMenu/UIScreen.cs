@@ -5,12 +5,17 @@ using UnityEngine.EventSystems;
 
 namespace Yantra.UI
 {
+    /// <summary>
+    /// รหัสประจำหน้าจอ. เพิ่มหน้าใหม่ = เพิ่ม enum ตัวนี้ตัวเดียว
+    /// อย่าเรียงใหม่หรือลบของเก่าออก เพราะ Inspector เก็บเป็นตัวเลข
+    /// </summary>
     public enum ScreenId
     {
         None = 0,
         MainMenu = 1,
         Settings = 2,
         Credits = 3,
+        LoadGame = 4,
         Pause = 10,
         GameOver = 11,
         Loading = 20,
@@ -120,13 +125,14 @@ namespace Yantra.UI
             }
         }
 
-        /// <summary>ซ่อนแบบไม่ pop ออกจาก stack (ตอนมีหน้าใหม่ทับข้างบน)</summary>
-        internal void SetCovered(bool covered)
+        /// <summary>ซ่อนแบบไม่ pop ออกจาก stack (ตอนมีหน้าใหม่ทับข้างบน)
+        /// hide = false → ยังเห็นอยู่ แค่กดไม่ได้ (ใช้ตอนหน้าใหม่เป็น popup)</summary>
+        internal void SetCovered(bool covered, bool hide = true)
         {
             if (!IsOpen) return;
             _canvasGroup.interactable = !covered;
             _canvasGroup.blocksRaycasts = !covered;
-            if (covered) _canvasGroup.alpha = 0f;
+            if (covered) { if (hide) _canvasGroup.alpha = 0f; }
             else if (_fadeRoutine == null) _canvasGroup.alpha = 1f;
         }
 
