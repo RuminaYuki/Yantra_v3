@@ -10,6 +10,7 @@ using UnityEditor;
 using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
 #endif
 
 [InitializeOnLoad]
@@ -30,7 +31,14 @@ public static class GameViewFullscreen
     static GameViewFullscreen()
     {
         EditorApplication.playModeStateChanged += OnPlayModeChanged;
+
+#if ENABLE_INPUT_SYSTEM
+        // Domain reload is disabled on Play, so remove first to avoid subscribing twice
+        InputSystem.onAfterUpdate -= OnInputUpdate;
+        InputSystem.onAfterUpdate += OnInputUpdate;
+#else
         EditorApplication.update += PollF11InPlayMode;
+#endif
     }
 
     static void OnPlayModeChanged(PlayModeStateChange state)
@@ -67,6 +75,30 @@ public static class GameViewFullscreen
 
     // In Play Mode the focused Game view swallows keyboard input, so the editor
     // shortcut (_F11) never reaches the menu item. Read F11 from the game's input instead.
+#if ENABLE_INPUT_SYSTEM
+    // The Input System keeps separate state for the editor and for the game.
+    // Polling from EditorApplication.update reads the editor state, which never sees keys
+    // while the Game view has focus. Reading right after a game input update fixes that.
+    static void OnInputUpdate()
+    {
+        if (!EditorApplication.isPlaying)
+        {
+            f11WasDown = false;
+            return;
+        }
+
+        var updateType = InputState.currentUpdateType;
+        if (updateType == InputUpdateType.Editor || updateType == InputUpdateType.BeforeRender)
+            return;
+
+        var kb = Keyboard.current;
+        bool down = kb != null && kb.f11Key.isPressed;
+
+        // Opening a window inside the input update is unsafe — do it on the next editor tick
+        if (down && !f11WasDown) EditorApplication.delayCall += Toggle;
+        f11WasDown = down;
+    }
+#else
     static void PollF11InPlayMode()
     {
         if (!EditorApplication.isPlaying)
@@ -75,16 +107,11 @@ public static class GameViewFullscreen
             return;
         }
 
-        bool down = false;
-#if ENABLE_INPUT_SYSTEM
-        var kb = Keyboard.current;
-        down = kb != null && kb.f11Key.isPressed;
-#elif ENABLE_LEGACY_INPUT_MANAGER
-        down = Input.GetKey(KeyCode.F11);
-#endif
+        bool down = Input.GetKey(KeyCode.F11);
         if (down && !f11WasDown) Toggle();
         f11WasDown = down;
     }
+#endif
 
     static void Open()
     {
