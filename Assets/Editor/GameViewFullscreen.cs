@@ -1,66 +1,143 @@
-// วางไฟล์นี้ไว้ในโฟลเดอร์ Assets/Editor/ (ต้องอยู่ในโฟลเดอร์ชื่อ Editor)
-// กด F11 เพื่อเปิด/ปิด Game view แบบเต็มจอ (ไม่มี toolbar, ไม่มีขอบหน้าต่าง)
-// ปิดอัตโนมัติเมื่อออกจาก Play Mode
+// Place this file inside an Editor folder (e.g. Assets/Editor/).
+// F11 toggles a borderless fullscreen Game view (no toolbar, no window frame).
+// The fullscreen view closes automatically when exiting Play Mode.
+// If it ever gets stuck: Window > Game View Fullscreen - Force Close.
 
 using System;
+using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
 
 [InitializeOnLoad]
 public static class GameViewFullscreen
 {
     static readonly Type GameViewType = Type.GetType("UnityEditor.GameView,UnityEditor");
-    static EditorWindow fullscreenView;
 
-    // ตั้งเป็น true ถ้าอยากให้เต็มจออัตโนมัติทุกครั้งที่กด Play
+    // The window title is serialized with the window, so it survives domain reloads.
+    // We use it as a marker to find our fullscreen view again (a static field does not survive).
+    const string MarkerTitle = "Game (Fullscreen)";
+
+    // Set to true to go fullscreen automatically every time you press Play
     const bool AutoFullscreenOnPlay = false;
+
+    static double lastToggleTime;
+    static bool f11WasDown;
 
     static GameViewFullscreen()
     {
-        EditorApplication.playModeStateChanged += state =>
+        EditorApplication.playModeStateChanged += OnPlayModeChanged;
+        EditorApplication.update += PollF11InPlayMode;
+    }
+
+    static void OnPlayModeChanged(PlayModeStateChange state)
+    {
+        switch (state)
         {
-            if (state == PlayModeStateChange.EnteredPlayMode && AutoFullscreenOnPlay)
-                Open();
-            else if (state == PlayModeStateChange.ExitingPlayMode)
-                Close();
-        };
+            case PlayModeStateChange.EnteredPlayMode:
+                if (AutoFullscreenOnPlay) Open();
+                break;
+
+            // Close on both events: ExitingPlayMode can run before a domain reload,
+            // EnteredEditMode is the safety net after it.
+            case PlayModeStateChange.ExitingPlayMode:
+            case PlayModeStateChange.EnteredEditMode:
+                CloseAll();
+                break;
+        }
     }
 
     [MenuItem("Window/Game View Fullscreen _F11")]
     static void Toggle()
     {
-        if (fullscreenView != null) Close();
+        // Prevent a double toggle when both the menu shortcut and the play-mode poll fire
+        double now = EditorApplication.timeSinceStartup;
+        if (now - lastToggleTime < 0.25) return;
+        lastToggleTime = now;
+
+        if (FindFullscreenViews().Length > 0) CloseAll();
         else Open();
+    }
+
+    [MenuItem("Window/Game View Fullscreen - Force Close")]
+    static void ForceClose() => CloseAll();
+
+    // In Play Mode the focused Game view swallows keyboard input, so the editor
+    // shortcut (_F11) never reaches the menu item. Read F11 from the game's input instead.
+    static void PollF11InPlayMode()
+    {
+        if (!EditorApplication.isPlaying)
+        {
+            f11WasDown = false;
+            return;
+        }
+
+        bool down = false;
+#if ENABLE_INPUT_SYSTEM
+        var kb = Keyboard.current;
+        down = kb != null && kb.f11Key.isPressed;
+#elif ENABLE_LEGACY_INPUT_MANAGER
+        down = Input.GetKey(KeyCode.F11);
+#endif
+        if (down && !f11WasDown) Toggle();
+        f11WasDown = down;
     }
 
     static void Open()
     {
-        if (fullscreenView != null || GameViewType == null) return;
+        if (GameViewType == null || FindFullscreenViews().Length > 0) return;
 
-        fullscreenView = (EditorWindow)ScriptableObject.CreateInstance(GameViewType);
+        var view = (EditorWindow)ScriptableObject.CreateInstance(GameViewType);
+        view.titleContent = new GUIContent(MarkerTitle);
 
-        // ซ่อนแถบ toolbar ด้านบนของ Game view (property แบบ internal)
+        // Hide the Game view toolbar (internal property)
         var showToolbar = GameViewType.GetProperty("showToolbar",
             BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-        showToolbar?.SetValue(fullscreenView, false);
+        showToolbar?.SetValue(view, false);
 
-        // ขนาดจอหลัก แปลงจาก pixel เป็น point เพื่อรองรับจอที่ตั้ง Scale (125%, 150% ฯลฯ)
+        var rect = new Rect(Vector2.zero, ScreenSizeInPoints());
+
+        view.ShowPopup(); // borderless window
+        view.minSize = rect.size;
+        view.maxSize = rect.size;
+        view.position = rect;
+        view.Focus();
+    }
+
+    static void CloseAll()
+    {
+        foreach (var view in FindFullscreenViews())
+        {
+            if (view != null) view.Close();
+        }
+    }
+
+    // Finds our fullscreen view(s) by marker title. Also catches "orphan" views created
+    // by the old version of this script: undocked Game views that cover the whole screen.
+    static EditorWindow[] FindFullscreenViews()
+    {
+        if (GameViewType == null) return Array.Empty<EditorWindow>();
+
+        Vector2 screen = ScreenSizeInPoints();
+        return Resources.FindObjectsOfTypeAll(GameViewType)
+            .OfType<EditorWindow>()
+            .Where(w => w != null &&
+                        (w.titleContent.text == MarkerTitle ||
+                         (!w.docked && SameSize(w.position.size, screen))))
+            .ToArray();
+    }
+
+    // Main display size, converted from pixels to points so display scaling (125%, 150%...) works
+    static Vector2 ScreenSizeInPoints()
+    {
         Resolution res = Screen.currentResolution;
         float ppp = EditorGUIUtility.pixelsPerPoint;
-        var rect = new Rect(0, 0, res.width / ppp, res.height / ppp);
-
-        fullscreenView.ShowPopup();        // หน้าต่างไม่มีขอบ
-        fullscreenView.minSize = rect.size;
-        fullscreenView.maxSize = rect.size;
-        fullscreenView.position = rect;
-        fullscreenView.Focus();
+        return new Vector2(res.width / ppp, res.height / ppp);
     }
 
-    static void Close()
-    {
-        if (fullscreenView == null) return;
-        fullscreenView.Close();
-        fullscreenView = null;
-    }
+    static bool SameSize(Vector2 a, Vector2 b) =>
+        Mathf.Abs(a.x - b.x) < 2f && Mathf.Abs(a.y - b.y) < 2f;
 }
