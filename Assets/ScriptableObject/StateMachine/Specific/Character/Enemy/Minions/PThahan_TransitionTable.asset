@@ -649,26 +649,6 @@ MonoBehaviour:
   _selfAnchor: {fileID: 0}
   _targetAnchor: {fileID: 11400000, guid: ded8b5ee8f0dd57488cc9fa0e5c0d061, type: 2}
   _rotateSpeed: 5
---- !u!114 &-1881991966909986640
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 77e8ae40d928604408f37497243c6985, type: 3}
-  m_Name: PlayWeakHurtAnimatorState_Action
-  m_EditorClassIdentifier: Assembly-CSharp::PlayAnimatorStateActionSO
-  _selfAnchor: {fileID: 0}
-  _stateName: WeakHurt
-  _layerIndex: 0
-  _transitionDuration: 0.25
-  _normalizedStartTime: 0
-  _exitStateName: BaseMovement
-  _exitTransitionDuration: 0.25
-  _exitNormalizedStartTime: 0
 --- !u!114 &-1691412588193452810
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -772,11 +752,6 @@ MonoBehaviour:
     - Conditions:
       - Condition: {fileID: 11400000, guid: c59538011f4b21044b6eec4ba18009b2, type: 2}
         ExpectedResult: 0
-  - ToState: {fileID: 6152943511773210052}
-    ConditionGroups:
-    - Conditions:
-      - Condition: {fileID: 11400000, guid: 7fa7420e375fa1742a4abbabd7e6e94f, type: 2}
-        ExpectedResult: 0
   - ToState: {fileID: 5428847770273708043}
     ConditionGroups:
     - Conditions:
@@ -821,12 +796,6 @@ MonoBehaviour:
       - Condition: {fileID: -1644537056995454501}
         ExpectedResult: 0
     ToState: {fileID: -4179567984499122665}
-  - FromState: {fileID: 6152943511773210052}
-    ConditionGroups:
-    - Conditions:
-      - Condition: {fileID: 11400000, guid: ac905eeab3e18ea47a16ed7106bcab10, type: 2}
-        ExpectedResult: 0
-    ToState: {fileID: -5730117205266930660}
   - FromState: {fileID: 5428847770273708043}
     ConditionGroups:
     - Conditions:
@@ -856,12 +825,10 @@ MonoBehaviour:
     ToState: {fileID: -5730117205266930660}
   _exposedParameters: {fileID: -7117070456202172222}
   _nodePositions:
-  - State: {fileID: 6152943511773210052}
-    Position: {x: 302, y: 70}
   - State: {fileID: 5428847770273708043}
-    Position: {x: 305, y: 143}
+    Position: {x: 302, y: 70}
   - State: {fileID: -2394296098109194840}
-    Position: {x: 301, y: 227}
+    Position: {x: 302, y: 165}
   - State: {fileID: -5730117205266930660}
     Position: {x: 550, y: 70}
   - State: {fileID: -4179567984499122665}
@@ -903,7 +870,7 @@ MonoBehaviour:
     Folder: Reservation
   - Item: {fileID: 11400000, guid: 07359c75636a66e42806be3031ec6de3, type: 2}
     Folder: Health
-  - Item: {fileID: -1881991966909986640}
+  - Item: {fileID: 0}
     Folder: Animator
   - Item: {fileID: -7502827356825017742}
     Folder: Animator
@@ -1127,20 +1094,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: -6639403929108932784}
---- !u!114 &6152943511773210052
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
-  m_Name: WeakStager_State
-  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
-  _actions:
-  - {fileID: -1881991966909986640}
 --- !u!114 &7739820696134156340
 MonoBehaviour:
   m_ObjectHideFlags: 0
