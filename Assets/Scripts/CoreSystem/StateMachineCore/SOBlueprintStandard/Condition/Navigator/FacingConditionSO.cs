@@ -5,7 +5,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 [UseSelfAnchor]
 [CreateAssetMenu(
     fileName = "Facing_Condition",
-    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Navigator/Facing")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/Navigator/Facing")]
 public class FacingConditionSO : StateConditionSO
 {
     [Tooltip("Required. Self Anchor is the one that should be facing (empty = Owner).")]

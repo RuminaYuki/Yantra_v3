@@ -186,6 +186,20 @@ MonoBehaviour:
   _exitStateName: 
   _exitTransitionDuration: 0.25
   _exitNormalizedStartTime: 0
+--- !u!114 &-8212887844243775315
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 828323aa1aace154891a3661130da74b, type: 3}
+  m_Name: EnableGunFlag_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::FlagConditionSO
+  _selfAnchor: {fileID: 0}
+  flag: {fileID: 0}
 --- !u!114 &-8200212754630124856
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -690,6 +704,20 @@ MonoBehaviour:
   _exitStateName: 
   _exitTransitionDuration: 0.25
   _exitNormalizedStartTime: 0
+--- !u!114 &-3040429447232886333
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 828323aa1aace154891a3661130da74b, type: 3}
+  m_Name: EnableAttackFlag_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::FlagConditionSO
+  _selfAnchor: {fileID: 0}
+  flag: {fileID: 0}
 --- !u!114 &-2924400823732835800
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1127,6 +1155,8 @@ MonoBehaviour:
     - Conditions:
       - Condition: {fileID: 208791892035771998}
         ExpectedResult: 0
+      - Condition: {fileID: -5582140182479628224}
+        ExpectedResult: 1
   - ToState: {fileID: -965407122019689890}
     ConditionGroups:
     - Conditions:
@@ -1250,9 +1280,17 @@ MonoBehaviour:
     Folder: InputSystem
   - Item: {fileID: 4062891677593580901}
     Folder: InputSystem
+  - Item: {fileID: -3040429447232886333}
+    Folder: EnableFlagCondition
+  - Item: {fileID: 3750093177355205704}
+    Folder: EnableFlagCondition
+  - Item: {fileID: -8212887844243775315}
+    Folder: EnableFlagCondition
   _contentsFolderPaths:
   - Group: Conditions
     Path: InputSystem
+  - Group: Conditions
+    Path: EnableFlagCondition
 --- !u!114 &27748976923796556
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1662,6 +1700,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExitSubStateMachineActionSO
   _selfAnchor: {fileID: 0}
   _exitId: PlayerIdleState
+--- !u!114 &3750093177355205704
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 828323aa1aace154891a3661130da74b, type: 3}
+  m_Name: EnableSpellFlag_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::FlagConditionSO
+  _selfAnchor: {fileID: 0}
+  flag: {fileID: 0}
 --- !u!114 &3948874016495024156
 MonoBehaviour:
   m_ObjectHideFlags: 0
