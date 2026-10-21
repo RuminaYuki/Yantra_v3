@@ -27,7 +27,7 @@ public class ReloadAction : StateAction
     public override void OnStateEnter()
     {
         if (!_gunController.TryGet(out GunController gunController)) return;
-        gunController.Reload();
+        //gunController.Reload();
     }
 
     public override void OnUpdate() { }

@@ -67,10 +67,18 @@ public class SubStateMachineAction : StateAction
         State initialState = _transitionTable.CreateInitialState(
             _childStateMachine, out var allStates);
 
-        _forceExitState = _forceExitStateSO != null &&
-            allStates.TryGetValue(_forceExitStateSO, out State exitState)
-                ? exitState
-                : null;
+        if (_forceExitStateSO == null)
+        {
+            _forceExitState = null;
+        }
+        else if (allStates.TryGetValue(_forceExitStateSO, out State exitState))
+        {
+            _forceExitState = exitState;
+        }
+        else
+        {
+            _forceExitState = _forceExitStateSO.CreateState(_childStateMachine);
+        }
 
         _childStateMachine.SetInitialState(initialState);
         _skipNextUpdate = true;

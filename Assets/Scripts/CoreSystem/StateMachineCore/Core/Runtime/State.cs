@@ -9,6 +9,7 @@ namespace Yuki.Learning.StateMachine
 
         public string DebugName { get; }
         public IReadOnlyList<StateAction> Actions => _actions;
+        public IReadOnlyList<StateTransition> Transitions => _transitions;
 
         public State(string debugName, StateAction[] actions, StateMachine stateMachine)
         {

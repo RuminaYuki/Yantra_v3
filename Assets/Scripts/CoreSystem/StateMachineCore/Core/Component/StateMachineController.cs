@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
@@ -13,6 +14,7 @@ public class StateMachineController : MonoBehaviour
     public static bool IsPaused { get; set; }
 
     private StateMachine[] _stateMachines;
+    public IReadOnlyList<StateMachine> StateMachines => _stateMachines;
 
     // รีเซ็ตทุกครั้งที่กด Play กันค่าค้างข้าม session เมื่อปิด Domain Reload
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
