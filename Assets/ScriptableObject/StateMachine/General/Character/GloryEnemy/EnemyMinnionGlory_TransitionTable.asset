@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
   m_Name: ExecuteGlory_State
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
-  _actions: []
+  _actions:
+  - {fileID: 5958652265686492749}
 --- !u!114 &-7542713600389139656
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -339,6 +340,8 @@ MonoBehaviour:
     Folder: Example
   - Item: {fileID: 5653134990403189456}
     Folder: Example
+  - Item: {fileID: 5958652265686492749}
+    Folder: Other
   _contentsFolderPaths:
   - Group: Actions
     Path: Animator
@@ -486,6 +489,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: -3388517999227729585}
+--- !u!114 &5958652265686492749
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e63bf52fe48f7442a32f0fbe60cd37e, type: 3}
+  m_Name: GianPlayerSkillPointAction
+  m_EditorClassIdentifier: Assembly-CSharp::GianSkillPointActionSO
+  _selfAnchor: {fileID: 11400000, guid: ded8b5ee8f0dd57488cc9fa0e5c0d061, type: 2}
+  gianSkillPointAmount: 3
 --- !u!114 &6012101341605234845
 MonoBehaviour:
   m_ObjectHideFlags: 0
