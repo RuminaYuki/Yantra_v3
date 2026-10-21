@@ -13,6 +13,7 @@ public class TriggerZone : MonoBehaviour
     [Header("Filter")]
     [Tooltip("Only these layers are counted (layers are safer than tags).")]
     [SerializeField] private LayerMask targetLayers = ~0;
+    [SerializeField] private string tagFilter = "";
 
     [Header("Behaviour")]
     [Tooltip("Fire only once: after the first Enter, no more events are raised.")]
@@ -85,7 +86,9 @@ public class TriggerZone : MonoBehaviour
 
     private bool PassesFilter(Collider other)
     {
-        return (targetLayers.value & (1 << other.gameObject.layer)) != 0;
+        bool layerOk = (targetLayers.value & (1 << other.gameObject.layer)) != 0;
+        bool tagOk = string.IsNullOrEmpty(tagFilter) || other.CompareTag(tagFilter);
+        return layerOk && tagOk;
     }
 
     // Use the Rigidbody's object as the root if present, otherwise the top of the hierarchy.

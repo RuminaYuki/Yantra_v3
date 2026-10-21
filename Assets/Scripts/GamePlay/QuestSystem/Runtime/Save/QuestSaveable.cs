@@ -1,106 +1,51 @@
 using System;
-using System.IO;
 using UnityEngine;
 
 namespace SDFcl.GamePlay.QuestSystem
 {
-    // Saves / loads quest progress as JSON in Application.persistentDataPath.
-    // Works on its own for now. When SaveManager is built, it can call ToJson() / FromJson()
-    // instead and this file-writing part can be removed.
-    // Put it in the same scene as the QuestManager.
-    public class QuestSaveable : MonoBehaviour
+    // Connects the quest system to the save system (SaveManager). Put it in the same scene as the QuestManager.
+    // Quest progress is stored as the "quests" section of the main save file; this script no longer writes a file.
+    //
+    // QuestManager restores itself in its own Start() by calling QuestManager.LoadProvider.
+    // The order of Start() between two objects is not fixed, so the provider is set in Awake
+    // (every Awake runs before any Start) instead of using the usual pull in Start.
+    public class QuestSaveable : SaveableBehaviour<QuestSaveData>
     {
-        [SerializeField] private string fileName = "quests.json";
-
-        [Tooltip("Load the file when the scene starts. QuestManager reads it in its Start().")]
-        [SerializeField] private bool loadOnStart = true;
-
-        [Tooltip("Save after every completed quest (simple autosave).")]
-        [SerializeField] private bool saveOnQuestCompleted;
-
-        public string FilePath => Path.Combine(Application.persistentDataPath, fileName);
+        protected override string DefaultKey => "quests";
 
         private void Awake()
         {
-            // Every Awake runs before any Start, so this is set before QuestManager.Start() reads it.
-            if (loadOnStart) QuestManager.LoadProvider = LoadFromDisk;
-            QuestManager.QuestCompleted += OnQuestCompleted;
+            QuestManager.LoadProvider = LoadFromSave;
         }
 
         private void OnDestroy()
         {
-            if (QuestManager.LoadProvider == (Func<QuestSaveData>)LoadFromDisk) QuestManager.LoadProvider = null;
-            QuestManager.QuestCompleted -= OnQuestCompleted;
+            if (QuestManager.LoadProvider == (Func<QuestSaveData>)LoadFromSave) QuestManager.LoadProvider = null;
         }
 
-        private void OnQuestCompleted(QuestSO quest, int count)
+        private QuestSaveData LoadFromSave()
         {
-            if (saveOnQuestCompleted) Save();
-        }
-
-        // ------------------------------------------------------------------ JSON helpers (for SaveManager later)
-
-        public static string ToJson(QuestSaveData data) => JsonUtility.ToJson(data);
-
-        public static QuestSaveData FromJson(string json) =>
-            string.IsNullOrEmpty(json) ? null : JsonUtility.FromJson<QuestSaveData>(json);
-
-        // ------------------------------------------------------------------ File
-
-        // Hook to a SavePoint / UnityEvent.
-        public void Save()
-        {
-            var manager = QuestManager.Instance;
-            if (manager == null) return;
+            SaveManager manager = SaveManager.Instance;
+            if (manager == null || !manager.TryGetSection(SaveKey, out SaveSection section)) return null;
 
             try
             {
-                string path = FilePath;
-                string tmp = path + ".tmp";
-                File.WriteAllText(tmp, ToJson(manager.Capture()));
-
-                // Write to .tmp first so a crash never leaves a half-written save; keep the old one as .bak.
-                if (File.Exists(path)) File.Replace(tmp, path, path + ".bak");
-                else File.Move(tmp, path);
+                return JsonUtility.FromJson<QuestSaveData>(section.json);
             }
             catch (Exception e)
             {
-                Debug.LogError($"[Quest] Save failed: {e.Message}", this);
+                Debug.LogWarning($"[Quest] Could not read saved quests: {e.Message}", this);
+                return null;
             }
         }
 
-        public QuestSaveData LoadFromDisk()
-        {
-            try
-            {
-                string path = FilePath;
-                if (File.Exists(path)) return FromJson(File.ReadAllText(path));
-                if (File.Exists(path + ".bak")) return FromJson(File.ReadAllText(path + ".bak"));
-            }
-            catch (Exception e)
-            {
-                Debug.LogError($"[Quest] Load failed: {e.Message}", this);
-            }
-            return null;
-        }
+        // No QuestManager in this scene: return null so the quests saved earlier are kept.
+        protected override QuestSaveData Capture() =>
+            QuestManager.Instance != null ? QuestManager.Instance.Capture() : null;
 
-        // Loads the file into the running QuestManager now (e.g. a Continue button in the same scene).
-        public void LoadNow()
-        {
-            var data = LoadFromDisk();
-            if (data != null && QuestManager.Instance != null) QuestManager.Instance.Restore(data);
-        }
+        // QuestManager pulls the data itself through LoadProvider.
+        protected override void Restore(QuestSaveData state, int version) { }
 
-        [ContextMenu("Delete Save File")]
-        public void DeleteSave()
-        {
-            foreach (var p in new[] { FilePath, FilePath + ".bak", FilePath + ".tmp" })
-            {
-                if (File.Exists(p)) File.Delete(p);
-            }
-        }
-
-        [ContextMenu("Save Now")]
-        private void SaveNowMenu() => Save();
+        protected override void Start() { }
     }
 }
