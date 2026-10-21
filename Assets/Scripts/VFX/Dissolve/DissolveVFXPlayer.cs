@@ -81,6 +81,12 @@ public class DissolveVFXPlayer : MonoBehaviour
         public bool MaterialsApplied;
     }
 
+    // รายชื่อ Property มาตรฐานของ Texture และสี (ครอบคลุมทั้ง URP, Built-in และ Shader Graph)
+    private static readonly string[] TextureProps = { "_BaseMap", "_MainTex", "_Albedo", "_AlbedoMap", "_Diffuse", "_Tex" };
+    private static readonly string[] ColorProps = { "_BaseColor", "_Color", "_Tint", "_MainColor" };
+    private static readonly string[] NormalProps = { "_BumpMap", "_NormalMap", "_Normal" };
+    private static readonly string[] EmissionProps = { "_EmissionMap", "_EmissiveMap" };
+
     private readonly List<RendererState> _states = new List<RendererState>();
     private readonly List<GameObject> _attachedEffects = new List<GameObject>();
     private bool _played;
@@ -165,8 +171,17 @@ public class DissolveVFXPlayer : MonoBehaviour
                 if (original[i] == null)
                     continue;
 
-                Material template = SupportsAmount(original[i]) ? original[i] : _dissolveMaterial;
-                state.RuntimeMaterials[i] = new Material(template) { name = template.name + " (Dissolve instance)" };
+                bool originalSupportsDissolve = SupportsAmount(original[i]);
+                Material template = originalSupportsDissolve ? original[i] : _dissolveMaterial;
+                Material runtimeMat = new Material(template) { name = template.name + " (Dissolve instance)" };
+
+                // ถ้าสลับไปใช้ _dissolveMaterial ต้นแบบ ให้คัดลอก Texture และสีจาก Material เดิมมาใส่ด้วย
+                if (!originalSupportsDissolve && template != null)
+                {
+                    CopySurfaceProperties(original[i], runtimeMat);
+                }
+
+                state.RuntimeMaterials[i] = runtimeMat;
                 state.OriginalBlocks[i] = new MaterialPropertyBlock();
                 renderer.GetPropertyBlock(state.OriginalBlocks[i], i);
                 state.WorkingBlocks[i] = new MaterialPropertyBlock();
@@ -177,6 +192,108 @@ public class DissolveVFXPlayer : MonoBehaviour
             _states.Add(state);
         }
         return true;
+    }
+
+    private static void CopySurfaceProperties(Material source, Material destination)
+    {
+        if (source == null || destination == null)
+            return;
+
+        // 1. คัดลอกรูป Texture หลัก (Albedo / BaseMap) พร้อมค่า Tiling & Offset
+        Texture mainTex = source.mainTexture;
+        Vector2 scale = Vector2.one;
+        Vector2 offset = Vector2.zero;
+        bool foundTexProp = false;
+
+        foreach (string prop in TextureProps)
+        {
+            if (source.HasProperty(prop))
+            {
+                Texture tex = source.GetTexture(prop);
+                if (tex != null)
+                {
+                    mainTex = tex;
+                    scale = source.GetTextureScale(prop);
+                    offset = source.GetTextureOffset(prop);
+                    foundTexProp = true;
+                    break;
+                }
+            }
+        }
+
+        if (!foundTexProp && mainTex != null)
+        {
+            scale = source.mainTextureScale;
+            offset = source.mainTextureOffset;
+        }
+
+        if (mainTex != null)
+        {
+            destination.mainTexture = mainTex;
+            destination.mainTextureScale = scale;
+            destination.mainTextureOffset = offset;
+
+            foreach (string prop in TextureProps)
+            {
+                if (destination.HasProperty(prop))
+                {
+                    destination.SetTexture(prop, mainTex);
+                    destination.SetTextureScale(prop, scale);
+                    destination.SetTextureOffset(prop, offset);
+                }
+            }
+        }
+
+        // 2. คัดลอกสีพื้นผิว (BaseColor / Color)
+        foreach (string srcProp in ColorProps)
+        {
+            if (source.HasProperty(srcProp))
+            {
+                Color col = source.GetColor(srcProp);
+                foreach (string dstProp in ColorProps)
+                {
+                    if (destination.HasProperty(dstProp))
+                        destination.SetColor(dstProp, col);
+                }
+                break;
+            }
+        }
+
+        // 3. คัดลอก Normal Map (ถ้ามี)
+        foreach (string srcProp in NormalProps)
+        {
+            if (source.HasProperty(srcProp))
+            {
+                Texture normalTex = source.GetTexture(srcProp);
+                if (normalTex != null)
+                {
+                    foreach (string dstProp in NormalProps)
+                    {
+                        if (destination.HasProperty(dstProp))
+                            destination.SetTexture(dstProp, normalTex);
+                    }
+                    break;
+                }
+            }
+        }
+
+        // 4. คัดลอก Emission Map (ถ้ามี)
+        foreach (string srcProp in EmissionProps)
+        {
+            if (source.HasProperty(srcProp))
+            {
+                Texture emissionTex = source.GetTexture(srcProp);
+                if (emissionTex != null)
+                {
+                    foreach (string dstProp in EmissionProps)
+                    {
+                        if (destination.HasProperty(dstProp))
+                            destination.SetTexture(dstProp, emissionTex);
+                    }
+                    break;
+                }
+            }
+        }
     }
 
     private bool SupportsAmount(Material material)
