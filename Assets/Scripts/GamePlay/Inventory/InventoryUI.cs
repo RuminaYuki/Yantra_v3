@@ -34,12 +34,6 @@ public class InventoryUI : MonoBehaviour
     [Tooltip("Button action (e.g. R). Rotates the dragged item 90 degrees clockwise.")]
     [SerializeField] private InputActionReference rotateAction;
 
-    [Header("State Machine (optional)")]
-    [Tooltip("StateFlags on the player's StateMachineController object.")]
-    [SerializeField] private StateFlagsAccess stateFlags;
-    [Tooltip("Set to true while the inventory is open, false when closed.")]
-    [SerializeField] private FlagSO inventoryOpenFlag;
-
     [Header("Actions")]
     [Tooltip("Actions available for every item (e.g. Drop). Category and item actions are added after these.")]
     [SerializeField] private List<ItemActionSO> globalActions = new List<ItemActionSO>();
@@ -113,9 +107,6 @@ public class InventoryUI : MonoBehaviour
         Cursor.lockState = open ? CursorLockMode.None : CursorLockMode.Locked;
         Cursor.visible = open;
         if (cameraController != null) cameraController.IsLookLocked = open;
-
-        // Tell the player state machine. It only reads the flag; inventory logic stays here.
-        if (stateFlags != null && inventoryOpenFlag != null) stateFlags.Set(inventoryOpenFlag, open);
     }
 
     // ---------- Called by actions ----------

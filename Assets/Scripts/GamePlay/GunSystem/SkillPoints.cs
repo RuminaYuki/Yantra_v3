@@ -26,6 +26,12 @@ public class SkillPoints : MonoBehaviour
         }
     }
 
+    // Used by the save system. Clamped to 0..max; does not raise the max-point event.
+    public void SetCurrent(float value)
+    {
+        _skillPoints = Mathf.Clamp(value, 0f, _maxPoint);
+    }
+
     public void gaint(float amount)
     {
         amount = amount < 0 ? -amount : amount;
