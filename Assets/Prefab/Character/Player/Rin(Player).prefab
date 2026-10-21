@@ -4670,6 +4670,9 @@ GameObject:
   - component: {fileID: 7458693447353564104}
   - component: {fileID: 3720944614719164237}
   - component: {fileID: 2833128566450815517}
+  - component: {fileID: 8400828826461676834}
+  - component: {fileID: 1300984782669754732}
+  - component: {fileID: 873286320241150172}
   - component: {fileID: 4368828265564020728}
   - component: {fileID: 7601510604297160759}
   - component: {fileID: 2024108307381222499}
@@ -5109,6 +5112,50 @@ MonoBehaviour:
   dropUpOffset: 0.5
   debugLog: 0
   inputAction: {fileID: 1138664736820775389, guid: 35845fe01580c41289b024647b1d1c53, type: 3}
+--- !u!114 &8400828826461676834
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8849103926970512020}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52f768a0aa59c1847a23fb707a789940, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PairedAnimationActor
+  _bodyAnimator: {fileID: 639563021381163097}
+  _armAnimator: {fileID: 3970455072621369329}
+  _requestTimeout: 0.5
+  _stateEnterTimeout: 1
+--- !u!114 &1300984782669754732
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8849103926970512020}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4681aae2f75dd804fbf5009cb3483ae6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerPairedAnimationPlayer
+--- !u!114 &873286320241150172
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8849103926970512020}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4aa30a00735391439900c1e5b60f38e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerPairedCamera
+  _lockLook: 1
+  _useGloryCamera: 1
+  _cameraPreparationTimeout: 1
+  _syncGloryViewModelCamera: 1
 --- !u!114 &4368828265564020728
 MonoBehaviour:
   m_ObjectHideFlags: 0
