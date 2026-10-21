@@ -418,18 +418,6 @@ MonoBehaviour:
       - Condition: {fileID: 3450423854783271006}
         ExpectedResult: 0
     ToState: {fileID: -7387805079813364312}
-  - FromState: {fileID: -2213541606384760985}
-    ConditionGroups:
-    - Conditions:
-      - Condition: {fileID: 1657887496226377186}
-        ExpectedResult: 1
-    ToState: {fileID: -6607439959730550105}
-  - FromState: {fileID: -7387805079813364312}
-    ConditionGroups:
-    - Conditions:
-      - Condition: {fileID: 622217952300443433}
-        ExpectedResult: 0
-    ToState: {fileID: -6607439959730550105}
   - FromState: {fileID: -8544828399458302064}
     ConditionGroups:
     - Conditions:
@@ -447,7 +435,7 @@ MonoBehaviour:
   - State: {fileID: -2100716820089249640}
     Position: {x: 24, y: 170}
   - State: {fileID: -7387805079813364312}
-    Position: {x: 483, y: 80}
+    Position: {x: 483, y: 87}
   - State: {fileID: -6607439959730550105}
     Position: {x: 250, y: 0}
   _entryNodePosition: {x: -152, y: 0}
@@ -799,12 +787,7 @@ MonoBehaviour:
   m_Name: Attack_TransitionTable
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
   _initialState: {fileID: -6665630544707791696}
-  _anyTransitions:
-  - ToState: {fileID: -6433301286439908800}
-    ConditionGroups:
-    - Conditions:
-      - Condition: {fileID: 1657887496226377186}
-        ExpectedResult: 1
+  _anyTransitions: []
   _transitions:
   - FromState: {fileID: -6665630544707791696}
     ConditionGroups:

@@ -54,12 +54,7 @@ MonoBehaviour:
   m_Name: Attack_TransitionTable
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
   _initialState: {fileID: 8565915144001029950}
-  _anyTransitions:
-  - ToState: {fileID: 8044139328711371582}
-    ConditionGroups:
-    - Conditions:
-      - Condition: {fileID: 7716563920128414897}
-        ExpectedResult: 1
+  _anyTransitions: []
   _transitions:
   - FromState: {fileID: 8565915144001029950}
     ConditionGroups:
@@ -425,10 +420,13 @@ MonoBehaviour:
   - ToState: {fileID: 9204605873900580318}
     ConditionGroups:
     - Conditions:
-      - Condition: {fileID: 2733428841794826436}
+      - Condition: {fileID: 11400000, guid: 78072271148a77348883b7c4cdf875cb, type: 2}
         ExpectedResult: 0
     - Conditions:
       - Condition: {fileID: 11400000, guid: de4a2ff3a75d3164584a30ed79d22307, type: 2}
+        ExpectedResult: 0
+    - Conditions:
+      - Condition: {fileID: 11400000, guid: 36ebbf280b0f99542ac1ec636b4aa083, type: 2}
         ExpectedResult: 0
   _transitions:
   - FromState: {fileID: 5521259893469218469}
@@ -519,7 +517,7 @@ MonoBehaviour:
     Folder: HealthSystem
   - Item: {fileID: 11400000, guid: de4a2ff3a75d3164584a30ed79d22307, type: 2}
     Folder: HealthSystem
-  - Item: {fileID: 2733428841794826436}
+  - Item: {fileID: 11400000, guid: 78072271148a77348883b7c4cdf875cb, type: 2}
     Folder: HealthSystem
   _contentsFolderPaths:
   - Group: Actions
@@ -631,20 +629,6 @@ MonoBehaviour:
   _targetAnchor: {fileID: 11400000, guid: ded8b5ee8f0dd57488cc9fa0e5c0d061, type: 2}
   _offset: {x: 0, y: 0, z: 3}
   _randomOffsetRange: {x: 1, y: 0, z: 1}
---- !u!114 &2733428841794826436
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 86beea9a74e5c2d4b83275304f1ce658, type: 3}
-  m_Name: OnHurtByBlackFlash_Condition
-  m_EditorClassIdentifier: Assembly-CSharp::OnHurtByTypeConditionSO
-  _selfAnchor: {fileID: 0}
-  damageTypeID: {fileID: 11400000, guid: 70ef5bc3d66911c499cd8b2df755e36c, type: 2}
 --- !u!114 &2938497538905103224
 MonoBehaviour:
   m_ObjectHideFlags: 0
