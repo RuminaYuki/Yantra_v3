@@ -199,7 +199,7 @@ MonoBehaviour:
   m_Name: EnableGunFlag_Condition
   m_EditorClassIdentifier: Assembly-CSharp::FlagConditionSO
   _selfAnchor: {fileID: 0}
-  flag: {fileID: 0}
+  flag: {fileID: 11400000, guid: a78aef708d7efbd468b529f76518e3c2, type: 2}
 --- !u!114 &-8200212754630124856
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -717,7 +717,7 @@ MonoBehaviour:
   m_Name: EnableAttackFlag_Condition
   m_EditorClassIdentifier: Assembly-CSharp::FlagConditionSO
   _selfAnchor: {fileID: 0}
-  flag: {fileID: 0}
+  flag: {fileID: 11400000, guid: 29c4c1e00bf9c394faf1087b399da580, type: 2}
 --- !u!114 &-2924400823732835800
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1176,11 +1176,15 @@ MonoBehaviour:
     - Conditions:
       - Condition: {fileID: 2165669171770484589}
         ExpectedResult: 0
+      - Condition: {fileID: -3040429447232886333}
+        ExpectedResult: 0
     ToState: {fileID: -141090120844421994}
   - FromState: {fileID: 6999762553843621200}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: 3948874016495024156}
+        ExpectedResult: 0
+      - Condition: {fileID: -3040429447232886333}
         ExpectedResult: 0
     ToState: {fileID: 3213844676342213251}
   - FromState: {fileID: 6999762553843621200}
@@ -1188,11 +1192,15 @@ MonoBehaviour:
     - Conditions:
       - Condition: {fileID: 4062891677593580901}
         ExpectedResult: 0
+      - Condition: {fileID: 3750093177355205704}
+        ExpectedResult: 0
     ToState: {fileID: 4362952797111438607}
   - FromState: {fileID: 6999762553843621200}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: 8165531841799119906}
+        ExpectedResult: 0
+      - Condition: {fileID: -8212887844243775315}
         ExpectedResult: 0
     ToState: {fileID: -7137186976805083815}
   - FromState: {fileID: -141090120844421994}
@@ -1713,7 +1721,7 @@ MonoBehaviour:
   m_Name: EnableSpellFlag_Condition
   m_EditorClassIdentifier: Assembly-CSharp::FlagConditionSO
   _selfAnchor: {fileID: 0}
-  flag: {fileID: 0}
+  flag: {fileID: 11400000, guid: c74e338715f473e40a12992295979ef4, type: 2}
 --- !u!114 &3948874016495024156
 MonoBehaviour:
   m_ObjectHideFlags: 0
