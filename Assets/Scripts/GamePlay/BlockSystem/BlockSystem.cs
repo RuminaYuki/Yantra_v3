@@ -25,10 +25,12 @@ public class BlockSystem : MonoBehaviour
     [Header("Parry System")]
     [SerializeField] bool _isParryEnable = false;
     [SerializeField] float _skillPointPerHit = 5f;
+    [SerializeField] float _guardDecreasedPerParry = 5f;
 
     private float _recoveryDelayTimer;
 
     public float CurrentGuardPoints => _currentGuardPoints;
+    public bool IsParryEnable => _isParryEnable;
     public float MaxGuardPoints
     {
         get => _maxGuardPoints;
@@ -105,12 +107,18 @@ public class BlockSystem : MonoBehaviour
         if (_skillPoints != null && _isParryEnable)
         {
             _skillPoints.gaint(_skillPointPerHit);
+            DecreaseGuard(_guardDecreasedPerParry);
             return;
         }
 
         if (!_isBlockEnable) return;
 
-        _currentGuardPoints = Mathf.Max(0, _currentGuardPoints - _guardDecreasedPerHit);
+        DecreaseGuard(_guardDecreasedPerHit);
+    }
+
+    private void DecreaseGuard(float amount)
+    {
+        _currentGuardPoints = Mathf.Max(0, _currentGuardPoints - amount);
         _OnCurrentGuardPointChange.Raise(_currentGuardPoints);
         if (_currentGuardPoints <= 0)
         {
