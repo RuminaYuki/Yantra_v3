@@ -15,7 +15,7 @@ public class ClaimRelaseReservationActionSO : StateActionSO
 
     protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
-        return new ClaimReservationAction(_reservationSO, _reserOnEnterMode, _relaseOnExit, stateMachine);
+        return new ClaimReservationAction(_reservationSO, _reserOnEnterMode, _relaseOnExit, stateMachine.Owner);
     }
 }
 
@@ -24,9 +24,9 @@ public class ClaimReservationAction : StateAction
     private readonly ReservationSO _reservationSO;
     private readonly ReserOnEnterMode _reserOnEnterMode;
     private readonly bool _relaseOnExit;
-    private readonly StateMachine _owner;
+    private readonly GameObject _owner;
 
-    public ClaimReservationAction(ReservationSO reservationSO, ReserOnEnterMode reserOnEnterMode, bool relaseOnExit, StateMachine owner)
+    public ClaimReservationAction(ReservationSO reservationSO, ReserOnEnterMode reserOnEnterMode, bool relaseOnExit, GameObject owner)
     {
         _reservationSO = reservationSO;
         _reserOnEnterMode = reserOnEnterMode;

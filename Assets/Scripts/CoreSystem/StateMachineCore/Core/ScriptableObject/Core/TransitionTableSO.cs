@@ -304,6 +304,7 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
             }
 
             // Initialize the runtime Condition.
+            newCondition.DebugName = conditionSO.name;
             newCondition.Awake(stateMachine);
 
             // StateMachine owns this runtime Condition

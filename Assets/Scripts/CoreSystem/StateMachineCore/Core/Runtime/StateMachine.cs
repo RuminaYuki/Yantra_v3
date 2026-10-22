@@ -19,6 +19,7 @@ namespace Yuki.Learning.StateMachine
         public bool IsDisposed => _isDisposed;
         public string CurrentStateName => _currentState?.DebugName ?? "None";
         public State CurrentState => _currentState;
+        public IReadOnlyList<StateTransition> AnyTransitions => _anyTransitions;
 
 
         public event Action<string, string> StateChanged;

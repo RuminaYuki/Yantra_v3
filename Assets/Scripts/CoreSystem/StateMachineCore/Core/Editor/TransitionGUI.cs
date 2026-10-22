@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -11,7 +12,8 @@ namespace Yuki.Learning.StateMachine.Editor
     public static class TransitionGUI
     {
         // The "WHEN" block: OR groups, each holding AND conditions.
-        public static void DrawConditionGroups(SerializedProperty groups)
+        // `runtime` (Play Mode only) is the running transition, to show each condition's live result.
+        public static void DrawConditionGroups(SerializedProperty groups, StateTransition runtime = null)
         {
             EditorGUILayout.LabelField("WHEN", EditorStyles.boldLabel);
 
@@ -29,7 +31,8 @@ namespace Yuki.Learning.StateMachine.Editor
                 DrawConditionGroup(
                     groups,
                     groups.GetArrayElementAtIndex(groupIndex),
-                    groupIndex);
+                    groupIndex,
+                    GetRuntimeGroup(runtime, groupIndex));
             }
 
             if (groups.arraySize == 0)
@@ -62,7 +65,8 @@ namespace Yuki.Learning.StateMachine.Editor
         private static void DrawConditionGroup(
             SerializedProperty groups,
             SerializedProperty group,
-            int groupIndex)
+            int groupIndex,
+            IReadOnlyList<StateCondition> runtimeGroup)
         {
             SerializedProperty conditions =
                 group.FindPropertyRelative("Conditions");
@@ -95,7 +99,10 @@ namespace Yuki.Learning.StateMachine.Editor
                 DrawCondition(
                     conditions,
                     conditions.GetArrayElementAtIndex(conditionIndex),
-                    conditionIndex);
+                    conditionIndex,
+                    runtimeGroup != null && conditionIndex < runtimeGroup.Count
+                        ? runtimeGroup[conditionIndex]
+                        : (StateCondition?)null);
             }
 
             if (conditions.arraySize == 0)
@@ -128,7 +135,8 @@ namespace Yuki.Learning.StateMachine.Editor
         private static void DrawCondition(
             SerializedProperty conditions,
             SerializedProperty conditionUsage,
-            int conditionIndex)
+            int conditionIndex,
+            StateCondition? runtime)
         {
             SerializedProperty condition =
                 conditionUsage.FindPropertyRelative("Condition");
@@ -140,6 +148,11 @@ namespace Yuki.Learning.StateMachine.Editor
                 condition,
                 GUIContent.none,
                 GUILayout.MinWidth(120f));
+
+            if (runtime.HasValue)
+            {
+                DrawLiveResult(runtime.Value, condition.objectReferenceValue);
+            }
 
             bool expectsTrue = expectedResult.enumValueIndex == 0;
             bool newExpectsTrue = EditorGUILayout.ToggleLeft(
@@ -160,6 +173,58 @@ namespace Yuki.Learning.StateMachine.Editor
             }
 
             EditorGUILayout.EndHorizontal();
+        }
+
+        private static IReadOnlyList<StateCondition> GetRuntimeGroup(StateTransition runtime, int groupIndex)
+        {
+            IReadOnlyList<IReadOnlyList<StateCondition>> runtimeGroups = runtime?.ConditionGroups;
+
+            return runtimeGroups != null && groupIndex < runtimeGroups.Count
+                ? runtimeGroups[groupIndex]
+                : null;
+        }
+
+        private static GUIStyle _liveResultStyle;
+
+        // Green = matches Expected, red = doesn't, grey = not checked this frame
+        // (an earlier condition in the AND group, or an earlier transition, already decided).
+        private static void DrawLiveResult(StateCondition runtime, Object conditionAsset)
+        {
+            _liveResultStyle ??= new GUIStyle(EditorStyles.miniLabel) { richText = true };
+
+            Condition condition = runtime.Condition;
+
+            // The table was edited during Play Mode, so this row no longer matches what runs.
+            if (condition == null || conditionAsset == null || condition.DebugName != conditionAsset.name)
+            {
+                EditorGUILayout.LabelField("<color=#9E9E9E>● ?</color>", _liveResultStyle, GUILayout.Width(48f));
+                return;
+            }
+
+            // Only read the recorded result. Calling GetStatement() here would run
+            // Statement() outside the normal update and corrupt this frame's cache.
+            // 1 frame of slack: the Inspector may repaint on the frame after Update.
+            bool isFresh = !condition.IsDisabled &&
+                           condition.LastEvaluatedFrame >= 0 &&
+                           Time.frameCount - condition.LastEvaluatedFrame <= 1;
+
+            string text;
+
+            if (condition.IsDisabled)
+            {
+                text = "<color=#9E9E9E>● Off</color>";
+            }
+            else if (!isFresh)
+            {
+                text = "<color=#9E9E9E>● —</color>";
+            }
+            else
+            {
+                string color = condition.LastResult == runtime.ExpectedResult ? "#4CAF50" : "#E57373";
+                text = $"<color={color}>● {condition.LastResult}</color>";
+            }
+
+            EditorGUILayout.LabelField(text, _liveResultStyle, GUILayout.Width(48f));
         }
 
         private static void DrawCenteredLabel(string text, GUIStyle source)

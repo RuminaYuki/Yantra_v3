@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
@@ -17,6 +18,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             var selection = (TransitionSelection)target;
             _table = selection.Table != null ? new SerializedObject(selection.Table) : null;
         }
+
+        // Keep the live condition results updating while playing.
+        public override bool RequiresConstantRepaint() => Application.isPlaying;
 
         public override void OnInspectorGUI()
         {
@@ -77,6 +81,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             int priority = 0;
             bool isFound = false;
 
+            IReadOnlyList<StateTransition> runtimeTransitions = FindRuntimeTransitions(selection, isAnyState);
+
             for (int i = 0; i < transitions.arraySize; i++)
             {
                 SerializedProperty transition = transitions.GetArrayElementAtIndex(i);
@@ -102,7 +108,13 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 if (transition.isExpanded)
                 {
                     EditorGUI.indentLevel++;
-                    TransitionGUI.DrawConditionGroups(transition.FindPropertyRelative("ConditionGroups"));
+                    // Runtime transitions keep the table's order, so Priority N is index N - 1.
+                    StateTransition runtime =
+                        runtimeTransitions != null && priority - 1 < runtimeTransitions.Count
+                            ? runtimeTransitions[priority - 1]
+                            : null;
+
+                    TransitionGUI.DrawConditionGroups(transition.FindPropertyRelative("ConditionGroups"), runtime);
                     EditorGUI.indentLevel--;
                 }
 
@@ -114,6 +126,42 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             {
                 EditorGUILayout.HelpBox("This arrow no longer exists.", MessageType.Info);
             }
+        }
+
+        // Play Mode: the running transitions this arrow belongs to, or null when they aren't checked
+        // right now (not playing, nothing running this table, or the character is in another state).
+        private static IReadOnlyList<StateTransition> FindRuntimeTransitions(
+            TransitionSelection selection, bool isAnyState)
+        {
+            if (!Application.isPlaying)
+            {
+                return null;
+            }
+
+            StateMachine machine = StateMachineGraphWindow.FindRunningMachine(selection.Table);
+            if (machine == null)
+            {
+                EditorGUILayout.HelpBox(
+                    "Live results: keep the graph window open on a GameObject running this table.",
+                    MessageType.None);
+                return null;
+            }
+
+            if (isAnyState)
+            {
+                return machine.AnyTransitions;
+            }
+
+            State current = machine.CurrentState;
+            if (current == null || selection.From == null || current.DebugName != selection.From.name)
+            {
+                EditorGUILayout.HelpBox(
+                    $"Live results: not checked, the character is in {machine.CurrentStateName}.",
+                    MessageType.None);
+                return null;
+            }
+
+            return current.Transitions;
         }
     }
 }

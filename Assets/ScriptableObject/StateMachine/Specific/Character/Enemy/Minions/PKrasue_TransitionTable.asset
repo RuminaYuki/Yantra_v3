@@ -1,19 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-9142475050934719203
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
-  m_Name: HardStager_State
-  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
-  _actions:
-  - {fileID: -495829620269271038}
 --- !u!114 &-9086568540705967280
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -42,7 +28,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
-  m_Name: WeakStager_State
+  m_Name: Stager_State
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: -6459541696696547762}
@@ -358,19 +344,6 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &-495829620269271038
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4dead1015d073a946b9c11eae9bc964e, type: 3}
-  m_Name: HurtAnimationAction
-  m_EditorClassIdentifier: Assembly-CSharp::HurtAnimationActionSO
-  _selfAnchor: {fileID: 0}
 --- !u!114 &-243095206415016895
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -409,11 +382,6 @@ MonoBehaviour:
     - Conditions:
       - Condition: {fileID: 6417865794579400801}
         ExpectedResult: 0
-  - ToState: {fileID: -9142475050934719203}
-    ConditionGroups:
-    - Conditions:
-      - Condition: {fileID: 11400000, guid: de4a2ff3a75d3164584a30ed79d22307, type: 2}
-        ExpectedResult: 0
   _transitions:
   - FromState: {fileID: -6607439959730550105}
     ConditionGroups:
@@ -450,25 +418,7 @@ MonoBehaviour:
       - Condition: {fileID: 3450423854783271006}
         ExpectedResult: 0
     ToState: {fileID: -7387805079813364312}
-  - FromState: {fileID: -2213541606384760985}
-    ConditionGroups:
-    - Conditions:
-      - Condition: {fileID: 1657887496226377186}
-        ExpectedResult: 1
-    ToState: {fileID: -6607439959730550105}
-  - FromState: {fileID: -7387805079813364312}
-    ConditionGroups:
-    - Conditions:
-      - Condition: {fileID: 622217952300443433}
-        ExpectedResult: 0
-    ToState: {fileID: -6607439959730550105}
   - FromState: {fileID: -8544828399458302064}
-    ConditionGroups:
-    - Conditions:
-      - Condition: {fileID: -4716508605988815988}
-        ExpectedResult: 0
-    ToState: {fileID: -2213541606384760985}
-  - FromState: {fileID: -9142475050934719203}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: -4716508605988815988}
@@ -481,17 +431,15 @@ MonoBehaviour:
   - State: {fileID: -2213541606384760985}
     Position: {x: 250, y: 98}
   - State: {fileID: -8544828399458302064}
-    Position: {x: 56, y: 98}
-  - State: {fileID: -9142475050934719203}
-    Position: {x: 56, y: 164}
+    Position: {x: 24, y: 98}
   - State: {fileID: -2100716820089249640}
-    Position: {x: 57, y: 221}
+    Position: {x: 24, y: 170}
   - State: {fileID: -7387805079813364312}
-    Position: {x: 483, y: 80}
+    Position: {x: 483, y: 87}
   - State: {fileID: -6607439959730550105}
     Position: {x: 250, y: 0}
-  _entryNodePosition: {x: 0, y: 0}
-  _anyStateNodePosition: {x: -193, y: 120}
+  _entryNodePosition: {x: -152, y: 0}
+  _anyStateNodePosition: {x: -152, y: 98}
   _contentsFolders:
   - Item: {fileID: -1607774097075941729}
     Folder: LineOfSight
@@ -511,7 +459,7 @@ MonoBehaviour:
     Folder: Locomotion
   - Item: {fileID: 11400000, guid: 3f2af0769ccdbf9409f7500cef12bc0b, type: 2}
     Folder: Reservation
-  - Item: {fileID: -495829620269271038}
+  - Item: {fileID: 0}
     Folder: Health
   - Item: {fileID: 11400000, guid: a12119121bfba5544aa437d4d5f52d32, type: 2}
     Folder: Reservation
@@ -839,12 +787,7 @@ MonoBehaviour:
   m_Name: Attack_TransitionTable
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
   _initialState: {fileID: -6665630544707791696}
-  _anyTransitions:
-  - ToState: {fileID: -6433301286439908800}
-    ConditionGroups:
-    - Conditions:
-      - Condition: {fileID: 1657887496226377186}
-        ExpectedResult: 1
+  _anyTransitions: []
   _transitions:
   - FromState: {fileID: -6665630544707791696}
     ConditionGroups:

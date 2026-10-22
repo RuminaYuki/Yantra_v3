@@ -51,6 +51,23 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             public StateMachine Machine;
         }
 
+        // Last running chain, shared so the transition Inspector can show live condition results.
+        private static readonly List<RunningLevel> s_lastChain = new List<RunningLevel>();
+
+        // The running machine of `table` on the watched controller, or null.
+        public static StateMachine FindRunningMachine(TransitionTableSO table)
+        {
+            foreach (RunningLevel level in s_lastChain)
+            {
+                if (level.Table == table)
+                {
+                    return level.Machine;
+                }
+            }
+
+            return null;
+        }
+
         private void CreatePlayModeToolbarItems(Toolbar toolbar)
         {
             // Pushes the items to the right end of the toolbar.
@@ -96,6 +113,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             if (!EditorApplication.isPlaying)
             {
                 StopWatching();
+                s_lastChain.Clear();
                 _graphView.SetActiveState(null);
                 _playModeLabel.text = string.Empty;
                 return;
@@ -117,6 +135,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             List<RunningLevel> chain = _controller != null
                 ? BuildRunningChain()
                 : new List<RunningLevel>();
+
+            s_lastChain.Clear();
+            s_lastChain.AddRange(chain);
 
             if (_follow && chain.Count > 0 && !PathMatches(chain, chain.Count))
             {

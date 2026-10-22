@@ -5,10 +5,10 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 [UseSelfAnchor]
 [CreateAssetMenu(
     fileName = "Facing_Condition",
-    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Navigator/Facing")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/Navigator/Facing")]
 public class FacingConditionSO : StateConditionSO
 {
-    [Tooltip("Required. Self Anchor is the one that should be facing (empty = Owner).")]
+    [Tooltip("The one to be faced (empty = Owner). Self Anchor is the one that should be facing (empty = Owner).")]
     [SerializeField] private AnchorIDSO _targetAnchor;
     [Tooltip("Max angle (degrees) between the owner's forward and the direction to the target to be considered \"facing\" it.")]
     [SerializeField, Range(0f, 180f)] private float _angleTolerance = 10f;
@@ -36,17 +36,13 @@ public class FacingCondition : Condition
 
     public override void Awake(StateMachine stateMachine)
     {
-        if (_targetAnchor == null)
-            Debug.LogError("FacingCondition has no target AnchorIDSO assigned.", stateMachine.Owner);
-
         _self = new AnchorReference<Transform>(stateMachine, this);
         _target = new AnchorReference<Transform>(stateMachine, _targetAnchor, this);
     }
 
     protected override bool Statement()
     {
-        if (_targetAnchor == null ||
-            !_self.TryGet(out Transform self) ||
+        if (!_self.TryGet(out Transform self) ||
             !_target.TryGet(out Transform target))
         {
             return false;

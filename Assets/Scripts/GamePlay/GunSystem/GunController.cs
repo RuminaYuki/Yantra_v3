@@ -14,38 +14,26 @@ public class GunController : MonoBehaviour
     [Header("References")]
     [SerializeField] GameObject PlayerController;
     [SerializeField] SkillPoints skillPoints;
+    [SerializeField] PlayerInventory playerInventory;
     [SerializeField] List<Spawner> spawners = new();
     [SerializeField] private Transform muzzle;
     [SerializeField] AnimEventDispatcher dispatcher;
     [SerializeField] protected string eventKey = string.Empty;
 
     [Header("Settings")]
+    [SerializeField] ItemData ItemBullet;
+    [SerializeField] bool useItemBullet = true;
     [SerializeField] GunMode gunMode = GunMode.Normal;
-    [SerializeField] int curentAmmo = 0;
-    private int CurentAmmo
-    {
-        get => curentAmmo;
-        set
-        {
-            curentAmmo = Mathf.Clamp(value, 0, maxAmmo);
-        }
-    }
 
-    [SerializeField] int maxAmmo = 2;
     [SerializeField] float delayTime = 0.5f;
-    [SerializeField] VoidEventChannelSO handleSpawnEvent;
     [SerializeField] GunNormalModeSetting settingNormalMode;
     [SerializeField] GunSpecialModeSetting settingSpecialMode;
 
     private float currentDelay;
-    private bool isSpawnEventSubscribed;
     private GunMode pendingShotMode;
-    private bool hasPendingShot;
 
     private void Awake()
     {
-        CurentAmmo = maxAmmo;
-
         if (dispatcher != null && !string.IsNullOrEmpty(eventKey))
         {
             dispatcher.GetEvent(eventKey).AddListener(Shoot);
@@ -75,17 +63,28 @@ public class GunController : MonoBehaviour
         SetEnabled(false);
     }
 
-    public bool TryShooting()
+    public bool CanShoot()
     {
         if (currentDelay > 0) return false;
+        if (useItemBullet && playerInventory != null && playerInventory.Inventory.CountOf(ItemBullet) <= 0) return false;
+        switch (gunMode)
+        {
+            case GunMode.Normal:
+                return true;
+            case GunMode.Special:
+                if (skillPoints != null && !skillPoints.TryConsume(settingSpecialMode.skillPointUsage)) return false;                return true;
+        }
+        return false;
+    }
 
-        if (curentAmmo == 0) return false;
+    public bool TryShooting()
+    {
+        if (!CanShoot()) return false;
 
         switch (gunMode)
         {
             case GunMode.Normal:
                 pendingShotMode = GunMode.Normal;
-                hasPendingShot = true;
                 foreach (Spawner spawner in spawners)
                 {
                     if (spawner == null)
@@ -98,9 +97,7 @@ public class GunController : MonoBehaviour
                 currentDelay = delayTime;
                 break;
             case GunMode.Special:
-                if (skillPoints != null && !skillPoints.TryConsume(settingSpecialMode.skillPointUsage)) return false;
                 pendingShotMode = GunMode.Special;
-                hasPendingShot = true;
                 foreach (Spawner spawner in spawners)
                 {
                     if (spawner == null)
@@ -121,7 +118,26 @@ public class GunController : MonoBehaviour
     private void Shoot()
     {
         int amountBullet = 0;
-        GunMode shotMode = hasPendingShot ? pendingShotMode : gunMode;
+        GunMode shotMode = pendingShotMode;
+
+        // Pay the cost once per shot, not once per spawner
+        if (shotMode == GunMode.Special && settingSpecialMode.useThisSetting)
+        {
+            // Check the item first so skill points are not lost if the bullet item is gone
+            bool needItem = useItemBullet && playerInventory != null;
+            if (needItem && playerInventory.Inventory.CountOf(ItemBullet) <= 0)
+                return;
+
+            if (skillPoints != null && !skillPoints.consume(settingSpecialMode.skillPointUsage))
+            {
+                gunMode = GunMode.Normal;
+                return;
+            }
+
+            if (needItem)
+                playerInventory.Inventory.TryRemove(ItemBullet, 1);
+        }
+
         foreach (Spawner spawner in spawners)
         {
             if (spawner == null)
@@ -142,6 +158,8 @@ public class GunController : MonoBehaviour
                     if (!settingNormalMode.useThisSetting) break;
                     if (baseProjectile != null) baseProjectile.SetMoveSpeed(settingNormalMode.bulletSpeed);
                     if (damageApplier != null) damageApplier.SetDamge(settingNormalMode.bulletDamage);
+                    if (damageApplier != null && settingNormalMode.damageType != null)
+                        damageApplier.SetDamageType(settingNormalMode.damageType);
 
                     if (baseProjectile is HitscanShooter hitscan)
                     {
@@ -151,13 +169,10 @@ public class GunController : MonoBehaviour
                     break;
                 case GunMode.Special:
                     if (!settingSpecialMode.useThisSetting) break;
-                    if (skillPoints != null && !skillPoints.consume(settingSpecialMode.skillPointUsage)) 
-                    {
-                        gunMode = GunMode.Normal;
-                        return;
-                    }
                     if (baseProjectile != null) baseProjectile.SetMoveSpeed(settingSpecialMode.bulletSpeed);
                     if (damageApplier != null) damageApplier.SetDamge(settingSpecialMode.bulletDamage);
+                    if (damageApplier != null && settingSpecialMode.damageType != null)
+                        damageApplier.SetDamageType(settingSpecialMode.damageType);
 
                     if (baseProjectile is HitscanShooter hitscanS)
                     {
@@ -167,8 +182,6 @@ public class GunController : MonoBehaviour
                     break;
             }
         }
-        if (amountBullet != 0) CurentAmmo -= 1;
-        hasPendingShot = false;
     }
 
     public void SetEnabled(bool enabled)
@@ -190,27 +203,6 @@ public class GunController : MonoBehaviour
     }
 
     #region API
-    //Current Ammo API
-    public int GetCurentAmmo(int value) => CurentAmmo;
-        //For demo only
-    public void Reload() => CurentAmmo = maxAmmo;
-
-    //Max Ammo API
-    public int GetMaxAmmo() => maxAmmo;
-    //For upgrade max-ammo
-    public int SetMaxAmmo(int value)
-    {
-        if (value <= 0)
-        {
-            Debug.LogWarning("Max ammo must be greater than zero.");
-            return maxAmmo;
-        }
-
-        maxAmmo = value;
-        CurentAmmo = Mathf.Min(CurentAmmo, maxAmmo);
-        return maxAmmo;
-    }
-
     //Gun mode
     public GunMode GetGunMode() => gunMode;
     public void SwitchMode()
@@ -229,7 +221,8 @@ public struct GunNormalModeSetting
     public bool useThisSetting;
     public float bulletDamage;
     public float bulletSpeed;
-   
+    [Tooltip("Leave empty to keep the bullet prefab's own damage type.")]
+    public DamageTypeID damageType;
 }
 
 [Serializable]
@@ -243,5 +236,6 @@ public struct GunSpecialModeSetting
     public bool useThisSetting;
     public float bulletDamage;
     public float bulletSpeed;
-
+    [Tooltip("Leave empty to keep the bullet prefab's own damage type.")]
+    public DamageTypeID damageType;
 }

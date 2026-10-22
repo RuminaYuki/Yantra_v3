@@ -1,9 +1,13 @@
+using System.Collections.Generic;
 namespace Yuki.Learning.StateMachine
 {
     public class StateTransition
     {
         private readonly State _targetState;
         private readonly StateCondition[][] _conditionGroups;
+
+        public State TargetState => _targetState;
+        public IReadOnlyList<IReadOnlyList<StateCondition>> ConditionGroups => _conditionGroups;
 
         public StateTransition(
             State targetState,

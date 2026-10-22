@@ -4,10 +4,13 @@ namespace Yuki.Learning.StateMachine
     {
         public AnchorIDSO SelfAnchor {get; internal set;}
         public bool IsDisabled { get; private set; }
+        public string DebugName { get; internal set; }
         internal void Disable() => IsDisabled = true;
 
         private bool _isCached;
         private bool _cachedStatement;
+        public bool LastResult => _cachedStatement;
+        public int LastEvaluatedFrame { get; private set; } = -1;
         private int _lastTickFrame = -1;
 
         public virtual void Awake(StateMachine stateMachine){}
@@ -31,6 +34,7 @@ namespace Yuki.Learning.StateMachine
             {
                 _cachedStatement = Statement();
                 _isCached = true;
+                LastEvaluatedFrame = UnityEngine.Time.frameCount;
             }
 
             return _cachedStatement;
@@ -46,6 +50,9 @@ namespace Yuki.Learning.StateMachine
     {
         private readonly Condition _condition;
         private readonly bool _expectedResult;
+
+        public Condition Condition => _condition;
+        public bool ExpectedResult => _expectedResult;
 
         public StateCondition(
             Condition condition,

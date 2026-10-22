@@ -31,7 +31,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: 11400000, guid: 2958ea6d68a7b7242af443657f008670, type: 2}
-  - {fileID: 2092774505280099472}
   - {fileID: 656709667518212777}
 --- !u!114 &-4671652051541761311
 MonoBehaviour:
@@ -89,11 +88,16 @@ MonoBehaviour:
         ExpectedResult: 0
       - Condition: {fileID: -1351078938063520381}
         ExpectedResult: 1
+      - Condition: {fileID: 4067739982456519204}
+        ExpectedResult: 0
     ToState: {fileID: -5903299649454196196}
   - FromState: {fileID: -5903299649454196196}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: -7697143732921395198}
+        ExpectedResult: 1
+    - Conditions:
+      - Condition: {fileID: 4067739982456519204}
         ExpectedResult: 1
     ToState: {fileID: -4671652051541761311}
   - FromState: {fileID: 7177098204527859533}
@@ -159,6 +163,22 @@ MonoBehaviour:
     ParameterName: IsRun
     BoolValueOnEnter: 1
     ResetOnExit: 1
+--- !u!114 &4067739982456519204
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74c3ef779d40e464d88a9ae3b1ce5239, type: 3}
+  m_Name: IsMoving_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::IsMovingConditionSO
+  _selfAnchor: {fileID: 0}
+  _minMoveSpeed: 0.1
+  _ignoreY: 1
+  _smoothing: 15
 --- !u!114 &6603286857386878101
 MonoBehaviour:
   m_ObjectHideFlags: 0

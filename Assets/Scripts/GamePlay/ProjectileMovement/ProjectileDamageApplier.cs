@@ -4,6 +4,8 @@ public class ProjectileDamageApplier : MonoBehaviour
 {
     [SerializeField] BaseProjectileMovement projectileMovement;
     [SerializeField] private float damageAmount = 10f;
+    [Tooltip("Default damage type of this bullet. The gun can override it per mode.")]
+    [SerializeField] private DamageTypeID damageType;
     [SerializeField] protected Transform owner;
 
     private void OnEnable()
@@ -33,6 +35,8 @@ public class ProjectileDamageApplier : MonoBehaviour
             return;
 
         damageable.TakeDamage(damageAmount);
+        if (damageType != null)
+            damageable.DamageType(damageType);
     }
 
     private bool IsOwner(Transform hitTransform)
@@ -57,5 +61,10 @@ public class ProjectileDamageApplier : MonoBehaviour
     public void SetDamge(float amount)
     {
         damageAmount = amount;
+    }
+
+    public void SetDamageType(DamageTypeID type)
+    {
+        damageType = type;
     }
 }
