@@ -155,6 +155,8 @@ public class GunController : MonoBehaviour
             switch (shotMode)
             {
                 case GunMode.Normal:
+                    skillPoints.SetCurrent(0);
+
                     if (!settingNormalMode.useThisSetting) break;
                     if (baseProjectile != null) baseProjectile.SetMoveSpeed(settingNormalMode.bulletSpeed);
                     if (damageApplier != null) damageApplier.SetDamge(settingNormalMode.bulletDamage);
