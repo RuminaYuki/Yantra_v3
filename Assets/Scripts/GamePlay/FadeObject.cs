@@ -64,7 +64,7 @@ public class FadeObject : MonoBehaviour
 
         while (time < _fadeDuration)
         {
-            time += Time.deltaTime;
+            time += Time.unscaledDeltaTime;
 
             float normalizedTime = Mathf.Clamp01(time / _fadeDuration);
 

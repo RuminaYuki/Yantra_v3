@@ -16,8 +16,6 @@ public class AnimationProgressDriver : MonoBehaviour
     [SerializeField, Min(0f)] float speedSmoothTime = 0.1f;
     [Tooltip("จำกัด speed สูงสุด กันกระชากเวลา progress กระโดดไกล")]
     [SerializeField, Min(0f)] float maxSpeed = 3f;
-    [Tooltip("speed ขั้นต่ำระหว่าง CrossFade เพื่อให้ transition เดินจนจบ (animator.speed = 0 จะทำให้ transition ค้าง)")]
-    [SerializeField, Min(0f)] float minTransitionSpeed = 0.5f;
     [Tooltip("เวลาที่ใช้คืน speed กลับเป็น 1 หลังปิด driver")]
     [SerializeField, Min(0f)] float releaseSmoothTime = 0.15f;
 
@@ -79,38 +77,40 @@ public class AnimationProgressDriver : MonoBehaviour
 
     private void SetProgress()
     {
-        bool inTransition = false;
-        float animProgress;
-
-        // ระหว่าง CrossFade, current state ยังเป็น state เก่าอยู่ ต้องอ่านจาก next state แทน
+        // ระหว่าง CrossFade ไม่คุม speed ปล่อยให้ transition เดินปกติจนจบ
         if (_animator.IsInTransition(_layerIndex))
         {
-            AnimatorStateInfo next = _animator.GetNextAnimatorStateInfo(_layerIndex);
-            if (next.shortNameHash == _stateHash || next.fullPathHash == _stateHash)
-            {
-                stateInfo = next;
-                inTransition = true;
-            }
-            else
-            {
-                stateInfo = _animator.GetCurrentAnimatorStateInfo(_layerIndex);
-            }
+            PassThrough();
+            return;
         }
-        else
+
+        stateInfo = _animator.GetCurrentAnimatorStateInfo(_layerIndex); // อ่านสดทุก frame
+
+        // ทำงานเฉพาะตอนอยู่ใน state ที่ได้รับมาเท่านั้น
+        if (stateInfo.shortNameHash != _stateHash && stateInfo.fullPathHash != _stateHash)
         {
-            stateInfo = _animator.GetCurrentAnimatorStateInfo(_layerIndex); // อ่านสดทุก frame
+            PassThrough();
+            return;
         }
 
-        animProgress = stateInfo.normalizedTime;
-
+        float animProgress = stateInfo.normalizedTime;
         float targetSpeed = CalculatSpeed(animProgress);
-        if (inTransition)
-        {
-            targetSpeed = Mathf.Max(targetSpeed, minTransitionSpeed);
-        }
 
         _currentSpeed = Smooth(_currentSpeed, targetSpeed, speedSmoothTime);
+
+        animProgress = stateInfo.normalizedTime;
+        if (animProgress > _progress) _currentSpeed = 0f;
+
+        Debug.Log($"AnimationProgressDriver | animProgress={animProgress} | targetSpeed={targetSpeed} | _currentSpeed={_currentSpeed}");
         _animator.speed = _currentSpeed;
+    }
+
+    // คืน animator ให้เล่นด้วย speed ปกติ ระหว่างที่ driver ไม่ได้คุม
+    private void PassThrough()
+    {
+        _currentSpeed = 1f;
+        _speedVelocity = 0f;
+        _animator.speed = 1f;
     }
 
     private float CalculatSpeed(float animProgress)
