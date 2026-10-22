@@ -41,6 +41,9 @@ public class PlayVFXOnSpawn : MonoBehaviour
     [Tooltip("หลังหยุดพ่นแล้ว ให้เวลาจางหายกี่วินาทีก่อนลบทิ้ง")]
     [SerializeField] private float _fadeOut = 1f;
 
+    [Tooltip("เกิดที่ปลายกระบอกปืน (จุดที่ใส่ MuzzlePoint ไว้) แทนตำแหน่งกระสุน")]
+    [SerializeField] private bool _spawnAtMuzzle = false;
+
     [Tooltip("ใช้ตำแหน่งนี้แทนตำแหน่งตัวเอง — เว้นว่างได้")]
     [SerializeField] private Transform _customOrigin;
 
@@ -67,12 +70,25 @@ public class PlayVFXOnSpawn : MonoBehaviour
                 $"Prefab: {(_vfxPrefab != null ? _vfxPrefab.name : "-")}", this);
         }
 
-        Transform origin = _customOrigin != null ? _customOrigin : transform;
+        Transform origin = GetOrigin();
         Vector3 position = origin.position + origin.rotation * _localOffset;
         Quaternion rotation = BuildRotation(origin);
 
         PlayEffekseer(origin, position, rotation);
         SpawnPrefab(origin, position, rotation);
+    }
+
+    private Transform GetOrigin()
+    {
+        if (_customOrigin != null) return _customOrigin;
+
+        if (_spawnAtMuzzle)
+        {
+            if (MuzzlePoint.Active != null) return MuzzlePoint.Active.transform;
+            Debug.LogWarning($"[SpawnVFX] {name}: หา MuzzlePoint ไม่เจอ ใช้ตำแหน่งกระสุนแทน", this);
+        }
+
+        return transform;
     }
 
     private void PlayEffekseer(Transform origin, Vector3 position, Quaternion rotation)
