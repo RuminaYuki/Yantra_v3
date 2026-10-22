@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
@@ -29,7 +30,11 @@ public class SpellDrawAction : StateAction
         if (!_spellController.TryGet(out SpellController spellController)) return;
         spellController.SetActive(true);
     }
-    public override void OnUpdate(){}
+    public override void OnUpdate()
+    {
+        if (!_spellController.TryGet(out SpellController spellController)) return;
+        spellController.HandleStroke(Mouse.current.delta.ReadValue());
+    }
 
     public override void OnStateExit()
     {

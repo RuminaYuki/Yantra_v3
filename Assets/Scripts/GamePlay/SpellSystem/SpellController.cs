@@ -53,11 +53,6 @@ public class SpellController : MonoBehaviour
     {
         if (splineToLineRenderer == null) return;
 
-        if (Mouse.current != null && _isActive)
-        {
-            HandleStroke(Mouse.current.delta.ReadValue());
-        }
-
         if (!_isActive && !_fadeStarted)
         {
             if (_coroutine != null) StopCoroutine(_coroutine);
@@ -83,7 +78,7 @@ public class SpellController : MonoBehaviour
         }
     }
 
-    private void HandleStroke(Vector2 mouseMovement)
+    public void HandleStroke(Vector2 mouseMovement)
     {
         if (splineToLineRenderer == null) return;
 
