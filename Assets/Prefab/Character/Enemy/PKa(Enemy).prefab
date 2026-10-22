@@ -379,10 +379,10 @@ GameObject:
   - component: {fileID: 7536221892418918656}
   - component: {fileID: 4361828618637776244}
   - component: {fileID: 6937792664942880573}
-  - component: {fileID: 4548703909404904833}
   - component: {fileID: 1682672883883980451}
   - component: {fileID: 5576540633263213476}
   - component: {fileID: 5098707057134905944}
+  - component: {fileID: 1002007669417644985}
   m_Layer: 7
   m_Name: EnemeyController
   m_TagString: Enemy
@@ -805,21 +805,6 @@ MonoBehaviour:
   AdjustPelvis: 1
   PelvisOffsetSpeed: 10
   MaxPelvisOffset: 0.6
---- !u!114 &4548703909404904833
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1362228334903577606}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 567aec5c8612df34ca34f800b01bf396, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GhostRimGlow
-  _rimMaterial: {fileID: 2100000, guid: c1c875fd357904e46af62ee358345c21, type: 2}
-  _modelRoot: {fileID: 0}
-  _amountProperty: _DissolveAmount
 --- !u!114 &1682672883883980451
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -864,6 +849,8 @@ MonoBehaviour:
   _renderers: []
   _dissolveMaterial: {fileID: 2100000, guid: 70e8f820fd329144081a561d9fe12fae, type: 2}
   _amountProperty: _DissolveAmount
+  _logMaterialCopy: 0
+  _logSteps: 0
   _delay: 0.2
   _duration: 1.5
   _visibleAmount: 0
@@ -902,6 +889,23 @@ MonoBehaviour:
   _onDissolveFinished:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1002007669417644985
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1362228334903577606}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 567aec5c8612df34ca34f800b01bf396, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GhostRimGlow
+  _rimMaterial: {fileID: 2100000, guid: c1c875fd357904e46af62ee358345c21, type: 2}
+  _modelRoot: {fileID: 0}
+  _amountProperty: _DissolveAmount
+  _fadeFaster: 5
+  _logSteps: 0
 --- !u!1 &1696219248566727934
 GameObject:
   m_ObjectHideFlags: 0
