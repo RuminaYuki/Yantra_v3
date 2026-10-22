@@ -84,8 +84,6 @@ public class BattleMusicController : MonoBehaviour
         if (_logStateChange)
             Debug.Log($"[BattleMusic] → {label}  (เพลง: {(music != null ? music.name : "ยังไม่ได้ใส่")})", this);
 
-        if (music == null) return;
-
         if (SoundManager.Instance == null)
         {
 #if UNITY_EDITOR
@@ -94,6 +92,10 @@ public class BattleMusicController : MonoBehaviour
             return;
         }
 
-        SoundManager.Instance.PlayBGM(music);
+        // ไม่มีเพลงตอนไม่รบ = ปิดเพลงรบทิ้ง เหลือแค่เสียงบรรยากาศ
+        if (music == null)
+            SoundManager.Instance.StopBGM();
+        else
+            SoundManager.Instance.PlayBGM(music);
     }
 }
