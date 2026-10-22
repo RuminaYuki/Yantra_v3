@@ -1184,6 +1184,8 @@ MonoBehaviour:
         ExpectedResult: 0
       - Condition: {fileID: -3040429447232886333}
         ExpectedResult: 0
+      - Condition: {fileID: 1081938085897592608}
+        ExpectedResult: 0
     ToState: {fileID: -141090120844421994}
   - FromState: {fileID: 6999762553843621200}
     ConditionGroups:
@@ -1299,6 +1301,8 @@ MonoBehaviour:
   - Item: {fileID: 3750093177355205704}
     Folder: EnableFlagCondition
   - Item: {fileID: -8212887844243775315}
+    Folder: EnableFlagCondition
+  - Item: {fileID: 5322550019143725024}
     Folder: EnableFlagCondition
   _contentsFolderPaths:
   - Group: Conditions
@@ -1466,6 +1470,19 @@ MonoBehaviour:
   - {fileID: -5623226520888454611}
   - {fileID: 7666076097710857000}
   - {fileID: -379918208249940726}
+--- !u!114 &1081938085897592608
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd8b72dd4168fff4eb1c95cc79eb31ef, type: 3}
+  m_Name: IsBlockReady_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::IsBlockReadyConditionSO
+  _selfAnchor: {fileID: 0}
 --- !u!114 &1283755340812005396
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1796,6 +1813,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: 60285662574002145}
+--- !u!114 &5322550019143725024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 828323aa1aace154891a3661130da74b, type: 3}
+  m_Name: EnableBlockFlag_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::FlagConditionSO
+  _selfAnchor: {fileID: 0}
+  flag: {fileID: 11400000, guid: e06435090cb775044a93576fe0373ffe, type: 2}
 --- !u!114 &5325564258262602981
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1916,7 +1947,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
-  m_Name: ExitToIdle_State3
+  m_Name: ExitToIdle_State
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: 11400000, guid: 6eae33dd140d454449b194e609f8dcba, type: 2}
@@ -2234,7 +2265,9 @@ MonoBehaviour:
     - Conditions:
       - Condition: {fileID: 2165669171770484589}
         ExpectedResult: 0
-      - Condition: {fileID: -3040429447232886333}
+      - Condition: {fileID: 5322550019143725024}
+        ExpectedResult: 0
+      - Condition: {fileID: 1081938085897592608}
         ExpectedResult: 0
   - ToState: {fileID: -6130488365527246910}
     ConditionGroups:

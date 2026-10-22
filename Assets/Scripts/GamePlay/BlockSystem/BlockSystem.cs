@@ -28,8 +28,11 @@ public class BlockSystem : MonoBehaviour
     [SerializeField] float _guardDecreasedPerParry = 5f;
 
     private float _recoveryDelayTimer;
+    private bool _isReady = true;
 
     public float CurrentGuardPoints => _currentGuardPoints;
+    // false ตั้งแต่ guard ลงถึง 0 จนกว่าจะฟื้นเต็ม
+    public bool IsReady => _isReady;
     public bool IsParryEnable => _isParryEnable;
     public float MaxGuardPoints
     {
@@ -44,7 +47,7 @@ public class BlockSystem : MonoBehaviour
             _maxGuardPoints = value;
             if (_currentGuardPoints > _maxGuardPoints)
             {
-                _currentGuardPoints = _maxGuardPoints;
+                SetGuard(_maxGuardPoints);
                 _OnCurrentGuardPointChange.Raise(_currentGuardPoints);
             }
         }
@@ -56,7 +59,7 @@ public class BlockSystem : MonoBehaviour
         if (_skillPoints == null) _skillPoints = GetComponent<SkillPoints>();
 
         if(_assignValue)
-            _currentGuardPoints = _maxGuardPoints;
+            SetGuard(_maxGuardPoints);
     }
 
     private void Update()
@@ -73,19 +76,19 @@ public class BlockSystem : MonoBehaviour
         if (_isBlockEnable)
         {
             _recoveryDelayTimer = 0f;
-            _currentGuardPoints = Mathf.Max(0, _currentGuardPoints - _decreasedGuardPointsPerSecond * Time.deltaTime);
+            SetGuard(_currentGuardPoints - _decreasedGuardPointsPerSecond * Time.deltaTime);
             if (_currentGuardPoints <= 0)
             {
                 _OnGuardPointDepleted.Raise();
             }
         }
 
-        if (!_isBlockEnable && _currentGuardPoints < _maxGuardPoints)
+        if (_currentGuardPoints < _maxGuardPoints)
         {
             _recoveryDelayTimer += Time.deltaTime;
             if (_recoveryDelayTimer >= _delayForRecovery)
             {
-                _currentGuardPoints = Mathf.Min(_maxGuardPoints, _currentGuardPoints + _recoveryGuardPointsPerSecond * Time.deltaTime);
+                SetGuard(_currentGuardPoints + _recoveryGuardPointsPerSecond * Time.deltaTime);
             }
         }
     }
@@ -118,12 +121,24 @@ public class BlockSystem : MonoBehaviour
 
     private void DecreaseGuard(float amount)
     {
-        _currentGuardPoints = Mathf.Max(0, _currentGuardPoints - amount);
+        _recoveryDelayTimer = 0f;
+        SetGuard(_currentGuardPoints - amount);
         _OnCurrentGuardPointChange.Raise(_currentGuardPoints);
         if (_currentGuardPoints <= 0)
         {
             _OnGuardPointDepleted.Raise();
         }
+    }
+
+    // ทุกที่ที่เปลี่ยนค่า guard ต้องผ่านตรงนี้ เพื่อให้ IsReady อัปเดตที่เดียว
+    private void SetGuard(float value)
+    {
+        _currentGuardPoints = Mathf.Clamp(value, 0f, _maxGuardPoints);
+
+        if (_currentGuardPoints <= 0f)
+            _isReady = false;
+        else if (_currentGuardPoints >= _maxGuardPoints)
+            _isReady = true;
     }
 
     public void ExecuteParry(bool isParry)
