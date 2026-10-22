@@ -14,8 +14,11 @@ public class TutorialTrigger : MonoBehaviour
             return;
         }
 
-        // เคยเห็นแล้ว (เช่นตายแล้ว Retry) ก็ปิดทิ้งเหมือนกัน
-        if (TutorialScreen.TryShow(_tutorial) || TutorialScreen.HasSeen(_tutorial))
-            gameObject.SetActive(false);
+        // ถ้าเคยเห็นแล้วก็ไม่ต้องขึ้นซ้ำ
+        if (TutorialScreen.HasSeen(_tutorial))
+            return;
+
+        // ขึ้น Tutorial
+        TutorialScreen.TryShow(_tutorial);
     }
 }
