@@ -39,9 +39,12 @@ MonoBehaviour:
   nodes:
   - rid: 271060794861420639
   - rid: 271060794861420641
+  - rid: 271060933437554778
   edges:
   - fromNode: 6cd6e9eb46d84aa6b941253fa311bdfe
     toNode: e18f4e209cad42fca996e346fad20006
+  - fromNode: 5e32a41d82384c5ab61b9030621bfcf3
+    toNode: 6cd6e9eb46d84aa6b941253fa311bdfe
   laneSplitY: 0
   references:
     version: 2
@@ -50,14 +53,44 @@ MonoBehaviour:
       type: {class: QuestNode, ns: SDFcl.GamePlay.QuestSystem, asm: Assembly-CSharp}
       data:
         guid: 6cd6e9eb46d84aa6b941253fa311bdfe
-        position: {x: -7, y: -206}
+        position: {x: 199, y: -202}
         quest: {fileID: 4537645471852854472}
     - rid: 271060794861420641
       type: {class: QuestNode, ns: SDFcl.GamePlay.QuestSystem, asm: Assembly-CSharp}
       data:
         guid: e18f4e209cad42fca996e346fad20006
-        position: {x: 597, y: -206}
+        position: {x: 400, y: -202}
         quest: {fileID: -5308543602531092420}
+    - rid: 271060933437554778
+      type: {class: QuestNode, ns: SDFcl.GamePlay.QuestSystem, asm: Assembly-CSharp}
+      data:
+        guid: 5e32a41d82384c5ab61b9030621bfcf3
+        position: {x: -1, y: -202}
+        quest: {fileID: 3837899139992925771}
+--- !u!114 &3837899139992925771
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2acb854183d80214fb783df50e5f1185, type: 3}
+  m_Name: 'Enter frist group of ghosts. '
+  m_EditorClassIdentifier: Assembly-CSharp::SDFcl.GamePlay.QuestSystem.QuestSO
+  questId: 2a5a56d3851c4f59bbb113ffa5ac47d5
+  title: 'Enter frist group of ghosts. '
+  description: 
+  track: 0
+  objectives:
+  - id: enter trigger
+    description: 
+    requiredCount: 1
+  repeatMode: 0
+  maxCompletions: 0
+  dailyResetHour: 4
+  whenRouteLost: 0
 --- !u!114 &4537645471852854472
 MonoBehaviour:
   m_ObjectHideFlags: 0

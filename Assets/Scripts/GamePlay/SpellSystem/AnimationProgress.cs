@@ -50,7 +50,7 @@ public class AnimationProgress : MonoBehaviour
             }
             HandleFinishSpell(); 
         }
-        _aPD_AEC.Raise(_animationName, _layerIndex, value, _fadeDuration);
+        _aPD_AEC.Raise(_animationName, _layerIndex, value, _fadeDuration, AnimatorUpdateMode.UnscaledTime);
     }
 
     private void HandleFinishSpell()

@@ -111,6 +111,7 @@ public class AnimationProgressDriver : MonoBehaviour
         _currentSpeed = 1f;
         _speedVelocity = 0f;
         _animator.speed = 1f;
+
     }
 
     private float CalculatSpeed(float animProgress)
@@ -132,6 +133,7 @@ public class AnimationProgressDriver : MonoBehaviour
         }
 
         _animator.speed = _currentSpeed;
+        _animator.updateMode = AnimatorUpdateMode.Normal;
     }
 
     private float Smooth(float current, float target, float smoothTime)
@@ -163,12 +165,15 @@ public class AnimationProgressDriver : MonoBehaviour
     }
 
     private void HandleSetProgress(
-        string stateName,
-        int layerIndex,
-        float progress,
-        float fadeDuration)
+       string stateName,
+       int layerIndex,
+       float progress,
+       float fadeDuration,
+       AnimatorUpdateMode updateMode = AnimatorUpdateMode.Normal)
     {
         if (!_active) return;
+
+        _animator.updateMode = updateMode; // Explicit cast added here  
 
         int hash = Animator.StringToHash(stateName);
 
@@ -184,13 +189,15 @@ public class AnimationProgressDriver : MonoBehaviour
             return;
         }
 
+        
+
         _layerIndex = layerIndex;
         _stateHash = hash;
 
         stateInfo = _animator.GetCurrentAnimatorStateInfo(layerIndex);
         bool alreadyTarget = stateInfo.IsName(stateName);
 
-        // ถ้ากำลัง CrossFade ไปหา state นี้อยู่แล้ว ไม่ต้องสั่ง CrossFade ซ้ำ
+        // ถ้ากำลัง CrossFade ไปหา state นี้อยู่แล้ว ไม่ต้องสั่ง CrossFade ซ้ำ  
         if (!alreadyTarget && _animator.IsInTransition(layerIndex))
         {
             alreadyTarget = _animator.GetNextAnimatorStateInfo(layerIndex).IsName(stateName);
@@ -204,7 +211,7 @@ public class AnimationProgressDriver : MonoBehaviour
         {
             _animator.CrossFade(stateName, fadeDuration, layerIndex);
             _animator.Update(0);
-            // ไม่ตั้ง speed = 0 ทันที ปล่อยให้ SmoothDamp ค่อยๆ ลด/เพิ่มเอง
+            // ไม่ตั้ง speed = 0 ทันที ปล่อยให้ SmoothDamp ค่อยๆ ลด/เพิ่มเอง  
             _progress = progress;
         }
     }
