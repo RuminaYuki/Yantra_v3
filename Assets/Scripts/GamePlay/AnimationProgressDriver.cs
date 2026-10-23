@@ -3,6 +3,11 @@ using UnityEngine;
 [RequireComponent(typeof(Animator))]
 public class AnimationProgressDriver : MonoBehaviour
 {
+    /// <summary>
+    /// ส่งเป็น progress เพื่อสั่งให้เล่น state นั้นจนจบด้วย speed ปกติ (ไม่คุมตาม progress)
+    /// คำสั่ง state อื่นที่ส่งมาระหว่างนั้นจะถูกเก็บไว้ แล้วค่อยเล่นตอน state นี้เล่นจบ
+    /// </summary>
+    public const float PlayFull = -1f;
 
     [SerializeField] Animator _animator;
     [SerializeField] BoolEventChannelSO _aPD_SetEnable_AEC;
@@ -27,6 +32,16 @@ public class AnimationProgressDriver : MonoBehaviour
     private float _currentSpeed = 1f;
     private float _speedVelocity = 0f;
     AnimatorStateInfo stateInfo;
+    private bool _isCurrentStateValid = true;
+
+    // state ที่กำลังเล่นจนจบ (PlayFull) และคำสั่งที่รอเล่นต่อ
+    private bool _playingFull = false;
+    private bool _hasPending = false;
+    private string _pendingStateName;
+    private int _pendingLayerIndex;
+    private float _pendingProgress;
+    private float _pendingFadeDuration;
+    private AnimatorUpdateMode _pendingUpdateMode;
 
     private void Awake()
     {
@@ -61,11 +76,14 @@ public class AnimationProgressDriver : MonoBehaviour
         _currentSpeed = 1f;
         _speedVelocity = 0f;
         _releasing = false;
+        _playingFull = false;
+        _hasPending = false;
     }
 
     private void Update()
     {
-        if (_active)
+        // PlayFull ต้องเล่นจนจบ แม้โดนปิดระหว่างนั้น ไม่งั้นท่าที่รอไว้จะไม่ได้เล่น
+        if (_active || _playingFull)
         {
             SetProgress();
         }
@@ -77,6 +95,23 @@ public class AnimationProgressDriver : MonoBehaviour
 
     private void SetProgress()
     {
+        // เล่น state แบบ PlayFull อยู่ ปล่อยเล่นปกติจนจบ แล้วค่อยเล่นคำสั่งที่รออยู่
+        if (_playingFull)
+        {
+            PassThrough();
+
+            if (!IsPlayFullFinished()) return;
+
+            _playingFull = false;
+            if (_hasPending)
+            {
+                _hasPending = false;
+                HandleSetProgress(_pendingStateName, _pendingLayerIndex, _pendingProgress,
+                                  _pendingFadeDuration, _pendingUpdateMode);
+            }
+            return;
+        }
+
         // ระหว่าง CrossFade ไม่คุม speed ปล่อยให้ transition เดินปกติจนจบ
         if (_animator.IsInTransition(_layerIndex))
         {
@@ -103,6 +138,18 @@ public class AnimationProgressDriver : MonoBehaviour
 
         Debug.Log($"AnimationProgressDriver | animProgress={animProgress} | targetSpeed={targetSpeed} | _currentSpeed={_currentSpeed}");
         _animator.speed = _currentSpeed;
+    }
+
+    private bool IsPlayFullFinished()
+    {
+        if (_animator.IsInTransition(_layerIndex)) return false;
+
+        AnimatorStateInfo info = _animator.GetCurrentAnimatorStateInfo(_layerIndex);
+
+        // animator ออกจาก state นั้นไปเองแล้ว (เช่นมี exit transition) ถือว่าจบ
+        if (info.shortNameHash != _stateHash && info.fullPathHash != _stateHash) return true;
+
+        return info.normalizedTime >= 1f;
     }
 
     // คืน animator ให้เล่นด้วย speed ปกติ ระหว่างที่ driver ไม่ได้คุม
@@ -171,11 +218,23 @@ public class AnimationProgressDriver : MonoBehaviour
        float fadeDuration,
        AnimatorUpdateMode updateMode = AnimatorUpdateMode.Normal)
     {
-        if (!_active) return;
-
-        _animator.updateMode = updateMode; // Explicit cast added here  
+        if (!_active && !_isCurrentStateValid) return;
 
         int hash = Animator.StringToHash(stateName);
+
+        // ยังเล่น PlayFull ไม่จบ เก็บคำสั่งล่าสุดไว้ก่อน
+        if (_playingFull && hash != _stateHash)
+        {
+            _hasPending = true;
+            _pendingStateName = stateName;
+            _pendingLayerIndex = layerIndex;
+            _pendingProgress = progress;
+            _pendingFadeDuration = fadeDuration;
+            _pendingUpdateMode = updateMode;
+            return;
+        }
+
+        _animator.updateMode = updateMode;
 
         if (!_animator.HasState(layerIndex, hash))
         {
@@ -193,6 +252,14 @@ public class AnimationProgressDriver : MonoBehaviour
 
         _layerIndex = layerIndex;
         _stateHash = hash;
+
+        if (progress == PlayFull)
+        {
+            _playingFull = true;
+            _animator.CrossFade(stateName, fadeDuration, layerIndex, 0f);
+            _animator.Update(0);
+            return;
+        }
 
         stateInfo = _animator.GetCurrentAnimatorStateInfo(layerIndex);
         bool alreadyTarget = stateInfo.IsName(stateName);
