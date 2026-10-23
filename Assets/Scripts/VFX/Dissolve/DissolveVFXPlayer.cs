@@ -16,6 +16,10 @@ public class DissolveVFXPlayer : MonoBehaviour
     [Tooltip("Material Dissolve ที่มีอยู่ ใช้เป็นต้นแบบเมื่อเรียก PlayDissolve")]
     [SerializeField] private Material _dissolveMaterial;
     [SerializeField] private string _amountProperty = "_DissolveAmount";
+    [Tooltip("บอกใน Console ว่ายกรูปผิว/สีของโมเดลไปใส่ Material Dissolve ได้ไหม (ไว้หาสาเหตุตอนเป็นสีเทาหรือขาว)")]
+    [SerializeField] private bool _logMaterialCopy = true;
+    [Tooltip("บอกใน Console ทุกขั้นตอน เริ่มสลาย / สลายเสร็จ / ถูกรีเซ็ตกลับ พร้อมบอกว่าใครสั่ง")]
+    [SerializeField] private bool _logSteps = true;
 
     [Header("เวลา")]
     [SerializeField, Min(0f)] private float _delay = 0.2f;
@@ -81,12 +85,6 @@ public class DissolveVFXPlayer : MonoBehaviour
         public bool MaterialsApplied;
     }
 
-    // รายชื่อ Property มาตรฐานของ Texture และสี (ครอบคลุมทั้ง URP, Built-in และ Shader Graph)
-    private static readonly string[] TextureProps = { "_BaseMap", "_MainTex", "_Albedo", "_AlbedoMap", "_Diffuse", "_Tex" };
-    private static readonly string[] ColorProps = { "_BaseColor", "_Color", "_Tint", "_MainColor" };
-    private static readonly string[] NormalProps = { "_BumpMap", "_NormalMap", "_Normal" };
-    private static readonly string[] EmissionProps = { "_EmissionMap", "_EmissiveMap" };
-
     private readonly List<RendererState> _states = new List<RendererState>();
     private readonly List<GameObject> _attachedEffects = new List<GameObject>();
     private bool _played;
@@ -96,6 +94,7 @@ public class DissolveVFXPlayer : MonoBehaviour
 
     public void PlayDissolve()
     {
+        LogStep($"PlayDissolve ถูกเรียก (เล่นไปแล้ว: {_played})");
         if (_played || !isActiveAndEnabled || !PrepareMaterials())
             return;
 
@@ -129,6 +128,9 @@ public class DissolveVFXPlayer : MonoBehaviour
         foreach (Renderer renderer in targets)
         {
             if (renderer == null || !renderer.enabled || !renderer.gameObject.activeInHierarchy || !unique.Add(renderer))
+                continue;
+            // ร่างเรืองแสงที่ GhostRimGlow สร้าง ให้ GhostRimGlow คุมการจางเอง
+            if (renderer.gameObject.name.EndsWith("_Rim"))
                 continue;
 
             Material[] materials = renderer.sharedMaterials;
@@ -171,17 +173,12 @@ public class DissolveVFXPlayer : MonoBehaviour
                 if (original[i] == null)
                     continue;
 
-                bool originalSupportsDissolve = SupportsAmount(original[i]);
-                Material template = originalSupportsDissolve ? original[i] : _dissolveMaterial;
-                Material runtimeMat = new Material(template) { name = template.name + " (Dissolve instance)" };
-
-                // ถ้าสลับไปใช้ _dissolveMaterial ต้นแบบ ให้คัดลอก Texture และสีจาก Material เดิมมาใส่ด้วย
-                if (!originalSupportsDissolve && template != null)
-                {
-                    CopySurfaceProperties(original[i], runtimeMat);
-                }
-
-                state.RuntimeMaterials[i] = runtimeMat;
+                bool ownShader = SupportsAmount(original[i]);
+                Material template = ownShader ? original[i] : _dissolveMaterial;
+                state.RuntimeMaterials[i] = new Material(template) { name = template.name + " (Dissolve instance)" };
+                // ใช้ Material Dissolve แทนของเดิม: ต้องยกรูปผิว/สี/normal ของโมเดลมาด้วย ไม่งั้นจะกลายเป็นสีเทา
+                if (!ownShader)
+                    CopyLook(original[i], state.RuntimeMaterials[i], renderer);
                 state.OriginalBlocks[i] = new MaterialPropertyBlock();
                 renderer.GetPropertyBlock(state.OriginalBlocks[i], i);
                 state.WorkingBlocks[i] = new MaterialPropertyBlock();
@@ -194,106 +191,138 @@ public class DissolveVFXPlayer : MonoBehaviour
         return true;
     }
 
-    private static void CopySurfaceProperties(Material source, Material destination)
+    // ---------- ยกหน้าตาเดิมของโมเดลไปใส่ Material Dissolve ----------
+
+    private static readonly string[] BaseTexSources = { "_BaseColorMap", "_BaseMap", "_MainTex", "_Albedo", "_AlbedoMap", "_BaseTexture", "_BaseTex", "_Diffuse", "_DiffuseMap" };
+    private static readonly string[] BaseColorSources = { "_BaseColor", "_Color", "_Tint", "_TintColor", "_AlbedoColor" };
+    private static readonly string[] NormalSources = { "_NormalMap", "_BumpMap", "_Normal", "_NormalTex" };
+    // ชื่อเดียวกับ HDRP/Lit ก๊อปตรงๆ ได้เลย (ความเงา ความเป็นโลหะ เงาตามซอก)
+    private static readonly string[] SharedFloats = { "_Metallic", "_Smoothness", "_SmoothnessRemapMin", "_SmoothnessRemapMax", "_AORemapMin", "_AORemapMax" };
+
+    private static readonly string[] BaseWords = { "basecolormap", "basemap", "maintex", "albedo", "basetex", "diffuse", "base", "main", "color" };
+    private static readonly string[] ColorWords = { "basecolor", "color", "tint", "albedo" };
+    private static readonly string[] NormalWords = { "normal", "bump" };
+    private static readonly string[] EffectWords = { "noise", "dissolve", "mask", "normal", "bump", "edge", "emiss", "glow", "rim", "burn", "detail", "ramp", "gradient" };
+
+    private bool _warnedNoBaseSlot;
+
+    private void CopyLook(Material from, Material to, Renderer renderer)
     {
-        if (source == null || destination == null)
-            return;
-
-        // 1. คัดลอกรูป Texture หลัก (Albedo / BaseMap) พร้อมค่า Tiling & Offset
-        Texture mainTex = source.mainTexture;
-        Vector2 scale = Vector2.one;
-        Vector2 offset = Vector2.zero;
-        bool foundTexProp = false;
-
-        foreach (string prop in TextureProps)
+        string srcTex = FindSource(from, BaseTexSources, ShaderPropertyType.Texture, ShaderPropertyFlags.MainTexture);
+        string dstTex = FindTarget(to.shader, ShaderPropertyType.Texture, ShaderPropertyFlags.MainTexture, BaseWords, EffectWords);
+        if (srcTex != null && dstTex != null)
         {
-            if (source.HasProperty(prop))
+            to.SetTexture(dstTex, from.GetTexture(srcTex));
+            to.SetTextureScale(dstTex, from.GetTextureScale(srcTex));
+            to.SetTextureOffset(dstTex, from.GetTextureOffset(srcTex));
+        }
+        else if (srcTex != null && !_warnedNoBaseSlot)
+        {
+            _warnedNoBaseSlot = true;
+            Debug.LogWarning($"[Dissolve VFX] Material Dissolve ไม่มีช่องรูปผิว (Base Map) โมเดล {renderer.name} จะเป็นสีเทาตอนสลาย " +
+                             "ต้องเพิ่ม Texture property ใน shader dissolve แล้วต่อเข้า Base Color", this);
+        }
+
+        string srcColor = FindSource(from, BaseColorSources, ShaderPropertyType.Color, ShaderPropertyFlags.MainColor);
+        string dstColor = FindTarget(to.shader, ShaderPropertyType.Color, ShaderPropertyFlags.MainColor, ColorWords, EffectWords);
+        if (srcColor != null && dstColor != null)
+            to.SetColor(dstColor, from.GetColor(srcColor));
+
+        string srcNormal = FindSource(from, NormalSources, ShaderPropertyType.Texture, ShaderPropertyFlags.None);
+        string dstNormal = FindTarget(to.shader, ShaderPropertyType.Texture, ShaderPropertyFlags.None, NormalWords, null);
+        if (srcNormal != null && dstNormal != null && from.GetTexture(srcNormal) != null)
+            to.SetTexture(dstNormal, from.GetTexture(srcNormal));
+
+        // Mask Map ของ HDRP: R = โลหะ, G = เงาตามซอก, A = ความเงา ไม่ยกไป ผิวจะเงาวาวเท่ากันทั้งตัว ดูซีดขาว
+        Texture mask = from.HasTexture("_MaskMap") ? from.GetTexture("_MaskMap") : null;
+        if (to.HasTexture("_MaskMap"))
+        {
+            to.SetTexture("_MaskMap", mask);
+            if (to.HasFloat("_MaskOn"))
+                to.SetFloat("_MaskOn", mask != null ? 1f : 0f);
+        }
+        foreach (string name in SharedFloats)
+            if (from.HasFloat(name) && to.HasFloat(name))
+                to.SetFloat(name, from.GetFloat(name));
+
+        if (_logMaterialCopy)
+        {
+            Texture tex = srcTex != null ? from.GetTexture(srcTex) : null;
+            Debug.Log($"[Dissolve VFX] {renderer.name} | material '{from.name}' shader '{from.shader.name}'\n" +
+                      $"รูปผิว: {srcTex ?? "ไม่เจอ"} ({(tex != null ? tex.name : "ว่าง")}) → {dstTex ?? "ไม่มีช่อง"} | " +
+                      $"สี: {srcColor ?? "ไม่เจอ"} → {dstColor ?? "ไม่มีช่อง"} | normal: {srcNormal ?? "-"} → {dstNormal ?? "-"} | " +
+                      $"mask: {(mask != null ? mask.name : "-")} → {(to.HasTexture("_MaskMap") ? "_MaskMap" : "ไม่มีช่อง")}\n" +
+                      $"ช่องรูปทั้งหมดของ material เดิม: {ListTextures(from)}", this);
+        }
+    }
+
+    private static string ListTextures(Material material)
+    {
+        var names = new List<string>();
+        Shader shader = material.shader;
+        for (int i = 0; i < shader.GetPropertyCount(); i++)
+        {
+            if (shader.GetPropertyType(i) != ShaderPropertyType.Texture)
+                continue;
+            string n = shader.GetPropertyName(i);
+            Texture t = material.GetTexture(n);
+            names.Add(t != null ? $"{n}={t.name}" : n);
+        }
+        return names.Count > 0 ? string.Join(", ", names) : "(ไม่มี)";
+    }
+
+    // หาช่องของ material เดิม: ช่องที่ shader ติดป้าย Main ไว้ก่อน แล้วค่อยไล่ตามชื่อที่ใช้กันบ่อย
+    private static string FindSource(Material material, string[] names, ShaderPropertyType type, ShaderPropertyFlags flag)
+    {
+        Shader shader = material.shader;
+        if (flag != ShaderPropertyFlags.None)
+        {
+            for (int i = 0; i < shader.GetPropertyCount(); i++)
+                if (shader.GetPropertyType(i) == type && (shader.GetPropertyFlags(i) & flag) != 0)
+                    return shader.GetPropertyName(i);
+        }
+        foreach (string name in names)
+        {
+            int index = shader.FindPropertyIndex(name);
+            if (index >= 0 && shader.GetPropertyType(index) == type)
+                return name;
+        }
+        return null;
+    }
+
+    // หาช่องของ Material Dissolve ที่จะรับค่า: ป้าย Main ก่อน แล้วค่อยเดาจากชื่อ แต่ไม่เอาช่องของเอฟเฟกต์ (noise, edge...)
+    private static string FindTarget(Shader shader, ShaderPropertyType type, ShaderPropertyFlags flag, string[] include, string[] exclude)
+    {
+        int count = shader.GetPropertyCount();
+        if (flag != ShaderPropertyFlags.None)
+        {
+            for (int i = 0; i < count; i++)
+                if (shader.GetPropertyType(i) == type && (shader.GetPropertyFlags(i) & flag) != 0)
+                    return shader.GetPropertyName(i);
+        }
+        foreach (string word in include)
+        {
+            for (int i = 0; i < count; i++)
             {
-                Texture tex = source.GetTexture(prop);
-                if (tex != null)
-                {
-                    mainTex = tex;
-                    scale = source.GetTextureScale(prop);
-                    offset = source.GetTextureOffset(prop);
-                    foundTexProp = true;
-                    break;
-                }
+                if (shader.GetPropertyType(i) != type)
+                    continue;
+                string name = shader.GetPropertyName(i).ToLowerInvariant();
+                if (!name.Contains(word) || ContainsAny(name, exclude))
+                    continue;
+                return shader.GetPropertyName(i);
             }
         }
+        return null;
+    }
 
-        if (!foundTexProp && mainTex != null)
-        {
-            scale = source.mainTextureScale;
-            offset = source.mainTextureOffset;
-        }
-
-        if (mainTex != null)
-        {
-            destination.mainTexture = mainTex;
-            destination.mainTextureScale = scale;
-            destination.mainTextureOffset = offset;
-
-            foreach (string prop in TextureProps)
-            {
-                if (destination.HasProperty(prop))
-                {
-                    destination.SetTexture(prop, mainTex);
-                    destination.SetTextureScale(prop, scale);
-                    destination.SetTextureOffset(prop, offset);
-                }
-            }
-        }
-
-        // 2. คัดลอกสีพื้นผิว (BaseColor / Color)
-        foreach (string srcProp in ColorProps)
-        {
-            if (source.HasProperty(srcProp))
-            {
-                Color col = source.GetColor(srcProp);
-                foreach (string dstProp in ColorProps)
-                {
-                    if (destination.HasProperty(dstProp))
-                        destination.SetColor(dstProp, col);
-                }
-                break;
-            }
-        }
-
-        // 3. คัดลอก Normal Map (ถ้ามี)
-        foreach (string srcProp in NormalProps)
-        {
-            if (source.HasProperty(srcProp))
-            {
-                Texture normalTex = source.GetTexture(srcProp);
-                if (normalTex != null)
-                {
-                    foreach (string dstProp in NormalProps)
-                    {
-                        if (destination.HasProperty(dstProp))
-                            destination.SetTexture(dstProp, normalTex);
-                    }
-                    break;
-                }
-            }
-        }
-
-        // 4. คัดลอก Emission Map (ถ้ามี)
-        foreach (string srcProp in EmissionProps)
-        {
-            if (source.HasProperty(srcProp))
-            {
-                Texture emissionTex = source.GetTexture(srcProp);
-                if (emissionTex != null)
-                {
-                    foreach (string dstProp in EmissionProps)
-                    {
-                        if (destination.HasProperty(dstProp))
-                            destination.SetTexture(dstProp, emissionTex);
-                    }
-                    break;
-                }
-            }
-        }
+    private static bool ContainsAny(string name, string[] words)
+    {
+        if (words == null)
+            return false;
+        foreach (string word in words)
+            if (name.Contains(word))
+                return true;
+        return false;
     }
 
     private bool SupportsAmount(Material material)
@@ -327,6 +356,7 @@ public class DissolveVFXPlayer : MonoBehaviour
         }
         ApplyAmount(_visibleAmount);
         PlayEffect(_startEffect);
+        LogStep("เริ่มจาง: สลับเป็น Material Dissolve แล้ว");
         _onDissolveStarted?.Invoke();
         if (!IsCurrentRun(version))
             yield break;
@@ -353,6 +383,7 @@ public class DissolveVFXPlayer : MonoBehaviour
         RestoreMaterials();
         PlayEffect(_finishEffect);
         _finished = true;
+        LogStep("สลายเสร็จ: ปิดโมเดลแล้ว");
         _onDissolveFinished?.Invoke();
     }
 
@@ -545,6 +576,8 @@ public class DissolveVFXPlayer : MonoBehaviour
 
     public void ResetDissolve()
     {
+        if (_states.Count > 0)
+            LogStep("ResetDissolve: โมเดลจะถูกเปิดกลับมา (ดูบรรทัดล่างๆ ว่าใครเรียก)");
         StopAllCoroutines();
         ResetState();
     }
@@ -569,6 +602,17 @@ public class DissolveVFXPlayer : MonoBehaviour
             StartCoroutine(LoopRoutine());
     }
 
-    private void OnDisable() => ResetDissolve();
+    private void OnDisable()
+    {
+        if (_states.Count > 0)
+            LogStep("OnDisable: ตัวนี้ถูกปิด → จะรีเซ็ตโมเดลกลับ");
+        ResetDissolve();
+    }
+
+    private void LogStep(string message)
+    {
+        if (_logSteps)
+            Debug.Log($"[Dissolve VFX] {Time.time:0.00}s {name}: {message}", this);
+    }
     private void OnDestroy() => ResetDissolve();
 }

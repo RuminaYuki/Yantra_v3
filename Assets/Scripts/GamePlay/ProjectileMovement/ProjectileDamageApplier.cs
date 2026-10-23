@@ -67,4 +67,11 @@ public class ProjectileDamageApplier : MonoBehaviour
     {
         damageType = type;
     }
+
+    public GameObject GetRootOwner()
+    {
+        if (owner == null)
+            return null;
+        return owner.root.gameObject;
+    }
 }
