@@ -11,7 +11,7 @@ using Object = UnityEngine.Object;
 namespace Yuki.Learning.StateMachine.Editor.Graph
 {
     // The From Parent group. Inside a sub-state machine's table that lives in its parent's file: the
-    // parent table's Actions and Conditions (in the parent's folders), so they can be dragged into a
+    // parent table's Actions and Conditions, plus the file's unused (○) ones (in the parent's folders), so they can be dragged into a
     // transition or an action list here and both tables use the same one (e.g. the input conditions).
     // Read-only here (no rename, delete or folders; do those in the parent). Closed until opened.
     // Items this table already uses show in its own groups instead, and the sub-state machine wiring
@@ -26,6 +26,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         private static List<ScriptableObject> ParentItems(TransitionTableSO parentTable, HashSet<ScriptableObject> used)
         {
             return TableContents.CollectUsed(parentTable)
+                .Concat(TableContents.UnusedInFile(parentTable))
+                .Distinct()
                 .Where(item => item is StateActionSO || item is StateConditionSO)
                 .Where(item => !IsSubStateMachineWiring(item) && !used.Contains(item))
                 .ToList();
