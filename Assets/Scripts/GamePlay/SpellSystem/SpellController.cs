@@ -48,7 +48,7 @@ public class SpellController : MonoBehaviour
         if (!GetHaveTemplat) return;
 
         // ใส่ซ้ำทุกเฟรม กันโดนคืนเป็น 1 จาก pause menu / hitstop
-        if (_isActive) ApplySlowMotion();
+        //if (_isActive) ApplySlowMotion();
 
         if (!_fadeStarted && splineToLineRenderer.GetProgress() >= 1f)
         {
@@ -70,7 +70,7 @@ public class SpellController : MonoBehaviour
 
         if (_isActive)
         {
-            if (GetHaveTemplat) ApplySlowMotion();
+            //if (GetHaveTemplat) ApplySlowMotion();
             return;
         }
 
@@ -130,7 +130,7 @@ public class SpellController : MonoBehaviour
             splineToLineRenderer = null;
         }
         if (template != null) Destroy(template);
-        RestoreTime();
+        //RestoreTime();
     }
 
     private void CancelSpell()
@@ -143,10 +143,10 @@ public class SpellController : MonoBehaviour
 
         Destroy(splineToLineRenderer.gameObject);
         splineToLineRenderer = null;
-        RestoreTime();
+        //RestoreTime();
     }
 
-    // timeScale = 0 แปลว่า pause / hitstop / game over กำลังคุมเวลาอยู่ ห้ามไปทับ
+/*    // timeScale = 0 แปลว่า pause / hitstop / game over กำลังคุมเวลาอยู่ ห้ามไปทับ
     private void ApplySlowMotion()
     {
         if (Time.timeScale > 0f) Time.timeScale = _worldScale;
@@ -155,7 +155,7 @@ public class SpellController : MonoBehaviour
     private void RestoreTime()
     {
         if (Time.timeScale > 0f) Time.timeScale = 1f;
-    }
+    }*/
 
     private void LockCursorForSpell()
     {
