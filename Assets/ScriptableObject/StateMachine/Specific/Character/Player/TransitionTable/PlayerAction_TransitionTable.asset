@@ -91,13 +91,7 @@ MonoBehaviour:
   - FromState: {fileID: 2495449605022614646}
     ConditionGroups:
     - Conditions:
-      - Condition: {fileID: -1039923696779927039}
-        ExpectedResult: 0
-    ToState: {fileID: -3973434124353390370}
-  - FromState: {fileID: 2495449605022614646}
-    ConditionGroups:
-    - Conditions:
-      - Condition: {fileID: -2357539625653093550}
+      - Condition: {fileID: 1626161944279584647}
         ExpectedResult: 0
     ToState: {fileID: -7103187372157920522}
   - FromState: {fileID: -3973434124353390370}
@@ -132,8 +126,34 @@ MonoBehaviour:
     Position: {x: 470, y: -106}
   _entryNodePosition: {x: 0, y: 0}
   _anyStateNodePosition: {x: 690, y: -106}
-  _contentsFolders: []
-  _contentsFolderPaths: []
+  _contentsFolders:
+  - Item: {fileID: 3815383740611936837}
+    Folder: Animator
+  - Item: {fileID: 320737576873911788}
+    Folder: Animator
+  - Item: {fileID: 276006959010495588}
+    Folder: Animator
+  - Item: {fileID: -4413406199643930115}
+    Folder: Animator
+  - Item: {fileID: 7907642596907882129}
+    Folder: Animator
+  - Item: {fileID: 3012499676030081307}
+    Folder: Animator
+  - Item: {fileID: -1039923696779927039}
+    Folder: InputSystem
+  - Item: {fileID: 275385510025986139}
+    Folder: InputSystem
+  - Item: {fileID: 963984999463191424}
+    Folder: InputSystem
+  - Item: {fileID: -2514208661779275971}
+    Folder: InputSystem
+  - Item: {fileID: 8165531841799119906}
+    Folder: InputSystem
+  _contentsFolderPaths:
+  - Group: Actions
+    Path: Animator
+  - Group: Conditions
+    Path: InputSystem
 --- !u!114 &-8533207618834268308
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -828,19 +848,6 @@ MonoBehaviour:
   - {fileID: -7823900704121151624}
   - {fileID: -3044851564253865135}
   - {fileID: 7436712282231204406}
---- !u!114 &-2357539625653093550
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfcaae7805ae66b4588545169ca0a35e, type: 3}
-  m_Name: NextState_Condition
-  m_EditorClassIdentifier: Assembly-CSharp::NextStateConditionSO
-  _selfAnchor: {fileID: 0}
 --- !u!114 &-1910914393627886215
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1662,7 +1669,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
   m_Name: BulletRunOff_State
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
-  _actions: []
+  _actions:
+  - {fileID: 3012499676030081307}
 --- !u!114 &2725419633125318152
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1707,6 +1715,26 @@ MonoBehaviour:
   m_Name: GunTryShooting_Action
   m_EditorClassIdentifier: Assembly-CSharp::TryShootingActionSO
   _selfAnchor: {fileID: 11400000, guid: 7604516d935ffbe43b174fac67b9bbf1, type: 2}
+--- !u!114 &3012499676030081307
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77e8ae40d928604408f37497243c6985, type: 3}
+  m_Name: GunMissShotPlayAnimatorState_Action
+  m_EditorClassIdentifier: Assembly-CSharp::PlayAnimatorStateActionSO
+  _selfAnchor: {fileID: 11400000, guid: 6dc3f03200b18494388337ab5bf989c2, type: 2}
+  _stateName: GunMiss_ArmClip
+  _layerIndex: 0
+  _transitionDuration: 0.25
+  _normalizedStartTime: 0
+  _exitStateName: 
+  _exitTransitionDuration: 0.25
+  _exitNormalizedStartTime: 0
 --- !u!114 &3142336611938892297
 MonoBehaviour:
   m_ObjectHideFlags: 0
