@@ -6,12 +6,13 @@ public class ShootableDoor : MonoBehaviour
     [SerializeField] GameObject doorObject;
     [SerializeField] FlagSO doorFlag;
 
-    /*[SerializeField] private string opacityProperty = "_DissolveAmount";
+    [SerializeField] private string opacityProperty = "_DissolveAmount";
+    [SerializeField] private MeshRenderer meshRenderer;
 
     [SerializeField] bool smoothDissolve = true;
     [SerializeField] float dissolveSpeed = 1f;
 
-    private Coroutine dissolveCoroutine;*/
+    private Coroutine dissolveCoroutine;
 
     private void Awake()
     {
@@ -20,14 +21,14 @@ public class ShootableDoor : MonoBehaviour
 
     public void OnShot()
     {
-        doorObject.SetActive(false);
+        //doorObject.SetActive(false);
         Collider doorCollider = GetComponent<Collider>();
         if (doorCollider != null)
         {
             doorCollider.enabled = false;
         }
 
-        //ChangeDissolve();
+        ChangeDissolve();
     }
 
     public FlagSO GetDoorFlag()
@@ -35,7 +36,7 @@ public class ShootableDoor : MonoBehaviour
         return doorFlag;
     }
 
-    /*private void ChangeDissolve()
+    private void ChangeDissolve()
     {
         if (dissolveCoroutine != null)
         {
@@ -50,7 +51,7 @@ public class ShootableDoor : MonoBehaviour
 
     private float GetDissolveValue()
     {
-        if (TryGetComponent<Renderer>(out Renderer renderer))
+        if (meshRenderer.TryGetComponent<Renderer>(out Renderer renderer))
         {
             return renderer.material.GetFloat(opacityProperty);
         }
@@ -59,7 +60,7 @@ public class ShootableDoor : MonoBehaviour
 
     private void SetDissolveValue(float value)
     {
-        if (TryGetComponent<Renderer>(out Renderer renderer))
+        if (meshRenderer.TryGetComponent<Renderer>(out Renderer renderer))
         {
             renderer.material.SetFloat(opacityProperty, value);
         }
@@ -76,5 +77,5 @@ public class ShootableDoor : MonoBehaviour
             yield return null;
         }
         SetDissolveValue(targetValue);
-    }*/
+    }
 }
