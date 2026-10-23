@@ -77,6 +77,12 @@ public class GunController : MonoBehaviour
         return false;
     }
 
+    public float GetCurrentBullet()
+    {
+        if (playerInventory == null || ItemBullet == null) return 0;
+        return playerInventory.Inventory.CountOf(ItemBullet);
+    }
+
     public bool TryShooting()
     {
         if (!CanShoot()) return false;
