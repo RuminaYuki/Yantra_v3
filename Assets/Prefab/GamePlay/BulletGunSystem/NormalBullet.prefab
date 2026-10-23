@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 7577957440265451290}
   - component: {fileID: 3892902141373418527}
   - component: {fileID: -349420363570396321}
+  - component: {fileID: 194092411162959561}
   m_Layer: 0
   m_Name: NormalBullet
   m_TagString: Untagged
@@ -81,13 +82,13 @@ MonoBehaviour:
   radius: 0.3
   hitMask:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 640
   ignoredLayer:
     serializedVersion: 2
     m_Bits: 256
   nonPenetrableLayer:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 0
   triggerInteraction: 1
   ignoreRoot: {fileID: 0}
   drawDebugRay: 1
@@ -190,3 +191,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GunSmokeOnSpawn
   _shot: 0
+  _cameraRecoil: 1
+--- !u!114 &194092411162959561
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2573710482556640469}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ea369619fe61494e9a6295b46c34099, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DoorHitRelay
+  projectileMovement: {fileID: -5174923587579301629}
