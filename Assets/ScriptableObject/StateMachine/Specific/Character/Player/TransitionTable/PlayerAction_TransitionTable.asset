@@ -46,13 +46,9 @@ MonoBehaviour:
     - Conditions:
       - Condition: {fileID: -2514208661779275971}
         ExpectedResult: 0
-    ToState: {fileID: -8533207618834268308}
-  - FromState: {fileID: -7103187372157920522}
-    ConditionGroups:
-    - Conditions:
-      - Condition: {fileID: 11400000, guid: 6f3254f9b72c5d94e8f5a3d10346c40d, type: 2}
+      - Condition: {fileID: 7454662317992231957}
         ExpectedResult: 0
-    ToState: {fileID: 3152368479164411333}
+    ToState: {fileID: -8533207618834268308}
   - FromState: {fileID: -3973434124353390370}
     ConditionGroups:
     - Conditions:
@@ -64,13 +60,9 @@ MonoBehaviour:
     - Conditions:
       - Condition: {fileID: -2514208661779275971}
         ExpectedResult: 0
-    ToState: {fileID: -8533207618834268308}
-  - FromState: {fileID: -3973434124353390370}
-    ConditionGroups:
-    - Conditions:
-      - Condition: {fileID: 11400000, guid: 6f3254f9b72c5d94e8f5a3d10346c40d, type: 2}
+      - Condition: {fileID: 7454662317992231957}
         ExpectedResult: 0
-    ToState: {fileID: 3152368479164411333}
+    ToState: {fileID: -8533207618834268308}
   - FromState: {fileID: -8533207618834268308}
     ConditionGroups:
     - Conditions:
@@ -84,44 +76,62 @@ MonoBehaviour:
       - Condition: {fileID: 1626161944279584647}
         ExpectedResult: 0
     ToState: {fileID: 8371651548506033427}
-  - FromState: {fileID: -8533207618834268308}
-    ConditionGroups:
-    - Conditions:
-      - Condition: {fileID: 11400000, guid: 6f3254f9b72c5d94e8f5a3d10346c40d, type: 2}
-        ExpectedResult: 0
-    ToState: {fileID: 5635154990056542190}
   - FromState: {fileID: 8371651548506033427}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: 1626161944279584647}
         ExpectedResult: 0
     ToState: {fileID: -7103187372157920522}
-  - FromState: {fileID: 3152368479164411333}
-    ConditionGroups:
-    - Conditions:
-      - Condition: {fileID: 1626161944279584647}
-        ExpectedResult: 0
-    ToState: {fileID: 5635154990056542190}
   - FromState: {fileID: 5635154990056542190}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: 1626161944279584647}
         ExpectedResult: 0
     ToState: {fileID: 6672756542367253335}
+  - FromState: {fileID: 2495449605022614646}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -1039923696779927039}
+        ExpectedResult: 0
+    ToState: {fileID: -3973434124353390370}
+  - FromState: {fileID: 2495449605022614646}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -2357539625653093550}
+        ExpectedResult: 0
+    ToState: {fileID: -7103187372157920522}
+  - FromState: {fileID: -3973434124353390370}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 963984999463191424}
+        ExpectedResult: 0
+      - Condition: {fileID: 7454662317992231957}
+        ExpectedResult: 1
+    ToState: {fileID: 2495449605022614646}
+  - FromState: {fileID: -7103187372157920522}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 963984999463191424}
+        ExpectedResult: 0
+      - Condition: {fileID: 7454662317992231957}
+        ExpectedResult: 1
+    ToState: {fileID: 2495449605022614646}
   _exposedParameters: {fileID: -814468317770355923}
   _nodePositions:
-  - State: {fileID: 3152368479164411333}
-    Position: {x: 470, y: -95}
   - State: {fileID: 5635154990056542190}
-    Position: {x: 670, y: -95}
-  - State: {fileID: -8533207618834268308}
-    Position: {x: 470, y: 110}
-  - State: {fileID: 6672756542367253335}
     Position: {x: 670, y: 0}
+  - State: {fileID: -8533207618834268308}
+    Position: {x: 470, y: 107}
+  - State: {fileID: 6672756542367253335}
+    Position: {x: 670, y: 107}
   - State: {fileID: -3973434124353390370}
     Position: {x: 470, y: 0}
+  - State: {fileID: 8371651548506033427}
+    Position: {x: 250, y: 107}
+  - State: {fileID: 2495449605022614646}
+    Position: {x: 470, y: -106}
   _entryNodePosition: {x: 0, y: 0}
-  _anyStateNodePosition: {x: 902, y: -95}
+  _anyStateNodePosition: {x: 690, y: -106}
   _contentsFolders: []
   _contentsFolderPaths: []
 --- !u!114 &-8533207618834268308
@@ -166,26 +176,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SubStateMachineExitedConditionSO
   _selfAnchor: {fileID: 0}
   _exitId: PlayerIdleState
---- !u!114 &-8264602920639441770
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 77e8ae40d928604408f37497243c6985, type: 3}
-  m_Name: GunAimPlayAnimatorState_Action
-  m_EditorClassIdentifier: Assembly-CSharp::PlayAnimatorStateActionSO
-  _selfAnchor: {fileID: 11400000, guid: 6dc3f03200b18494388337ab5bf989c2, type: 2}
-  _stateName: GunAim_ArmClip
-  _layerIndex: 0
-  _transitionDuration: 0.25
-  _normalizedStartTime: 0
-  _exitStateName: 
-  _exitTransitionDuration: 0.25
-  _exitNormalizedStartTime: 0
 --- !u!114 &-8212887844243775315
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -660,7 +650,7 @@ MonoBehaviour:
   m_Name: AimGun_State
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
-  - {fileID: -8264602920639441770}
+  - {fileID: 3815383740611936837}
 --- !u!114 &-3517771076736875507
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -838,6 +828,19 @@ MonoBehaviour:
   - {fileID: -7823900704121151624}
   - {fileID: -3044851564253865135}
   - {fileID: 7436712282231204406}
+--- !u!114 &-2357539625653093550
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfcaae7805ae66b4588545169ca0a35e, type: 3}
+  m_Name: NextState_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::NextStateConditionSO
+  _selfAnchor: {fileID: 0}
 --- !u!114 &-1910914393627886215
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1470,6 +1473,23 @@ MonoBehaviour:
   - {fileID: -5623226520888454611}
   - {fileID: 7666076097710857000}
   - {fileID: -379918208249940726}
+--- !u!114 &963984999463191424
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01fdba5d7f32bbd48875a3ab7fbda341, type: 3}
+  m_Name: ShotInputDonthaveBufferAction_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::InputActionConditionSO
+  _selfAnchor: {fileID: 0}
+  _inputAction: {fileID: 6815806505304950231, guid: 35845fe01580c41289b024647b1d1c53, type: 3}
+  _checkType: 0
+  _bufferTime: 0.1
+  _jumpBuffering: 0
 --- !u!114 &1081938085897592608
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1630,6 +1650,19 @@ MonoBehaviour:
   _selfAnchor: {fileID: 0}
   minDuration: 0.5
   maxDuration: 0
+--- !u!114 &2495449605022614646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: BulletRunOff_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions: []
 --- !u!114 &2725419633125318152
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1687,20 +1720,6 @@ MonoBehaviour:
   m_Name: SpellRadial_Action
   m_EditorClassIdentifier: Assembly-CSharp::SpellRadialActionSO
   _selfAnchor: {fileID: 0}
---- !u!114 &3152368479164411333
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
-  m_Name: MissShotGun_State
-  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
-  _actions:
-  - {fileID: 9041668888549543419}
 --- !u!114 &3213844676342213251
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1745,6 +1764,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FlagConditionSO
   _selfAnchor: {fileID: 0}
   flag: {fileID: 11400000, guid: c74e338715f473e40a12992295979ef4, type: 2}
+--- !u!114 &3815383740611936837
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77e8ae40d928604408f37497243c6985, type: 3}
+  m_Name: GunAimPlayAnimatorState_Action
+  m_EditorClassIdentifier: Assembly-CSharp::PlayAnimatorStateActionSO
+  _selfAnchor: {fileID: 11400000, guid: 6dc3f03200b18494388337ab5bf989c2, type: 2}
+  _stateName: GunAim_ArmClip
+  _layerIndex: 0
+  _transitionDuration: 0.25
+  _normalizedStartTime: 0
+  _exitStateName: 
+  _exitTransitionDuration: 0.25
+  _exitNormalizedStartTime: 0
 --- !u!114 &3948874016495024156
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2046,6 +2085,19 @@ MonoBehaviour:
   flag: {fileID: 11400000, guid: 4d81d13245069db419cbe4bef2684ef2, type: 2}
   value: 1
   changeValueOnExit: 1
+--- !u!114 &7454662317992231957
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 46d90adbea518f24ba1a2a3c8a0a216f, type: 3}
+  m_Name: CanShoot_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::CanShootConditionSO
+  _selfAnchor: {fileID: 11400000, guid: 7604516d935ffbe43b174fac67b9bbf1, type: 2}
 --- !u!114 &7666076097710857000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2408,21 +2460,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: -5708123363941132723}
---- !u!114 &9041668888549543419
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d48b03d16d09bc14e8331bf650642277, type: 3}
-  m_Name: MissSetParametersAnimator_Action
-  m_EditorClassIdentifier: Assembly-CSharp::SetAnimatorParameterActionSO
-  _selfAnchor: {fileID: 11400000, guid: 6dc3f03200b18494388337ab5bf989c2, type: 2}
-  ParameterSetting:
-    ParameterType: 1
-    ParameterName: Miss
-    BoolValueOnEnter: 0
-    ResetOnExit: 0
