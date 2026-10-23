@@ -58,10 +58,29 @@ public class RadialButton : MonoBehaviour
         fillAmount = (fillAmount / 2f);
         float angle = fillAmount * 360f;
         _angleThreshold = angle + _angleOffset;
-        _pivot.transform.localRotation = Quaternion.Euler(0f, 0f, -angle);
+
+        // ไอคอนใน prefab วางไว้ทางซ้ายของ pivot (180°) -> หมุนไปที่จุดเริ่ม fill แล้วไปกลางชิ้น
+        float originAngle = GetFillOriginAngle(thisImage);
+        float halfSlice = thisImage.fillClockwise ? -angle : angle;
+        _pivot.transform.localRotation = Quaternion.Euler(0f, 0f, originAngle - 180f + halfSlice);
+
+        // ให้ไอคอนตั้งตรงเสมอ ไม่หมุนตามชิ้น
+        _sprintIcon.transform.rotation = _radialManu.transform.rotation;
 
         RawImage _sprintImage = _sprintIcon.GetComponent<RawImage>();
         _sprintImage.texture = dataSO.buttonIcon;
+    }
+
+    // มุมของจุดเริ่ม fill แบบ Radial360 (0° = ขวา, ทวนเข็ม)
+    private static float GetFillOriginAngle(Image image)
+    {
+        switch ((Image.Origin360)image.fillOrigin)
+        {
+            case Image.Origin360.Bottom: return 270f;
+            case Image.Origin360.Right: return 0f;
+            case Image.Origin360.Top: return 90f;
+            default: return 180f; // Left
+        }
     }
 
     private void HandleThisIsSelect(int Id)
