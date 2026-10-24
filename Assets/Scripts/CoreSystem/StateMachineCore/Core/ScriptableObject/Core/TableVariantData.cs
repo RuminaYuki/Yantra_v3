@@ -62,3 +62,15 @@ public class TransitionOverride
     public string TransitionId => _transitionId;
     public TransitionTableSO.ConditionGroupUsage[] ConditionGroups => _conditionGroups;
 }
+
+// Variant: transition จาก Base ตัวนี้ไปจบที่ state อื่นแทน (From / เงื่อนไข ยังตาม Base)
+// แยกจาก TransitionOverride: ย้ายปลายแล้ว Base แก้เงื่อนไข เส้นนี้ก็ยังได้ตาม (ถ้าไม่ได้ override เงื่อนไขไว้)
+[Serializable]
+public class TransitionRetarget
+{
+    [SerializeField] private string _transitionId;
+    [SerializeField] private StateSO _toState;
+
+    public string TransitionId => _transitionId;
+    public StateSO ToState => _toState;
+}

@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
@@ -11,6 +12,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
     //   Same as the Base   [Override Conditions] [Remove from This Table]
     //   Overridden here    its own condition groups to edit, [Revert to Base]
     //   Removed here       [Restore]
+    // and, once dragged to another state here: Target  Changed here  [Revert] (_transitionRetargets).
     // Overrides live in TransitionTableSO._transitionOverrides, removals in _removedIds (both by Id).
     [CustomEditor(typeof(TransitionOverrideSelection))]
     public class TransitionOverrideSelectionEditor : UnityEditor.Editor
@@ -19,6 +21,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         private const string RemovedIdsProperty = "_removedIds";
         private const string TransitionIdProperty = "_transitionId";
         private const string ConditionGroupsProperty = "_conditionGroups";
+        private const string RetargetsProperty = "_transitionRetargets";
 
         private SerializedObject _table;
 
@@ -142,9 +145,128 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 }
 
                 OverrideInspectorGUI.BeginBoxBody();
-                EditorGUILayout.LabelField(baseSummary, EditorStyles.wordWrappedLabel);
+                DrawConditionList(baseGroups);
                 OverrideInspectorGUI.EndBoxBody();
             }
+
+            if (removedIndex < 0)
+            {
+                DrawTarget(selection, transitionId);
+            }
+        }
+
+        // Only once the arrow was dragged to another state (_transitionRetargets): where it goes here, [Revert].
+        private void DrawTarget(TransitionOverrideSelection selection, string transitionId)
+        {
+            SerializedProperty retargets = _table.FindProperty(RetargetsProperty);
+            StateSO retargetedTo = null;
+
+            for (int i = 0; i < retargets.arraySize; i++)
+            {
+                SerializedProperty entry = retargets.GetArrayElementAtIndex(i);
+                if (entry.FindPropertyRelative(TransitionIdProperty).stringValue == transitionId)
+                {
+                    retargetedTo = entry.FindPropertyRelative("_toState").objectReferenceValue as StateSO;
+                }
+            }
+
+            if (retargetedTo == null)
+            {
+                return;
+            }
+
+            int clicked = OverrideInspectorGUI.DrawBoxHeader(
+                "Target", "Changed here", OverrideInspectorGUI.ChangedColor,
+                new GUIContent("Revert", "Go to the Base's state again"));
+            if (clicked == 0)
+            {
+                _pendingEdit = () => StateMachineGraphView.SetRetarget(_table, transitionId, null);
+            }
+
+            StateSO baseTo = FindBaseTarget(selection, transitionId);
+            OverrideInspectorGUI.BeginBoxBody();
+            EditorGUILayout.LabelField(
+                $"{(baseTo != null ? baseTo.name : "(missing)")}  →  {retargetedTo.name}",
+                EditorStyles.wordWrappedLabel);
+            OverrideInspectorGUI.EndBoxBody();
+        }
+
+        private static StateSO FindBaseTarget(TransitionOverrideSelection selection, string transitionId)
+        {
+            return selection.IsAnyState
+                ? selection.BaseTable.EffectiveAnyTransitions.FirstOrDefault(item => item.Id == transitionId).ToState
+                : selection.BaseTable.EffectiveTransitions.FirstOrDefault(item => item.Id == transitionId).ToState;
+        }
+
+        // ---------- Read-only conditions ----------
+
+        private static readonly Color TrueColor = new Color(0.45f, 0.85f, 0.45f);
+        private static readonly Color FalseColor = new Color(1f, 0.5f, 0.5f);
+
+        private static GUIStyle _orStyle;
+        private static GUIStyle OrStyle => _orStyle ??= new GUIStyle(EditorStyles.miniBoldLabel)
+        {
+            alignment = TextAnchor.MiddleCenter
+        };
+
+        // The Base's conditions laid out like the editable list: one row per condition, AND inside a box,
+        // OR between boxes. Clicking a name pings that condition in the Project window.
+        private static void DrawConditionList(TransitionTableSO.ConditionGroupUsage[] groups)
+        {
+            if (groups.Length == 0)
+            {
+                EditorGUILayout.LabelField("Always (no conditions)", EditorStyles.miniLabel);
+                return;
+            }
+
+            for (int g = 0; g < groups.Length; g++)
+            {
+                if (g > 0)
+                {
+                    EditorGUILayout.LabelField("OR", OrStyle);
+                }
+
+                TransitionTableSO.ConditionUsage[] conditions =
+                    groups[g].Conditions ?? new TransitionTableSO.ConditionUsage[0];
+
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+                foreach (TransitionTableSO.ConditionUsage usage in conditions)
+                {
+                    DrawConditionRow(usage);
+                }
+
+                if (conditions.Length == 0)
+                {
+                    EditorGUILayout.LabelField("(empty group)", EditorStyles.miniLabel);
+                }
+
+                EditorGUILayout.EndVertical();
+            }
+        }
+
+        //   HasAttackTokenCondition                 is True
+        private static void DrawConditionRow(TransitionTableSO.ConditionUsage usage)
+        {
+            bool expectsTrue = usage.ExpectedResult == TransitionTableSO.Result.True;
+            string name = usage.Condition != null ? usage.Condition.name : "(missing)";
+
+            EditorGUILayout.BeginHorizontal();
+
+            if (GUILayout.Button(new GUIContent(name, "Click to find it in the Project window"), EditorStyles.label) &&
+                usage.Condition != null)
+            {
+                EditorGUIUtility.PingObject(usage.Condition);
+            }
+
+            GUILayout.FlexibleSpace();
+
+            Color previous = GUI.contentColor;
+            GUI.contentColor = expectsTrue ? TrueColor : FalseColor;
+            GUILayout.Label(expectsTrue ? "is True" : "is False", EditorStyles.miniBoldLabel);
+            GUI.contentColor = previous;
+
+            EditorGUILayout.EndHorizontal();
         }
 
         // ---------- Data ----------

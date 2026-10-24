@@ -377,11 +377,13 @@ MonoBehaviour:
     - Conditions:
       - Condition: {fileID: -2084456843265894982}
         ExpectedResult: 0
+    Id: aef6d6e0-1ff5-4ae9-816c-74e7f083f76a
   - ToState: {fileID: -8544828399458302064}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: 6417865794579400801}
         ExpectedResult: 0
+    Id: a7a743b8-d9b7-438f-b2d9-8c801f8720da
   _transitions:
   - FromState: {fileID: -6607439959730550105}
     ConditionGroups:
@@ -389,12 +391,14 @@ MonoBehaviour:
       - Condition: {fileID: 7647076248596034616}
         ExpectedResult: 0
     ToState: {fileID: 7581903216582384149}
+    Id: 29c1e2a9-04bc-4c8a-ab11-ea8c9c02308d
   - FromState: {fileID: -6607439959730550105}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: -8405437298675211634}
         ExpectedResult: 0
     ToState: {fileID: -2213541606384760985}
+    Id: 155ddfa9-12b1-46c6-9d70-db242457a8a5
   - FromState: {fileID: 7581903216582384149}
     ConditionGroups:
     - Conditions:
@@ -404,6 +408,7 @@ MonoBehaviour:
       - Condition: {fileID: 8533985618227623645}
         ExpectedResult: 0
     ToState: {fileID: -2213541606384760985}
+    Id: 533afb44-cd36-435a-b120-a7eeeadca690
   - FromState: {fileID: 7581903216582384149}
     ConditionGroups:
     - Conditions:
@@ -412,18 +417,28 @@ MonoBehaviour:
       - Condition: {fileID: 8533985618227623645}
         ExpectedResult: 1
     ToState: {fileID: -6607439959730550105}
+    Id: a49fde47-7cee-455f-9645-13cd2afbe8cb
   - FromState: {fileID: -2213541606384760985}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: 3450423854783271006}
         ExpectedResult: 0
     ToState: {fileID: -7387805079813364312}
+    Id: a907f171-3139-400f-a174-7a112039364a
   - FromState: {fileID: -8544828399458302064}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: -4716508605988815988}
         ExpectedResult: 0
     ToState: {fileID: -2213541606384760985}
+    Id: 43b23ac7-a260-4348-979c-3adacdf41a82
+  _base: {fileID: 0}
+  _fieldOverrides: []
+  _removedIds: []
+  _transitionOverrides: []
+  _transitionRetargets: []
+  _actionChanges: []
+  _actionOrders: []
   _exposedParameters: {fileID: 349741613760096112}
   _nodePositions:
   - State: {fileID: 7581903216582384149}
@@ -435,7 +450,7 @@ MonoBehaviour:
   - State: {fileID: -2100716820089249640}
     Position: {x: 24, y: 170}
   - State: {fileID: -7387805079813364312}
-    Position: {x: 483, y: 87}
+    Position: {x: 483, y: 98}
   - State: {fileID: -6607439959730550105}
     Position: {x: 250, y: 0}
   _entryNodePosition: {x: -152, y: 0}
@@ -466,6 +481,7 @@ MonoBehaviour:
   - Item: {fileID: 11400000, guid: 8dc86c4af3c90ed40b81307877ec830e, type: 2}
     Folder: Layer
   _contentsFolderPaths: []
+  _stateDisplayNames: []
 --- !u!114 &15294862054688600
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -516,11 +532,6 @@ MonoBehaviour:
   - _name: ChaseRange
     _bindings:
     - _target: {fileID: 8533985618227623645}
-      _fieldName: _distance
-    _category: General
-  - _name: OutOfPatrolRange
-    _bindings:
-    - _target: {fileID: 1657887496226377186}
       _fieldName: _distance
     _category: General
   - _name: PatrolSetRanPosNav_Radius
@@ -799,18 +810,28 @@ MonoBehaviour:
       - Condition: {fileID: 11400000, guid: 7bffa4ee31af1c140a9799282ee558f9, type: 2}
         ExpectedResult: 0
     ToState: {fileID: -5916791635501509908}
+    Id: a3512fc5-d60a-498f-be33-f62c9f06354c
   - FromState: {fileID: -5916791635501509908}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: -4716508605988815988}
         ExpectedResult: 0
     ToState: {fileID: -9086568540705967280}
+    Id: 5fa7e810-c86b-4258-858e-b34800826fd2
   - FromState: {fileID: -9086568540705967280}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: -3280333336497672141}
         ExpectedResult: 0
     ToState: {fileID: -6665630544707791696}
+    Id: a0d41c10-2ac3-4b03-9677-0534413b12b8
+  _base: {fileID: 0}
+  _fieldOverrides: []
+  _removedIds: []
+  _transitionOverrides: []
+  _transitionRetargets: []
+  _actionChanges: []
+  _actionOrders: []
   _exposedParameters: {fileID: 349741613760096112}
   _nodePositions:
   - State: {fileID: -6433301286439908800}
@@ -841,6 +862,7 @@ MonoBehaviour:
   - Item: {fileID: 11400000, guid: e8cd736b00348544a8e59cc00b297b6f, type: 2}
     Folder: Locomotion
   _contentsFolderPaths: []
+  _stateDisplayNames: []
 --- !u!114 &6144958969394957115
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -922,11 +944,13 @@ MonoBehaviour:
     - Conditions:
       - Condition: {fileID: 1817966935459295926}
         ExpectedResult: 0
+    Id: 46931595-078f-48cd-ba6b-600db9147764
   - ToState: {fileID: 275781021768988274}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: 8533985618227623645}
         ExpectedResult: 0
+    Id: c046dda7-46dd-4f3d-b42b-ca416d64397b
   _transitions:
   - FromState: {fileID: 1651377035273497085}
     ConditionGroups:
@@ -934,12 +958,21 @@ MonoBehaviour:
       - Condition: {fileID: 11400000, guid: 2694bdd4e0c1aa04e8b8373dc6844cc9, type: 2}
         ExpectedResult: 0
     ToState: {fileID: 3562662514831412505}
+    Id: 2d98b344-5a7a-4fd1-9367-452654f34979
   - FromState: {fileID: 3562662514831412505}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: -6404125172355619043}
         ExpectedResult: 0
     ToState: {fileID: 1651377035273497085}
+    Id: 7857c12b-c7f7-4a5c-bfe6-fdccd026f574
+  _base: {fileID: 0}
+  _fieldOverrides: []
+  _removedIds: []
+  _transitionOverrides: []
+  _transitionRetargets: []
+  _actionChanges: []
+  _actionOrders: []
   _exposedParameters: {fileID: 349741613760096112}
   _nodePositions: []
   _entryNodePosition: {x: 0, y: 0}
@@ -952,6 +985,7 @@ MonoBehaviour:
   - Item: {fileID: 5520359603778580302}
     Folder: Locomotion
   _contentsFolderPaths: []
+  _stateDisplayNames: []
 --- !u!114 &7581903216582384149
 MonoBehaviour:
   m_ObjectHideFlags: 0

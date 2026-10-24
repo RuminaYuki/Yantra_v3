@@ -284,6 +284,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             }
 
             Dictionary<StateSO, Vector2> savedPositions = ReadNodePositions(_serializedTable);
+            Dictionary<StateSO, string> displayNames = ReadDisplayNames(_serializedTable);
             AddBasePositions(SafeBaseOf(_table), savedPositions);
             _baseStates = inherited.States;
             var stateNodes = new Dictionary<StateSO, StateNodeView>();
@@ -298,7 +299,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
                 // A Base's state stays the Base's even when this table's own arrows go to / from it.
                 bool isInherited = inherited.States.Contains(states[i]);
-                var node = new StateNodeView(states[i], states[i] == initialState, isInherited);
+                displayNames.TryGetValue(states[i], out string displayName);
+                var node = new StateNodeView(states[i], states[i] == initialState, isInherited, _table, displayName);
                 node.SetPosition(new Rect(position, Vector2.zero));
                 AddElement(node);
                 stateNodes.Add(states[i], node);
@@ -349,11 +351,15 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             if (_showParameterTags)
             {
+                // A Base's parameters this variant removed in its Parameters panel get no tag either.
+                ExposedParametersSO own = ParameterBlackboard.Find(_table);
+                HashSet<string> removed = ParameterBlackboard.RemovedParametersFor(_table);
+
                 foreach (ExposedParametersSO parameters in parameterSets)
                 foreach (ExposedParameter parameter in parameters.Parameters)
                 foreach (ExposedBinding binding in parameter.Bindings)
                 {
-                    if (binding.Target == null)
+                    if (binding.Target == null || (parameters != own && removed.Contains(parameter.Name)))
                     {
                         continue;
                     }

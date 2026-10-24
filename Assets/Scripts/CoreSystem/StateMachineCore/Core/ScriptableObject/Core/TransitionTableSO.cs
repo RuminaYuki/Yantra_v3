@@ -42,6 +42,11 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
         private TransitionOverride[] _transitionOverrides =
             Array.Empty<TransitionOverride>();
 
+        // transition จาก Base ที่ table นี้ให้ไปจบที่ state อื่น (แก้จาก graph: ลากเส้นของ Base ไป state อื่น)
+        [SerializeField]
+        private TransitionRetarget[] _transitionRetargets =
+            Array.Empty<TransitionRetarget>();
+
         // action ของ state ที่ table นี้ลบ / เพิ่ม และลำดับที่จัดใหม่ (แก้จาก graph: คลิก state ของ Base)
         [SerializeField]
         private ActionChange[] _actionChanges =
@@ -102,6 +107,12 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
                             transition.ConditionGroups = overriddenGroups;
                         }
 
+                        StateSO retargetedTo = RetargetOf(transition.Id);
+                        if (retargetedTo != null)
+                        {
+                            transition.ToState = retargetedTo;
+                        }
+
                         yield return transition;
                     }
                 }
@@ -132,6 +143,12 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
                         if (overriddenGroups != null)
                         {
                             transition.ConditionGroups = overriddenGroups;
+                        }
+
+                        StateSO retargetedTo = RetargetOf(transition.Id);
+                        if (retargetedTo != null)
+                        {
+                            transition.ToState = retargetedTo;
                         }
 
                         yield return transition;
@@ -216,6 +233,20 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
             return null;
         }
 
+        // state ที่ table นี้ให้ transition นี้ไปจบแทน หรือ null ถ้าไปที่เดิมตาม Base
+        private StateSO RetargetOf(string transitionId)
+        {
+            foreach (TransitionRetarget retarget in _transitionRetargets)
+            {
+                if (retarget.TransitionId == transitionId)
+                {
+                    return retarget.ToState;
+                }
+            }
+
+            return null;
+        }
+
         private bool IsRemoved(string transitionId)
         {
             foreach (string removedId in _removedIds)
@@ -293,14 +324,29 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
         private ContentsFolderPath[] _contentsFolderPaths =
             Array.Empty<ContentsFolderPath>();
 
+        // A variant's own name for a Base's state, shown on its node in this table's graph only.
+        // The StateSO keeps its name (Inspector, Project window, Play Mode debug still show that one).
+        [SerializeField, HideInInspector]
+        private StateDisplayName[] _stateDisplayNames =
+            Array.Empty<StateDisplayName>();
+
+        // A Base's exposed parameters (by name) this variant hides from its Parameters panel, like a
+        // removed action. Only hides them: the Base's value is used, nothing is unregistered at runtime.
+        [SerializeField, HideInInspector]
+        private string[] _removedParameters =
+            Array.Empty<string>();
+
         public State CreateInitialState(StateMachine stateMachine)
         {
             return CreateInitialState(stateMachine, out _);
         }
         
+        // inheritedOverrides: Field Override ของเครื่องแม่ (sub-state machine ส่งลงมา)
+        // ใส่ไว้ก่อนของ table นี้ ของ table นี้เลยทับของแม่ได้ (sub variant เจาะจงกว่า)
         public State CreateInitialState(
             StateMachine stateMachine,
-            out IReadOnlyDictionary<StateSO, State> allStates)
+            out IReadOnlyDictionary<StateSO, State> allStates,
+            IEnumerable<FieldOverride> inheritedOverrides = null)
         {
             if (stateMachine == null)
             {
@@ -320,8 +366,16 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
 
             // ตัวตอบว่า "action / condition / action list ไหนใช้จริง" ของ state machine นี้
             // ต้องสร้างหลัง RegisterParameters เพราะ Instance override ต้องใช้ blackboard ที่ register แล้ว
+            var fieldOverrides = new List<FieldOverride>();
+            if (inheritedOverrides != null)
+            {
+                fieldOverrides.AddRange(inheritedOverrides);
+            }
+
+            fieldOverrides.AddRange(EffectiveFieldOverrides);
+
             stateMachine.Resolver = new ElementResolver(
-                EffectiveFieldOverrides,
+                fieldOverrides,
                 EffectiveActionChanges,
                 EffectiveActionOrders,
                 stateMachine.Owner.GetComponent<StateMachineParameters>());
@@ -630,6 +684,13 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
         {
             public ScriptableObject Item;   // a State, Action or Condition this table uses
             public string Folder;           // "Combat", or "Combat/Melee" for a folder inside a folder
+        }
+
+        [Serializable]
+        public struct StateDisplayName
+        {
+            public StateSO State;
+            public string Name;
         }
 
         [Serializable]

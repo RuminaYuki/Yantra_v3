@@ -17,6 +17,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         public string Summary { get; }   // "when A and not B", for the right-click menu
         public bool Removed { get; }     // in this table's _removedIds
         public bool Overridden { get; }  // this table uses its own conditions (_transitionOverrides)
+        public bool Retargeted { get; }  // this table sends it to another state (_transitionRetargets)
         public IReadOnlyList<StateConditionSO> Conditions { get; }
 
         public InheritedTransition(
@@ -24,12 +25,14 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             string summary,
             bool removed,
             bool overridden,
-            IReadOnlyList<StateConditionSO> conditions)
+            IReadOnlyList<StateConditionSO> conditions,
+            bool retargeted = false)
         {
             Id = id;
             Summary = summary;
             Removed = removed;
             Overridden = overridden;
+            Retargeted = retargeted;
             Conditions = conditions;
         }
     }
@@ -51,6 +54,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // How far the ⚙ badge sits beside the middle of the line.
         private const float BadgeOffset = 6f;
         private const float ClickDistance = 6f;
+        // Pressing the line and moving this far drags its end to another state; less is a plain click.
+        private const float DragThreshold = 6f;
         private const float BoundsPadding = 12f;
 
         private static readonly Color NormalColor = new Color(0.85f, 0.85f, 0.85f);
@@ -92,8 +97,14 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // Every one of them removed in this table: drawn faint red.
         public bool IsRemoved => InheritedTransitions.Count > 0 && InheritedTransitions.All(item => item.Removed);
 
-        // One of them runs with this table's own conditions: drawn blue.
-        public bool IsOverridden => InheritedTransitions.Any(item => item.Overridden && !item.Removed);
+        // One of them runs with this table's own conditions or goes to another state here: drawn blue.
+        public bool IsOverridden => InheritedTransitions.Any(item => (item.Overridden || item.Retargeted) && !item.Removed);
+
+        // Its end can be dragged onto another state (StateMachineGraphView.StartRetarget). Not the Entry
+        // arrow, a Base's arrow removed here, or a Base's transition with no ID yet to remove it by.
+        public bool CanChangeTarget => IsInherited
+            ? InheritedTransitions.Count > 0 && !IsRemoved && InheritedTransitions.All(item => !string.IsNullOrEmpty(item.Id))
+            : TransitionIndices.Count > 0;
 
         // Line ends in this element's local space.
         private Vector2 _start;
@@ -139,6 +150,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             to.RegisterCallback<GeometryChangedEvent>(_ => UpdateGeometry());
             RegisterCallback<AttachToPanelEvent>(_ => UpdateGeometry());
             RegisterCallback<MouseDownEvent>(OnMouseDown);
+            RegisterCallback<MouseMoveEvent>(OnMouseMove);
+            RegisterCallback<MouseUpEvent>(OnMouseUp);
         }
 
         // SelectionDragger ignores elements that can't move, so without this the click falls
@@ -172,9 +185,45 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             {
                 graphView.ClearSelection();
                 graphView.AddToSelection(this);
+
+                // Held and moved (OnMouseMove): drag the end onto another state.
+                if (CanChangeTarget)
+                {
+                    _pressPosition = evt.mousePosition;
+                    this.CaptureMouse();
+                }
             }
 
             evt.StopPropagation();
+        }
+
+        // Set between pressing the line and letting go or starting a drag.
+        private Vector2? _pressPosition;
+
+        private void OnMouseMove(MouseMoveEvent evt)
+        {
+            if (_pressPosition == null ||
+                (evt.mousePosition - _pressPosition.Value).sqrMagnitude < DragThreshold * DragThreshold)
+            {
+                return;
+            }
+
+            // The graph takes over from here (preview line, mouse up on a state).
+            _pressPosition = null;
+            this.ReleaseMouse();
+            GetFirstAncestorOfType<StateMachineGraphView>()?.StartRetarget(this, evt.mousePosition, true);
+            evt.StopPropagation();
+        }
+
+        private void OnMouseUp(MouseUpEvent evt)
+        {
+            if (_pressPosition == null)
+            {
+                return;
+            }
+
+            _pressPosition = null;
+            this.ReleaseMouse();
         }
 
         private void UpdateGeometry()

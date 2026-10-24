@@ -293,7 +293,12 @@ namespace Yuki.Learning.StateMachine.Editor
 
             for (int i = 0; i < _fieldOverrides.arraySize; i++)
             {
-                if (!DrawFieldOverride(_fieldOverrides.GetArrayElementAtIndex(i), candidates))
+                SerializedProperty element = _fieldOverrides.GetArrayElementAtIndex(i);
+                bool keep = IsSubVariantOverride(element)
+                    ? DrawSubVariantOverride(element)
+                    : DrawFieldOverride(element, candidates);
+
+                if (!keep)
                 {
                     _fieldOverrides.DeleteArrayElementAtIndex(i);
                     break;
@@ -367,6 +372,50 @@ namespace Yuki.Learning.StateMachine.Editor
             else if (overrideTarget != null && !string.IsNullOrEmpty(path))
             {
                 DrawProblem("Field not found: renamed, deleted, or no longer [Exposed].");
+            }
+
+            EditorGUILayout.EndVertical();
+            return !remove;
+        }
+
+        // Made by Make Sub Variant in the graph: a Base's Sub State Machine action runs another table here.
+        // _transitionTable isn't [Exposed] (it's not a value to tune), so it isn't edited like the others.
+        private static bool IsSubVariantOverride(SerializedProperty element)
+        {
+            return element.FindPropertyRelative(TargetProperty).objectReferenceValue is SubStateMachineActionSO &&
+                   element.FindPropertyRelative(FieldPathProperty).stringValue == StateMachineFields.TransitionTable;
+        }
+
+        //   Sub-State Machine                                   [Remove]
+        //   AttackSubStateMachine_Action runs AttackVariant_TransitionTable here
+        //   (Base: Attack_TransitionTable)
+        // false = Remove was clicked.
+        private static bool DrawSubVariantOverride(SerializedProperty element)
+        {
+            var action = (SubStateMachineActionSO)element.FindPropertyRelative(TargetProperty).objectReferenceValue;
+            var subTable = element.FindPropertyRelative(ObjectProperty).objectReferenceValue as TransitionTableSO;
+            var baseSubTable = new SerializedObject(action)
+                .FindProperty(StateMachineFields.TransitionTable).objectReferenceValue as TransitionTableSO;
+
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField("Sub-State Machine", EditorStyles.boldLabel);
+            bool remove = GUILayout.Button(
+                new GUIContent("Remove", "Run the Base's sub-state machine here again. The Variant table stays in the file, unused."),
+                GUILayout.Width(64f));
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.LabelField(
+                $"{action.name} runs {(subTable != null ? subTable.name : "(missing)")} here",
+                EditorStyles.wordWrappedLabel);
+            EditorGUILayout.LabelField(
+                $"Base: {(baseSubTable != null ? baseSubTable.name : "(none)")}",
+                EditorStyles.miniLabel);
+
+            if (subTable == null)
+            {
+                DrawProblem("The table is missing. Remove this and Make Sub Variant again.");
             }
 
             EditorGUILayout.EndVertical();

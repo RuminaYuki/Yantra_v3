@@ -367,8 +367,15 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             Undo.CollapseUndoOperations(undoGroup);
 
-            // The Project window only shows a sub-asset's new name after its file is re-imported.
-            AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(_table));
+            // The Project window only shows a sub-asset's new name after its file is re-imported
+            // (the item's own file too, e.g. a Base's state renamed from a variant's graph).
+            string tablePath = AssetDatabase.GetAssetPath(_table);
+            string itemPath = AssetDatabase.GetAssetPath(item);
+            AssetDatabase.ImportAsset(tablePath);
+            if (!string.IsNullOrEmpty(itemPath) && itemPath != tablePath)
+            {
+                AssetDatabase.ImportAsset(itemPath);
+            }
 
             // Node titles in the graph are read when it loads.
             StateMachineGraphWindow.ReloadAll();

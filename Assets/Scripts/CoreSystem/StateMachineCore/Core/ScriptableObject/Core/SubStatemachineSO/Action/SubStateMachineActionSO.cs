@@ -64,8 +64,9 @@ public class SubStateMachineAction : StateAction
         _childStateMachine.Exited += OnChildExited;
         _childStateMachine.StateChanged += OnChildStateChanged;
 
+        // Field Override ของเครื่องแม่ (เช่น Variant ตัวหลัก) ใช้ในเครื่องลูกด้วย
         State initialState = _transitionTable.CreateInitialState(
-            _childStateMachine, out var allStates);
+            _childStateMachine, out var allStates, _parentStateMachine.Resolver?.VariantOverrides);
 
         if (_forceExitStateSO == null)
         {

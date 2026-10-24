@@ -26,6 +26,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             // TrickleDown: runs before the clicked node/edge and the GraphView manipulators see the click.
             RegisterCallback<MouseDownEvent>(OnMouseDownWhileConnecting, TrickleDown.TrickleDown);
+            RegisterCallback<MouseUpEvent>(OnMouseUpWhileConnecting, TrickleDown.TrickleDown);
             RegisterCallback<KeyDownEvent>(OnKeyDownWhileConnecting);
             RegisterCallback<KeyDownEvent>(OnKeyDownRename);
 
@@ -223,6 +224,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                         evt.menu.AppendAction(label, _ => OpenSubStateMachine(stateNode.State, subTable));
                     }
 
+                    AppendMakeSubVariantMenu(evt.menu, stateNode);
                     evt.menu.AppendSeparator();
                 }
 
@@ -252,10 +254,13 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             }
             else if (edge != null && edge.IsInherited)
             {
+                AppendChangeTargetMenu(evt.menu, edge, mousePosition);
                 AppendInheritedEdgeMenu(evt.menu, edge);
             }
             else if (edge != null)
             {
+                AppendChangeTargetMenu(evt.menu, edge, mousePosition);
+
                 if (IsDeletable(edge))
                 {
                     evt.menu.AppendAction("Delete", _ => DeleteFromMenu(edge));
@@ -433,6 +438,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             _transitionPreview?.RemoveFromHierarchy();
             _transitionPreview = null;
             _transitionSource = null;
+            _retargetEdge = null;
         }
 
         // mousePosition is in panel space, as given by mouse events.
@@ -460,22 +466,154 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             // This click only finishes (or cancels) the transition: no selecting, no dragging.
             evt.StopImmediatePropagation();
+            FinishConnecting(evt.button, evt.mousePosition);
+        }
 
+        // Dragging an arrow's end: finishes where the mouse is let go.
+        private void OnMouseUpWhileConnecting(MouseUpEvent evt)
+        {
+            if (_transitionSource == null || _retargetEdge == null || !_retargetByDrag)
+            {
+                return;
+            }
+
+            evt.StopImmediatePropagation();
+            FinishConnecting(evt.button, evt.mousePosition);
+        }
+
+        private void FinishConnecting(int button, Vector2 mousePosition)
+        {
             Node source = _transitionSource;
+            TransitionEdgeView retargetEdge = _retargetEdge;
             CancelTransitionCreation();
 
-            if (evt.button != (int)MouseButton.LeftMouse)
+            if (button != (int)MouseButton.LeftMouse)
             {
                 return;
             }
 
             // Preview ignores picking, so this finds whatever is under the mouse.
-            StateNodeView target = panel.Pick(evt.mousePosition)?.GetFirstOfType<StateNodeView>();
+            StateNodeView target = panel.Pick(mousePosition)?.GetFirstOfType<StateNodeView>();
 
-            if (target != null && target != source)
+            if (target == null || target == source)
+            {
+                return;
+            }
+
+            if (retargetEdge == null)
             {
                 CreateTransition(source, target);
             }
+            else if (target != retargetEdge.To)
+            {
+                RetargetTransition(retargetEdge, target);
+            }
+        }
+
+        // ---------- Change Target ----------
+        // Drag the end of an arrow onto another state, or right-click > Change Target and click one.
+        // Its conditions stay. A Base's arrow becomes this table's own (see RetargetInherited).
+
+        // Set while an arrow's end is being moved (the preview runs from its From node).
+        private TransitionEdgeView _retargetEdge;
+        private bool _retargetByDrag;
+
+        private void AppendChangeTargetMenu(DropdownMenu menu, TransitionEdgeView edge, Vector2 mousePosition)
+        {
+            // Entry arrow (this table's or the Base's): Set as Initial State instead.
+            if (edge.IsInherited ? edge.InheritedTransitions.Count == 0 : edge.TransitionIndices.Count == 0)
+            {
+                return;
+            }
+
+            menu.AppendAction(
+                "Change Target",
+                _ => StartRetarget(edge, mousePosition, false),
+                edge.CanChangeTarget ? DropdownMenuAction.Status.Normal : DropdownMenuAction.Status.Disabled);
+            menu.AppendSeparator();
+        }
+
+        // byDrag: finish on mouse up (dragged from the arrow's end), otherwise on the next click (menu).
+        public void StartRetarget(TransitionEdgeView edge, Vector2 mousePosition, bool byDrag)
+        {
+            StartTransitionCreation(edge.From, mousePosition);
+            _retargetEdge = edge;
+            _retargetByDrag = byDrag;
+        }
+
+        private void RetargetTransition(TransitionEdgeView edge, StateNodeView target)
+        {
+            Undo.IncrementCurrentGroup();
+            _serializedTable.Update();
+
+            if (edge.IsInherited)
+            {
+                RetargetInherited(edge, target.State);
+            }
+            else
+            {
+                SerializedProperty array = _serializedTable.FindProperty(
+                    edge.IsAnyState ? "_anyTransitions" : "_transitions");
+
+                foreach (int index in edge.TransitionIndices)
+                {
+                    if (index < array.arraySize)
+                    {
+                        array.GetArrayElementAtIndex(index).FindPropertyRelative("ToState").objectReferenceValue =
+                            target.State;
+                    }
+                }
+            }
+
+            _serializedTable.ApplyModifiedProperties();
+
+            object fromKey = GetNodeKey(edge.From);
+            Load(_table);
+            SelectEdge(fromKey, target.State);
+        }
+
+        // A Base's transition stays the Base's (its conditions keep following the Base): this table only
+        // notes where it goes instead (_transitionRetargets). Dropped back on the Base's own state, the note goes.
+        private void RetargetInherited(TransitionEdgeView edge, StateSO target)
+        {
+            TransitionTableSO baseTable = SafeBaseOf(_table);
+            if (baseTable == null)
+            {
+                return;
+            }
+
+            foreach (InheritedTransition inherited in edge.InheritedTransitions.Where(item => !item.Removed))
+            {
+                StateSO baseTo = edge.IsAnyState
+                    ? baseTable.EffectiveAnyTransitions.FirstOrDefault(any => any.Id == inherited.Id).ToState
+                    : baseTable.EffectiveTransitions.FirstOrDefault(transition => transition.Id == inherited.Id).ToState;
+
+                SetRetarget(_serializedTable, inherited.Id, target == baseTo ? null : target);
+            }
+        }
+
+        // to null: the transition goes where the Base sends it again. Also used by the arrow's Inspector.
+        internal static void SetRetarget(SerializedObject serializedTable, string transitionId, StateSO to)
+        {
+            SerializedProperty retargets = serializedTable.FindProperty("_transitionRetargets");
+
+            for (int i = retargets.arraySize - 1; i >= 0; i--)
+            {
+                if (retargets.GetArrayElementAtIndex(i).FindPropertyRelative("_transitionId").stringValue == transitionId)
+                {
+                    retargets.DeleteArrayElementAtIndex(i);
+                }
+            }
+
+            if (to == null)
+            {
+                return;
+            }
+
+            retargets.arraySize++;
+            SerializedProperty entry = retargets.GetArrayElementAtIndex(retargets.arraySize - 1);
+            entry.FindPropertyRelative("_transitionId").stringValue = transitionId;
+            entry.FindPropertyRelative("_toState").objectReferenceValue = to;
         }
 
         // ---------- Rename ----------
@@ -491,8 +629,34 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         }
 
         // The window does the rename (the Contents panel's rules: Undo, sub-state machine pieces follow).
+        // A Base's state in a variant asks first: a name shown only in this table's graph
+        // (_stateDisplayNames), or the StateSO itself renamed, in the Base and every table that uses it.
         public void BeginRename(StateNodeView stateNode)
         {
+            if (IsBaseStateHere(stateNode.State))
+            {
+                int choice = EditorUtility.DisplayDialogComplex(
+                    "Rename the Base's state?",
+                    $"{stateNode.State.name} is the Base's.\n\n" +
+                    "Rename Here: only this table's graph shows the new name. The state keeps its name " +
+                    "everywhere else (Inspector, Project window, Play Mode debug).\n\n" +
+                    "Rename in Base: the state itself is renamed, in every table that uses it.",
+                    "Rename Here",
+                    "Cancel",
+                    "Rename in Base");
+
+                if (choice == 0)
+                {
+                    stateNode.BeginRename(newName => SetDisplayName(stateNode.State, newName));
+                    return;
+                }
+
+                if (choice == 1)
+                {
+                    return;
+                }
+            }
+
             stateNode.BeginRename(newName => StateRenameRequested?.Invoke(stateNode.State, newName));
         }
 
@@ -604,6 +768,81 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             AddStateToTable(state, position);
 
             Undo.CollapseUndoOperations(undoGroup);
+        }
+
+        // Variant tables only: a sub-state machine whose child table lives in another file (the Base's)
+        // can get a Variant of its own here, like Prefab Variant for a nested prefab. Gone once it has one.
+        private void AppendMakeSubVariantMenu(DropdownMenu menu, StateNodeView stateNode)
+        {
+            List<(SubStateMachineActionSO Action, TransitionTableSO SubTable)> subActions = SubVariantCandidates(stateNode);
+
+            foreach ((SubStateMachineActionSO action, TransitionTableSO subTable) in subActions)
+            {
+                string label = subActions.Count == 1
+                    ? "Make Sub Variant"
+                    : $"Make Sub Variant/{subTable.name}";
+
+                menu.AppendAction(label, _ => MakeSubVariant(stateNode.State, action, subTable));
+            }
+        }
+
+        // The node's sub-state machines that could get a Variant here: empty unless this table is a variant.
+        private List<(SubStateMachineActionSO Action, TransitionTableSO SubTable)> SubVariantCandidates(StateNodeView stateNode)
+        {
+            if (SafeBaseOf(_table) == null)
+            {
+                return new List<(SubStateMachineActionSO, TransitionTableSO)>();
+            }
+
+            string tablePath = AssetDatabase.GetAssetPath(_table);
+            return StateNodeView.FindSubActions(stateNode.State, _table)
+                .Where(sub => AssetDatabase.GetAssetPath(sub.SubTable) != tablePath)
+                .ToList();
+        }
+
+        // Double-click on a sub-state machine. A Base's one asks first, since changing the Base's
+        // child table changes it for every variant: make a Variant here, or open the Base's anyway.
+        public void EnterSubStateMachine(StateNodeView stateNode)
+        {
+            TransitionTableSO subTable = stateNode.SubTables[0];
+            var candidate = SubVariantCandidates(stateNode).FirstOrDefault(sub => sub.SubTable == subTable);
+            if (candidate.Action == null)
+            {
+                OpenSubStateMachine(stateNode.State, subTable);
+                return;
+            }
+
+            int choice = EditorUtility.DisplayDialogComplex(
+                "Make Sub Variant?",
+                $"{subTable.name} is the Base's. Changing it changes every table that uses it.\n\n" +
+                $"Make a Variant of it that only {_table.name} uses?",
+                "Make Sub Variant",
+                "Cancel",
+                "Open Base's");
+
+            switch (choice)
+            {
+                case 0:
+                    MakeSubVariant(stateNode.State, candidate.Action, subTable);
+                    break;
+                case 2:
+                    OpenSubStateMachine(stateNode.State, subTable);
+                    break;
+            }
+        }
+
+        // The Variant goes inside this table's file and opens right away (see EmbeddedAssets.CreateSubVariant).
+        private void MakeSubVariant(StateSO state, SubStateMachineActionSO action, TransitionTableSO baseSubTable)
+        {
+            Undo.IncrementCurrentGroup();
+            int undoGroup = Undo.GetCurrentGroup();
+
+            TransitionTableSO subVariant = EmbeddedAssets.CreateSubVariant(_table, action, baseSubTable);
+
+            Undo.CollapseUndoOperations(undoGroup);
+
+            StateMachineGraphWindow.ReloadAll();
+            OpenSubStateMachine(state, subVariant);
         }
 
         // A sub-state machine with its action and child table, already wired (see EmbeddedAssets).

@@ -227,6 +227,35 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             return condition;
         }
 
+        // In a variant table, a Base's sub-state machine that this table can change on its own:
+        //   a Variant of the Base's child table, inside this table's file (AttackVariant_TransitionTable),
+        //   and a field override that points the Base's Sub State Machine action at it, only in this table.
+        // It starts empty, so it runs everything the Base's child table has until something is changed in it.
+        // Returns the new child table to open.
+        public static TransitionTableSO CreateSubVariant(
+            TransitionTableSO table,
+            SubStateMachineActionSO action,
+            TransitionTableSO baseSubTable)
+        {
+            TransitionTableSO subVariant = Create<TransitionTableSO>(
+                table,
+                $"{TablePrefix(baseSubTable.name)}Variant{TableSuffix}");
+
+            SetReference(subVariant, StateMachineFields.Base, baseSubTable);
+
+            var serializedTable = new SerializedObject(table);
+            SerializedProperty overrides = serializedTable.FindProperty(StateMachineFields.FieldOverrides);
+            overrides.InsertArrayElementAtIndex(overrides.arraySize);
+            SerializedProperty added = overrides.GetArrayElementAtIndex(overrides.arraySize - 1);
+            added.FindPropertyRelative("_target").objectReferenceValue = action;
+            added.FindPropertyRelative("_fieldPath").stringValue = StateMachineFields.TransitionTable;
+            added.FindPropertyRelative("_object").objectReferenceValue = subVariant;
+            serializedTable.ApplyModifiedProperties();
+
+            AssetDatabase.SaveAssetIfDirty(table);
+            return subVariant;
+        }
+
         private static void AppendAction(StateSO state, Object action)
         {
             var serializedState = new SerializedObject(state);

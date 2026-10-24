@@ -58,6 +58,56 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             }
         }
 
+        // ---------- A Base's state's name here ----------
+
+        // This table's own names for its Base's states (_stateDisplayNames). Graph only.
+        private static Dictionary<StateSO, string> ReadDisplayNames(SerializedObject serializedTable)
+        {
+            var names = new Dictionary<StateSO, string>();
+            SerializedProperty list = serializedTable.FindProperty(StateMachineFields.StateDisplayNames);
+
+            for (int i = 0; i < list.arraySize; i++)
+            {
+                SerializedProperty entry = list.GetArrayElementAtIndex(i);
+                string name = entry.FindPropertyRelative("Name").stringValue;
+                if (entry.FindPropertyRelative("State").objectReferenceValue is StateSO state && !string.IsNullOrEmpty(name))
+                {
+                    names[state] = name;
+                }
+            }
+
+            return names;
+        }
+
+        // Empty or the state's own name: show the state's name again.
+        private void SetDisplayName(StateSO state, string name)
+        {
+            name = name?.Trim();
+
+            _serializedTable.Update();
+            SerializedProperty list = _serializedTable.FindProperty(StateMachineFields.StateDisplayNames);
+
+            for (int i = list.arraySize - 1; i >= 0; i--)
+            {
+                if (list.GetArrayElementAtIndex(i).FindPropertyRelative("State").objectReferenceValue == state)
+                {
+                    list.DeleteArrayElementAtIndex(i);
+                }
+            }
+
+            if (!string.IsNullOrEmpty(name) && name != state.name)
+            {
+                list.arraySize++;
+                SerializedProperty entry = list.GetArrayElementAtIndex(list.arraySize - 1);
+                entry.FindPropertyRelative("State").objectReferenceValue = state;
+                entry.FindPropertyRelative("Name").stringValue = name;
+            }
+
+            // Recorded for Undo.
+            _serializedTable.ApplyModifiedProperties();
+            Reload();
+        }
+
         // ---------- A Base's transitions ----------
 
         // One transition: Remove / Restore. Several on one arrow: one submenu entry each, plus all at once.

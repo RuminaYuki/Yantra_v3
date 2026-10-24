@@ -57,35 +57,55 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 overridden.Add(overrides.GetArrayElementAtIndex(i).FindPropertyRelative("_transitionId").stringValue);
             }
 
+            // Id -> the state this table sends it to instead (drawn there, in blue).
+            var retargets = new Dictionary<string, StateSO>();
+            SerializedProperty retargetList = serializedTable.FindProperty("_transitionRetargets");
+            for (int i = 0; i < retargetList.arraySize; i++)
+            {
+                SerializedProperty entry = retargetList.GetArrayElementAtIndex(i);
+                if (entry.FindPropertyRelative("_toState").objectReferenceValue is StateSO to)
+                {
+                    retargets[entry.FindPropertyRelative("_transitionId").stringValue] = to;
+                }
+            }
+
             InheritedTransition Describe(string id, TransitionTableSO.ConditionGroupUsage[] groups)
             {
                 bool isOverridden = overridden.Contains(id);
-                string summary = isOverridden ? $"{Summary(groups)} (overridden here)" : Summary(groups);
-                return new InheritedTransition(id, summary, removed.Contains(id), isOverridden, ConditionsIn(groups));
+                bool isRetargeted = retargets.ContainsKey(id);
+                string summary = Summary(groups) +
+                    (isOverridden ? " (overridden here)" : "") +
+                    (isRetargeted ? " (target changed here)" : "");
+                return new InheritedTransition(id, summary, removed.Contains(id), isOverridden, ConditionsIn(groups), isRetargeted);
             }
+
+            StateSO ToHere(string id, StateSO baseTo) => retargets.TryGetValue(id, out StateSO to) ? to : baseTo;
 
             foreach (TransitionTableSO.TransitionItem item in baseTable.EffectiveTransitions)
             {
+                StateSO to = ToHere(item.Id, item.ToState);
+
                 // Same as the table's own: broken items and self transitions aren't drawn.
-                if (item.FromState == null || item.ToState == null || item.FromState == item.ToState)
+                if (item.FromState == null || to == null || item.FromState == to)
                 {
                     continue;
                 }
 
-                parts.Transitions.Add((item.FromState, item.ToState, Describe(item.Id, item.ConditionGroups)));
+                parts.Transitions.Add((item.FromState, to, Describe(item.Id, item.ConditionGroups)));
                 AddState(item.FromState);
-                AddState(item.ToState);
+                AddState(to);
             }
 
             foreach (TransitionTableSO.AnyTransitionItem item in baseTable.EffectiveAnyTransitions)
             {
-                if (item.ToState == null)
+                StateSO to = ToHere(item.Id, item.ToState);
+                if (to == null)
                 {
                     continue;
                 }
 
-                parts.AnyTransitions.Add((item.ToState, Describe(item.Id, item.ConditionGroups)));
-                AddState(item.ToState);
+                parts.AnyTransitions.Add((to, Describe(item.Id, item.ConditionGroups)));
+                AddState(to);
             }
 
             return parts;

@@ -77,18 +77,31 @@ namespace Yuki.Learning.StateMachine.Editor
                     MessageType.Info);
             }
 
+            // A Base's parameters a variant removed in its Parameters panel aren't listed (unless this
+            // character overrides one, so nothing that changes it is hidden).
+            HashSet<string> removed = RemovedParametersOf(controller);
+
             foreach (ExposedParametersSO blackboard in blackboards)
             {
-                int overridden = blackboard.Parameters.Count(parameter => IndexOf(parameter.Name) >= 0);
-                DrawTableHeader(TableName(blackboard), overridden, blackboard.Parameters.Count);
+                known.UnionWith(blackboard.Parameters.Select(parameter => parameter.Name));
+                List<ExposedParameter> shown = blackboard.Parameters
+                    .Where(parameter => !removed.Contains(parameter.Name) || IndexOf(parameter.Name) >= 0)
+                    .ToList();
+
+                int overridden = shown.Count(parameter => IndexOf(parameter.Name) >= 0);
+                DrawTableHeader(TableName(blackboard), overridden, shown.Count);
 
                 // Same categories and order as the Parameters panel in the Graph.
                 foreach (string category in ParameterBlackboard.CategoriesOf(blackboard))
                 {
-                    List<ExposedParameter> inCategory = blackboard.Parameters
+                    List<ExposedParameter> inCategory = shown
                         .Where(parameter => ParameterBlackboard.CategoryOf(parameter) == category)
                         .ToList();
-                    known.UnionWith(inCategory.Select(parameter => parameter.Name));
+
+                    if (inCategory.Count == 0)
+                    {
+                        continue;
+                    }
 
                     // Uncategorized folds like the others, so every row lines up.
                     if (!DrawCategoryFoldout(blackboard, category, inCategory))
@@ -593,6 +606,34 @@ namespace Yuki.Learning.StateMachine.Editor
             {
                 result.Add(blackboard);
             }
+        }
+
+        // Names in _removedParameters of the controller's tables and their Bases.
+        private static HashSet<string> RemovedParametersOf(StateMachineController controller)
+        {
+            var names = new HashSet<string>();
+            if (controller == null)
+            {
+                return names;
+            }
+
+            SerializedProperty tables = new SerializedObject(controller).FindProperty("_transitionTables");
+            for (int i = 0; i < tables.arraySize; i++)
+            {
+                var visited = new HashSet<TransitionTableSO>();
+                for (var table = tables.GetArrayElementAtIndex(i).objectReferenceValue as TransitionTableSO;
+                     table != null && visited.Add(table);
+                     table = new SerializedObject(table).FindProperty(BaseProperty).objectReferenceValue as TransitionTableSO)
+                {
+                    SerializedProperty list = new SerializedObject(table).FindProperty(StateMachineFields.RemovedParameters);
+                    for (int j = 0; j < list.arraySize; j++)
+                    {
+                        names.Add(list.GetArrayElementAtIndex(j).stringValue);
+                    }
+                }
+            }
+
+            return names;
         }
 
         private static string TableName(ExposedParametersSO blackboard)

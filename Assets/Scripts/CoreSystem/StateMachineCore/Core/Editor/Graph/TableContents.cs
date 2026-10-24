@@ -49,8 +49,10 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 {
                     // A Contents folder entry only files an item away; it doesn't use it (same as
                     // ReachableInSameFile). Otherwise anything put in a folder would never show as unused.
+                    // A state's name in this graph (_stateDisplayNames) only names it, too.
                     if (current is TransitionTableSO &&
-                        property.propertyPath.StartsWith(StateMachineFields.ContentsFolders, StringComparison.Ordinal))
+                        (property.propertyPath.StartsWith(StateMachineFields.ContentsFolders, StringComparison.Ordinal) ||
+                         property.propertyPath.StartsWith(StateMachineFields.StateDisplayNames, StringComparison.Ordinal)))
                     {
                         continue;
                     }
@@ -141,6 +143,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                     // names one of its fields; neither uses it.
                     if (current is TransitionTableSO &&
                         (property.propertyPath.StartsWith(StateMachineFields.ContentsFolders, StringComparison.Ordinal) ||
+                         property.propertyPath.StartsWith(StateMachineFields.StateDisplayNames, StringComparison.Ordinal) ||
                          property.propertyPath.StartsWith(StateMachineFields.ExposedParameters, StringComparison.Ordinal)))
                     {
                         continue;
@@ -227,6 +230,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         {
             return path.StartsWith(StateMachineFields.NodePositions, StringComparison.Ordinal) ||
                 path.StartsWith(StateMachineFields.ContentsFolders, StringComparison.Ordinal) ||
+                path.StartsWith(StateMachineFields.StateDisplayNames, StringComparison.Ordinal) ||
                 path.StartsWith(StateMachineFields.ExposedParameters, StringComparison.Ordinal);
         }
 
@@ -293,7 +297,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             foreach (StateSO state in used.OfType<StateSO>())
             {
-                TransitionTableSO subTable = StateNodeView.FindSubTables(state).FirstOrDefault();
+                // The one this table runs (a sub variant's own table when it has one).
+                TransitionTableSO subTable = StateNodeView.FindSubTables(state, table).FirstOrDefault();
                 if (subTable == null)
                 {
                     continue;
@@ -387,9 +392,43 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                         return (table, state);
                     }
                 }
+
+                // A sub variant (Make Sub Variant): the variant's field override points the Base's
+                // Sub State Machine action at it, and the state running that action is the Base's.
+                StateSO baseState = FindStateRunningSubVariant(table, childTable);
+                if (baseState != null)
+                {
+                    return (table, baseState);
+                }
             }
 
             return (null, null);
+        }
+
+        private static StateSO FindStateRunningSubVariant(TransitionTableSO table, TransitionTableSO childTable)
+        {
+            bool isOverriddenToChild = table.EffectiveFieldOverrides.Any(fieldOverride =>
+                fieldOverride.FieldPath == StateMachineFields.TransitionTable &&
+                fieldOverride.ObjectValue == childTable);
+            if (!isOverriddenToChild)
+            {
+                return null;
+            }
+
+            var visited = new HashSet<TransitionTableSO>();
+            for (TransitionTableSO current = table; current != null && visited.Add(current);
+                current = StateMachineGraphView.SafeBaseOf(current))
+            {
+                foreach (StateSO state in CollectUsed(current).OfType<StateSO>())
+                {
+                    if (StateNodeView.FindSubTables(state, table).Contains(childTable))
+                    {
+                        return state;
+                    }
+                }
+            }
+
+            return null;
         }
     }
 }

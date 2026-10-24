@@ -90,6 +90,12 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
         public void SetTable(TransitionTableSO table)
         {
+            // Another table: its Base's rows start folded again.
+            if (table != _table)
+            {
+                _openBaseRows.Clear();
+            }
+
             _table = table;
 
             // Tables made before the link existed get it when they're opened.
@@ -104,6 +110,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
         public void Rebuild()
         {
+            RememberOpenBaseRows();
+
             foreach (BlackboardSection section in _sections)
             {
                 section.RemoveFromHierarchy();
@@ -167,6 +175,18 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
         private static readonly Color BaseTint = new Color(0.78f, 0.7f, 1f);
 
+        // Whose Base and Field Overrides the From Base rows show: the file's main table. A sub-state
+        // machine's table in the same file shows the same ones, since its machine runs with them
+        // (SubStateMachineAction passes the parent's overrides down).
+        private TransitionTableSO OwnerTable
+        {
+            get
+            {
+                var main = AssetDatabase.LoadMainAssetAtPath(AssetDatabase.GetAssetPath(_table)) as TransitionTableSO;
+                return main != null ? main : _table;
+            }
+        }
+
         // A variant table runs its Bases' parameters too (TransitionTableSO.RegisterParameters registers the
         // whole chain), so a character can override them like its own. Listed under a lavender header per
         // Base, read-only here: they're edited in the Base.
@@ -177,8 +197,11 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 return;
             }
 
-            var visited = new HashSet<TransitionTableSO> { _table };
-            for (TransitionTableSO baseTable = StateMachineGraphView.SafeBaseOf(_table);
+            TransitionTableSO owner = OwnerTable;
+            HashSet<StateElementSO> runsHere = null;
+
+            var visited = new HashSet<TransitionTableSO> { owner };
+            for (TransitionTableSO baseTable = StateMachineGraphView.SafeBaseOf(owner);
                  baseTable != null && visited.Add(baseTable);
                  baseTable = StateMachineGraphView.BaseOf(baseTable))
             {
@@ -188,16 +211,61 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                     continue;
                 }
 
+                runsHere ??= RunsHere(owner);
+                HashSet<string> removed = RemovedParameters(owner);
+                List<ExposedParameter> shown = baseParameters.Parameters
+                    .Where(parameter => !removed.Contains(parameter.Name))
+                    .ToList();
+                List<ExposedParameter> removedHere = baseParameters.Parameters
+                    .Where(parameter => removed.Contains(parameter.Name))
+                    .ToList();
+                int unusedHere = shown.Count(parameter => !IsUsedHere(parameter, runsHere));
+
                 var section = new BlackboardSection
                 {
-                    title = $"From Base · {baseTable.name} ({baseParameters.Parameters.Count})"
+                    title = $"From Base · {baseTable.name} ({shown.Count})" +
+                            (unusedHere > 0 ? $" · {unusedHere} unused here" : "") +
+                            (removedHere.Count > 0 ? $" · {removedHere.Count} removed" : "")
                 };
                 StyleSectionHeader(section);
                 section.Query<Label>().ForEach(label => label.style.color = BaseTint);
 
-                foreach (ExposedParameter parameter in baseParameters.Parameters)
+                // In the Base's categories and order, each under a small lavender heading (none when the
+                // Base has no categories at all).
+                List<string> categories = CategoriesOf(baseParameters);
+                bool showHeadings = categories.Any(category => category != string.Empty);
+
+                foreach (string category in categories)
                 {
-                    section.Add(CreateBaseRow(parameter, baseTable));
+                    List<ExposedParameter> inCategory = shown
+                        .Where(parameter => CategoryOf(parameter) == category)
+                        .ToList();
+
+                    // Every one in it removed here: the heading goes too.
+                    if (inCategory.Count == 0)
+                    {
+                        continue;
+                    }
+
+                    if (showHeadings)
+                    {
+                        section.Add(CreateBaseCategoryHeading(category, inCategory.Count));
+                    }
+
+                    foreach (ExposedParameter parameter in inCategory)
+                    {
+                        section.Add(CreateBaseRow(parameter, baseTable, IsUsedHere(parameter, runsHere)));
+                    }
+                }
+
+                // Removed here: at the end, faint red, Restore (like an action removed in a variant).
+                if (removedHere.Count > 0)
+                {
+                    section.Add(CreateBaseCategoryHeading("Removed here", removedHere.Count, RemovedTint));
+                    foreach (ExposedParameter parameter in removedHere)
+                    {
+                        section.Add(CreateRemovedBaseRow(parameter, baseTable));
+                    }
                 }
 
                 Add(section);
@@ -205,16 +273,58 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             }
         }
 
+        //   ── Combat (3) ──────────
+        private static VisualElement CreateBaseCategoryHeading(string category, int count, Color? color = null)
+        {
+            string name = category == string.Empty ? UncategorizedTitle : category;
+            var heading = new Label($"{name} ({count})");
+            heading.pickingMode = PickingMode.Ignore;
+            heading.style.fontSize = 10;
+            heading.style.unityFontStyleAndWeight = FontStyle.Bold;
+            heading.style.color = color ?? BaseTint;
+            heading.style.paddingLeft = 8f;
+            heading.style.paddingTop = 4f;
+            heading.style.paddingBottom = 1f;
+            heading.style.marginTop = 2f;
+            heading.style.borderBottomWidth = 1f;
+            heading.style.borderBottomColor = SectionLineColor;
+            return heading;
+        }
+
         private static readonly Color OverriddenTint = new Color(0.35f, 0.65f, 1f);
+
+        // A Base's rows start folded (just the names, open one to see / override its value). Rows opened
+        // by hand stay open across rebuilds (e.g. after Override), keyed "<Base table>/<parameter>".
+        private readonly HashSet<string> _openBaseRows = new HashSet<string>();
+        private readonly Dictionary<BlackboardRow, string> _baseRows = new Dictionary<BlackboardRow, string>();
+
+        private void RememberOpenBaseRows()
+        {
+            foreach (KeyValuePair<BlackboardRow, string> pair in _baseRows)
+            {
+                if (pair.Key.expanded)
+                {
+                    _openBaseRows.Add(pair.Value);
+                }
+                else
+                {
+                    _openBaseRows.Remove(pair.Value);
+                }
+            }
+
+            _baseRows.Clear();
+        }
 
         // Name and type, and under it the value this table uses: the Base's (greyed, [Override]) or this
         // table's own ([Revert]). Overriding writes a Field Override (TransitionTableSO._fieldOverrides)
         // for every field the parameter sets, the same thing the table's Inspector lists.
         // The name can't be renamed, deleted or dragged (userData stays null, so the Delete key skips it).
-        private BlackboardRow CreateBaseRow(ExposedParameter parameter, TransitionTableSO baseTable)
+        // isUsedHere false: none of its actions / conditions run in this table (see RunsHere), shown like
+        // an unused row of the table's own.
+        private BlackboardRow CreateBaseRow(ExposedParameter parameter, TransitionTableSO baseTable, bool isUsedHere)
         {
             Type type = parameter.Bindings.Count > 0 ? FieldOf(parameter.Bindings[0]) : null;
-            bool isOverridden = FieldOverrideIndex(new SerializedObject(_table), parameter) >= 0;
+            bool isOverridden = FieldOverrideIndex(new SerializedObject(OwnerTable), parameter) >= 0;
 
             var field = new BlackboardField
             {
@@ -229,12 +339,204 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             Color tint = isOverridden ? OverriddenTint : BaseTint;
             field.Query<Label>().ForEach(label => label.style.color = tint);
 
+            field.AddManipulator(new ContextualMenuManipulator(evt =>
+                evt.menu.AppendAction("Remove from This Table", _ => SetParameterRemoved(parameter, true))));
+
             var valueView = new IMGUIContainer(() => DrawBaseValue(parameter, type));
             valueView.style.paddingLeft = 8f;
             valueView.style.paddingRight = 4f;
             valueView.style.paddingBottom = 4f;
 
-            return new BlackboardRow(field, valueView) { expanded = true };
+            string key = $"{baseTable.name}/{parameter.Name}";
+            var row = new BlackboardRow(field, valueView) { expanded = _openBaseRows.Contains(key) };
+            _baseRows[row] = key;
+
+            if (!isUsedHere)
+            {
+                ShowStatus(row, field, RowStatus.Unused,
+                    $"{OwnerTable.name} doesn't run any action / condition this parameter sets " +
+                    "(removed, or not in this table), so overriding it changes nothing here.");
+            }
+
+            return row;
+        }
+
+        // ---------- A Base's parameter removed here ----------
+
+        private static readonly Color RemovedTint = new Color(1f, 0.45f, 0.45f, 0.75f);
+
+        //   RemovedParam                              Single
+        //     Removed in this table.        [Restore]
+        private BlackboardRow CreateRemovedBaseRow(ExposedParameter parameter, TransitionTableSO baseTable)
+        {
+            Type type = parameter.Bindings.Count > 0 ? FieldOf(parameter.Bindings[0]) : null;
+
+            var field = new BlackboardField
+            {
+                text = parameter.Name,
+                typeText = type != null ? type.Name : string.Empty,
+                tooltip = $"Exposed in {baseTable.name}, removed from this table's list. Restore to see it again."
+            };
+
+            field.capabilities &= ~(Capabilities.Renamable | Capabilities.Deletable | Capabilities.Movable | Capabilities.Droppable);
+            field.Query<Label>().ForEach(label => label.style.color = RemovedTint);
+            field.AddManipulator(new ContextualMenuManipulator(evt =>
+                evt.menu.AppendAction("Restore", _ => SetParameterRemoved(parameter, false))));
+
+            var valueView = new IMGUIContainer(() =>
+            {
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.LabelField("Removed in this table.", EditorStyles.miniLabel);
+                if (GUILayout.Button("Restore", EditorStyles.miniButton, GUILayout.Width(64f)))
+                {
+                    schedule.Execute(() => SetParameterRemoved(parameter, false));
+                }
+
+                EditorGUILayout.EndHorizontal();
+            });
+            valueView.style.paddingLeft = 8f;
+            valueView.style.paddingRight = 4f;
+            valueView.style.paddingBottom = 4f;
+
+            return new BlackboardRow(field, valueView) { expanded = false };
+        }
+
+        // What the graph's tags skip for `table`: its file's main table removed them, or one of that
+        // table's Bases did (a sub-state machine's table in the file goes by the main one, like this panel).
+        internal static HashSet<string> RemovedParametersFor(TransitionTableSO table)
+        {
+            var names = new HashSet<string>();
+            if (table == null)
+            {
+                return names;
+            }
+
+            var main = AssetDatabase.LoadMainAssetAtPath(AssetDatabase.GetAssetPath(table)) as TransitionTableSO;
+            var visited = new HashSet<TransitionTableSO>();
+            for (TransitionTableSO current = main != null ? main : table;
+                 current != null && visited.Add(current);
+                 current = StateMachineGraphView.BaseOf(current))
+            {
+                names.UnionWith(RemovedParameters(current));
+            }
+
+            return names;
+        }
+
+        private static HashSet<string> RemovedParameters(TransitionTableSO table)
+        {
+            var names = new HashSet<string>();
+            SerializedProperty list = new SerializedObject(table).FindProperty(StateMachineFields.RemovedParameters);
+
+            for (int i = 0; i < list.arraySize; i++)
+            {
+                names.Add(list.GetArrayElementAtIndex(i).stringValue);
+            }
+
+            return names;
+        }
+
+        // On the file's main table (OwnerTable), so the sub-state machines in it hide it too. Removing also
+        // drops its overrides here: a hidden row can't be reverted, so it goes back to the Base's value.
+        private void SetParameterRemoved(ExposedParameter parameter, bool remove)
+        {
+            var serializedTable = new SerializedObject(OwnerTable);
+            SerializedProperty list = serializedTable.FindProperty(StateMachineFields.RemovedParameters);
+
+            for (int i = list.arraySize - 1; i >= 0; i--)
+            {
+                if (list.GetArrayElementAtIndex(i).stringValue == parameter.Name)
+                {
+                    list.DeleteArrayElementAtIndex(i);
+                }
+            }
+
+            if (remove)
+            {
+                list.arraySize++;
+                list.GetArrayElementAtIndex(list.arraySize - 1).stringValue = parameter.Name;
+
+                SerializedProperty overrides = serializedTable.FindProperty("_fieldOverrides");
+                for (int i = overrides.arraySize - 1; i >= 0; i--)
+                {
+                    if (parameter.Bindings.Any(binding => IsOverrideOf(overrides.GetArrayElementAtIndex(i), binding)))
+                    {
+                        overrides.DeleteArrayElementAtIndex(i);
+                    }
+                }
+            }
+
+            // Recorded for Undo.
+            serializedTable.ApplyModifiedProperties();
+            Rebuild();
+        }
+
+        private static bool IsUsedHere(ExposedParameter parameter, HashSet<StateElementSO> runsHere)
+        {
+            return parameter.Bindings.Any(binding => binding.Target != null && runsHere.Contains(binding.Target));
+        }
+
+        // Actions and conditions `table` runs: its states (the Base's too) with their actions after its
+        // action changes, the conditions on its arrows, and the same inside the sub-state machines it opens
+        // (a sub variant's own table when it has one).
+        private static HashSet<StateElementSO> RunsHere(TransitionTableSO table)
+        {
+            var runs = new HashSet<StateElementSO>();
+            var visitedTables = new HashSet<TransitionTableSO>();
+            var pending = new Stack<TransitionTableSO>();
+            pending.Push(table);
+
+            while (pending.Count > 0)
+            {
+                TransitionTableSO current = pending.Pop();
+                if (current == null || !visitedTables.Add(current))
+                {
+                    continue;
+                }
+
+                var states = new HashSet<StateSO>();
+
+                void AddConditions(TransitionTableSO.ConditionGroupUsage[] groups)
+                {
+                    foreach (TransitionTableSO.ConditionGroupUsage group in groups ?? Array.Empty<TransitionTableSO.ConditionGroupUsage>())
+                    foreach (TransitionTableSO.ConditionUsage usage in group.Conditions ?? Array.Empty<TransitionTableSO.ConditionUsage>())
+                    {
+                        if (usage.Condition != null)
+                        {
+                            runs.Add(usage.Condition);
+                        }
+                    }
+                }
+
+                states.Add(current.EffectiveInitialState);
+
+                foreach (TransitionTableSO.TransitionItem item in current.EffectiveTransitions)
+                {
+                    states.Add(item.FromState);
+                    states.Add(item.ToState);
+                    AddConditions(item.ConditionGroups);
+                }
+
+                foreach (TransitionTableSO.AnyTransitionItem item in current.EffectiveAnyTransitions)
+                {
+                    states.Add(item.ToState);
+                    AddConditions(item.ConditionGroups);
+                }
+
+                foreach (StateSO state in states.Where(state => state != null))
+                {
+                    IEnumerable<StateActionSO> stateActions = TableContents.ActionsOf(state).OfType<StateActionSO>();
+                    runs.UnionWith(ElementResolver.BuildActionList(
+                        state, stateActions, current.EffectiveActionChanges, current.EffectiveActionOrders));
+
+                    foreach (TransitionTableSO subTable in StateNodeView.FindSubTables(state, current))
+                    {
+                        pending.Push(subTable);
+                    }
+                }
+            }
+
+            return runs;
         }
 
         private void DrawBaseValue(ExposedParameter parameter, Type type)
@@ -245,7 +547,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 return;
             }
 
-            var serializedTable = new SerializedObject(_table);
+            var serializedTable = new SerializedObject(OwnerTable);
             SerializedProperty overrides = serializedTable.FindProperty("_fieldOverrides");
             int index = FieldOverrideIndex(serializedTable, parameter);
             bool changedStructure = false;
@@ -1104,7 +1406,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             {
                 foreach (StateSO state in TableContents.CollectUsed(tables[i]).OfType<StateSO>())
                 {
-                    foreach (TransitionTableSO subTable in StateNodeView.FindSubTables(state))
+                    foreach (TransitionTableSO subTable in StateNodeView.FindSubTables(state, tables[i]))
                     {
                         if (subTable != null && !tables.Contains(subTable))
                         {

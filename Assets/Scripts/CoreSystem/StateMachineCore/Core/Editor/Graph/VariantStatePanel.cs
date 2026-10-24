@@ -119,6 +119,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             }
 
             HandleActionPicked();
+            DrawSubStateMachines();
             DrawRemoved(changes);
             DrawUnknownChanges(changes);
 
@@ -151,6 +152,116 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 alignment = TextAnchor.MiddleRight,
                 normal = { textColor = ChangedColor }
             };
+        }
+
+        // ---------- Sub-state machine ----------
+
+        // One box per Sub State Machine action this state runs here:
+        //   Sub-State Machine   Overridden here   [Open] [Revert]     AttackVariant_TransitionTable / Base: Attack_TransitionTable
+        //   Sub-State Machine   Same as the Base  [Make Sub Variant]  Attack_TransitionTable
+        private void DrawSubStateMachines()
+        {
+            List<(SubStateMachineActionSO Action, TransitionTableSO SubTable)> baseSubs =
+                StateNodeView.FindSubActions(_state, _baseTable);
+
+            foreach ((SubStateMachineActionSO action, TransitionTableSO baseSubTable) in baseSubs)
+            {
+                if (!_runHere.Contains(action))
+                {
+                    continue;
+                }
+
+                TransitionTableSO ownSubTable = OverriddenSubTable(action);
+                string title = baseSubs.Count > 1 ? $"Sub-State Machine · {action.name}" : "Sub-State Machine";
+
+                if (ownSubTable != null)
+                {
+                    int clicked = OverrideInspectorGUI.DrawBoxHeader(
+                        title, "Overridden here", ChangedColor,
+                        new GUIContent("Open", "Open it in the graph"),
+                        new GUIContent("Revert", "Run the Base's sub-state machine here again. The Variant table stays in the file, unused."));
+
+                    if (clicked == 0)
+                    {
+                        StateMachineGraphWindow.OpenSubStateMachine(_table, _state, ownSubTable);
+                    }
+                    else if (clicked == 1)
+                    {
+                        _pendingEdit = (_, _) => RemoveSubOverride(action);
+                    }
+
+                    OverrideInspectorGUI.BeginBoxBody();
+                    EditorGUILayout.LabelField(ownSubTable.name, EditorStyles.boldLabel);
+                    EditorGUILayout.LabelField($"Base: {baseSubTable.name}", EditorStyles.miniLabel);
+                    OverrideInspectorGUI.EndBoxBody();
+                }
+                else
+                {
+                    int clicked = OverrideInspectorGUI.DrawBoxHeader(
+                        title, "Same as the Base", OverrideInspectorGUI.SameColor,
+                        new GUIContent("Make Sub Variant", "A Variant of it that only this table runs"));
+
+                    if (clicked == 0)
+                    {
+                        StateSO state = _state;
+                        TransitionTableSO table = _table;
+
+                        // After this pass: it creates assets and reloads the graph.
+                        EditorApplication.delayCall += () =>
+                        {
+                            Undo.IncrementCurrentGroup();
+                            int undoGroup = Undo.GetCurrentGroup();
+                            TransitionTableSO subVariant = EmbeddedAssets.CreateSubVariant(table, action, baseSubTable);
+                            Undo.CollapseUndoOperations(undoGroup);
+
+                            StateMachineGraphWindow.ReloadAll();
+                            StateMachineGraphWindow.OpenSubStateMachine(table, state, subVariant);
+                        };
+                    }
+
+                    OverrideInspectorGUI.BeginBoxBody();
+                    EditorGUILayout.LabelField(baseSubTable.name, EditorStyles.label);
+                    OverrideInspectorGUI.EndBoxBody();
+                }
+            }
+        }
+
+        // This table's own field override that points the action at another table, or null.
+        private TransitionTableSO OverriddenSubTable(SubStateMachineActionSO action)
+        {
+            SerializedProperty overrides = _serializedTable.FindProperty(StateMachineFields.FieldOverrides);
+            TransitionTableSO found = null;
+
+            for (int i = 0; i < overrides.arraySize; i++)
+            {
+                SerializedProperty entry = overrides.GetArrayElementAtIndex(i);
+                if (entry.FindPropertyRelative("_target").objectReferenceValue == action &&
+                    entry.FindPropertyRelative("_fieldPath").stringValue == StateMachineFields.TransitionTable &&
+                    entry.FindPropertyRelative("_object").objectReferenceValue is TransitionTableSO table)
+                {
+                    found = table;
+                }
+            }
+
+            return found;
+        }
+
+        private void RemoveSubOverride(SubStateMachineActionSO action)
+        {
+            SerializedProperty overrides = _serializedTable.FindProperty(StateMachineFields.FieldOverrides);
+
+            for (int i = overrides.arraySize - 1; i >= 0; i--)
+            {
+                SerializedProperty entry = overrides.GetArrayElementAtIndex(i);
+                if (entry.FindPropertyRelative("_target").objectReferenceValue == action &&
+                    entry.FindPropertyRelative("_fieldPath").stringValue == StateMachineFields.TransitionTable)
+                {
+                    overrides.DeleteArrayElementAtIndex(i);
+                }
+            }
+
+            // The node opens the Base's sub-state machine again.
+            EditorApplication.delayCall += StateMachineGraphWindow.ReloadAll;
         }
 
         // ---------- The list ----------
@@ -202,18 +313,27 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             rect.y += 2f;
             rect.height = EditorGUIUtility.singleLineHeight;
 
-            if (isAddedHere && Event.current.type == EventType.Repaint)
+            var removeRect = new Rect(rect.xMax - 20f, rect.y, 20f, rect.height);
+            var nameRect = new Rect(rect.x, rect.y, rect.width - 24f, rect.height);
+
+            // A Base's Sub State Machine action running this table's own sub table (Make Sub Variant).
+            bool isSubOverridden = !isAddedHere &&
+                action is SubStateMachineActionSO subAction &&
+                OverriddenSubTable(subAction) != null;
+
+            if ((isAddedHere || isSubOverridden) && Event.current.type == EventType.Repaint)
             {
                 EditorGUI.DrawRect(new Rect(rect.x - 4f, rect.y, 2f, rect.height), ChangedColor);
             }
-
-            var removeRect = new Rect(rect.xMax - 20f, rect.y, 20f, rect.height);
-            var nameRect = new Rect(rect.x, rect.y, rect.width - 24f, rect.height);
 
             EditorGUI.LabelField(nameRect, new GUIContent(action.name, isAddedHere ? "Added in this table." : "From the Base."));
             if (isAddedHere)
             {
                 EditorGUI.LabelField(nameRect, "added", _tagStyle);
+            }
+            else if (isSubOverridden)
+            {
+                EditorGUI.LabelField(nameRect, "sub-state machine overridden", _tagStyle);
             }
 
             string tooltip = isAddedHere ? "Take it out" : "Don't run it in this table (the Base keeps it)";

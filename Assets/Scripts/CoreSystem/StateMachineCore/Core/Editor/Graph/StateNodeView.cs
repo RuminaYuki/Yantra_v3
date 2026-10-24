@@ -29,12 +29,23 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // It can still be moved, start a new transition, or become this table's initial state.
         public bool IsInherited { get; }
 
-        public StateNodeView(StateSO state, bool isInitial, bool isInherited = false)
+        // table = the table this graph shows, so a variant's _transitionTable override opens its own sub table.
+        // displayName = this table's own name for a Base's state (_stateDisplayNames), or null.
+        public StateNodeView(
+            StateSO state,
+            bool isInitial,
+            bool isInherited = false,
+            TransitionTableSO table = null,
+            string displayName = null)
         {
             State = state;
-            SubTables = FindSubTables(state);
+            SubTables = FindSubTables(state, table);
             IsInherited = isInherited;
-            title = state.name;
+            title = string.IsNullOrEmpty(displayName) ? state.name : displayName;
+            if (title != state.name)
+            {
+                tooltip = $"Named here only. The state itself is {state.name}.";
+            }
 
             // Hide the collapse arrow, a state node has nothing to collapse.
             titleButtonContainer.style.display = DisplayStyle.None;
@@ -69,7 +80,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 style.opacity = 0.6f;
                 tooltip = "From the Base table. Change it there; here it can be moved, connected, or set as initial.";
 
-                var baseLabel = new Label("From Base");
+                var baseLabel = new Label(title == state.name ? "From Base" : $"From Base · {state.name}");
                 baseLabel.pickingMode = PickingMode.Ignore;
                 baseLabel.style.fontSize = 10;
                 baseLabel.style.unityFontStyleAndWeight = FontStyle.Italic;
@@ -84,16 +95,37 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         }
 
         // Also used by the Contents panel to mark sub-state machines.
-        internal static List<TransitionTableSO> FindSubTables(StateSO state)
+        // table (optional): if it (or its Base) overrides an action's _transitionTable, use that table instead,
+        // the same one ElementResolver gives at runtime.
+        internal static List<TransitionTableSO> FindSubTables(StateSO state, TransitionTableSO table = null)
         {
             var tables = new List<TransitionTableSO>();
+
+            foreach ((SubStateMachineActionSO _, TransitionTableSO subTable) in FindSubActions(state, table))
+            {
+                if (!tables.Contains(subTable))
+                {
+                    tables.Add(subTable);
+                }
+            }
+
+            return tables;
+        }
+
+        // The state's Sub State Machine actions and the table each one runs in `table` (see FindSubTables).
+        // Make Sub Variant needs the action to put the field override on.
+        internal static List<(SubStateMachineActionSO Action, TransitionTableSO SubTable)> FindSubActions(
+            StateSO state,
+            TransitionTableSO table = null)
+        {
+            var found = new List<(SubStateMachineActionSO, TransitionTableSO)>();
 
             // _actions and _transitionTable are private, so read them like the Inspector does.
             using var serializedState = new SerializedObject(state);
             SerializedProperty actions = serializedState.FindProperty("_actions");
             if (actions == null)
             {
-                return tables;
+                return found;
             }
 
             for (int i = 0; i < actions.arraySize; i++)
@@ -104,14 +136,40 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 }
 
                 using var serializedAction = new SerializedObject(action);
-                if (serializedAction.FindProperty("_transitionTable").objectReferenceValue is TransitionTableSO table &&
-                    !tables.Contains(table))
+                TransitionTableSO subTable =
+                    OverriddenSubTable(action, table) ??
+                    serializedAction.FindProperty("_transitionTable").objectReferenceValue as TransitionTableSO;
+
+                if (subTable != null)
                 {
-                    tables.Add(table);
+                    found.Add((action, subTable));
                 }
             }
 
-            return tables;
+            return found;
+        }
+
+        // Base first, Variant last (like ElementResolver), so the last match wins.
+        private static TransitionTableSO OverriddenSubTable(SubStateMachineActionSO action, TransitionTableSO table)
+        {
+            if (table == null)
+            {
+                return null;
+            }
+
+            TransitionTableSO found = null;
+
+            foreach (FieldOverride fieldOverride in table.EffectiveFieldOverrides)
+            {
+                if (fieldOverride.Target == action &&
+                    fieldOverride.FieldPath == "_transitionTable" &&
+                    fieldOverride.ObjectValue is TransitionTableSO overridden)
+                {
+                    found = overridden;
+                }
+            }
+
+            return found;
         }
 
         private Label _changesLabel;
@@ -226,7 +284,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 return;
             }
 
-            var field = new TextField { value = State.name };
+            var field = new TextField { value = title };
             field.style.flexGrow = 1;
             field.style.marginLeft = 4;
             field.style.marginRight = 4;
@@ -297,8 +355,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             if (IsSubStateMachine)
             {
-                // Double-click enters the sub-state machine, like Animator.
-                GetFirstAncestorOfType<StateMachineGraphView>()?.OpenSubStateMachine(State, SubTables[0]);
+                // Double-click enters the sub-state machine, like Animator (a Base's one in a variant asks first).
+                GetFirstAncestorOfType<StateMachineGraphView>()?.EnterSubStateMachine(this);
             }
             else
             {

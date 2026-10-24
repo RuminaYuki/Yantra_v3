@@ -690,7 +690,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             bool isEmbedded = itemPath == tablePath;
 
             TransitionTableSO subTable = item is StateSO state
-                ? StateNodeView.FindSubTables(state).FirstOrDefault()
+                ? StateNodeView.FindSubTables(state, _table).FirstOrDefault()
                 : null;
 
             var row = new VisualElement();

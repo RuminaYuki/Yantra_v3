@@ -14,6 +14,9 @@ public class ElementResolver
     // null ได้ (ตัวละครไม่มี component StateMachineParameters)
     private readonly StateMachineParameters _instance;
 
+    // ส่งต่อให้ sub-state machine (SubStateMachineAction) เครื่องลูกจะได้ใช้ค่าของ Variant ตัวแม่ด้วย
+    public IReadOnlyList<FieldOverride> VariantOverrides => _variantOverrides;
+
     // ถามซ้ำด้วย SO ตัวเดิม → ได้ตัวเดิม
     private readonly Dictionary<StateElementSO, StateElementSO> _resolved =
         new Dictionary<StateElementSO, StateElementSO>();

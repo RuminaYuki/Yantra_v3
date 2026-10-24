@@ -304,6 +304,18 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             }
         }
 
+        // Enters the sub-state machine in every open graph showing `table` (e.g. Open in a state's Inspector).
+        public static void OpenSubStateMachine(TransitionTableSO table, StateSO state, TransitionTableSO subTable)
+        {
+            foreach (StateMachineGraphWindow window in Resources.FindObjectsOfTypeAll<StateMachineGraphWindow>())
+            {
+                if (window._table == table)
+                {
+                    window.EnterSubStateMachine(state, subTable);
+                }
+            }
+        }
+
         // A table was changed from outside the graph (e.g. reordered in the StateSO Inspector).
         public static void ReloadAll()
         {
