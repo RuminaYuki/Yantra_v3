@@ -118,7 +118,7 @@ public class RadialManuController : MonoBehaviour
 
     private void RefreshRadialMenu()
     {
-        float fillAmount = (1f / _countOfButtons) - _fillAmountOffeset;
+        float fillAmount = (1f / _countOfButtons) - (_countOfButtons > 1 ? _fillAmountOffeset : 0);
         float angle = 360f / _countOfButtons;
 
         // 1) ��������� pool ੾�е͹�������
@@ -206,8 +206,6 @@ public class RadialManuController : MonoBehaviour
 
     private string GetLabel(int id)
     {
-        Debug.Log($"GetLabel id={id}, data={(_currentData == null ? "NULL" : _currentData.name)}");
-
         if (id < 0 || _currentData == null) return "";
 
         var list = _currentData.GetListData();

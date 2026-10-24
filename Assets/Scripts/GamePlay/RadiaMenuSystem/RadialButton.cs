@@ -64,9 +64,6 @@ public class RadialButton : MonoBehaviour
         float halfSlice = thisImage.fillClockwise ? -angle : angle;
         _pivot.transform.localRotation = Quaternion.Euler(0f, 0f, originAngle - 180f + halfSlice);
 
-        // ให้ไอคอนตั้งตรงเสมอ ไม่หมุนตามชิ้น
-        _sprintIcon.transform.rotation = _radialManu.transform.rotation;
-
         RawImage _sprintImage = _sprintIcon.GetComponent<RawImage>();
         _sprintImage.texture = dataSO.buttonIcon;
     }

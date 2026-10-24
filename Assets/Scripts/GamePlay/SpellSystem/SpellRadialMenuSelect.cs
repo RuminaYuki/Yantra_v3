@@ -8,8 +8,10 @@ public class SpellRadialMenuSelect : MonoBehaviour
     [Header("References")]
     [SerializeField] SpellController _spellController;
     [SerializeField] PlayerCameraController _playerCameraController;
+    [Tooltip("แคตตาล็อกการร่ายทั้งหมด (ไม่ถูกแก้ตอน runtime)")]
     [SerializeField] RadialMenuDataSO _dataSO;
     [SerializeField] PlayerInventory _playerInventory; // ว่างไว้ได้ จะหาจากตัว player ให้เอง
+    [SerializeField] SpellUnlocks _spellUnlocks; // ว่างไว้ได้ จะหาจากตัว player ให้เอง
     [SerializeField] GameObject PositionReferences;
     [SerializeField] GameObject OwnerForEffect;
 
@@ -17,8 +19,9 @@ public class SpellRadialMenuSelect : MonoBehaviour
     [SerializeField] BoolRadialSOAdvEventChannal _boolRadialSOAdvEventChannal;
     [SerializeField] IntEventChannelSO _radialIntID_IEC;
 
-    [Header("Setting")]
-    [SerializeField] List<SpellType> _spellTypes = new();
+    // สำเนาชั่วคราว ใส่เฉพาะการร่ายที่ปลดล็อคแล้ว ส่งให้ RadialManuController
+    // index ของปุ่ม = index ใน list นี้
+    RadialMenuDataSO _runtimeData;
 
     int _Id;
     bool _radialOpen;
@@ -35,6 +38,41 @@ public class SpellRadialMenuSelect : MonoBehaviour
         if (_playerInventory == null)
         {
             _playerInventory = transform.root.GetComponentInChildren<PlayerInventory>();
+        }
+
+        if (_spellUnlocks == null)
+        {
+            _spellUnlocks = transform.root.GetComponentInChildren<SpellUnlocks>();
+        }
+
+        if (_spellUnlocks == null)
+        {
+            Debug.LogWarning("[SpellRadialMenuSelect] No SpellUnlocks on the player. Only 'unlockedByDefault' spells will show.", this);
+        }
+
+        _runtimeData = ScriptableObject.CreateInstance<RadialMenuDataSO>();
+        _runtimeData.name = _dataSO != null ? $"{_dataSO.name} (Runtime)" : "RadialMenu (Runtime)";
+        _runtimeData.hideFlags = HideFlags.DontSave;
+        if (_dataSO != null) _runtimeData.IDEventChannel = _dataSO.IDEventChannel;
+    }
+
+    private void OnDestroy()
+    {
+        if (_runtimeData != null) Destroy(_runtimeData);
+    }
+
+    // ใส่เฉพาะการร่ายที่ปลดล็อคแล้วลงใน _runtimeData
+    private void RebuildRuntimeData()
+    {
+        _runtimeData.ClearListData();
+        if (_dataSO == null) return;
+
+        foreach (RadialMenuButtonData data in _dataSO.GetListData())
+        {
+            if (data == null) continue;
+
+            bool unlocked = _spellUnlocks != null ? _spellUnlocks.IsUnlocked(data) : data.unlockedByDefault;
+            if (unlocked) _runtimeData.AddButtonData(data);
         }
     }
 
@@ -66,14 +104,6 @@ public class SpellRadialMenuSelect : MonoBehaviour
         }   
     }
 
-    private void OnValidate()
-    {
-        for (int i = 0; i < _spellTypes.Count; i++)
-        {
-            _spellTypes[i].ID = i;
-        }
-    }
-
     private void HandleRadialIntID(int ID)
     {
         if (!_radialOpen)
@@ -86,12 +116,15 @@ public class SpellRadialMenuSelect : MonoBehaviour
     {
         if (_spellController.GetHaveTemplat) return;
 
+        RebuildRuntimeData();
+        if (_runtimeData.GetListData().Count == 0) return; // ยังไม่ได้ปลดล็อคการร่ายเลย
+
         _Id = -1;
         _radialOpen = true;
         SetCameraLookLocked(true);
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = false;
-        _boolRadialSOAdvEventChannal.Raise(true, _dataSO);
+        _boolRadialSOAdvEventChannal.Raise(true, _runtimeData);
     }    
     public void HandleCloseRadial()
     {
@@ -128,7 +161,7 @@ public class SpellRadialMenuSelect : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        _boolRadialSOAdvEventChannal.Raise(false, _dataSO);
+        _boolRadialSOAdvEventChannal.Raise(false, _runtimeData);
 
         if (!_spellController.GetHaveTemplat)
         {
@@ -138,38 +171,38 @@ public class SpellRadialMenuSelect : MonoBehaviour
 
     public void InstantiateNewTemplat(int ID)
     {
-        if (ID > _spellTypes.Count - 1 || ID < 0 || _spellController.GetHaveTemplat) return;
-        if (!TryConsumeRequiredItem(ID)) return;
+        if (_spellController.GetHaveTemplat) return;
+
+        var list = _runtimeData.GetListData();
+        if (ID < 0 || ID >= list.Count) return;
+
+        RadialMenuButtonData data = list[ID];
+        if (data.spellPrefab == null)
+        {
+            Debug.LogWarning($"[SpellRadialMenuSelect] '{data.buttonName}' has no spellPrefab.", _dataSO);
+            return;
+        }
+
+        if (!TryConsumeRequiredItem(data)) return;
 
         _spellController.SetSplineToLineRenderer(null);
 
-        foreach (SpellType spellType in _spellTypes)
+        GameObject newTemplate = Instantiate(data.spellPrefab, PositionReferences.transform.position, PositionReferences.transform.rotation, PositionReferences.transform);
+        SpellEffectSpawner effectSpawner = newTemplate.GetComponent<SpellEffectSpawner>();
+        if (effectSpawner != null)
         {
-            if (ID != spellType.ID) continue;
-
-            GameObject newTemplate = Instantiate(spellType.Prefab, PositionReferences.transform.position, PositionReferences.transform.rotation, PositionReferences.transform);
-            SpellEffectSpawner effectSpawner = newTemplate.GetComponent<SpellEffectSpawner>();
-            if (effectSpawner != null)
-            {
-                effectSpawner.SetSpawnPoint(OwnerForEffect.transform != null ? OwnerForEffect.transform : transform);
-                effectSpawner.SetOwner(OwnerForEffect != null ? OwnerForEffect : transform.root.gameObject);
-            }
-
-            _spellController.SetSplineToLineRenderer(newTemplate.GetComponent<SplineToLineRenderer>());
-            _spellController.SetActive(true);
-            _spellController.AddProgress();
+            effectSpawner.SetSpawnPoint(OwnerForEffect.transform != null ? OwnerForEffect.transform : transform);
+            effectSpawner.SetOwner(OwnerForEffect != null ? OwnerForEffect : transform.root.gameObject);
         }
+
+        _spellController.SetSplineToLineRenderer(newTemplate.GetComponent<SplineToLineRenderer>());
+        _spellController.SetActive(true);
+        _spellController.AddProgress();
     }
 
-    // ใช้ item ตามที่ปุ่มกำหนดใน _dataSO ถ้าไม่ครบจะไม่หักอะไรเลยและคืน false
-    private bool TryConsumeRequiredItem(int ID)
+    // ใช้ item ตามที่ปุ่มกำหนด ถ้าไม่ครบจะไม่หักอะไรเลยและคืน false
+    private bool TryConsumeRequiredItem(RadialMenuButtonData data)
     {
-        if (_dataSO == null) return true;
-
-        var list = _dataSO.GetListData();
-        if (ID >= list.Count) return true;
-
-        RadialMenuButtonData data = list[ID];
         if (data.itemData == null || data.itemReq <= 0) return true;
         if (_playerInventory == null) return false;
 
@@ -192,11 +225,4 @@ public class SpellRadialMenuSelect : MonoBehaviour
             _playerCameraController.IsLookLocked = locked;
         }
     }
-}
-
-[Serializable]
-public class SpellType
-{
-    public int ID;
-    public GameObject Prefab;
 }
