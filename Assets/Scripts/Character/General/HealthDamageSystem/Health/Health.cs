@@ -116,6 +116,7 @@ public class Health : MonoBehaviour, IDamageable,IHeal
         //if (SaveManager.Instance != null && this.gameObject.CompareTag("Player")) SaveManager.Instance.LoadAll();
         OnDeadEventChannel?.Raise();
         OnDead?.Invoke();
+        Debug.Log($"{gameObject.name} is dead");
     }
 
     public bool IgnoreDamage { get; private set; } = false;

@@ -24,6 +24,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         private const string StateProperty = "_state";
         private const string KindProperty = "_kind";
         private const string ActionProperty = "_action";
+        private const string WithProperty = "_with";
         private const string OrderActionsProperty = "_actions";
 
         private static readonly Color ChangedColor = OverrideInspectorGUI.ChangedColor;
@@ -67,6 +68,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             _list = new ReorderableList(_runHere, typeof(StateActionSO), true, true, true, false)
             {
                 elementHeight = EditorGUIUtility.singleLineHeight + 4f,
+                // A replaced row has a second line: "Base: <the action it replaces>".
+                elementHeightCallback = index => EditorGUIUtility.singleLineHeight *
+                    (index < _runHere.Count && _replacedHere.ContainsKey(_runHere[index]) ? 2f : 1f) + 4f,
                 drawHeaderCallback = DrawListHeader,
                 drawElementCallback = DrawListRow,
                 onReorderCallback = _ => _pendingEdit = (_, orderList) => SaveOrder(orderList, new List<StateActionSO>(_runHere)),
@@ -105,6 +109,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 _state, stateActions, _table.EffectiveActionChanges, _table.EffectiveActionOrders);
             _defaultOrder = ElementResolver.BuildActionList(
                 _state, stateActions, _table.EffectiveActionChanges, _baseTable.EffectiveActionOrders);
+            _replacedHere = ReadReplacements(changes);
             _list.list = _runHere;
 
             OverrideInspectorGUI.DrawHeader(_state.name, _table.name);
@@ -300,7 +305,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             GUI.contentColor = previous;
         }
 
-        // [name ............ added] [×]. Added here: blue bar and "added" tag.
+        // A Base's row: [action field ◉ .... tag] [↺] [×]. Picking another action in the field replaces it
+        // here, in the same place (ActionChange Replace). Added here: [name .... added] [×].
+        // Changed here (added / replaced / sub-state machine overridden): blue bar.
         private void DrawListRow(Rect rect, int index, bool isActive, bool isFocused)
         {
             if (index >= _runHere.Count)
@@ -309,31 +316,69 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             }
 
             StateActionSO action = _runHere[index];
-            bool isAddedHere = !_fromBase.Contains(action);
+
+            // The Base's action this one stands in for, or null when it isn't a replacement.
+            StateActionSO replacedBase = _replacedHere.TryGetValue(action, out StateActionSO original) ? original : null;
+            bool isReplaced = replacedBase != null;
+            bool isAddedHere = !isReplaced && !_fromBase.Contains(action);
+            StateActionSO baseAction = isReplaced ? replacedBase : action;
+
             rect.y += 2f;
             rect.height = EditorGUIUtility.singleLineHeight;
 
             var removeRect = new Rect(rect.xMax - 20f, rect.y, 20f, rect.height);
-            var nameRect = new Rect(rect.x, rect.y, rect.width - 24f, rect.height);
+            var revertRect = new Rect(removeRect.x - 24f, rect.y, 22f, rect.height);
+            var nameRect = new Rect(rect.x, rect.y, (isReplaced ? revertRect.x : removeRect.x) - rect.x - 4f, rect.height);
 
             // A Base's Sub State Machine action running this table's own sub table (Make Sub Variant).
             bool isSubOverridden = !isAddedHere &&
                 action is SubStateMachineActionSO subAction &&
                 OverriddenSubTable(subAction) != null;
 
-            if ((isAddedHere || isSubOverridden) && Event.current.type == EventType.Repaint)
+            if ((isAddedHere || isReplaced || isSubOverridden) && Event.current.type == EventType.Repaint)
             {
-                EditorGUI.DrawRect(new Rect(rect.x - 4f, rect.y, 2f, rect.height), ChangedColor);
+                // A replaced row's bar runs down its "Base:" line too.
+                float barHeight = isReplaced ? rect.height * 2f : rect.height;
+                EditorGUI.DrawRect(new Rect(rect.x - 4f, rect.y, 2f, barHeight), ChangedColor);
             }
 
-            EditorGUI.LabelField(nameRect, new GUIContent(action.name, isAddedHere ? "Added in this table." : "From the Base."));
+            if (isReplaced)
+            {
+                var baseLineRect = new Rect(rect.x + 4f, rect.y + rect.height, rect.width - 4f, rect.height);
+                EditorGUI.LabelField(baseLineRect, $"Base: {baseAction.name}", EditorStyles.miniLabel);
+            }
+
             if (isAddedHere)
             {
+                EditorGUI.LabelField(nameRect, new GUIContent(action.name, "Added in this table."));
                 EditorGUI.LabelField(nameRect, "added", _tagStyle);
             }
-            else if (isSubOverridden)
+            else
             {
-                EditorGUI.LabelField(nameRect, "sub-state machine overridden", _tagStyle);
+                // The field takes most of the row; the tag sits in what's left on the right.
+                string tag = isSubOverridden ? "sub-state machine overridden" : null;
+                float tagWidth = tag != null ? Mathf.Min(_tagStyle.CalcSize(new GUIContent(tag)).x + 6f, nameRect.width * 0.45f) : 0f;
+                var fieldRect = new Rect(nameRect.x, nameRect.y, nameRect.width - tagWidth, nameRect.height);
+
+                var picked = (StateActionSO)EditorGUI.ObjectField(fieldRect, action, typeof(StateActionSO), false);
+                if (picked != action)
+                {
+                    // The Base's own one again (or cleared): no replacement.
+                    StateActionSO with = picked == null || picked == baseAction ? null : picked;
+                    _pendingEdit = (changeList, _) => SetReplace(changeList, baseAction, with);
+                }
+
+                if (tag != null)
+                {
+                    var tagRect = new Rect(fieldRect.xMax, nameRect.y, tagWidth, nameRect.height);
+                    EditorGUI.LabelField(tagRect, new GUIContent(tag, tag), _tagStyle);
+                }
+            }
+
+            if (isReplaced &&
+                GUI.Button(revertRect, new GUIContent("↺", $"Back to the Base's {baseAction.name}"), EditorStyles.miniButton))
+            {
+                _pendingEdit = (changeList, _) => SetReplace(changeList, baseAction, null);
             }
 
             string tooltip = isAddedHere ? "Take it out" : "Don't run it in this table (the Base keeps it)";
@@ -345,9 +390,51 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 }
                 else
                 {
-                    _pendingEdit = (changeList, _) => AddChange(changeList, ActionChange.ChangeKind.Remove, action);
+                    // A replaced one goes as a whole: no replacement, and the Base's one not run either.
+                    _pendingEdit = (changeList, _) =>
+                    {
+                        SetReplace(changeList, baseAction, null);
+                        AddChange(changeList, ActionChange.ChangeKind.Remove, baseAction);
+                    };
                 }
             }
+        }
+
+        // ---------- Replace ----------
+
+        // This table's own replacements in this state: the one that runs -> the Base's it replaces.
+        private Dictionary<StateActionSO, StateActionSO> _replacedHere = new Dictionary<StateActionSO, StateActionSO>();
+
+        private Dictionary<StateActionSO, StateActionSO> ReadReplacements(SerializedProperty changes)
+        {
+            var replacements = new Dictionary<StateActionSO, StateActionSO>();
+
+            for (int i = 0; i < changes.arraySize; i++)
+            {
+                SerializedProperty change = changes.GetArrayElementAtIndex(i);
+                if (IsFor(change, ActionChange.ChangeKind.Replace) &&
+                    change.FindPropertyRelative(ActionProperty).objectReferenceValue is StateActionSO from &&
+                    change.FindPropertyRelative(WithProperty).objectReferenceValue is StateActionSO with)
+                {
+                    replacements[with] = from;
+                }
+            }
+
+            return replacements;
+        }
+
+        // with null: the Base's action runs again.
+        private void SetReplace(SerializedProperty changes, StateActionSO baseAction, StateActionSO with)
+        {
+            DeleteChanges(changes, ActionChange.ChangeKind.Replace, baseAction);
+
+            if (with == null)
+            {
+                return;
+            }
+
+            AddChange(changes, ActionChange.ChangeKind.Replace, baseAction);
+            changes.GetArrayElementAtIndex(changes.arraySize - 1).FindPropertyRelative(WithProperty).objectReferenceValue = with;
         }
 
         // ---------- Drop actions here ----------
@@ -614,7 +701,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             OverrideInspectorGUI.EndBoxBody();
         }
 
-        // Entries that do nothing: an old kind (Replace, taken out), or an Add with no action picked.
+        // Entries that do nothing: an unknown kind, an Add with no action picked, or a Replace with nothing
+        // to replace it with.
         private void DrawUnknownChanges(SerializedProperty changes)
         {
             int count = 0;
@@ -662,9 +750,13 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             }
 
             int kind = change.FindPropertyRelative(KindProperty).intValue;
-            bool knownKind = kind == (int)ActionChange.ChangeKind.Remove || kind == (int)ActionChange.ChangeKind.Add;
+            bool knownKind = kind == (int)ActionChange.ChangeKind.Remove ||
+                             kind == (int)ActionChange.ChangeKind.Add ||
+                             kind == (int)ActionChange.ChangeKind.Replace;
             bool hasAction = change.FindPropertyRelative(ActionProperty).objectReferenceValue != null;
-            return !knownKind || !hasAction;
+            bool hasWith = kind != (int)ActionChange.ChangeKind.Replace ||
+                           change.FindPropertyRelative(WithProperty).objectReferenceValue != null;
+            return !knownKind || !hasAction || !hasWith;
         }
 
         // ---------- Edits ----------

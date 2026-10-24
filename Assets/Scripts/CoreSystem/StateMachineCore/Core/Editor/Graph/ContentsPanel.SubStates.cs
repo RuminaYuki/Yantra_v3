@@ -16,11 +16,14 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
     public partial class ContentsPanel
     {
         // exitsSection: State Exit, when this table is a sub-state machine's own table; otherwise null.
+        // inSubTables: in the file's main table, the actions / conditions only sub-state machine tables use
+        // (UsedOnlyInSubTables), listed under the sub-state that runs that table (Used Inside).
         private void AddSubStatesGroup(
             Dictionary<StateSO, TableContents.SubStateParts> subStates,
             HashSet<ScriptableObject> used,
             string tablePath,
-            VisualElement exitsSection)
+            VisualElement exitsSection,
+            Dictionary<ScriptableObject, List<TransitionTableSO>> inSubTables)
         {
             Foldout group = CreateFoldout("SubStates", "SubStates");
             MakeGroup(group, subStates.Count);
@@ -40,9 +43,34 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 group.Add(heading);
             }
 
+            var placedTables = new HashSet<TransitionTableSO>();
+
             foreach (KeyValuePair<StateSO, TableContents.SubStateParts> subState in subStates.OrderBy(pair => pair.Key.name))
             {
-                group.Add(CreateSubStateView(subState.Key, subState.Value, used, tablePath));
+                // Its table and the ones nested in it: what runs inside this sub-state.
+                HashSet<TransitionTableSO> inside = TableAndNested(subState.Value.Table);
+                placedTables.UnionWith(inside);
+
+                group.Add(CreateSubStateView(
+                    subState.Key, subState.Value, used, tablePath, ItemsIn(inSubTables, inside)));
+            }
+
+            // Sub-state machine tables no sub-state here runs (e.g. a sub variant of a Base's sub-state,
+            // whose state is listed under From Base): their own entry, by table name.
+            foreach (TransitionTableSO leftover in inSubTables.Values
+                         .SelectMany(tables => tables)
+                         .Distinct()
+                         .Where(table => !placedTables.Contains(table))
+                         .OrderBy(table => table.name))
+            {
+                var view = new VisualElement();
+                VisualElement heading = CreateHeading(EmbeddedAssets.TablePrefix(leftover.name));
+                heading.tooltip = $"{leftover.name}: run by a Base's sub-state (see From Base).";
+                heading.style.paddingLeft = 12;
+                view.Add(heading);
+                var leftoverTables = new HashSet<TransitionTableSO> { leftover };
+                AddUsedInside(view, ItemsIn(inSubTables, leftoverTables), leftoverTables, tablePath, leftover.name);
+                group.Add(view);
             }
 
             if (exitsSection != null)
@@ -59,7 +87,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             StateSO state,
             TableContents.SubStateParts parts,
             HashSet<ScriptableObject> used,
-            string tablePath)
+            string tablePath,
+            List<ScriptableObject> usedInside)
         {
             void Open() => _onOpenSubStateMachine?.Invoke(state, parts.Table);
 
@@ -69,7 +98,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             var children = new VisualElement();
             view.Add(children);
-            AddFoldArrow(row, children, $"Sub/{AssetDatabase.GetAssetPath(state)}/{state.name}");
+            // Folded at first: one line per sub-state machine until one is opened.
+            AddFoldArrow(row, children, $"Sub/{AssetDatabase.GetAssetPath(state)}/{state.name}", startOpen: false);
 
             AddSubStatePart(children, CreateHeading("Actions"), parts.Actions, used, tablePath, null);
             AddSubStatePart(
@@ -82,8 +112,108 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 showWhenEmpty: true);
             AddSubStatePart(children, CreateHeading("Transition Table"), new List<ScriptableObject> { parts.Table },
                 null, tablePath, Open);
+            AddUsedInside(children, usedInside, TableAndNested(parts.Table), tablePath,
+                $"{AssetDatabase.GetAssetPath(state)}/{state.name}");
 
             return view;
+        }
+
+        //   ▼ Used Inside · Actions (9)
+        //       ▶ Navigator               (the sub-state machine table's own folders)
+        //       ClearMoveDirectionAction
+        //   ▼ Used Inside · Conditions (5)
+        // Actions and conditions in this file only the sub-state machine's tables use. Plain rows; each
+        // part and folder folds (remembered).
+        private void AddUsedInside(
+            VisualElement parent,
+            List<ScriptableObject> items,
+            HashSet<TransitionTableSO> insideTables,
+            string tablePath,
+            string foldKey)
+        {
+            // An item's folder in the first of the tables that files it ("" = none).
+            List<FolderData> folderData = insideTables.OrderBy(table => table.name).Select(FolderData.Load).ToList();
+            string FolderOf(ScriptableObject item)
+            {
+                foreach (FolderData data in folderData)
+                {
+                    if (data.ItemFolders.TryGetValue(item, out string folder))
+                    {
+                        return folder;
+                    }
+                }
+
+                return null;
+            }
+
+            foreach ((string kind, List<ScriptableObject> ofKind) in new[]
+                     {
+                         (ActionsGroup, items.OfType<StateActionSO>().Cast<ScriptableObject>().ToList()),
+                         (ConditionsGroup, items.OfType<StateConditionSO>().Cast<ScriptableObject>().ToList())
+                     })
+            {
+                if (ofKind.Count == 0)
+                {
+                    continue;
+                }
+
+                string key = $"UsedInside/{foldKey}";
+                Foldout part = CreateFoldout($"Used Inside · {kind} ({ofKind.Count})", $"{key}/{kind}");
+                part.Q<Toggle>().tooltip = $"{kind} only the sub-state machine uses, in its own folders. Open it to change where.";
+                parent.Add(part);
+
+                var folderViews = new Dictionary<string, Foldout>();
+                List<ScriptableObject> sorted = ofKind.OrderBy(item => item.name).ToList();
+
+                // Folders first (like the other groups), then the rows outside any folder.
+                foreach (string path in sorted.Select(FolderOf).Where(folder => folder != null).Distinct().OrderBy(path => path))
+                {
+                    GetOrCreateParentFolder(part, key, kind, path, folderViews);
+                }
+
+                foreach (ScriptableObject item in sorted)
+                {
+                    string folder = FolderOf(item);
+                    VisualElement rowParent = folder != null ? folderViews[folder] : part;
+                    rowParent.Add(CreateRow(item, null, null, true, tablePath, null));
+                }
+            }
+        }
+
+        private static List<ScriptableObject> ItemsIn(
+            Dictionary<ScriptableObject, List<TransitionTableSO>> inSubTables,
+            HashSet<TransitionTableSO> tables)
+        {
+            return inSubTables
+                .Where(pair => pair.Value.Any(tables.Contains))
+                .Select(pair => pair.Key)
+                .ToList();
+        }
+
+        private static HashSet<TransitionTableSO> TableAndNested(TransitionTableSO table)
+        {
+            var tables = new HashSet<TransitionTableSO>();
+            var pending = new Stack<TransitionTableSO>();
+            pending.Push(table);
+
+            while (pending.Count > 0)
+            {
+                TransitionTableSO current = pending.Pop();
+                if (current == null || !tables.Add(current))
+                {
+                    continue;
+                }
+
+                foreach (StateSO state in TableContents.CollectUsed(current).OfType<StateSO>())
+                {
+                    foreach (TransitionTableSO subTable in StateNodeView.FindSubTables(state, current))
+                    {
+                        pending.Push(subTable);
+                    }
+                }
+            }
+
+            return tables;
         }
 
         // A heading and its rows. Rows here belong to the sub-state machine, so they don't go into folders.

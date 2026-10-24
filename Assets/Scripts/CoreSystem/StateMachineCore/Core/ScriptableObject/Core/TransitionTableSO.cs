@@ -42,6 +42,11 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
         private TransitionOverride[] _transitionOverrides =
             Array.Empty<TransitionOverride>();
 
+        // condition ทีละตัวบน transition จาก Base ที่ table นี้ใช้ตัวอื่นแทน (แก้จาก Inspector ของเส้น)
+        [SerializeField]
+        private ConditionReplace[] _conditionReplaces =
+            Array.Empty<ConditionReplace>();
+
         // transition จาก Base ที่ table นี้ให้ไปจบที่ state อื่น (แก้จาก graph: ลากเส้นของ Base ไป state อื่น)
         [SerializeField]
         private TransitionRetarget[] _transitionRetargets =
@@ -101,11 +106,10 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
                         // TransitionItem เป็น struct: ตัวแปรนี้เป็นสำเนา แก้แล้วไม่กระทบของ Base
                         TransitionItem transition = baseTransition;
 
+                        // ทั้งชุด (override) หรือทีละตัว (replace) — มีทั้งชุดแล้ว ไม่แทนทีละตัวอีก
                         ConditionGroupUsage[] overriddenGroups = OverriddenConditionsOf(transition.Id);
-                        if (overriddenGroups != null)
-                        {
-                            transition.ConditionGroups = overriddenGroups;
-                        }
+                        transition.ConditionGroups = overriddenGroups ??
+                            ReplacedConditions(transition.Id, transition.ConditionGroups);
 
                         StateSO retargetedTo = RetargetOf(transition.Id);
                         if (retargetedTo != null)
@@ -140,10 +144,8 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
                         AnyTransitionItem transition = baseTransition;
 
                         ConditionGroupUsage[] overriddenGroups = OverriddenConditionsOf(transition.Id);
-                        if (overriddenGroups != null)
-                        {
-                            transition.ConditionGroups = overriddenGroups;
-                        }
+                        transition.ConditionGroups = overriddenGroups ??
+                            ReplacedConditions(transition.Id, transition.ConditionGroups);
 
                         StateSO retargetedTo = RetargetOf(transition.Id);
                         if (retargetedTo != null)
@@ -227,6 +229,96 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
                 if (transitionOverride.TransitionId == transitionId)
                 {
                     return transitionOverride.ConditionGroups;
+                }
+            }
+
+            return null;
+        }
+
+        // เงื่อนไขของ Base หลังแทนตัวที่ table นี้แทนไว้ (สำเนาใหม่ ของ Base ไม่ถูกแก้)
+        // ไม่มีอะไรแทนบนเส้นนี้ → คืน groups เดิม
+        private ConditionGroupUsage[] ReplacedConditions(string transitionId, ConditionGroupUsage[] groups)
+        {
+            if (groups == null || !HasReplaces(transitionId))
+            {
+                return groups;
+            }
+
+            var result = new ConditionGroupUsage[groups.Length];
+
+            for (int g = 0; g < groups.Length; g++)
+            {
+                ConditionUsage[] conditions = groups[g].Conditions ?? Array.Empty<ConditionUsage>();
+                var copy = new List<ConditionUsage>(conditions.Length);
+
+                foreach (ConditionUsage condition in conditions)
+                {
+                    // ลบบนเส้นนี้ → ไม่ใส่ (กลุ่มว่างไม่ผ่าน ทาง OR นั้นเลยปิดไปเอง ไม่ใช่ผ่านตลอด)
+                    if (IsConditionRemoved(transitionId, condition.Condition))
+                    {
+                        continue;
+                    }
+
+                    ConditionUsage used = condition;
+                    StateConditionSO replacement = ReplacementOf(transitionId, condition.Condition);
+                    if (replacement != null)
+                    {
+                        used.Condition = replacement;
+                    }
+
+                    copy.Add(used);
+                }
+
+                result[g].Conditions = copy.ToArray();
+            }
+
+            return result;
+        }
+
+        private bool IsConditionRemoved(string transitionId, StateConditionSO condition)
+        {
+            if (condition == null)
+            {
+                return false;
+            }
+
+            foreach (ConditionReplace replace in _conditionReplaces)
+            {
+                if (replace.Remove && replace.TransitionId == transitionId && replace.From == condition)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool HasReplaces(string transitionId)
+        {
+            foreach (ConditionReplace replace in _conditionReplaces)
+            {
+                if (replace.TransitionId == transitionId)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        // ตัวที่ใช้แทน condition นี้บนเส้นนี้ หรือ null
+        private StateConditionSO ReplacementOf(string transitionId, StateConditionSO condition)
+        {
+            if (condition == null)
+            {
+                return null;
+            }
+
+            foreach (ConditionReplace replace in _conditionReplaces)
+            {
+                if (!replace.Remove && replace.TransitionId == transitionId && replace.From == condition && replace.To != null)
+                {
+                    return replace.To;
                 }
             }
 

@@ -1,5 +1,6 @@
 #if UNITY_EDITOR
 
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -127,13 +128,22 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             }
             else
             {
+                int changedCount = ReplacesOf(transitionId).Count;
                 int clicked = OverrideInspectorGUI.DrawBoxHeader(
-                    title, "Same as the Base", OverrideInspectorGUI.SameColor,
-                    new GUIContent("Override", "Start from the Base's conditions and change them for this table"),
+                    title,
+                    changedCount > 0 ? $"{changedCount} changed here" : "Same as the Base",
+                    changedCount > 0 ? OverrideInspectorGUI.ChangedColor : OverrideInspectorGUI.SameColor,
+                    new GUIContent("Override", "Take the whole set for this table (starts from what runs here now). " +
+                                               "Base changes to this arrow's conditions stop coming in."),
                     new GUIContent("Remove", "Don't take this transition in this table"));
                 if (clicked == 0)
                 {
-                    _pendingEdit = () => AddOverride(overrides, transitionId, baseGroups);
+                    // The whole set starts from what runs now (replacements in), and replaces them.
+                    _pendingEdit = () =>
+                    {
+                        AddOverride(overrides, transitionId, WithReplacements(baseGroups, transitionId));
+                        SetReplace(transitionId, null, null);
+                    };
                 }
                 else if (clicked == 1)
                 {
@@ -145,7 +155,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 }
 
                 OverrideInspectorGUI.BeginBoxBody();
-                DrawConditionList(baseGroups);
+                DrawConditionList(baseGroups, transitionId);
+                DrawStaleReplaces(baseGroups, transitionId);
                 OverrideInspectorGUI.EndBoxBody();
             }
 
@@ -198,7 +209,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 : selection.BaseTable.EffectiveTransitions.FirstOrDefault(item => item.Id == transitionId).ToState;
         }
 
-        // ---------- Read-only conditions ----------
+        // ---------- The Base's conditions, replaced one by one ----------
+
+        private const string ReplacesProperty = "_conditionReplaces";
 
         private static readonly Color TrueColor = new Color(0.45f, 0.85f, 0.45f);
         private static readonly Color FalseColor = new Color(1f, 0.5f, 0.5f);
@@ -210,14 +223,17 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         };
 
         // The Base's conditions laid out like the editable list: one row per condition, AND inside a box,
-        // OR between boxes. Clicking a name pings that condition in the Project window.
-        private static void DrawConditionList(TransitionTableSO.ConditionGroupUsage[] groups)
+        // OR between boxes. Each row's field swaps that condition for another in this table only
+        // (_conditionReplaces); the rest keep following the Base.
+        private void DrawConditionList(TransitionTableSO.ConditionGroupUsage[] groups, string transitionId)
         {
             if (groups.Length == 0)
             {
                 EditorGUILayout.LabelField("Always (no conditions)", EditorStyles.miniLabel);
                 return;
             }
+
+            EditorGUILayout.LabelField("WHEN", EditorStyles.miniBoldLabel);
 
             for (int g = 0; g < groups.Length; g++)
             {
@@ -231,9 +247,15 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
-                foreach (TransitionTableSO.ConditionUsage usage in conditions)
+                // All of a box at once (AND), like the editable list; one box or another (OR, between boxes).
+                for (int c = 0; c < conditions.Length; c++)
                 {
-                    DrawConditionRow(usage);
+                    if (c > 0)
+                    {
+                        EditorGUILayout.LabelField("AND", OrStyle);
+                    }
+
+                    DrawConditionRow(conditions[c], transitionId);
                 }
 
                 if (conditions.Length == 0)
@@ -245,28 +267,208 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             }
         }
 
-        //   HasAttackTokenCondition                 is True
-        private static void DrawConditionRow(TransitionTableSO.ConditionUsage usage)
+        //   [HasAttackTokenCondition         ◉]       [×]         is True
+        //  ▌[ReachPathNavigatorTarget_Cond.. ◉]  [↺]  [×]         is True     (replaced: blue bar)
+        //     Base: PlayerFacingToEnemy_Condition
+        //  ▌ PlayerFacingToEnemy_Condition   removed here  [↺]    is True     (removed: red bar, faint)
+        private void DrawConditionRow(TransitionTableSO.ConditionUsage usage, string transitionId)
         {
             bool expectsTrue = usage.ExpectedResult == TransitionTableSO.Result.True;
-            string name = usage.Condition != null ? usage.Condition.name : "(missing)";
+            StateConditionSO baseCondition = usage.Condition;
+            StateConditionSO replacement = baseCondition != null ? ReplacementOf(transitionId, baseCondition) : null;
+            bool isReplaced = replacement != null;
+            bool isRemoved = baseCondition != null && IsRemovedHere(transitionId, baseCondition);
 
             EditorGUILayout.BeginHorizontal();
 
-            if (GUILayout.Button(new GUIContent(name, "Click to find it in the Project window"), EditorStyles.label) &&
-                usage.Condition != null)
+            Rect bar = GUILayoutUtility.GetRect(3f, EditorGUIUtility.singleLineHeight, GUILayout.Width(3f));
+            if ((isReplaced || isRemoved) && Event.current.type == EventType.Repaint)
             {
-                EditorGUIUtility.PingObject(usage.Condition);
+                EditorGUI.DrawRect(bar, isRemoved ? OverrideInspectorGUI.RemovedColor : OverrideInspectorGUI.ChangedColor);
             }
 
-            GUILayout.FlexibleSpace();
+            if (baseCondition == null)
+            {
+                EditorGUILayout.LabelField("(missing)");
+            }
+            else if (isRemoved)
+            {
+                Color faded = GUI.contentColor;
+                GUI.contentColor = OverrideInspectorGUI.RemovedColor;
+                EditorGUILayout.LabelField(
+                    new GUIContent(baseCondition.name, "Not checked on this arrow in this table."),
+                    EditorStyles.label);
+                GUILayout.Label("removed here", EditorStyles.miniLabel, GUILayout.ExpandWidth(false));
+                GUI.contentColor = faded;
+
+                if (GUILayout.Button(new GUIContent("↺", $"Check {baseCondition.name} again, like the Base"),
+                        EditorStyles.miniButton, GUILayout.Width(22f)))
+                {
+                    _pendingEdit = () => SetReplace(transitionId, baseCondition, null);
+                }
+            }
+            else
+            {
+                StateConditionSO shown = isReplaced ? replacement : baseCondition;
+                var picked = (StateConditionSO)EditorGUILayout.ObjectField(shown, typeof(StateConditionSO), false);
+
+                // Picking the Base's own one again (or clearing it) goes back to the Base's.
+                if (picked != shown)
+                {
+                    StateConditionSO to = picked == null || picked == baseCondition ? null : picked;
+                    _pendingEdit = () => SetReplace(transitionId, baseCondition, to);
+                }
+
+                if (isReplaced &&
+                    GUILayout.Button(new GUIContent("↺", $"Back to the Base's {baseCondition.name}"),
+                        EditorStyles.miniButton, GUILayout.Width(22f)))
+                {
+                    _pendingEdit = () => SetReplace(transitionId, baseCondition, null);
+                }
+
+                // The last one in its box turns that OR way off (an empty box never passes).
+                if (GUILayout.Button(new GUIContent("×", "Don't check it on this arrow in this table"),
+                        EditorStyles.miniButton, GUILayout.Width(22f)))
+                {
+                    _pendingEdit = () => SetRemoved(transitionId, baseCondition);
+                }
+            }
 
             Color previous = GUI.contentColor;
             GUI.contentColor = expectsTrue ? TrueColor : FalseColor;
-            GUILayout.Label(expectsTrue ? "is True" : "is False", EditorStyles.miniBoldLabel);
+            GUILayout.Label(expectsTrue ? "is True" : "is False", EditorStyles.miniBoldLabel, GUILayout.Width(48f));
             GUI.contentColor = previous;
 
             EditorGUILayout.EndHorizontal();
+
+            if (isReplaced)
+            {
+                EditorGUILayout.LabelField($"   Base: {baseCondition.name}", EditorStyles.miniLabel);
+            }
+        }
+
+        // Replacements on this arrow whose Base condition isn't on it any more (the Base removed it):
+        // they do nothing, so say so and offer to remove them.
+        private void DrawStaleReplaces(TransitionTableSO.ConditionGroupUsage[] baseGroups, string transitionId)
+        {
+            var onArrow = new HashSet<StateConditionSO>(baseGroups
+                .SelectMany(group => group.Conditions ?? new TransitionTableSO.ConditionUsage[0])
+                .Select(usage => usage.Condition));
+
+            foreach ((StateConditionSO from, StateConditionSO to, bool isRemove) in ReplacesOf(transitionId))
+            {
+                if (from != null && onArrow.Contains(from))
+                {
+                    continue;
+                }
+
+                string fromName = from != null ? from.name : "(missing)";
+                string change = isRemove ? $"Removing {fromName}" : $"{fromName} → {(to != null ? to.name : "(missing)")}";
+
+                EditorGUILayout.BeginHorizontal();
+                OverrideInspectorGUI.DrawNote(
+                    $"{change}: the Base doesn't check it here any more, so this does nothing.",
+                    OverrideInspectorGUI.RemovedColor);
+                if (GUILayout.Button("Remove", EditorStyles.miniButton, GUILayout.Width(64f)))
+                {
+                    _pendingEdit = () => SetReplace(transitionId, from, null);
+                }
+
+                EditorGUILayout.EndHorizontal();
+            }
+        }
+
+        // This arrow's entries in _conditionReplaces: replaced (To) or removed (IsRemove).
+        private List<(StateConditionSO From, StateConditionSO To, bool IsRemove)> ReplacesOf(string transitionId)
+        {
+            var found = new List<(StateConditionSO, StateConditionSO, bool)>();
+            SerializedProperty replaces = _table.FindProperty(ReplacesProperty);
+
+            for (int i = 0; i < replaces.arraySize; i++)
+            {
+                SerializedProperty entry = replaces.GetArrayElementAtIndex(i);
+                if (entry.FindPropertyRelative(TransitionIdProperty).stringValue == transitionId)
+                {
+                    found.Add((
+                        entry.FindPropertyRelative("_from").objectReferenceValue as StateConditionSO,
+                        entry.FindPropertyRelative("_to").objectReferenceValue as StateConditionSO,
+                        entry.FindPropertyRelative("_remove").boolValue));
+                }
+            }
+
+            return found;
+        }
+
+        private StateConditionSO ReplacementOf(string transitionId, StateConditionSO from)
+        {
+            return ReplacesOf(transitionId).FirstOrDefault(replace => !replace.IsRemove && replace.From == from).To;
+        }
+
+        private bool IsRemovedHere(string transitionId, StateConditionSO from)
+        {
+            return ReplacesOf(transitionId).Any(replace => replace.IsRemove && replace.From == from);
+        }
+
+        // Not checked on this arrow in this table (a replacement of it goes too).
+        private void SetRemoved(string transitionId, StateConditionSO from)
+        {
+            SetReplace(transitionId, from, null);
+
+            SerializedProperty replaces = _table.FindProperty(ReplacesProperty);
+            replaces.arraySize++;
+            SerializedProperty added = replaces.GetArrayElementAtIndex(replaces.arraySize - 1);
+            added.FindPropertyRelative(TransitionIdProperty).stringValue = transitionId;
+            added.FindPropertyRelative("_from").objectReferenceValue = from;
+            added.FindPropertyRelative("_to").objectReferenceValue = null;
+            added.FindPropertyRelative("_remove").boolValue = true;
+        }
+
+        // to null: the Base's condition again (not replaced, not removed). from null: every entry on this
+        // arrow goes.
+        private void SetReplace(string transitionId, StateConditionSO from, StateConditionSO to)
+        {
+            SerializedProperty replaces = _table.FindProperty(ReplacesProperty);
+
+            for (int i = replaces.arraySize - 1; i >= 0; i--)
+            {
+                SerializedProperty entry = replaces.GetArrayElementAtIndex(i);
+                if (entry.FindPropertyRelative(TransitionIdProperty).stringValue == transitionId &&
+                    (from == null || entry.FindPropertyRelative("_from").objectReferenceValue == from))
+                {
+                    replaces.DeleteArrayElementAtIndex(i);
+                }
+            }
+
+            if (from == null || to == null)
+            {
+                return;
+            }
+
+            replaces.arraySize++;
+            SerializedProperty added = replaces.GetArrayElementAtIndex(replaces.arraySize - 1);
+            added.FindPropertyRelative(TransitionIdProperty).stringValue = transitionId;
+            added.FindPropertyRelative("_from").objectReferenceValue = from;
+            added.FindPropertyRelative("_to").objectReferenceValue = to;
+            added.FindPropertyRelative("_remove").boolValue = false;   // growing the array copies the last entry
+        }
+
+        // The Base's groups with this arrow's replacements / removals in (a copy), to start a whole-set
+        // override from.
+        private TransitionTableSO.ConditionGroupUsage[] WithReplacements(
+            TransitionTableSO.ConditionGroupUsage[] groups,
+            string transitionId)
+        {
+            return groups.Select(group => new TransitionTableSO.ConditionGroupUsage
+            {
+                Conditions = (group.Conditions ?? new TransitionTableSO.ConditionUsage[0])
+                    .Where(usage => usage.Condition == null || !IsRemovedHere(transitionId, usage.Condition))
+                    .Select(usage => new TransitionTableSO.ConditionUsage
+                    {
+                        Condition = ReplacementOf(transitionId, usage.Condition) ?? usage.Condition,
+                        ExpectedResult = usage.ExpectedResult
+                    })
+                    .ToArray()
+            }).ToArray();
         }
 
         // ---------- Data ----------

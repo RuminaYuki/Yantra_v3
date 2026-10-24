@@ -63,7 +63,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         private static readonly Color UsesSelectionColor = new Color(1f, 0.65f, 0.2f);
         private static readonly Color InheritedColor = new Color(0.85f, 0.85f, 0.85f, 0.3f);
         private static readonly Color RemovedColor = new Color(1f, 0.45f, 0.45f, 0.35f);
-        private static readonly Color OverriddenColor = new Color(0.35f, 0.65f, 1f, 0.75f);
+        // Teal, not blue: blue is the selection.
+        internal static readonly Color OverriddenColor = new Color(0.25f, 0.85f, 0.7f, 0.85f);
 
         // On when a condition selected elsewhere (Contents, Project, Inspector) is checked by this arrow.
         private bool _usesSelection;

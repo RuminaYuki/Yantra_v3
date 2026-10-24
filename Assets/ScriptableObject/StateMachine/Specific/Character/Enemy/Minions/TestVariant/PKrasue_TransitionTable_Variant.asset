@@ -20,23 +20,20 @@ MonoBehaviour:
   _removedIds:
   - 1c39568c-b35c-4a78-90b5-a99691a51778
   _transitionOverrides: []
+  _conditionReplaces:
+  - _transitionId: 6af50fa5-0383-4afe-950e-4b3665c2dda8
+    _from: {fileID: 7954348948201577819, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    _to: {fileID: 148733803568735999, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    _remove: 0
   _transitionRetargets:
   - _transitionId: 6af50fa5-0383-4afe-950e-4b3665c2dda8
     _toState: {fileID: 3843580741982143811, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
   _actionChanges:
   - _state: {fileID: 3843580741982143811, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
-    _kind: 1
+    _kind: 3
     _action: {fileID: -1529617912093970073, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
-  - _state: {fileID: 3843580741982143811, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
-    _kind: 2
-    _action: {fileID: 4916025918269346807}
-  _actionOrders:
-  - _state: {fileID: 3843580741982143811, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
-    _actions:
-    - {fileID: 4916025918269346807}
-    - {fileID: 2938497538905103224, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
-    - {fileID: 6280428737079694077, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
-    - {fileID: -8835025516484844155, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    _with: {fileID: 4916025918269346807}
+  _actionOrders: []
   _exposedParameters: {fileID: 238664602520202074}
   _nodePositions:
   - State: {fileID: -2422205497665446699, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
@@ -95,7 +92,13 @@ MonoBehaviour:
     _target: {fileID: 2018981407000030339, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
     _fieldPath: _offset
   _removedIds: []
-  _transitionOverrides: []
+  _transitionOverrides:
+  - _transitionId: 7bcc6de5-9726-4796-8c7c-db488fba4352
+    _conditionGroups:
+    - Conditions:
+      - Condition: {fileID: 457257371227455009}
+        ExpectedResult: 0
+  _conditionReplaces: []
   _transitionRetargets: []
   _actionChanges: []
   _actionOrders: []
@@ -115,7 +118,7 @@ MonoBehaviour:
     Position: {x: 198, y: 156}
   - State: {fileID: 5838480089549137350, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
     Position: {x: 198, y: 232}
-  _entryNodePosition: {x: 8, y: 0}
+  _entryNodePosition: {x: -1, y: 0}
   _anyStateNodePosition: {x: -1, y: 97}
   _contentsFolders: []
   _contentsFolderPaths: []
@@ -148,6 +151,19 @@ MonoBehaviour:
     - _target: {fileID: 4916025918269346807}
       _fieldName: _config.damage
     _category: Attack
+--- !u!114 &457257371227455009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79513bdaba7c38f4fb67c2374ce1cf31, type: 3}
+  m_Name: OnHurt_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::OnHurtConditionSO
+  _selfAnchor: {fileID: 0}
 --- !u!114 &4916025918269346807
 MonoBehaviour:
   m_ObjectHideFlags: 0

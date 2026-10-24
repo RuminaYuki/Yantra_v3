@@ -16,9 +16,10 @@ public class FieldOverride : OverrideValue
     public string FieldPath => _fieldPath;
 }
 
-// Variant: ลบ / เพิ่ม action ของ state หนึ่ง เฉพาะ table นี้ (state ของ Base ไม่ถูกแก้)
-//   Remove: ใน State ไม่ทำ Action
-//   Add:    ใน State ทำ Action เพิ่ม (ต่อท้าย ถ้าไม่ได้จัดลำดับไว้ใน ActionOrder)
+// Variant: ลบ / เพิ่ม / แทน action ของ state หนึ่ง เฉพาะ table นี้ (state ของ Base ไม่ถูกแก้)
+//   Remove:  ใน State ไม่ทำ Action
+//   Add:     ใน State ทำ Action เพิ่ม (ต่อท้าย ถ้าไม่ได้จัดลำดับไว้ใน ActionOrder)
+//   Replace: ใน State ทำ With แทน Action ที่ตำแหน่งเดิม (Base ลบ Action ทิ้ง → ไม่มีผล)
 [Serializable]
 public class ActionChange
 {
@@ -26,16 +27,19 @@ public class ActionChange
     public enum ChangeKind
     {
         Remove = 1,
-        Add = 2
+        Add = 2,
+        Replace = 3
     }
 
     [SerializeField] private StateSO _state;
     [SerializeField] private ChangeKind _kind;
     [SerializeField] private StateActionSO _action;
+    [SerializeField] private StateActionSO _with;   // Replace เท่านั้น
 
     public StateSO State => _state;
     public ChangeKind Kind => _kind;
     public StateActionSO Action => _action;
+    public StateActionSO With => _with;
 }
 
 // Variant: ลำดับ action ของ state หนึ่ง เฉพาะ table นี้
@@ -61,6 +65,24 @@ public class TransitionOverride
 
     public string TransitionId => _transitionId;
     public TransitionTableSO.ConditionGroupUsage[] ConditionGroups => _conditionGroups;
+}
+
+// Variant: บน transition จาก Base ตัวนี้ ใช้ condition _to แทน _from (Expected / ตัวอื่น ยังตาม Base)
+// ต่างจาก TransitionOverride ที่เอาไปทั้งชุด: Base แก้หรือเพิ่ม condition อื่นในเส้นนี้ Variant ก็ยังได้ตาม
+// อ้างด้วยตัว SO ไม่ใช่ลำดับ Base สลับลำดับก็ยังถูกตัว / ถ้ามี TransitionOverride เส้นเดียวกัน อันนั้นชนะ
+// _remove: ไม่เช็ก _from บนเส้นนี้เลย (_to ไม่ใช้) / ลบตัวสุดท้ายในกลุ่ม → กลุ่มว่าง = ไม่ผ่าน (ทาง OR นั้นปิด)
+[Serializable]
+public class ConditionReplace
+{
+    [SerializeField] private string _transitionId;
+    [SerializeField] private StateConditionSO _from;
+    [SerializeField] private StateConditionSO _to;
+    [SerializeField] private bool _remove;
+
+    public string TransitionId => _transitionId;
+    public StateConditionSO From => _from;
+    public StateConditionSO To => _to;
+    public bool Remove => _remove;
 }
 
 // Variant: transition จาก Base ตัวนี้ไปจบที่ state อื่นแทน (From / เงื่อนไข ยังตาม Base)

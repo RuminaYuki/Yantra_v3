@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Yuki.Learning.StateMachine.ScriptableObjects;
@@ -17,7 +18,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
     {
         private const string BaseGroupKey = "FromBase";
 
-        // Everything the Base chain uses (nearest Base first).
+        // Everything the Base chain uses (nearest Base first). A Base that is its file's main table also
+        // brings the actions and conditions only its sub-state machines use, like its own Contents shows.
         private static HashSet<ScriptableObject> BaseItems(TransitionTableSO baseTable)
         {
             var items = new HashSet<ScriptableObject>();
@@ -27,7 +29,13 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                  current != null && visited.Add(current);
                  current = StateMachineGraphView.BaseOf(current))
             {
-                items.UnionWith(TableContents.CollectUsed(current));
+                var used = new HashSet<ScriptableObject>(TableContents.CollectUsed(current));
+                items.UnionWith(used);
+
+                if (AssetDatabase.IsMainAsset(current))
+                {
+                    items.UnionWith(UsedOnlyInSubTables(current, used, TableContents.UnusedInFile(current)).Keys);
+                }
             }
 
             return items;

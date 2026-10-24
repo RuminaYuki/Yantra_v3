@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
@@ -53,6 +54,9 @@ public class ElementResolver
     {
         var actions = new List<StateActionSO>();
 
+        // ตัวเดิม → ตัวที่แทน (Replace) ลำดับที่จัดไว้ (ActionOrder) ที่มีตัวเดิมอยู่ จะได้ใช้ตัวที่แทนตรงนั้น
+        var replaced = new Dictionary<StateActionSO, StateActionSO>();
+
         foreach (StateActionSO action in stateActions)
         {
             if (action != null)
@@ -77,12 +81,25 @@ public class ElementResolver
             {
                 actions.Add(change.Action);
             }
+            else if (change.Kind == ActionChange.ChangeKind.Replace && change.With != null)
+            {
+                // ที่ตำแหน่งเดิม ลำดับของ Base จึงยังตาม Base / ไม่มีตัวเดิมแล้ว (Base ลบทิ้ง) ก็ไม่ทำอะไร
+                int index = actions.IndexOf(change.Action);
+                if (index >= 0)
+                {
+                    actions[index] = change.With;
+                    replaced[change.Action] = change.With;
+                }
+            }
         }
 
         ActionOrder order = LastOrderFor(state, orders);
         if (order != null)
         {
-            actions = SortByOrder(actions, order.Actions);
+            StateActionSO[] orderedActions = order.Actions
+                .Select(action => action != null && replaced.TryGetValue(action, out StateActionSO with) ? with : action)
+                .ToArray();
+            actions = SortByOrder(actions, orderedActions);
         }
 
         return actions;

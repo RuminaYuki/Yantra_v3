@@ -105,8 +105,11 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         {
             string path = property.propertyPath;
 
+            // A replaced condition (_conditionReplaces ... _from) only names the Base's one; its _to runs.
             if (path.StartsWith("_actionOrders", StringComparison.Ordinal) ||
-                path.StartsWith("_fieldOverrides", StringComparison.Ordinal))
+                path.StartsWith("_fieldOverrides", StringComparison.Ordinal) ||
+                (path.StartsWith("_conditionReplaces", StringComparison.Ordinal) &&
+                 path.EndsWith("._from", StringComparison.Ordinal)))
             {
                 return true;
             }
@@ -120,7 +123,11 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             int end = path.IndexOf(']', ChangesPrefix.Length);
             string entryPath = path.Substring(0, end + 1);
             SerializedProperty kind = property.serializedObject.FindProperty(entryPath + "._kind");
-            return kind != null && kind.intValue == (int)ActionChange.ChangeKind.Remove;
+            // Remove names the Base's action; Replace too (its _action), while its _with runs.
+            return kind != null &&
+                   (kind.intValue == (int)ActionChange.ChangeKind.Remove ||
+                    (kind.intValue == (int)ActionChange.ChangeKind.Replace &&
+                     path.EndsWith("._action", StringComparison.Ordinal)));
         }
 
         // The item, and everything it uses (directly or through other things) that lives in its file,

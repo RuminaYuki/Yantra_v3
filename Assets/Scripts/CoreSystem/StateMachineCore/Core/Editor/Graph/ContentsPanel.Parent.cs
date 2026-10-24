@@ -23,10 +23,17 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // Rows from the parent: not part of multi-select edits (delete, copy, ...) here.
         private readonly HashSet<Object> _parentRows = new HashSet<Object>();
 
+        // A variant parent runs its Base's too (e.g. the Base's AttackRange_Condition), so those are offered as well.
         private static List<ScriptableObject> ParentItems(TransitionTableSO parentTable, HashSet<ScriptableObject> used)
         {
+            TransitionTableSO parentBase = StateMachineGraphView.SafeBaseOf(parentTable);
+            IEnumerable<ScriptableObject> fromParentBase = parentBase != null
+                ? BaseItems(parentBase)
+                : Enumerable.Empty<ScriptableObject>();
+
             return TableContents.CollectUsed(parentTable)
                 .Concat(TableContents.UnusedInFile(parentTable))
+                .Concat(fromParentBase)
                 .Distinct()
                 .Where(item => item is StateActionSO || item is StateConditionSO)
                 .Where(item => !IsSubStateMachineWiring(item) && !used.Contains(item))
@@ -53,7 +60,22 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 $"{parentTable.name}'s actions and conditions. Drag one into a transition or an action list " +
                 "here to use it too. Rename, delete and folders are done in the parent.";
 
+            // The parent's folders, then its Bases' for what the parent didn't file (its Base's items).
             FolderData folders = FolderData.Load(parentTable);
+            var visited = new HashSet<TransitionTableSO> { parentTable };
+            for (TransitionTableSO baseTable = StateMachineGraphView.SafeBaseOf(parentTable);
+                 baseTable != null && visited.Add(baseTable);
+                 baseTable = StateMachineGraphView.BaseOf(baseTable))
+            {
+                foreach (KeyValuePair<Object, string> entry in FolderData.Load(baseTable).ItemFolders)
+                {
+                    if (!folders.ItemFolders.ContainsKey(entry.Key))
+                    {
+                        folders.ItemFolders[entry.Key] = entry.Value;
+                    }
+                }
+            }
+
             AddParentPart(group, ParentGroupKey, ActionsGroup, items.OfType<StateActionSO>(), folders, tablePath, false);
             AddParentPart(group, ParentGroupKey, ConditionsGroup, items.OfType<StateConditionSO>(), folders, tablePath, false);
 

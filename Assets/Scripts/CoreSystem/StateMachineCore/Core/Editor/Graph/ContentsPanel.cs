@@ -157,6 +157,14 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             List<ScriptableObject> shown = used.Union(unused).ToList();
             string tablePath = AssetDatabase.GetAssetPath(_table);
 
+            // The file's main table also lists the actions and conditions only its sub-state machines use
+            // (the Sub group, one part per sub-state machine table), so everything in the file is here.
+            Dictionary<ScriptableObject, List<TransitionTableSO>> inSubTables = AssetDatabase.IsMainAsset(_table)
+                ? UsedOnlyInSubTables(_table, used, unused)
+                : new Dictionary<ScriptableObject, List<TransitionTableSO>>();
+            var listed = new HashSet<ScriptableObject>(used);
+            listed.UnionWith(inSubTables.Keys);
+
             Dictionary<StateSO, TableContents.SubStateParts> subStates = TableContents.FindSubStateParts(_table, used);
 
             // Inside a sub-state machine's table in its parent's file: the parent's actions and conditions.
@@ -167,7 +175,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             if (_search.Length > 0)
             {
-                AddSearchResults(shown.Concat(subStates.Values.Select(parts => parts.Table)), used, subStates, tablePath, parentItems);
+                AddSearchResults(
+                    shown.Concat(inSubTables.Keys).Concat(subStates.Values.Select(parts => parts.Table)),
+                    listed, subStates, tablePath, parentItems);
                 ShowSelection();
                 return;
             }
@@ -197,7 +207,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             AddGroup(StatesGroup,
                 shown.OfType<StateSO>().Where(item => !shownElsewhere.Contains(item) && !subStates.ContainsKey(item)),
                 used, folders, tablePath, referenced);
-            AddSubStatesGroup(subStates, used, tablePath, exitsSection);
+            AddSubStatesGroup(subStates, used, tablePath, exitsSection, inSubTables);
             AddGroup(ActionsGroup,
                 shown.OfType<StateActionSO>().Where(item => !shownElsewhere.Contains(item)),
                 used, folders, tablePath);
@@ -221,6 +231,51 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             }
 
             Rebuild();
+        }
+
+        // Item -> the sub-state machine tables using it: actions and conditions in the file that only
+        // those tables use (not `used` by this table, not left unused). Their wiring (sub-state / exit
+        // actions, exited conditions) stays under SubStates.
+        private static Dictionary<ScriptableObject, List<TransitionTableSO>> UsedOnlyInSubTables(
+            TransitionTableSO table,
+            HashSet<ScriptableObject> used,
+            List<ScriptableObject> unused)
+        {
+            string tablePath = AssetDatabase.GetAssetPath(table);
+            var tablesByItem = new Dictionary<ScriptableObject, List<TransitionTableSO>>();
+
+            foreach (TransitionTableSO subTable in AssetDatabase.LoadAllAssetsAtPath(tablePath).OfType<TransitionTableSO>())
+            {
+                // A leftover table nothing runs: its items count as unused, not "in" it.
+                if (subTable == table || unused.Contains(subTable))
+                {
+                    continue;
+                }
+
+                foreach (ScriptableObject item in TableContents.CollectUsed(subTable))
+                {
+                    if (!(item is StateActionSO || item is StateConditionSO) ||
+                        used.Contains(item) ||
+                        IsSubStateMachineWiring(item) ||
+                        AssetDatabase.GetAssetPath(item) != tablePath)
+                    {
+                        continue;
+                    }
+
+                    if (!tablesByItem.TryGetValue(item, out List<TransitionTableSO> tables))
+                    {
+                        tables = new List<TransitionTableSO>();
+                        tablesByItem[item] = tables;
+                    }
+
+                    if (!tables.Contains(subTable))
+                    {
+                        tables.Add(subTable);
+                    }
+                }
+            }
+
+            return tablesByItem;
         }
 
         private static string GroupOf(Object item)
@@ -552,9 +607,11 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
         // A ▶ / ▼ at the start of `row` that shows or hides `children`, remembered like a Foldout.
         // Clicking the arrow doesn't count as clicking the row.
-        private void AddFoldArrow(VisualElement row, VisualElement children, string collapseKey)
+        // startOpen false: folded until opened by hand (remembered as "Open:<key>" in the same set).
+        private void AddFoldArrow(VisualElement row, VisualElement children, string collapseKey, bool startOpen = true)
         {
-            bool isOpen = !_collapsed.Contains(collapseKey);
+            string storedKey = startOpen ? collapseKey : OpenKeyPrefix + collapseKey;
+            bool isOpen = startOpen ? !_collapsed.Contains(storedKey) : _collapsed.Contains(storedKey);
             children.AddToClassList(ChildrenClass);
             children.style.display = isOpen ? DisplayStyle.Flex : DisplayStyle.None;
 
@@ -566,7 +623,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 isOpen = open;
                 children.style.display = isOpen ? DisplayStyle.Flex : DisplayStyle.None;
                 arrow.text = isOpen ? "▼" : "▶";
-                SetCollapsed(collapseKey, !isOpen);
+                SetCollapsed(storedKey, startOpen ? !isOpen : isOpen);
             }
 
             arrow.RegisterCallback<ClickEvent>(evt =>
@@ -580,6 +637,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             row.Insert(0, arrow);
         }
+
+        private const string OpenKeyPrefix = "Open:";
 
         private void SetCollapsed(string collapseKey, bool isCollapsed)
         {
@@ -596,7 +655,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         }
 
         // What's folded is remembered per table in EditorPrefs, so it survives reopening the table,
-        // closing the window and script reloads. A table seen for the first time has only From Parent closed.
+        // closing the window and script reloads. A table seen for the first time has only From Parent closed
+        // (and the sub-states, which start folded: AddFoldArrow startOpen).
         private const string CollapsedPrefsKey = "StateMachineGraph.Contents.Collapsed.";
 
         private string CollapsedPrefsKeyOf(TransitionTableSO table)

@@ -15,7 +15,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
     // Editor window that hosts the graph. Opened by double-clicking a TransitionTableSO.
     // Double-clicking a sub-state machine node goes into its table; the breadcrumbs go back out.
     // Play Mode highlighting is in StateMachineGraphWindow.PlayMode.cs.
-    public partial class StateMachineGraphWindow : EditorWindow
+    // Several can be open at once (e.g. a Base and its variant side by side): right-click a table >
+    // Open in New State Machine Graph, or the window's ⋮ menu > Open in New Window.
+    public partial class StateMachineGraphWindow : EditorWindow, IHasCustomMenu
     {
         // The table shown now (always the last item of _path).
         // Serialized so the window stays where it was after a script recompile.
@@ -61,11 +63,51 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             return true;
         }
 
+        // Double-click: a window already showing the table comes to the front; otherwise the last used
+        // window shows it (like before there could be several).
         public static void Open(TransitionTableSO table)
         {
+            foreach (StateMachineGraphWindow open in Resources.FindObjectsOfTypeAll<StateMachineGraphWindow>())
+            {
+                if (open.RootTable == table)
+                {
+                    open.Focus();
+                    return;
+                }
+            }
+
             var window = GetWindow<StateMachineGraphWindow>();
-            window.titleContent = new GUIContent("State Machine Graph");
             window.SetTable(table);
+        }
+
+        // Another window, as a tab next to the open ones; drag its tab aside to see both at once.
+        public static void OpenInNewWindow(TransitionTableSO table)
+        {
+            var window = CreateWindow<StateMachineGraphWindow>(typeof(StateMachineGraphWindow));
+            window.SetTable(table);
+        }
+
+        private const string NewWindowMenuPath = "Assets/Open in New State Machine Graph";
+
+        [MenuItem(NewWindowMenuPath, false, 19)]
+        private static void OpenSelectionInNewWindow()
+        {
+            OpenInNewWindow((TransitionTableSO)Selection.activeObject);
+        }
+
+        [MenuItem(NewWindowMenuPath, true)]
+        private static bool CanOpenSelectionInNewWindow()
+        {
+            return Selection.activeObject is TransitionTableSO;
+        }
+
+        // The ⋮ menu at the window's top right.
+        public void AddItemsToMenu(GenericMenu menu)
+        {
+            if (RootTable != null)
+            {
+                menu.AddItem(new GUIContent("Open in New Window"), false, () => OpenInNewWindow(RootTable));
+            }
         }
 
         private void OnEnable()
@@ -128,6 +170,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             // A new root table may be run by a different GameObject.
             StopWatching();
+
+            // The tab says which table, so two windows can be told apart.
+            titleContent = new GUIContent(table != null ? table.name : "State Machine Graph", "State Machine Graph");
 
             _table = table;
             ShowTable();

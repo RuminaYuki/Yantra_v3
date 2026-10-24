@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -28,6 +29,11 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // Only the Base table uses this state (a variant's graph): faint, and can't be deleted here.
         // It can still be moved, start a new transition, or become this table's initial state.
         public bool IsInherited { get; }
+
+        // This table runs its own Variant of the sub-state machine (Make Sub Variant): blue label and border.
+        public bool IsSubOverriddenHere { get; }
+        // Changed-in-this-variant color in the graph (teal, like overridden arrows): blue is the selection.
+        private static readonly Color SubOverriddenColor = new Color(0.25f, 0.85f, 0.7f);
 
         // table = the table this graph shows, so a variant's _transitionTable override opens its own sub table.
         // displayName = this table's own name for a Base's state (_stateDisplayNames), or null.
@@ -62,12 +68,30 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             if (IsSubStateMachine)
             {
+                // A variant that made its own Variant of this sub-state machine (Make Sub Variant):
+                // "✎ Sub-State Machine · AttackVariant" in blue, so it's clear which one runs here.
+                TransitionTableSO ownSubTable = table != null
+                    ? FindSubActions(state, table)
+                        .Select(sub => sub.SubTable)
+                        .FirstOrDefault(subTable =>
+                            AssetDatabase.GetAssetPath(subTable) == AssetDatabase.GetAssetPath(table) &&
+                            FindSubActions(state).All(raw => raw.SubTable != subTable))
+                    : null;
+
                 // Second line under the title, so sub-state machines stand out (double-click to enter).
-                var subLabel = new Label("Sub-State Machine");
+                var subLabel = new Label(ownSubTable != null
+                    ? $"✎ Sub-State Machine · {EmbeddedAssets.TablePrefix(ownSubTable.name)}"
+                    : "Sub-State Machine");
+                subLabel.tooltip = ownSubTable != null
+                    ? $"Overridden here: runs {ownSubTable.name} instead of the Base's."
+                    : null;
+                IsSubOverriddenHere = ownSubTable != null;
                 subLabel.pickingMode = PickingMode.Ignore;
                 subLabel.style.fontSize = 10;
-                subLabel.style.unityFontStyleAndWeight = FontStyle.Italic;
-                subLabel.style.color = new Color(1f, 1f, 1f, 0.6f);
+                subLabel.style.unityFontStyleAndWeight = ownSubTable != null ? FontStyle.Bold : FontStyle.Italic;
+                subLabel.style.color = ownSubTable != null
+                    ? SubOverriddenColor
+                    : new Color(1f, 1f, 1f, 0.6f);
                 subLabel.style.paddingLeft = 8;
                 subLabel.style.paddingTop = 2;
                 subLabel.style.paddingBottom = 3;
@@ -89,6 +113,13 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 baseLabel.style.paddingTop = 2;
                 baseLabel.style.paddingBottom = 3;
                 mainContainer.Add(baseLabel);
+            }
+
+            // Not faded like the rest of the Base's states: part of it is this table's own.
+            if (IsSubOverriddenHere)
+            {
+                style.opacity = isInherited ? 0.9f : 1f;
+                ApplyBorder();
             }
 
             RegisterCallback<MouseDownEvent>(OnMouseDown);
@@ -184,7 +215,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 _changesLabel.pickingMode = PickingMode.Ignore;
                 _changesLabel.style.fontSize = 10;
                 _changesLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
-                _changesLabel.style.color = new Color(0.45f, 0.72f, 1f);
+                _changesLabel.style.color = SubOverriddenColor;
                 _changesLabel.style.paddingLeft = 8;
                 _changesLabel.style.paddingTop = 2;
                 _changesLabel.style.paddingBottom = 3;
@@ -252,13 +283,16 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         private void ApplyBorder()
         {
             // StyleKeyword.Null removes the inline value, back to GraphView's own style.
+            // The sub-state machine overridden here (blue) shows when nothing else does.
             StyleFloat width = _isDropTarget ? ActiveBorderWidth
                 : _isActive ? ActiveBorderWidth
                 : _usesSelection ? UsesSelectionBorderWidth
+                : IsSubOverriddenHere ? 1f
                 : new StyleFloat(StyleKeyword.Null);
             StyleColor color = _isDropTarget ? DropTargetBorderColor
                 : _isActive ? ActiveBorderColor
                 : _usesSelection ? UsesSelectionBorderColor
+                : IsSubOverriddenHere ? SubOverriddenColor
                 : new StyleColor(StyleKeyword.Null);
 
             mainContainer.style.borderTopWidth = width;

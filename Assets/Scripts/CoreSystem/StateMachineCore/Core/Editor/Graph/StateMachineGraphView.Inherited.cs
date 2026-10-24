@@ -69,14 +69,25 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 }
             }
 
+            // Ids with a condition replaced one by one (_conditionReplaces): blue like an override.
+            var replaced = new HashSet<string>();
+            SerializedProperty replaceList = serializedTable.FindProperty("_conditionReplaces");
+            for (int i = 0; i < replaceList.arraySize; i++)
+            {
+                replaced.Add(replaceList.GetArrayElementAtIndex(i).FindPropertyRelative("_transitionId").stringValue);
+            }
+
             InheritedTransition Describe(string id, TransitionTableSO.ConditionGroupUsage[] groups)
             {
                 bool isOverridden = overridden.Contains(id);
+                bool isReplaced = !isOverridden && replaced.Contains(id);
                 bool isRetargeted = retargets.ContainsKey(id);
                 string summary = Summary(groups) +
                     (isOverridden ? " (overridden here)" : "") +
+                    (isReplaced ? " (conditions replaced here)" : "") +
                     (isRetargeted ? " (target changed here)" : "");
-                return new InheritedTransition(id, summary, removed.Contains(id), isOverridden, ConditionsIn(groups), isRetargeted);
+                return new InheritedTransition(
+                    id, summary, removed.Contains(id), isOverridden || isReplaced, ConditionsIn(groups), isRetargeted);
             }
 
             StateSO ToHere(string id, StateSO baseTo) => retargets.TryGetValue(id, out StateSO to) ? to : baseTo;

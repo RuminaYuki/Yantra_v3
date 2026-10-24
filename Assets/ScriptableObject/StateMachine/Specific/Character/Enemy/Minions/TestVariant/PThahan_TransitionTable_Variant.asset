@@ -1,0 +1,287 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8147896421440501399
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77e8ae40d928604408f37497243c6985, type: 3}
+  m_Name: ChargePlayAnimState_Action
+  m_EditorClassIdentifier: Assembly-CSharp::PlayAnimatorStateActionSO
+  _selfAnchor: {fileID: 0}
+  _stateName: Charge
+  _layerIndex: 0
+  _transitionDuration: 0.25
+  _normalizedStartTime: 0
+  _exitStateName: StopCharge
+  _exitTransitionDuration: 0.25
+  _exitNormalizedStartTime: 0
+--- !u!114 &-6804861467369509347
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 64745adad4a1b624599d64525d13f92c, type: 3}
+  m_Name: FaceAtPlayer_Action
+  m_EditorClassIdentifier: Assembly-CSharp::FaceTargetActionSO
+  _selfAnchor: {fileID: 0}
+  _targetAnchor: {fileID: 11400000, guid: ded8b5ee8f0dd57488cc9fa0e5c0d061, type: 2}
+  _rotateSpeed: 5
+--- !u!114 &-6172843710576887439
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f1aa939ecac5444ea4f694873236ecc, type: 3}
+  m_Name: ReachTargetDelayed_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::DelayedConditionSO
+  _selfAnchor: {fileID: 0}
+  _innerCondition: {fileID: -4161577735969860660}
+  _innerExpected: 1
+  _delay: 0.5
+  _mode: 1
+--- !u!114 &-4161577735969860660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9857d4c9abc56a458a25ef29958bfb6, type: 3}
+  m_Name: ReachPathNavigatorTarget_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::ReachPathNavigatorTargetConditionSO
+  _selfAnchor: {fileID: 0}
+  _arrivalDistance: 2
+  _randomArrivalRange: 0
+--- !u!114 &-3656584941632413802
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f1aa939ecac5444ea4f694873236ecc, type: 3}
+  m_Name: OnAttackHitDelayed_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::DelayedConditionSO
+  _selfAnchor: {fileID: 0}
+  _innerCondition: {fileID: 2546853809014312344}
+  _innerExpected: 1
+  _delay: 0.5
+  _mode: 1
+--- !u!114 &-621349848118469980
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e20e27464dc08eb44ac14238e4b68ebb, type: 3}
+  m_Name: Exposed_Parameters
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.ExposedParametersSO
+  _parameters:
+  - _name: ContinuousAttack_DamageAmount
+    _bindings:
+    - _target: {fileID: 6131856972510950074}
+      _fieldName: _attackParameters.damageAmount
+    _category: Charge
+  - _name: ContinuousAttack_Action.AttackRange
+    _bindings:
+    - _target: {fileID: 6131856972510950074}
+      _fieldName: _attackParameters.attackRange
+    _category: Charge
+  - _name: ContinuousAttack_Action.AttackRadius
+    _bindings:
+    - _target: {fileID: 6131856972510950074}
+      _fieldName: _attackParameters.attackRadius
+    _category: Charge
+  - _name: ChargeToChaseDelayedCondition
+    _bindings:
+    - _target: {fileID: -3656584941632413802}
+      _fieldName: _delay
+    - _target: {fileID: -6172843710576887439}
+      _fieldName: _delay
+    _category: Charge
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5492ed31ba40b643aaf3d94f1de0aa7, type: 3}
+  m_Name: PThahan_TransitionTable_Variant
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
+  _initialState: {fileID: 0}
+  _anyTransitions: []
+  _transitions:
+  - FromState: {fileID: 3589744455036417229, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 7339953867527388833, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: 5098350959248562067}
+    Id: b5033a28-d810-491d-92a5-baa2b507c599
+  - FromState: {fileID: 5098350959248562067}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -6172843710576887439}
+        ExpectedResult: 0
+    - Conditions:
+      - Condition: {fileID: -3656584941632413802}
+        ExpectedResult: 0
+    ToState: {fileID: 1350832784552190812, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    Id: 9b352191-5a82-4998-b67e-4af303a13fb6
+  _base: {fileID: 11400000, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+  _fieldOverrides:
+  - _value: 2
+    _bool: 0
+    _string: 
+    _vector: {x: 0, y: 0, z: 0}
+    _color: {r: 0, g: 0, b: 0, a: 0}
+    _object: {fileID: 0}
+    _target: {fileID: -1529617912093970073, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    _fieldPath: _attackParameters.damageAmount
+  - _value: 2
+    _bool: 0
+    _string: 
+    _vector: {x: 0, y: 0, z: 0}
+    _color: {r: 0, g: 0, b: 0, a: 0}
+    _object: {fileID: 0}
+    _target: {fileID: -1529617912093970073, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    _fieldPath: _attackParameters.attackRange
+  - _value: 1
+    _bool: 0
+    _string: 
+    _vector: {x: 0, y: 0, z: 0}
+    _color: {r: 0, g: 0, b: 0, a: 0}
+    _object: {fileID: 0}
+    _target: {fileID: -1529617912093970073, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    _fieldPath: _attackParameters.attackRadius
+  _removedIds: []
+  _transitionOverrides: []
+  _conditionReplaces:
+  - _transitionId: 1a69de2a-2fdf-4426-9508-bdb7da7ae690
+    _from: {fileID: 7339953867527388833, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    _to: {fileID: 0}
+    _remove: 1
+  - _transitionId: 7bcc6de5-9726-4796-8c7c-db488fba4352
+    _from: {fileID: 1157225378016675846, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    _to: {fileID: 0}
+    _remove: 1
+  _transitionRetargets: []
+  _actionChanges: []
+  _actionOrders: []
+  _exposedParameters: {fileID: -621349848118469980}
+  _nodePositions:
+  - State: {fileID: 5521259893469218469, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    Position: {x: 411, y: 13}
+  - State: {fileID: 3589744455036417229, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    Position: {x: 628, y: 13}
+  - State: {fileID: 1350832784552190812, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    Position: {x: 411, y: 123}
+  - State: {fileID: -5670934711078985649, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    Position: {x: 628, y: 243}
+  - State: {fileID: 9204605873900580318, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    Position: {x: 212, y: 123}
+  - State: {fileID: -6437948323864379113, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    Position: {x: 212, y: 185}
+  - State: {fileID: 5838480089549137350, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    Position: {x: 212, y: 261}
+  - State: {fileID: 5098350959248562067}
+    Position: {x: 628, y: 125}
+  _entryNodePosition: {x: -4, y: 13}
+  _anyStateNodePosition: {x: 0, y: 120}
+  _contentsFolders:
+  - Item: {fileID: -6172843710576887439}
+    Folder: DelayCondition
+  - Item: {fileID: -3656584941632413802}
+    Folder: DelayCondition
+  _contentsFolderPaths:
+  - Group: Conditions
+    Path: DelayCondition
+  _stateDisplayNames: []
+  _removedParameters: []
+--- !u!114 &2546853809014312344
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 185b92fb667801c4a921624841497c00, type: 3}
+  m_Name: OnAttackHit_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::OnAttackHitConditionSO
+  _selfAnchor: {fileID: 0}
+--- !u!114 &5098350959248562067
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: Charge_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 8123412739460620684}
+  - {fileID: -8147896421440501399}
+  - {fileID: -6804861467369509347}
+  - {fileID: 6131856972510950074}
+--- !u!114 &6131856972510950074
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9fe4139a30361344c8f731c022ca3779, type: 3}
+  m_Name: ContinuousAttack_Action
+  m_EditorClassIdentifier: Assembly-CSharp::ContinuousAttackActionSO
+  _selfAnchor: {fileID: 0}
+  _attackParameters:
+    damageAmount: 2
+    attackRange: 0.5
+    attackRadius: 1
+  _damageType: {fileID: 0}
+--- !u!114 &8123412739460620684
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 064477ec6286dbb46971440740c727ae, type: 3}
+  m_Name: SetPlayerPathNavigatorTargetAction
+  m_EditorClassIdentifier: Assembly-CSharp::SetPathNavigatorTargetActionSO
+  _selfAnchor: {fileID: 0}
+  _targetAnchor: {fileID: 11400000, guid: ded8b5ee8f0dd57488cc9fa0e5c0d061, type: 2}
+  _offset: {x: 0, y: 0, z: 0}
+  _randomOffsetRange: {x: 0, y: 0, z: 0}
