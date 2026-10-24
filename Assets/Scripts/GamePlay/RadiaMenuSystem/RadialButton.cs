@@ -8,10 +8,11 @@ public class RadialButton : MonoBehaviour
     [SerializeField] int _buttonID;
     [SerializeField] GameObject _pivot;
     [SerializeField] GameObject _sprintIcon;
+    [SerializeField] GameObject _endCapPivot;
     [SerializeField] Image thisImage;
-    [SerializeField] Image _lockedImage; // แสดงทับตอนมี item ไม่ครบ (fill เหมือน thisImage)
+    [SerializeField] Image _lockedImage;
     [SerializeField] float _angleOffset = 15f;
-    [SerializeField] float _selectedScale = 1.1f; // ขนาดตอนถูกเลือก (ปรับใน Inspector)
+    [SerializeField] float _selectedScale = 1.1f;
     float _angleThreshold = 15f;
     [SerializeField] IntEventChannelSO _radialIntID_IEC;
     [SerializeField] VoidEventChannelSO _onSelected;
@@ -48,6 +49,7 @@ public class RadialButton : MonoBehaviour
         _available = available;
 
         thisImage.fillAmount = fillAmount;
+        _endCapPivot.transform.localRotation = Quaternion.Euler(0f, 0f, fillAmount * -360f);
 
         if (_lockedImage != null)
         {
