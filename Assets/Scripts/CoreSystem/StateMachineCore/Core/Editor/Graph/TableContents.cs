@@ -47,6 +47,22 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 SerializedProperty property = new SerializedObject(current).GetIterator();
                 while (property.Next(true))
                 {
+                    // A Contents folder entry only files an item away; it doesn't use it (same as
+                    // ReachableInSameFile). Otherwise anything put in a folder would never show as unused.
+                    if (current is TransitionTableSO &&
+                        property.propertyPath.StartsWith(StateMachineFields.ContentsFolders, StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
+                    // A variant's notes about the Base's items don't use them either: "don't run this
+                    // action here" (an action change of kind Remove), the action order (only lists ones
+                    // that run anyway) and field overrides (they name a field, like ExposedParameters).
+                    if (current is TransitionTableSO && IsVariantNoteNotUse(property))
+                    {
+                        continue;
+                    }
+
                     if (property.propertyType != SerializedPropertyType.ObjectReference ||
                         property.objectReferenceValue is not ScriptableObject child ||
                         child is TransitionTableSO ||
@@ -80,6 +96,29 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             }
 
             return used;
+        }
+
+        // See CollectUsed. propertyPath looks like "_actionChanges.Array.data[2]._action".
+        private static bool IsVariantNoteNotUse(SerializedProperty property)
+        {
+            string path = property.propertyPath;
+
+            if (path.StartsWith("_actionOrders", StringComparison.Ordinal) ||
+                path.StartsWith("_fieldOverrides", StringComparison.Ordinal))
+            {
+                return true;
+            }
+
+            const string ChangesPrefix = "_actionChanges.Array.data[";
+            if (!path.StartsWith(ChangesPrefix, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            int end = path.IndexOf(']', ChangesPrefix.Length);
+            string entryPath = path.Substring(0, end + 1);
+            SerializedProperty kind = property.serializedObject.FindProperty(entryPath + "._kind");
+            return kind != null && kind.intValue == (int)ActionChange.ChangeKind.Remove;
         }
 
         // The item, and everything it uses (directly or through other things) that lives in its file,

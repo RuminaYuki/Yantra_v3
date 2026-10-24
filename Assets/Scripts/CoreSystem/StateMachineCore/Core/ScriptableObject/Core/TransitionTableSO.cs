@@ -20,9 +20,259 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
         private TransitionItem[] _transitions =
             Array.Empty<TransitionItem>();
 
+        // ---------- Variant ----------
+        // ตั้ง _base แล้ว table นี้คือ Variant: ใช้ทุกอย่างของ Base แล้วจดเฉพาะที่ต่าง (TableVariantData.cs)
+        // ไม่มี _base = table ธรรมดา ทุก list ข้างล่างว่าง
+
+        [SerializeField]
+        private TransitionTableSO _base;
+
+        // ค่าใน field ของ action / condition ที่ table นี้เปลี่ยน
+        [SerializeField]
+        private FieldOverride[] _fieldOverrides =
+            Array.Empty<FieldOverride>();
+
+        // Id ของ transition จาก Base ที่ table นี้ไม่เอา
+        [SerializeField]
+        private string[] _removedIds =
+            Array.Empty<string>();
+
+        // transition จาก Base ที่ table นี้ใช้เงื่อนไขของตัวเองแทน (แก้จาก graph: คลิกเส้นของ Base)
+        [SerializeField]
+        private TransitionOverride[] _transitionOverrides =
+            Array.Empty<TransitionOverride>();
+
+        // action ของ state ที่ table นี้ลบ / เพิ่ม และลำดับที่จัดใหม่ (แก้จาก graph: คลิก state ของ Base)
+        [SerializeField]
+        private ActionChange[] _actionChanges =
+            Array.Empty<ActionChange>();
+
+        [SerializeField]
+        private ActionOrder[] _actionOrders =
+            Array.Empty<ActionOrder>();
+
         [SerializeField, HideInInspector]
         private ExposedParametersSO _exposedParameters;
         public ExposedParametersSO ExposedParameters => _exposedParameters;
+
+        // ---------- สิ่งที่ table นี้ใช้จริง (ของ Base + ของตัวเอง) ----------
+        // ทุกตัวเรียงแบบเดียวกัน: ของ Base ก่อน แล้วต่อด้วยของตัวเอง
+        // ของตัวเองมาทีหลัง จึงทับของ Base ได้ (เช่น Field Override ตัวเดียวกัน)
+
+        public StateSO EffectiveInitialState
+        {
+            get
+            {
+                // ตั้งเองไว้ → ใช้ของตัวเอง
+                if (_initialState != null)
+                {
+                    return _initialState;
+                }
+
+                // ไม่ได้ตั้ง แต่มี Base → ถาม Base
+                if (_base != null)
+                {
+                    return _base.EffectiveInitialState;
+                }
+
+                return null;
+            }
+        }
+
+        public IEnumerable<TransitionItem> EffectiveTransitions
+        {
+            get
+            {
+                if (_base != null)
+                {
+                    foreach (TransitionItem baseTransition in _base.EffectiveTransitions)
+                    {
+                        // เส้นของ Base ที่ table นี้ลบทิ้ง ไม่เอา
+                        if (IsRemoved(baseTransition.Id))
+                        {
+                            continue;
+                        }
+
+                        // TransitionItem เป็น struct: ตัวแปรนี้เป็นสำเนา แก้แล้วไม่กระทบของ Base
+                        TransitionItem transition = baseTransition;
+
+                        ConditionGroupUsage[] overriddenGroups = OverriddenConditionsOf(transition.Id);
+                        if (overriddenGroups != null)
+                        {
+                            transition.ConditionGroups = overriddenGroups;
+                        }
+
+                        yield return transition;
+                    }
+                }
+
+                foreach (TransitionItem transition in _transitions)
+                {
+                    yield return transition;
+                }
+            }
+        }
+
+        public IEnumerable<AnyTransitionItem> EffectiveAnyTransitions
+        {
+            get
+            {
+                if (_base != null)
+                {
+                    foreach (AnyTransitionItem baseTransition in _base.EffectiveAnyTransitions)
+                    {
+                        if (IsRemoved(baseTransition.Id))
+                        {
+                            continue;
+                        }
+
+                        AnyTransitionItem transition = baseTransition;
+
+                        ConditionGroupUsage[] overriddenGroups = OverriddenConditionsOf(transition.Id);
+                        if (overriddenGroups != null)
+                        {
+                            transition.ConditionGroups = overriddenGroups;
+                        }
+
+                        yield return transition;
+                    }
+                }
+
+                foreach (AnyTransitionItem transition in _anyTransitions)
+                {
+                    yield return transition;
+                }
+            }
+        }
+
+        public IEnumerable<FieldOverride> EffectiveFieldOverrides
+        {
+            get
+            {
+                if (_base != null)
+                {
+                    foreach (FieldOverride fieldOverride in _base.EffectiveFieldOverrides)
+                    {
+                        yield return fieldOverride;
+                    }
+                }
+
+                foreach (FieldOverride fieldOverride in _fieldOverrides)
+                {
+                    yield return fieldOverride;
+                }
+            }
+        }
+
+        public IEnumerable<ActionChange> EffectiveActionChanges
+        {
+            get
+            {
+                if (_base != null)
+                {
+                    foreach (ActionChange actionChange in _base.EffectiveActionChanges)
+                    {
+                        yield return actionChange;
+                    }
+                }
+
+                foreach (ActionChange actionChange in _actionChanges)
+                {
+                    yield return actionChange;
+                }
+            }
+        }
+
+        public IEnumerable<ActionOrder> EffectiveActionOrders
+        {
+            get
+            {
+                if (_base != null)
+                {
+                    foreach (ActionOrder actionOrder in _base.EffectiveActionOrders)
+                    {
+                        yield return actionOrder;
+                    }
+                }
+
+                foreach (ActionOrder actionOrder in _actionOrders)
+                {
+                    yield return actionOrder;
+                }
+            }
+        }
+
+        // เงื่อนไขที่ table นี้ใช้แทนของ transition นี้ หรือ null ถ้าใช้ของ Base ตามเดิม
+        private ConditionGroupUsage[] OverriddenConditionsOf(string transitionId)
+        {
+            foreach (TransitionOverride transitionOverride in _transitionOverrides)
+            {
+                if (transitionOverride.TransitionId == transitionId)
+                {
+                    return transitionOverride.ConditionGroups;
+                }
+            }
+
+            return null;
+        }
+
+        private bool IsRemoved(string transitionId)
+        {
+            foreach (string removedId in _removedIds)
+            {
+                if (removedId == transitionId)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+#if UNITY_EDITOR
+        // แจก ID ให้ transition ที่ยังไม่มี หรือ ID ซ้ำ (Unity copy ID มาด้วยตอน duplicate แถว)
+        // Unity เรียกเองตอนโหลด asset และตอนแก้ค่าใน Inspector
+        private void OnValidate()
+        {
+            var usedIds = new HashSet<string>();
+            bool changed = false;
+
+            for (int i = 0; i < _transitions.Length; i++)
+            {
+                if (NeedsNewId(_transitions[i].Id, usedIds))
+                {
+                    _transitions[i].Id = Guid.NewGuid().ToString();
+                    changed = true;
+                }
+
+                usedIds.Add(_transitions[i].Id);
+            }
+
+            for (int i = 0; i < _anyTransitions.Length; i++)
+            {
+                if (NeedsNewId(_anyTransitions[i].Id, usedIds))
+                {
+                    _anyTransitions[i].Id = Guid.NewGuid().ToString();
+                    changed = true;
+                }
+
+                usedIds.Add(_anyTransitions[i].Id);
+            }
+
+            // บอก Unity ว่าต้องเซฟ ไม่งั้น ID ที่สุ่มไว้หายตอนปิด แล้วสุ่มใหม่ทุกครั้งที่เปิด
+            if (changed)
+            {
+                UnityEditor.EditorUtility.SetDirty(this);
+            }
+        }
+
+        private static bool NeedsNewId(string id, HashSet<string> usedIds)
+        {
+            bool hasNoId = string.IsNullOrEmpty(id);
+            bool isDuplicate = usedIds.Contains(id);
+            return hasNoId || isDuplicate;
+        }
+#endif
 
         // Graph editor layout only (StateMachineGraphWindow). Not used at runtime.
         [SerializeField, HideInInspector]
@@ -58,13 +308,23 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
                     nameof(stateMachine));
             }
 
-            if (_initialState == null)
+            StateSO initialState = EffectiveInitialState;
+
+            if (initialState == null)
             {
                 throw new InvalidOperationException(
                     $"Transition table {name} does not have an initial state.");
             }
 
-            StateMachineParameters.Register(stateMachine, _exposedParameters);
+            RegisterParameters(stateMachine);
+
+            // ตัวตอบว่า "action / condition / action list ไหนใช้จริง" ของ state machine นี้
+            // ต้องสร้างหลัง RegisterParameters เพราะ Instance override ต้องใช้ blackboard ที่ register แล้ว
+            stateMachine.Resolver = new ElementResolver(
+                EffectiveFieldOverrides,
+                EffectiveActionChanges,
+                EffectiveActionOrders,
+                stateMachine.Owner.GetComponent<StateMachineParameters>());
 
             var runtimeStates =
                 new Dictionary<StateSO, State>();
@@ -75,8 +335,8 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
             var runtimeConditions =
                 new Dictionary<StateConditionSO, Condition>();
 
-            GetOrCreateState(
-                _initialState,
+            State initialRuntimeState = GetOrCreateState(
+                initialState,
                 stateMachine,
                 runtimeStates,
                 transitionLists);
@@ -106,7 +366,19 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
                 runtimeAnyTransitions);
 
             allStates = runtimeStates;
-            return runtimeStates[_initialState];
+            return initialRuntimeState;
+        }
+
+        // blackboard ของ table นี้ และของ Base ทุกชั้น (Base ก่อน)
+        // ตัวละครจึง override parameter ของ Base ได้เหมือนของ table นี้
+        private void RegisterParameters(StateMachine stateMachine)
+        {
+            if (_base != null)
+            {
+                _base.RegisterParameters(stateMachine);
+            }
+
+            StateMachineParameters.Register(stateMachine, _exposedParameters);
         }
 
         private void BuildLocalTransitions(
@@ -115,11 +387,7 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
             Dictionary<State, List<StateTransition>> transitionLists,
             Dictionary<StateConditionSO, Condition> runtimeConditions)
         {
-            TransitionItem[] usages =
-                _transitions ??
-                Array.Empty<TransitionItem>();
-
-            foreach (TransitionItem item in usages)
+            foreach (TransitionItem item in EffectiveTransitions)
             {
                 State fromState = GetOrCreateState(
                     item.FromState,
@@ -152,15 +420,9 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
             Dictionary<State, List<StateTransition>> transitionLists,
             Dictionary<StateConditionSO, Condition> runtimeConditions)
         {
-            AnyTransitionItem[] usages =
-                _anyTransitions ??
-                Array.Empty<AnyTransitionItem>();
+            var runtimeTransitions = new List<StateTransition>();
 
-            var runtimeTransitions =
-                new List<StateTransition>(
-                    usages.Length);
-
-            foreach (AnyTransitionItem item in usages)
+            foreach (AnyTransitionItem item in EffectiveAnyTransitions)
             {
                 State toState = GetOrCreateState(
                     item.ToState,
@@ -294,8 +556,9 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
                 return existingCondition;
             }
 
+            // Resolve: ตัวที่มีค่าของ Variant / ตัวละครใส่ไว้แล้ว (หรือตัวเดิมถ้าไม่มีใคร override)
             Condition newCondition =
-                StateMachineParameters.Resolve(stateMachine, conditionSO).CreateCondition();
+                stateMachine.Resolver.Resolve(conditionSO).CreateCondition();
 
             if (newCondition == null)
             {
@@ -324,6 +587,7 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
         {
             public StateSO ToState;
             public ConditionGroupUsage[] ConditionGroups;
+            public string Id;
         }
 
         [Serializable]
@@ -332,6 +596,7 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
             public StateSO FromState;
             public ConditionGroupUsage[] ConditionGroups;
             public StateSO ToState;
+            public string Id;
         }
 
         public enum Result

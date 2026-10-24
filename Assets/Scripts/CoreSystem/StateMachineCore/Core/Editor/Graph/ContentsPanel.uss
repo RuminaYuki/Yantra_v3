@@ -145,6 +145,22 @@
     -unity-font-style: italic;
 }
 
+/* ---------- From Base (a variant table's Base) ---------- */
+/* Lavender, so the Base's things never look like this table's own (default) or a shared file (blue). */
+
+.contents-group--base > .unity-foldout__toggle {
+    background-color: rgba(150, 110, 230, 0.28);
+}
+
+.contents-group--base > .unity-foldout__toggle .unity-label {
+    color: rgba(205, 185, 255, 1);
+}
+
+.contents-row--from-base .contents-row__mark,
+.contents-row--from-base .contents-row__name {
+    color: rgba(190, 165, 255, 1);
+}
+
 /* ---------- Inside a sub-state machine / exit state ---------- */
 
 .contents-fold-arrow {

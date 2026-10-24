@@ -25,10 +25,15 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         public IReadOnlyList<TransitionTableSO> SubTables { get; }
         public bool IsSubStateMachine => SubTables.Count > 0;
 
-        public StateNodeView(StateSO state, bool isInitial)
+        // Only the Base table uses this state (a variant's graph): faint, and can't be deleted here.
+        // It can still be moved, start a new transition, or become this table's initial state.
+        public bool IsInherited { get; }
+
+        public StateNodeView(StateSO state, bool isInitial, bool isInherited = false)
         {
             State = state;
             SubTables = FindSubTables(state);
+            IsInherited = isInherited;
             title = state.name;
 
             // Hide the collapse arrow, a state node has nothing to collapse.
@@ -56,6 +61,23 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 subLabel.style.paddingTop = 2;
                 subLabel.style.paddingBottom = 3;
                 mainContainer.Add(subLabel);
+            }
+
+            if (isInherited)
+            {
+                capabilities &= ~Capabilities.Deletable;
+                style.opacity = 0.6f;
+                tooltip = "From the Base table. Change it there; here it can be moved, connected, or set as initial.";
+
+                var baseLabel = new Label("From Base");
+                baseLabel.pickingMode = PickingMode.Ignore;
+                baseLabel.style.fontSize = 10;
+                baseLabel.style.unityFontStyleAndWeight = FontStyle.Italic;
+                baseLabel.style.color = new Color(1f, 1f, 1f, 0.6f);
+                baseLabel.style.paddingLeft = 8;
+                baseLabel.style.paddingTop = 2;
+                baseLabel.style.paddingBottom = 3;
+                mainContainer.Add(baseLabel);
             }
 
             RegisterCallback<MouseDownEvent>(OnMouseDown);
@@ -90,6 +112,29 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             }
 
             return tables;
+        }
+
+        private Label _changesLabel;
+
+        // "✎ 2 changes here" under the title: a variant table changes this (Base's) state's actions.
+        // Selecting the node shows them (VariantStatePanel).
+        public void SetActionChangeCount(int count)
+        {
+            if (_changesLabel == null)
+            {
+                _changesLabel = new Label();
+                _changesLabel.pickingMode = PickingMode.Ignore;
+                _changesLabel.style.fontSize = 10;
+                _changesLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
+                _changesLabel.style.color = new Color(0.45f, 0.72f, 1f);
+                _changesLabel.style.paddingLeft = 8;
+                _changesLabel.style.paddingTop = 2;
+                _changesLabel.style.paddingBottom = 3;
+                mainContainer.Insert(mainContainer.IndexOf(titleContainer) + 1, _changesLabel);
+            }
+
+            _changesLabel.text = count == 1 ? "✎ 1 action change here" : $"✎ {count} action changes here";
+            _changesLabel.style.display = count > 0 ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
         // The graph builds the whole menu (StateMachineGraphView.BuildContextualMenu).

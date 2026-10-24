@@ -117,6 +117,22 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
                 // Editing while the drop event is still being sent around is unsafe, so wait a frame.
                 StateSO state = node.State;
+
+                // A Base's state in a variant table: added for this table only, never to the Base's state.
+                if (IsBaseStateHere(state))
+                {
+                    TransitionTableSO table = _table;
+                    schedule.Execute(() =>
+                    {
+                        VariantStatePanel.AddInTable(table, state, actions);
+                        RefreshActionChangeLabels();
+
+                        // The Inspector may be showing this state's overrides: show the new ones.
+                        UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+                    });
+                    return;
+                }
+
                 schedule.Execute(() => AddActions(state, actions));
             });
         }
@@ -217,9 +233,14 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                     isInitial ? DropdownMenuAction.Status.Disabled : DropdownMenuAction.Status.Normal);
                 evt.menu.AppendSeparator();
                 evt.menu.AppendAction("Rename", _ => BeginRename(stateNode));
-                // A state inside this table's file is deleted with it; a shared state file stays.
-                bool isEmbedded = AssetDatabase.GetAssetPath(stateNode.State) == AssetDatabase.GetAssetPath(_table);
-                evt.menu.AppendAction(isEmbedded ? "Delete" : "Remove from Table", _ => DeleteFromMenu(stateNode));
+
+                // A Base's state isn't in this table to delete (its transitions are removed in the Inspector).
+                if (!stateNode.IsInherited)
+                {
+                    // A state inside this table's file is deleted with it; a shared state file stays.
+                    bool isEmbedded = AssetDatabase.GetAssetPath(stateNode.State) == AssetDatabase.GetAssetPath(_table);
+                    evt.menu.AppendAction(isEmbedded ? "Delete" : "Remove from Table", _ => DeleteFromMenu(stateNode));
+                }
             }
             else if (node is SpecialNodeView { NodeKind: SpecialNodeView.Kind.AnyState } anyStateNode)
             {
@@ -228,6 +249,10 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             else if (node is SpecialNodeView)
             {
                 // Entry: nothing to do here, the initial state is set from a state node.
+            }
+            else if (edge != null && edge.IsInherited)
+            {
+                AppendInheritedEdgeMenu(evt.menu, edge);
             }
             else if (edge != null)
             {
@@ -293,11 +318,12 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             foreach (GraphElement element in elements)
             {
-                if (element is StateNodeView stateNode)
+                // Inherited ones aren't deletable; skipped here too, since their data isn't in this table.
+                if (element is StateNodeView stateNode && !stateNode.IsInherited)
                 {
                     removedStates.Add(stateNode.State);
                 }
-                else if (element is TransitionEdgeView edge)
+                else if (element is TransitionEdgeView edge && !edge.IsInherited)
                 {
                     // Entry edge has no indices, so it's never removed from the data.
                     foreach (int index in edge.TransitionIndices)

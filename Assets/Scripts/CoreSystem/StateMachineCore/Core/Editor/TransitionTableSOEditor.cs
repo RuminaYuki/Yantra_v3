@@ -7,26 +7,44 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 namespace Yuki.Learning.StateMachine.Editor
 {
     [CustomEditor(typeof(TransitionTableSO))]
-    public class TransitionTableSOEditor : UnityEditor.Editor
+    public partial class TransitionTableSOEditor : UnityEditor.Editor
     {
+        private SerializedProperty _base;
         private SerializedProperty _initialState;
         private SerializedProperty _anyTransitions;
         private SerializedProperty _transitions;
+        private SerializedProperty _fieldOverrides;
+        private SerializedProperty _removedIds;
 
         private void OnEnable()
         {
+            _removedIds = serializedObject.FindProperty("_removedIds");
+            _base = serializedObject.FindProperty(BaseProperty);
             _initialState = serializedObject.FindProperty("_initialState");
             _anyTransitions = serializedObject.FindProperty("_anyTransitions");
             _transitions = serializedObject.FindProperty("_transitions");
+            _fieldOverrides = serializedObject.FindProperty("_fieldOverrides");
         }
 
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
 
-            EditorGUILayout.PropertyField(_initialState);
+            DrawBase();
             EditorGUILayout.Space();
 
+            EditorGUI.BeginChangeCheck();
+            EditorGUILayout.PropertyField(_initialState);
+            if (EditorGUI.EndChangeCheck())
+            {
+                // Emptying it makes the graph show the Base's initial state.
+                _graphNeedsReload = true;
+            }
+
+            DrawInheritedInitialState();
+            EditorGUILayout.Space();
+
+            DrawInheritedTransitions(false);
             DrawTransitionList(
                 _anyTransitions,
                 "Any State Transitions",
@@ -36,6 +54,7 @@ namespace Yuki.Learning.StateMachine.Editor
 
             EditorGUILayout.Space(10f);
 
+            DrawInheritedTransitions(true);
             DrawTransitionList(
                 _transitions,
                 "Local Transitions",
@@ -43,7 +62,18 @@ namespace Yuki.Learning.StateMachine.Editor
                 "+ Add Local Transition",
                 true);
 
-            serializedObject.ApplyModifiedProperties();
+            DrawStaleRemovedIds();
+            EditorGUILayout.Space(10f);
+
+            DrawFieldOverrides();
+
+            // The graph draws the Base's parts: redraw it when what it gets from the Base changed.
+            if (serializedObject.ApplyModifiedProperties() && _graphNeedsReload)
+            {
+                Graph.StateMachineGraphWindow.ReloadAll();
+            }
+
+            _graphNeedsReload = false;
         }
 
         private void DrawTransitionList(
@@ -148,6 +178,9 @@ namespace Yuki.Learning.StateMachine.Editor
                 EditorGUILayout.PropertyField(toState, new GUIContent("To"));
                 EditorGUILayout.Space(4f);
                 TransitionGUI.DrawConditionGroups(groups);
+
+                // Read-only: a variant's _removedIds points at it.
+                EditorGUILayout.LabelField("Id", transition.FindPropertyRelative("Id").stringValue, EditorStyles.miniLabel);
 
                 EditorGUI.indentLevel--;
             }

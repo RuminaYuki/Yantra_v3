@@ -20,6 +20,7 @@ namespace Yuki.Learning.StateMachine.Editor
     public class StateMachineParametersEditor : UnityEditor.Editor
     {
         private const string OverridesProperty = "_overrides";
+        private const string BaseProperty = "_base";
         private const string NameProperty = "_name";
         private const string ValueProperty = "_value";
         private const string BoolProperty = "_bool";
@@ -552,6 +553,7 @@ namespace Yuki.Learning.StateMachine.Editor
         }
 
         // One Blackboard per table file. Tables are read like the Inspector does (the field is private).
+        // A variant table also shows its bases' Blackboards, base first (same order as RegisterParameters).
         private static List<ExposedParametersSO> BlackboardsOf(StateMachineController controller)
         {
             var result = new List<ExposedParametersSO>();
@@ -565,15 +567,32 @@ namespace Yuki.Learning.StateMachine.Editor
             {
                 if (tables.GetArrayElementAtIndex(i).objectReferenceValue is TransitionTableSO table)
                 {
-                    ExposedParametersSO blackboard = ParameterBlackboard.Find(table);
-                    if (blackboard != null && !result.Contains(blackboard))
-                    {
-                        result.Add(blackboard);
-                    }
+                    AddBlackboards(table, result, new HashSet<TransitionTableSO>());
                 }
             }
 
             return result;
+        }
+
+        // visited stops a loop (A's base is B, B's base is A).
+        private static void AddBlackboards(
+            TransitionTableSO table,
+            List<ExposedParametersSO> result,
+            HashSet<TransitionTableSO> visited)
+        {
+            if (table == null || !visited.Add(table))
+            {
+                return;
+            }
+
+            var baseTable = new SerializedObject(table).FindProperty(BaseProperty).objectReferenceValue as TransitionTableSO;
+            AddBlackboards(baseTable, result, visited);
+
+            ExposedParametersSO blackboard = ParameterBlackboard.Find(table);
+            if (blackboard != null && !result.Contains(blackboard))
+            {
+                result.Add(blackboard);
+            }
         }
 
         private static string TableName(ExposedParametersSO blackboard)

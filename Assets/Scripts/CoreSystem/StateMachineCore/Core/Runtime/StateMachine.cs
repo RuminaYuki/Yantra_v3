@@ -21,6 +21,9 @@ namespace Yuki.Learning.StateMachine
         public State CurrentState => _currentState;
         public IReadOnlyList<StateTransition> AnyTransitions => _anyTransitions;
 
+        // ตอบว่า state machine นี้ใช้ action / condition ตัวไหนจริง (หลังใส่ค่าของ Variant และตัวละคร)
+        // TransitionTableSO.CreateInitialState ตั้งให้ตอนสร้าง
+        public ElementResolver Resolver { get; set; }
 
         public event Action<string, string> StateChanged;
         public event Action<string, string> ChildStateChanged;
@@ -206,6 +209,8 @@ namespace Yuki.Learning.StateMachine
             }
 
             _conditions.Clear();
+            Resolver?.Dispose();
+            Resolver = null;
             _currentState = null;
             _anyTransitions = Array.Empty<StateTransition>();
             _pendingExitId = null;

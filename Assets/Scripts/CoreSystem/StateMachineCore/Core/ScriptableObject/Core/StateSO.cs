@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Yuki.Learning.StateMachine.ScriptableObjects
@@ -13,18 +14,18 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
 
         public State CreateState(StateMachine stateMachine)
         {
-            StateAction[] runtimeActions =
-                new StateAction[_actions.Length];
+            var runtimeActions = new List<StateAction>();
 
-            for (int i = 0; i < _actions.Length; i++)
+            // action ของ state นี้ หลัง Variant สลับ / ลบ / เพิ่ม (ElementResolver.ActionsFor)
+            foreach (StateActionSO action in stateMachine.Resolver.ActionsFor(this, _actions))
             {
-                runtimeActions[i] =
-                    StateMachineParameters.Resolve(stateMachine, _actions[i]).CreateAction(stateMachine);
+                runtimeActions.Add(
+                    stateMachine.Resolver.Resolve(action).CreateAction(stateMachine));
             }
 
             State state = new State(
                 name,
-                runtimeActions,
+                runtimeActions.ToArray(),
                 stateMachine
             );
 

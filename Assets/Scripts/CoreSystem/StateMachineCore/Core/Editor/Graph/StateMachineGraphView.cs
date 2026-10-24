@@ -214,6 +214,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             {
                 if (element is TransitionEdgeView edge &&
                     edge.IsAnyState == previous.IsAnyState &&
+                    edge.IsInherited == previous.IsInherited &&
                     Equals(GetNodeKey(edge.From), GetNodeKey(previous.From)) &&
                     (wasEntryEdge || Equals(GetNodeKey(edge.To), GetNodeKey(previous.To))))
                 {
@@ -257,8 +258,12 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             // TransitionTableSO fields are private, so read them the same way the Inspector does.
             _serializedTable = new SerializedObject(_table);
-            var initialState =
+            var ownInitialState =
                 _serializedTable.FindProperty("_initialState").objectReferenceValue as StateSO;
+
+            // A variant also shows what it gets from its Base, faint (StateMachineGraphView.Inherited.cs).
+            InheritedParts inherited = ReadInherited(_serializedTable, SafeBaseOf(_table));
+            StateSO initialState = ownInitialState != null ? ownInitialState : inherited.InitialState;
 
             SpecialNodeView entryNode = CreateSpecialNode(
                 SpecialNodeView.Kind.Entry,
@@ -270,24 +275,38 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             AddElement(anyStateNode);
 
             List<StateSO> states = CollectStates(_serializedTable, initialState);
+            foreach (StateSO state in inherited.States)
+            {
+                if (!states.Contains(state))
+                {
+                    states.Add(state);
+                }
+            }
+
             Dictionary<StateSO, Vector2> savedPositions = ReadNodePositions(_serializedTable);
+            AddBasePositions(SafeBaseOf(_table), savedPositions);
+            _baseStates = inherited.States;
             var stateNodes = new Dictionary<StateSO, StateNodeView>();
 
             for (int i = 0; i < states.Count; i++)
             {
-                // States never dragged yet fall back to the grid.
+                // States never dragged yet (here or in a Base) fall back to the grid.
                 if (!savedPositions.TryGetValue(states[i], out Vector2 position))
                 {
                     position = GetGridPosition(i);
                 }
 
-                var node = new StateNodeView(states[i], states[i] == initialState);
+                // A Base's state stays the Base's even when this table's own arrows go to / from it.
+                bool isInherited = inherited.States.Contains(states[i]);
+                var node = new StateNodeView(states[i], states[i] == initialState, isInherited);
                 node.SetPosition(new Rect(position, Vector2.zero));
                 AddElement(node);
                 stateNodes.Add(states[i], node);
             }
 
-            CreateEdges(_serializedTable, initialState, entryNode, anyStateNode, stateNodes);
+            CreateEdges(_serializedTable, initialState, ownInitialState == null, entryNode, anyStateNode, stateNodes);
+            CreateInheritedEdges(inherited, anyStateNode, stateNodes);
+            RefreshActionChangeLabels();
             RefreshParameterTags();
 
             // New nodes start un-highlighted, so apply the Play Mode highlight again.
@@ -315,10 +334,22 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         public void RefreshParameterTags()
         {
             var namesByTarget = new Dictionary<ScriptableObject, List<string>>();
-            ExposedParametersSO parameters = _table != null ? ParameterBlackboard.Find(_table) : null;
 
-            if (parameters != null && _showParameterTags)
+            // This table's parameters, and in a variant its Bases' too (they run here as well).
+            var parameterSets = new List<ExposedParametersSO>();
+            var visited = new HashSet<TransitionTableSO>();
+            for (TransitionTableSO current = _table; current != null && visited.Add(current); current = BaseOf(current))
             {
+                ExposedParametersSO found = ParameterBlackboard.Find(current);
+                if (found != null)
+                {
+                    parameterSets.Add(found);
+                }
+            }
+
+            if (_showParameterTags)
+            {
+                foreach (ExposedParametersSO parameters in parameterSets)
                 foreach (ExposedParameter parameter in parameters.Parameters)
                 foreach (ExposedBinding binding in parameter.Bindings)
                 {
@@ -380,6 +411,19 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         private List<ScriptableObject> ConditionsOf(TransitionEdgeView edge)
         {
             var found = new List<ScriptableObject>();
+
+            // Its indices aren't into this table: it carries the Base's conditions itself.
+            if (edge.IsInherited)
+            {
+                foreach (InheritedTransition item in edge.InheritedTransitions)
+                foreach (StateConditionSO condition in item.Conditions)
+                {
+                    AddWithInner(condition, found);
+                }
+
+                return found;
+            }
+
             if (_serializedTable == null)
             {
                 return found;
@@ -610,9 +654,11 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             return newItem;
         }
 
+        // initialIsInherited: the table has none of its own, so the Entry arrow shows the Base's.
         private void CreateEdges(
             SerializedObject serializedTable,
             StateSO initialState,
+            bool initialIsInherited,
             Node entryNode,
             Node anyStateNode,
             Dictionary<StateSO, StateNodeView> stateNodes)
@@ -620,7 +666,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             if (initialState != null)
             {
                 AddElement(new TransitionEdgeView(
-                    entryNode, stateNodes[initialState], new List<int>(), false));
+                    entryNode, stateNodes[initialState], new List<int>(), false, initialIsInherited));
             }
 
             // Local transitions: one edge per From -> To pair, remembering which array items it covers.

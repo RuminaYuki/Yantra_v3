@@ -54,19 +54,22 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 "here to use it too. Rename, delete and folders are done in the parent.";
 
             FolderData folders = FolderData.Load(parentTable);
-            AddParentPart(group, ActionsGroup, items.OfType<StateActionSO>(), folders, tablePath);
-            AddParentPart(group, ConditionsGroup, items.OfType<StateConditionSO>(), folders, tablePath);
+            AddParentPart(group, ParentGroupKey, ActionsGroup, items.OfType<StateActionSO>(), folders, tablePath, false);
+            AddParentPart(group, ParentGroupKey, ConditionsGroup, items.OfType<StateConditionSO>(), folders, tablePath, false);
 
             _list.Add(group);
         }
 
-        // Actions or Conditions, with the parent's folders that hold something (empty ones are left out).
+        // States, Actions or Conditions of another table (the parent, or the Base: isFromBase), with
+        // that table's folders that hold something (empty ones are left out). Read-only rows.
         private void AddParentPart(
             VisualElement group,
+            string groupKey,
             string kind,
             IEnumerable<ScriptableObject> items,
             FolderData folders,
-            string tablePath)
+            string tablePath,
+            bool isFromBase)
         {
             List<ScriptableObject> sorted = items.OrderBy(item => item.name).ToList();
             if (sorted.Count == 0)
@@ -74,7 +77,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 return;
             }
 
-            Foldout part = CreateFoldout(kind, $"{ParentGroupKey}/{kind}");
+            Foldout part = CreateFoldout(kind, $"{groupKey}/{kind}");
             group.Add(part);
 
             var folderPaths = new SortedSet<string>(System.StringComparer.Ordinal);
@@ -92,20 +95,22 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             var folderViews = new Dictionary<string, Foldout>();
             foreach (string path in folderPaths)
             {
-                GetOrCreateParentFolder(part, kind, path, folderViews);
+                GetOrCreateParentFolder(part, groupKey, kind, path, folderViews);
             }
 
             foreach (ScriptableObject item in sorted)
             {
                 folders.ItemFolders.TryGetValue(item, out string folder);
                 VisualElement parent = folder != null ? folderViews[folder] : part;
-                parent.Add(CreateRow(item, null, null, true, tablePath, null, isFromParent: true));
+                parent.Add(CreateRow(item, null, null, true, tablePath, null,
+                    isFromParent: !isFromBase, isFromBase: isFromBase));
             }
         }
 
-        // Like GetOrCreateFolder, but a plain folder: no drops, no menu, since the folders are the parent's.
+        // Like GetOrCreateFolder, but a plain folder: no drops, no menu, since the folders are the other table's.
         private Foldout GetOrCreateParentFolder(
             Foldout part,
+            string groupKey,
             string kind,
             string path,
             Dictionary<string, Foldout> folderViews)
@@ -118,9 +123,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             string parentPath = ParentOf(path);
             VisualElement parent = parentPath.Length == 0
                 ? part
-                : GetOrCreateParentFolder(part, kind, parentPath, folderViews);
+                : GetOrCreateParentFolder(part, groupKey, kind, parentPath, folderViews);
 
-            Foldout folder = CreateFoldout(NameOf(path), $"{ParentGroupKey}/{kind}/{path}");
+            Foldout folder = CreateFoldout(NameOf(path), $"{groupKey}/{kind}/{path}");
             VisualElement toggleInput = folder.Q(className: Foldout.inputUssClassName);
             if (toggleInput != null)
             {

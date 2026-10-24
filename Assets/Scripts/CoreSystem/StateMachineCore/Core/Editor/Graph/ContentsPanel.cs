@@ -186,6 +186,13 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 shownElsewhere.UnionWith(exits.Values.SelectMany(actions => actions));
             }
 
+            // A variant table: what its Base uses goes in the From Base group instead (ContentsPanel.Base.cs).
+            TransitionTableSO baseTable = StateMachineGraphView.SafeBaseOf(_table);
+            HashSet<ScriptableObject> baseItems = baseTable != null
+                ? BaseItems(baseTable)
+                : new HashSet<ScriptableObject>();
+            shownElsewhere.UnionWith(baseItems);
+
             FolderData folders = FolderData.Load(_table);
             AddGroup(StatesGroup,
                 shown.OfType<StateSO>().Where(item => !shownElsewhere.Contains(item) && !subStates.ContainsKey(item)),
@@ -197,6 +204,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             AddGroup(ConditionsGroup,
                 shown.OfType<StateConditionSO>().Where(item => !shownElsewhere.Contains(item)),
                 used, folders, tablePath);
+            AddBaseGroup(baseTable, baseItems, subStates, tablePath);
             AddUnusedTablesGroup(unused.OfType<TransitionTableSO>().ToList(), tablePath);
             AddParentGroup(parentTable, parentItems, tablePath);
 
@@ -661,7 +669,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // [mark] [icon] [name] [hint]. Renaming swaps the name label for a text field.
         // group / groupFolders null: the row can't go into folders (e.g. it belongs to a sub-state machine).
         // onDoubleClick null: double-click renames. hint: small grey text after the name (search results).
-        // isFromParent: a From Parent row, which can be selected and dragged but not edited from here.
+        // isFromParent / isFromBase: a From Parent / From Base row, which can be selected and dragged but
+        // not edited from here (it's the other table's).
         private VisualElement CreateRow(
             ScriptableObject item,
             string group,
@@ -671,8 +680,11 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             List<string> groupFolders,
             Action onDoubleClick = null,
             string hint = null,
-            bool isFromParent = false)
+            bool isFromParent = false,
+            bool isFromBase = false)
         {
+            bool isReadOnly = isFromParent || isFromBase;
+
             // A sub-asset has the same asset path as the file it lives in.
             string itemPath = AssetDatabase.GetAssetPath(item);
             bool isEmbedded = itemPath == tablePath;
@@ -685,6 +697,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             row.AddToClassList(RowClass);
             row.EnableInClassList("contents-row--shared", isUsed && !isEmbedded);
             row.EnableInClassList("contents-row--unused", !isUsed);
+            row.EnableInClassList("contents-row--from-base", isFromBase);
             row.focusable = true;   // so F2 and Delete reach it after a click
             row.tooltip =
                 !isUsed ? "Inside this table's file, but nothing uses it yet." :
@@ -716,6 +729,11 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 row.tooltip += "\nFrom the parent table: drag it into a transition or an action list to use it here.";
             }
 
+            if (isFromBase)
+            {
+                row.tooltip += "\nFrom the Base table: change it there, or override it for this table in the graph.";
+            }
+
             var label = new Label(string.IsNullOrEmpty(item.name) ? "(no name)" : item.name);
             label.AddToClassList("contents-row__name");
             row.Add(label);
@@ -733,14 +751,14 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 _rowGroups[item] = group;
             }
 
-            if (isFromParent)
+            if (isReadOnly)
             {
                 _parentRows.Add(item);
             }
 
             row.RegisterCallback<ClickEvent>(evt =>
             {
-                if (evt.clickCount == 2 && isFromParent)
+                if (evt.clickCount == 2 && isReadOnly)
                 {
                     // Not renamed from here.
                 }
@@ -767,8 +785,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 }
             });
 
-            // From Parent: no F2 / Delete and no menu, so nothing of the parent is changed from here.
-            if (!isFromParent)
+            // From Parent / From Base: no F2 / Delete and no menu, so nothing of the other table changes here.
+            if (!isReadOnly)
             {
                 RegisterRowKeys(row, label, item, isEmbedded);
                 row.AddManipulator(new ContextualMenuManipulator(evt =>

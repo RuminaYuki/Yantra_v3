@@ -42,7 +42,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         private bool _showParameters = true;
 
         // What Unity's Inspector shows while an arrow is selected. See TransitionSelection.
-        private TransitionSelection _transitionSelection;
+        // The Inspector stand-in for the selected arrow / Base state (TransitionSelection, StateOverrideSelection).
+        private ScriptableObject _transitionSelection;
 
         // The table at the top of the navigation path, the one a StateMachineController runs.
         private TransitionTableSO RootTable => _path.Count > 0 ? _path[0] : _table;
@@ -245,12 +246,25 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // Like Animator: the selected state or arrow also shows in Unity's own Inspector.
         private void ShowInUnityInspector(GraphElement element)
         {
-            if (element is StateNodeView stateNode && stateNode.State != null)
+            if (element is StateNodeView baseState && _graphView.IsBaseStateHere(baseState.State))
+            {
+                // A Base's state in a variant table: its overrides here, not the shared state itself.
+                SelectStandIn(StateOverrideSelection.Create(
+                    _table, StateMachineGraphView.SafeBaseOf(_table), baseState.State));
+            }
+            else if (element is StateNodeView stateNode && stateNode.State != null)
             {
                 Selection.activeObject = stateNode.State;
             }
+            else if (element is TransitionEdgeView inheritedEdge && inheritedEdge.InheritedTransitions.Count > 0)
+            {
+                // A Base's arrow in a variant table: what this table does with it, not the Base's data.
+                SelectStandIn(TransitionOverrideSelection.Create(
+                    _table, StateMachineGraphView.SafeBaseOf(_table), inheritedEdge));
+            }
             else if (element is TransitionEdgeView edge)
             {
+                // Including the faint Entry arrow of a variant: setting an initial state here overrides the Base's.
                 SelectStandIn(TransitionSelection.Create(_table, edge));
             }
             else if (element is SpecialNodeView { NodeKind: SpecialNodeView.Kind.AnyState })
@@ -272,12 +286,22 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         }
 
         // A new stand-in per click, so the Inspector rebuilds for the new selection.
-        private void SelectStandIn(TransitionSelection selection)
+        private void SelectStandIn(ScriptableObject selection)
         {
-            TransitionSelection previous = _transitionSelection;
+            ScriptableObject previous = _transitionSelection;
             _transitionSelection = selection;
             Selection.activeObject = selection;
             DestroyImmediate(previous);
+        }
+
+        // An override changed in the Inspector: only the "✎ changes" labels on the nodes need redrawing
+        // (a full reload would reselect the node and rebuild the Inspector mid-edit).
+        public static void RefreshOverrideLabels()
+        {
+            foreach (StateMachineGraphWindow window in Resources.FindObjectsOfTypeAll<StateMachineGraphWindow>())
+            {
+                window._graphView?.RefreshActionChangeLabels();
+            }
         }
 
         // A table was changed from outside the graph (e.g. reordered in the StateSO Inspector).

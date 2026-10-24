@@ -124,6 +124,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                     AddSection(CreateSection(category));
                 }
 
+                AddBaseSections();
                 return;
             }
 
@@ -158,6 +159,215 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
                 AddSection(section);
             }
+
+            AddBaseSections();
+        }
+
+        // ---------- A variant's Base ----------
+
+        private static readonly Color BaseTint = new Color(0.78f, 0.7f, 1f);
+
+        // A variant table runs its Bases' parameters too (TransitionTableSO.RegisterParameters registers the
+        // whole chain), so a character can override them like its own. Listed under a lavender header per
+        // Base, read-only here: they're edited in the Base.
+        private void AddBaseSections()
+        {
+            if (_table == null)
+            {
+                return;
+            }
+
+            var visited = new HashSet<TransitionTableSO> { _table };
+            for (TransitionTableSO baseTable = StateMachineGraphView.SafeBaseOf(_table);
+                 baseTable != null && visited.Add(baseTable);
+                 baseTable = StateMachineGraphView.BaseOf(baseTable))
+            {
+                ExposedParametersSO baseParameters = Find(baseTable);
+                if (baseParameters == null || baseParameters.Parameters.Count == 0)
+                {
+                    continue;
+                }
+
+                var section = new BlackboardSection
+                {
+                    title = $"From Base · {baseTable.name} ({baseParameters.Parameters.Count})"
+                };
+                StyleSectionHeader(section);
+                section.Query<Label>().ForEach(label => label.style.color = BaseTint);
+
+                foreach (ExposedParameter parameter in baseParameters.Parameters)
+                {
+                    section.Add(CreateBaseRow(parameter, baseTable));
+                }
+
+                Add(section);
+                _sections.Add(section);
+            }
+        }
+
+        private static readonly Color OverriddenTint = new Color(0.35f, 0.65f, 1f);
+
+        // Name and type, and under it the value this table uses: the Base's (greyed, [Override]) or this
+        // table's own ([Revert]). Overriding writes a Field Override (TransitionTableSO._fieldOverrides)
+        // for every field the parameter sets, the same thing the table's Inspector lists.
+        // The name can't be renamed, deleted or dragged (userData stays null, so the Delete key skips it).
+        private BlackboardRow CreateBaseRow(ExposedParameter parameter, TransitionTableSO baseTable)
+        {
+            Type type = parameter.Bindings.Count > 0 ? FieldOf(parameter.Bindings[0]) : null;
+            bool isOverridden = FieldOverrideIndex(new SerializedObject(_table), parameter) >= 0;
+
+            var field = new BlackboardField
+            {
+                text = parameter.Name,
+                typeText = type != null ? type.Name : string.Empty,
+                tooltip = isOverridden
+                    ? $"Exposed in {baseTable.name}, value overridden in this table."
+                    : $"Exposed in {baseTable.name}. Override its value for this table below."
+            };
+
+            field.capabilities &= ~(Capabilities.Renamable | Capabilities.Deletable | Capabilities.Movable | Capabilities.Droppable);
+            Color tint = isOverridden ? OverriddenTint : BaseTint;
+            field.Query<Label>().ForEach(label => label.style.color = tint);
+
+            var valueView = new IMGUIContainer(() => DrawBaseValue(parameter, type));
+            valueView.style.paddingLeft = 8f;
+            valueView.style.paddingRight = 4f;
+            valueView.style.paddingBottom = 4f;
+
+            return new BlackboardRow(field, valueView) { expanded = true };
+        }
+
+        private void DrawBaseValue(ExposedParameter parameter, Type type)
+        {
+            if (_table == null || type == null || parameter.Bindings[0].Target == null)
+            {
+                EditorGUILayout.LabelField("Not bound to a field any more.", EditorStyles.miniLabel);
+                return;
+            }
+
+            var serializedTable = new SerializedObject(_table);
+            SerializedProperty overrides = serializedTable.FindProperty("_fieldOverrides");
+            int index = FieldOverrideIndex(serializedTable, parameter);
+            bool changedStructure = false;
+
+            EditorGUILayout.BeginHorizontal();
+
+            if (index < 0)
+            {
+                // The Base's value, as the SO has it.
+                ExposedBinding first = parameter.Bindings[0];
+                SerializedProperty source = new SerializedObject(first.Target).FindProperty(first.FieldName);
+                using (new EditorGUI.DisabledScope(true))
+                {
+                    if (source != null)
+                    {
+                        EditorGUILayout.PropertyField(source, GUIContent.none);
+                    }
+                }
+
+                if (GUILayout.Button(new GUIContent("Override", "Use another value in this table"), EditorStyles.miniButton, GUILayout.Width(64f)))
+                {
+                    foreach (ExposedBinding binding in parameter.Bindings)
+                    {
+                        AddFieldOverride(overrides, binding);
+                    }
+
+                    changedStructure = true;
+                }
+            }
+            else
+            {
+                SerializedProperty element = overrides.GetArrayElementAtIndex(index);
+                TransitionTableSOEditor.DrawValue(element, type, GUIContent.none);
+
+                // Every field the parameter sets gets the same value.
+                foreach (ExposedBinding binding in parameter.Bindings)
+                {
+                    int other = FindFieldOverride(overrides, binding);
+                    if (other >= 0 && other != index)
+                    {
+                        CopyValueSlots(element, overrides.GetArrayElementAtIndex(other));
+                    }
+                }
+
+                if (GUILayout.Button(new GUIContent("Revert", "Use the Base's value again"), EditorStyles.miniButton, GUILayout.Width(64f)))
+                {
+                    for (int i = overrides.arraySize - 1; i >= 0; i--)
+                    {
+                        if (parameter.Bindings.Any(binding => IsOverrideOf(overrides.GetArrayElementAtIndex(i), binding)))
+                        {
+                            overrides.DeleteArrayElementAtIndex(i);
+                        }
+                    }
+
+                    changedStructure = true;
+                }
+            }
+
+            EditorGUILayout.EndHorizontal();
+            serializedTable.ApplyModifiedProperties();
+
+            // Overridden / not changes the name's color: redraw the panel once this draw is done.
+            if (changedStructure)
+            {
+                schedule.Execute(Rebuild);
+            }
+        }
+
+        // This table's Field Override of the parameter's first field, or -1.
+        private static int FieldOverrideIndex(SerializedObject serializedTable, ExposedParameter parameter)
+        {
+            if (parameter.Bindings.Count == 0)
+            {
+                return -1;
+            }
+
+            return FindFieldOverride(serializedTable.FindProperty("_fieldOverrides"), parameter.Bindings[0]);
+        }
+
+        private static int FindFieldOverride(SerializedProperty overrides, ExposedBinding binding)
+        {
+            for (int i = 0; i < overrides.arraySize; i++)
+            {
+                if (IsOverrideOf(overrides.GetArrayElementAtIndex(i), binding))
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        private static bool IsOverrideOf(SerializedProperty element, ExposedBinding binding)
+        {
+            return element.FindPropertyRelative("_target").objectReferenceValue == binding.Target &&
+                   element.FindPropertyRelative("_fieldPath").stringValue == binding.FieldName;
+        }
+
+        // Starts at the SO's value, so nothing changes until it's edited.
+        private static void AddFieldOverride(SerializedProperty overrides, ExposedBinding binding)
+        {
+            if (binding.Target == null || FindFieldOverride(overrides, binding) >= 0)
+            {
+                return;
+            }
+
+            overrides.arraySize++;
+            SerializedProperty element = overrides.GetArrayElementAtIndex(overrides.arraySize - 1);
+            element.FindPropertyRelative("_target").objectReferenceValue = binding.Target;
+            element.FindPropertyRelative("_fieldPath").stringValue = binding.FieldName;
+            TransitionTableSOEditor.CopySourceValue(element, binding.Target, binding.FieldName);
+        }
+
+        // The value slots of OverrideValue (see FieldPathUtility.ConvertValue).
+        private static void CopyValueSlots(SerializedProperty from, SerializedProperty to)
+        {
+            to.FindPropertyRelative("_value").floatValue = from.FindPropertyRelative("_value").floatValue;
+            to.FindPropertyRelative("_bool").boolValue = from.FindPropertyRelative("_bool").boolValue;
+            to.FindPropertyRelative("_string").stringValue = from.FindPropertyRelative("_string").stringValue;
+            to.FindPropertyRelative("_vector").vector3Value = from.FindPropertyRelative("_vector").vector3Value;
+            to.FindPropertyRelative("_color").colorValue = from.FindPropertyRelative("_color").colorValue;
+            to.FindPropertyRelative("_object").objectReferenceValue = from.FindPropertyRelative("_object").objectReferenceValue;
         }
 
         private void AddSection(BlackboardSection section)
@@ -1529,7 +1739,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // Every path a parameter can set: an [Exposed] field of a settable type (see IsSettable), or the settable
         // fields inside an [Exposed] struct ("_attackParameters.damageAmount"). Those inside don't need
         // their own [Exposed]: exposing the struct offers all of them.
-        private static IEnumerable<(string Path, Type Type)> ExposedPathsOf(Type type)
+        internal static IEnumerable<(string Path, Type Type)> ExposedPathsOf(Type type)
         {
             foreach (FieldInfo field in ExposedFieldsOf(type))
             {
@@ -1607,7 +1817,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         }
 
         // The value type at `path`, or null when it was renamed, deleted, or lost its [Exposed].
-        private static Type FindExposedPath(Type type, string path)
+        internal static Type FindExposedPath(Type type, string path)
         {
             return ExposedPathsOf(type)
                 .Where(leaf => leaf.Path == path)

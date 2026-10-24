@@ -1,12 +1,39 @@
 #if UNITY_EDITOR
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.UIElements;
+using Yuki.Learning.StateMachine.ScriptableObjects;
 
 namespace Yuki.Learning.StateMachine.Editor.Graph
 {
+    // One of the Base's transitions on an inherited arrow (a variant's graph).
+    public sealed class InheritedTransition
+    {
+        public string Id { get; }
+        public string Summary { get; }   // "when A and not B", for the right-click menu
+        public bool Removed { get; }     // in this table's _removedIds
+        public bool Overridden { get; }  // this table uses its own conditions (_transitionOverrides)
+        public IReadOnlyList<StateConditionSO> Conditions { get; }
+
+        public InheritedTransition(
+            string id,
+            string summary,
+            bool removed,
+            bool overridden,
+            IReadOnlyList<StateConditionSO> conditions)
+        {
+            Id = id;
+            Summary = summary;
+            Removed = removed;
+            Overridden = overridden;
+            Conditions = conditions;
+        }
+    }
+
     // Animator-style transition: a straight line between two node borders with an arrow near the source.
     // One edge stands for every transition with the same From -> To (Animator shows 3 arrows for that).
     //
@@ -29,6 +56,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         private static readonly Color NormalColor = new Color(0.85f, 0.85f, 0.85f);
         private static readonly Color SelectedColor = new Color(0.27f, 0.6f, 1f);
         private static readonly Color UsesSelectionColor = new Color(1f, 0.65f, 0.2f);
+        private static readonly Color InheritedColor = new Color(0.85f, 0.85f, 0.85f, 0.3f);
+        private static readonly Color RemovedColor = new Color(1f, 0.45f, 0.45f, 0.35f);
+        private static readonly Color OverriddenColor = new Color(0.35f, 0.65f, 1f, 0.75f);
 
         // On when a condition selected elsewhere (Contents, Project, Inspector) is checked by this arrow.
         private bool _usesSelection;
@@ -48,26 +78,58 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         public Node To { get; }
 
         // Indexes into _transitions (or _anyTransitions). Empty for Entry -> initial state.
+        // On an inherited arrow they point into the Base's transitions instead: only their count is used.
         public IReadOnlyList<int> TransitionIndices { get; }
         public bool IsAnyState { get; }
+
+        // From the Base table (a variant's graph): drawn faint, can't be selected or deleted here.
+        // Right-click removes it from this table / restores it (StateMachineGraphView.Variant.cs).
+        public bool IsInherited { get; }
+
+        // The Base's transitions on an inherited arrow (none on the Entry arrow).
+        public IReadOnlyList<InheritedTransition> InheritedTransitions { get; }
+
+        // Every one of them removed in this table: drawn faint red.
+        public bool IsRemoved => InheritedTransitions.Count > 0 && InheritedTransitions.All(item => item.Removed);
+
+        // One of them runs with this table's own conditions: drawn blue.
+        public bool IsOverridden => InheritedTransitions.Any(item => item.Overridden && !item.Removed);
 
         // Line ends in this element's local space.
         private Vector2 _start;
         private Vector2 _end;
 
-        public TransitionEdgeView(Node from, Node to, IReadOnlyList<int> transitionIndices, bool isAnyState)
+        public TransitionEdgeView(
+            Node from,
+            Node to,
+            IReadOnlyList<int> transitionIndices,
+            bool isAnyState,
+            bool isInherited = false,
+            IReadOnlyList<InheritedTransition> inheritedTransitions = null)
         {
             From = from;
             To = to;
             TransitionIndices = transitionIndices;
             IsAnyState = isAnyState;
+            IsInherited = isInherited;
+            InheritedTransitions = inheritedTransitions ?? Array.Empty<InheritedTransition>();
 
             // Lower layer = drawn behind the nodes.
             layer = -1;
             // The Entry edge (no indices) just shows the initial state, so it can't be deleted.
-            capabilities = transitionIndices.Count > 0
-                ? Capabilities.Selectable | Capabilities.Deletable
-                : Capabilities.Selectable;
+            // An inherited arrow is selected (its overrides show in the Inspector) but never deleted here.
+            capabilities = isInherited || transitionIndices.Count == 0
+                ? Capabilities.Selectable
+                : Capabilities.Selectable | Capabilities.Deletable;
+
+            if (isInherited)
+            {
+                tooltip = IsRemoved
+                    ? "From the Base, removed in this table. Click to restore it."
+                    : IsOverridden
+                        ? "From the Base, with conditions overridden in this table. Click to see them."
+                        : "From the Base table. Click to override its conditions or remove it in this table.";
+            }
             style.position = Position.Absolute;
 
             generateVisualContent += OnGenerateVisualContent;
@@ -264,7 +326,12 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 return;
             }
 
-            Color color = selected ? SelectedColor : _usesSelection ? UsesSelectionColor : NormalColor;
+            Color color = selected ? SelectedColor
+                : _usesSelection ? UsesSelectionColor
+                : IsRemoved ? RemovedColor
+                : IsOverridden ? OverriddenColor
+                : IsInherited ? InheritedColor
+                : NormalColor;
             Painter2D painter = context.painter2D;
 
             painter.strokeColor = color;
