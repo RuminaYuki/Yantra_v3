@@ -1,5 +1,29 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-6511872613168189869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2acb854183d80214fb783df50e5f1185, type: 3}
+  m_Name: 'Enter group of ghosts 2. '
+  m_EditorClassIdentifier: Assembly-CSharp::SDFcl.GamePlay.QuestSystem.QuestSO
+  questId: 62933768576240aab2efcf04d78fc4ed
+  title: 'Enter group of ghosts 2. '
+  description: 
+  track: 0
+  objectives:
+  - id: enter trigger
+    description: 
+    requiredCount: 1
+  repeatMode: 0
+  maxCompletions: 0
+  dailyResetHour: 4
+  whenRouteLost: 0
 --- !u!114 &-5308543602531092420
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -40,11 +64,14 @@ MonoBehaviour:
   - rid: 271060794861420639
   - rid: 271060794861420641
   - rid: 271060933437554778
+  - rid: 271060972403687426
   edges:
-  - fromNode: 6cd6e9eb46d84aa6b941253fa311bdfe
-    toNode: e18f4e209cad42fca996e346fad20006
   - fromNode: 5e32a41d82384c5ab61b9030621bfcf3
     toNode: 6cd6e9eb46d84aa6b941253fa311bdfe
+  - fromNode: 6cd6e9eb46d84aa6b941253fa311bdfe
+    toNode: dd3ab67149004b47b6d3b965d54af299
+  - fromNode: dd3ab67149004b47b6d3b965d54af299
+    toNode: e18f4e209cad42fca996e346fad20006
   laneSplitY: 0
   references:
     version: 2
@@ -59,7 +86,7 @@ MonoBehaviour:
       type: {class: QuestNode, ns: SDFcl.GamePlay.QuestSystem, asm: Assembly-CSharp}
       data:
         guid: e18f4e209cad42fca996e346fad20006
-        position: {x: 400, y: -202}
+        position: {x: 704, y: -202}
         quest: {fileID: -5308543602531092420}
     - rid: 271060933437554778
       type: {class: QuestNode, ns: SDFcl.GamePlay.QuestSystem, asm: Assembly-CSharp}
@@ -67,6 +94,12 @@ MonoBehaviour:
         guid: 5e32a41d82384c5ab61b9030621bfcf3
         position: {x: -1, y: -202}
         quest: {fileID: 3837899139992925771}
+    - rid: 271060972403687426
+      type: {class: QuestNode, ns: SDFcl.GamePlay.QuestSystem, asm: Assembly-CSharp}
+      data:
+        guid: dd3ab67149004b47b6d3b965d54af299
+        position: {x: 443, y: -202}
+        quest: {fileID: -6511872613168189869}
 --- !u!114 &3837899139992925771
 MonoBehaviour:
   m_ObjectHideFlags: 0
