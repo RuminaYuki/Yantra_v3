@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 public class RadialManuController : MonoBehaviour
@@ -9,10 +10,16 @@ public class RadialManuController : MonoBehaviour
     [SerializeField] CanvasGroup _canvasGroup;
     [SerializeField] GameObject _circleUIPrefab;
     [SerializeField] TMP_Text _centerLabel;
-    [SerializeField] TMP_Text _requirementLabel; // บอกว่าปุ่มที่ชี้อยู่ต้องใช้ item อะไร เท่าไหร่
-    [SerializeField] PlayerInventory _playerInventory; // ว่างไว้ได้ จะหาใน scene ให้เอง
+    [SerializeField] TMP_Text _requirementLabel; // Item and amount the hovered button needs
+    [SerializeField] PlayerInventory _playerInventory; // Optional, found in the scene if empty
     [SerializeField] BoolRadialSOAdvEventChannal _boolRadialSOAdvEventChannal;
-    [SerializeField] IntEventChannelSO _radialIntID_IEC; // �� channel ���ǡѺ��� RadialButton ��
+    [SerializeField] IntEventChannelSO _radialIntID_IEC; // Same channel as the one on RadialButton
+
+    [Header("Input")]
+    [Tooltip("Vector2 delta used to pick a button (e.g. mouse delta or a stick). Empty = Mouse.current.delta.")]
+    [SerializeField] InputActionReference _strokeInput;
+    [Tooltip("Ignore strokes smaller than this (squared length).")]
+    [SerializeField] float _minStrokeSqr = 0.01f;
 
     [Header("Radial Menu Settings")]
     [SerializeField] float _fillAmountOffeset = 0.001f;
@@ -20,12 +27,13 @@ public class RadialManuController : MonoBehaviour
     [Header("Debug")]
     [SerializeField] int _countOfButtons = 6;
 
-    // pool: ������������ҧ�������� (��駷���Դ��лԴ����)
+    // Pool of buttons, reused across opens (only grows)
     readonly List<GameObject> _radialMenuButtons = new();
     readonly List<RadialButton> _radialButtons = new();
 
     RadialMenuDataSO _currentData;
     int _hoveredId = -1;
+    int _lockedHoverId = -1; // Button without enough items whose labels are shown
 
     public bool _isActive;
     bool _systemEnabled = true;
@@ -44,7 +52,7 @@ public class RadialManuController : MonoBehaviour
         if (_playerInventory == null)
             _playerInventory = FindFirstObjectByType<PlayerInventory>();
 
-        SetVisible(false); // ���͹ ����ͧ���ҧ����
+        SetVisible(false); // Hidden at start
     }
 
     private void OnEnable()
@@ -65,6 +73,19 @@ public class RadialManuController : MonoBehaviour
             _radialIntID_IEC.Raised -= HandleHover;
     }
 
+    private void Update()
+    {
+        if (!GetActive()) return;
+
+        Vector2 stroke = ReadStroke();
+        if (stroke.sqrMagnitude <= _minStrokeSqr) return;
+
+        RadialButton target = FindButtonInDirection(stroke);
+        if (target == null) return;
+
+        SelectButton(target);
+    }
+
     public void OpenRadialManu(bool value, RadialMenuDataSO Data = null)
     {
         if (value && !_systemEnabled)
@@ -75,12 +96,10 @@ public class RadialManuController : MonoBehaviour
             _currentData = Data;
             _countOfButtons = Data != null ? Data.GetListData().Count : _countOfButtons;
             RefreshRadialMenu();
-
-            // ��ҧʶҹ� hover ��ҧ�ҡ�ͺ��͹ (������Ѻ scale ���� + label ��ҧ)
-            if (_radialIntID_IEC != null)
-                _radialIntID_IEC.Raise(-1);
         }
 
+        // Clear hover on both open and close, so no button stays scaled up and no label stays behind
+        ClearHover();
         SetVisible(value);
     }
 
@@ -91,16 +110,7 @@ public class RadialManuController : MonoBehaviour
         if (enabled)
             return;
 
-        _hoveredId = -1;
-        if (_centerLabel != null)
-            _centerLabel.text = "";
-
-        if (_requirementLabel != null)
-            _requirementLabel.text = "";
-
-        if (_radialIntID_IEC != null)
-            _radialIntID_IEC.Raise(-1);
-
+        ClearHover();
         SetVisible(false);
     }
 
@@ -116,16 +126,32 @@ public class RadialManuController : MonoBehaviour
         _canvasGroup.blocksRaycasts = value;
     }
 
+    private void ClearHover()
+    {
+        _hoveredId = -1;
+        _lockedHoverId = -1;
+
+        if (_centerLabel != null)
+            _centerLabel.text = "";
+
+        if (_requirementLabel != null)
+            _requirementLabel.text = "";
+
+        if (_radialIntID_IEC != null)
+            _radialIntID_IEC.Raise(-1);
+    }
+
     private void RefreshRadialMenu()
     {
         float fillAmount = (1f / _countOfButtons) - (_countOfButtons > 1 ? _fillAmountOffeset : 0);
         float angle = 360f / _countOfButtons;
 
-        // 1) ��������� pool ੾�е͹�������
+        // 1) Grow the pool only when needed
         while (_radialMenuButtons.Count < _countOfButtons)
             CreateButton();
 
-        // 2) �Դ੾�л�������ͧ�� �������ͻԴ
+        // 2) Enable only the buttons in use, disable the rest
+        var list = _currentData.GetListData();
         for (int i = 0; i < _radialMenuButtons.Count; i++)
         {
             bool inUse = i < _countOfButtons;
@@ -133,12 +159,10 @@ public class RadialManuController : MonoBehaviour
 
             if (!inUse) continue;
 
-            //_buttonImages[i].fillAmount = fillAmount;
             _radialMenuButtons[i].transform.localRotation =
                 Quaternion.Euler(0f, 0f, -angle * i);
 
-            var list = _currentData.GetListData();
-            _radialButtons[i].SetClass(fillAmount, i, this, list[i], HasRequiredItem(list[i]));
+            _radialButtons[i].SetClass(fillAmount, i, list[i], HasRequiredItem(list[i]));
         }
     }
 
@@ -155,17 +179,86 @@ public class RadialManuController : MonoBehaviour
         _radialButtons.Add(go.GetComponent<RadialButton>());
     }
 
+    #region Input
+
+    private Vector2 ReadStroke()
+    {
+        if (_strokeInput != null && _strokeInput.action != null)
+            return _strokeInput.action.ReadValue<Vector2>();
+
+        return Mouse.current != null ? Mouse.current.delta.ReadValue() : Vector2.zero;
+    }
+
+    // Picks the button whose direction is closest to the stroke.
+    // Choosing the closest one means only one button can win, even if thresholds overlap.
+    private RadialButton FindButtonInDirection(Vector2 stroke)
+    {
+        float strokeAngle = Mathf.Atan2(stroke.y, stroke.x) * Mathf.Rad2Deg;
+
+        RadialButton best = null;
+        float bestDiff = float.MaxValue;
+
+        for (int i = 0; i < _countOfButtons && i < _radialButtons.Count; i++)
+        {
+            RadialButton button = _radialButtons[i];
+            Vector2 dir = button.IconDirection;
+            float buttonAngle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+            float diff = Mathf.Abs(Mathf.DeltaAngle(strokeAngle, buttonAngle));
+
+            if (diff < button.AngleThreshold && diff < bestDiff)
+            {
+                best = button;
+                bestDiff = diff;
+            }
+        }
+
+        return best;
+    }
+
+    // Only raises events when the hovered button changes, not every frame.
+    private void SelectButton(RadialButton button)
+    {
+        int id = button.ButtonID;
+
+        if (button.IsAvailable)
+        {
+            if (_hoveredId == id) return;
+
+            if (_radialIntID_IEC != null)
+                _radialIntID_IEC.Raise(id); // HandleHover updates _hoveredId and the labels
+            else
+            {
+                _hoveredId = id;
+                ShowLabels(id);
+            }
+            button.NotifySelected();
+        }
+        else
+        {
+            // Not enough items: clear the selection (cannot pick) but still show what it needs
+            if (_lockedHoverId == id) return;
+
+            if (_radialIntID_IEC != null)
+                _radialIntID_IEC.Raise(-1);
+
+            _hoveredId = -1;
+            _lockedHoverId = id;
+            ShowLabels(id);
+        }
+    }
+
+    #endregion
+
     private void HandleHover(int id)
     {
-        // channel �١ Raise �ء������������Ѻ �ѹ�� text ���
+        _lockedHoverId = -1;
+
+        // The channel can be raised with the same ID again; skip to avoid resetting the text
         if (id == _hoveredId) return;
 
         _hoveredId = id;
         ShowLabels(id);
     }
-
-    // RadialButton ที่ item ไม่ครบเรียกตรงนี้: เลือกไม่ได้ แต่ยังโชว์ชื่อกับของที่ต้องใช้
-    public void ShowLockedHover(int id) => ShowLabels(id);
 
     private void ShowLabels(int id)
     {

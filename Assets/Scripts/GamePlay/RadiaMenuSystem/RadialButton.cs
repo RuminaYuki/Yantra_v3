@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
+// View-only slice of the radial menu. RadialManuController reads input and decides
+// which button is hovered; this class only draws itself and reacts to the hovered ID.
 public class RadialButton : MonoBehaviour
 {
     [Header("Settings")]
@@ -18,8 +19,17 @@ public class RadialButton : MonoBehaviour
     [SerializeField] VoidEventChannelSO _onSelected;
 
     private Vector3 _normalScale;
-    private RadialManuController _radialManu;
     private bool _available = true;
+
+    public int ButtonID => _buttonID;
+    public bool IsAvailable => _available;
+
+    // Max angle (degrees) between the stroke and this button's direction to count as a hit.
+    public float AngleThreshold => _angleThreshold;
+
+    // Direction from the menu center to this button's icon, in screen space.
+    public Vector2 IconDirection =>
+        (_sprintIcon.transform.position - _pivot.transform.position).normalized;
 
     private void Awake()
     {
@@ -42,10 +52,9 @@ public class RadialButton : MonoBehaviour
         }
     }
 
-    public void SetClass(float fillAmount, int Id, RadialManuController radialManu, RadialMenuButtonData dataSO, bool available)
+    public void SetClass(float fillAmount, int Id, RadialMenuButtonData dataSO, bool available)
     {
         _buttonID = Id;
-        _radialManu = radialManu;
         _available = available;
 
         thisImage.fillAmount = fillAmount;
@@ -61,7 +70,7 @@ public class RadialButton : MonoBehaviour
         float angle = fillAmount * 360f;
         _angleThreshold = angle + _angleOffset;
 
-        // ไอคอนใน prefab วางไว้ทางซ้ายของ pivot (180°) -> หมุนไปที่จุดเริ่ม fill แล้วไปกลางชิ้น
+        // The icon in the prefab sits left of the pivot (180°): rotate it to the fill start, then to the middle of the slice.
         float originAngle = GetFillOriginAngle(thisImage);
         float halfSlice = thisImage.fillClockwise ? -angle : angle;
         _pivot.transform.localRotation = Quaternion.Euler(0f, 0f, originAngle - 180f + halfSlice);
@@ -70,7 +79,14 @@ public class RadialButton : MonoBehaviour
         _sprintImage.texture = dataSO.buttonIcon;
     }
 
-    // มุมของจุดเริ่ม fill แบบ Radial360 (0° = ขวา, ทวนเข็ม)
+    // Called by RadialManuController once when this button becomes the selected one.
+    public void NotifySelected()
+    {
+        if (_onSelected != null)
+            _onSelected.Raise();
+    }
+
+    // Angle of the Radial360 fill origin (0° = right, counter-clockwise).
     private static float GetFillOriginAngle(Image image)
     {
         switch ((Image.Origin360)image.fillOrigin)
@@ -87,53 +103,5 @@ public class RadialButton : MonoBehaviour
         transform.localScale = _buttonID == Id
             ? _normalScale * _selectedScale
             : _normalScale;
-    }
-
-    private void Update()
-    {
-        // ปุ่มใน pool ที่ยังไม่เคยถูก SetClass จะไม่มี _radialManu
-        if (_radialManu == null || !_radialManu.GetActive()) return;
-
-        if (_radialManu.IsSystemEnabled() && Mouse.current != null)
-        {
-            HandleStroke(Mouse.current.delta.ReadValue());
-        }
-    }
-
-    private void HandleStroke(Vector2 mouseMovement)
-    {
-        Vector2 iconDirection = (_sprintIcon.transform.position - _pivot.transform.position).normalized;
-
-        if (mouseMovement.sqrMagnitude > 0.01f)
-        {
-            Vector2 mouseDirection = mouseMovement.normalized;
-
-            float mouseAngle =
-                Mathf.Atan2(mouseDirection.y, mouseDirection.x) * Mathf.Rad2Deg;
-
-            float splineAngle =
-                Mathf.Atan2(iconDirection.y, iconDirection.x) * Mathf.Rad2Deg;
-
-            float angleDifference =
-                Mathf.Abs(Mathf.DeltaAngle(mouseAngle, splineAngle));
-
-            if (angleDifference < _angleThreshold &&
-                _radialManu.GetActive() &&
-                _radialIntID_IEC != null)
-            {
-                if (_available)
-                {
-                    _radialIntID_IEC.Raise(_buttonID);
-                    if (_onSelected != null)
-                        _onSelected.Raise();
-                }
-                else
-                {
-                    // item ไม่ครบ: ล้างการเลือก (เลือกไม่ได้) แต่ยังโชว์ว่าต้องใช้อะไร
-                    _radialIntID_IEC.Raise(-1);
-                    _radialManu.ShowLockedHover(_buttonID);
-                }
-            }
-        }
     }
 }
