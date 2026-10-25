@@ -33,7 +33,7 @@ public class FlagAddition : MonoBehaviour
 
     public void HandleInteract(GameObject rootplayer)
     {
-        if (interactor == null) return;
+        if (rootplayer == null) return;
 
         StateFlags stateFlags = rootplayer.GetComponentInChildren<StateFlags>();
 
