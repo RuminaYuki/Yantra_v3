@@ -3,7 +3,7 @@ using UnityEngine;
 public class TestTriggerBattleState_GameState : MonoBehaviour
 {
     public TriggerConditionSO triggerConditionSO;
-    public CountDownTimerConditionSO countDownTimerConditionSO;
+    public TimeInStateConditionSO countDownTimerConditionSO;
 
     // Update is called once per frame
     void OnGUI()

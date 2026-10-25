@@ -18,11 +18,16 @@ public class ProjectileShooter : MonoBehaviour
         projectileSpeed = 15f,
         gravity = 9.81f,
         lifetime = 5f,
-        damage = 10f
+        damage = 10f,
+        homing = new ProjectileBullet.HomingSettings { turnSpeed = 120f, duration = 1.5f, maxAngle = 70f }
     };
 
     // Cached by SetTarget()/SetBulletConfig() ahead of time, consumed by the next parameterless Execute() call.
     private Vector3? _pendingTarget;
+
+    // A Transform target: aimed at where it is when fired, and followed if the config homes.
+    private Transform _pendingTargetTransform;
+    private Vector3 _pendingTargetOffset;
 
     public void Shoot()
     {
@@ -44,11 +49,22 @@ public class ProjectileShooter : MonoBehaviour
     public void SetTarget(Vector3 targetPosition)
     {
         _pendingTarget = targetPosition;
+        _pendingTargetTransform = null;
+    }
+
+    // Offset: world-space, from the target's pivot (e.g. up to the chest, since the pivot is often at the feet).
+    public void SetTarget(Transform target, Vector3 offset = default)
+    {
+        _pendingTarget = null;
+        _pendingTargetTransform = target;
+        _pendingTargetOffset = offset;
     }
 
     public void ClearTarget()
     {
         _pendingTarget = null;
+        _pendingTargetTransform = null;
+        _pendingTargetOffset = Vector3.zero;
     }
 
     public void SetBulletConfig(ProjectileBullet.ProjectileConfig config)
@@ -69,7 +85,9 @@ public class ProjectileShooter : MonoBehaviour
     // whatever target/config was last armed via SetTarget()/SetBulletConfig(), falling back to a straight shot.
     public void Execute()
     {
-        if (_pendingTarget.HasValue)
+        if (_pendingTargetTransform != null)
+            ShootAtTarget(_pendingTargetTransform.position + _pendingTargetOffset);
+        else if (_pendingTarget.HasValue)
             ShootAtTarget(_pendingTarget.Value);
         else
             Shoot();
@@ -84,6 +102,9 @@ public class ProjectileShooter : MonoBehaviour
         {
             projectile.SetOwner(_owner != null ? _owner : transform.root);
             projectile.Configure(_bulletConfig);
+
+            // Always set, so a pooled bullet doesn't keep chasing its last target.
+            projectile.SetHomingTarget(_pendingTargetTransform, _pendingTargetOffset);
         }
 
         return projectile;

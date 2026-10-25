@@ -14,8 +14,8 @@ public class TeleportAnchorOffsetActionSO : StateActionSO
     [SerializeField] private AnchorIDSO _targetAnchor;
 
     [Tooltip("Local to target's facing (yaw only). Z+ = in front, Z- = behind. Min = Max for a fixed offset.")]
-    [SerializeField] private Vector3 _offsetMin = new(-2f, 0f, -4f);
-    [SerializeField] private Vector3 _offsetMax = new(2f, 0f, -2f);
+    [SerializeField,Exposed] private Vector3 _offsetMin = new(-2f, 0f, -4f);
+    [SerializeField,Exposed] private Vector3 _offsetMax = new(2f, 0f, -2f);
     [SerializeField, Min(1)] private int _maxAttempts = 8;
     [SerializeField] private bool _faceTarget = true;
 
@@ -30,8 +30,11 @@ public class TeleportAnchorOffsetActionSO : StateActionSO
     }
 }
 
-public class TeleportAnchorOffsetAction : StateAction
+// Failed: no valid spot after Max Attempts (or a needed component is missing), so it didn't move.
+public class TeleportAnchorOffsetAction : StateAction, IFallibleAction
 {
+    public bool Failed { get; private set; }
+
     private readonly AnchorIDSO _targetAnchor;
     private readonly Vector3 _offsetMin;
     private readonly Vector3 _offsetMax;
@@ -67,6 +70,9 @@ public class TeleportAnchorOffsetAction : StateAction
 
     public override void OnStateEnter()
     {
+        // Cleared only when it teleports.
+        Failed = true;
+
         if (!_teleporter.TryGet(out CharacterTeleporter teleporter) ||
             !_pointValidator.TryGet(out StandablePointValidator pointValidator) ||
             !_target.TryGet(out Transform target))
@@ -92,6 +98,7 @@ public class TeleportAnchorOffsetAction : StateAction
             else
                 teleporter.Teleport(position);
 
+            Failed = false;
             return;
         }
 

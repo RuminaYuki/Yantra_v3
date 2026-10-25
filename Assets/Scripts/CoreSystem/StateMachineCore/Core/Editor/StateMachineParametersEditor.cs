@@ -91,27 +91,48 @@ namespace Yuki.Learning.StateMachine.Editor
                 int overridden = shown.Count(parameter => IndexOf(parameter.Name) >= 0);
                 DrawTableHeader(TableName(blackboard), overridden, shown.Count);
 
-                // Same categories and order as the Parameters panel in the Graph.
-                foreach (string category in ParameterBlackboard.CategoriesOf(blackboard))
+                // Same categories and order as the Parameters panel in the Graph: a top-level category
+                // folds with its sub-categories ("RandomPosition/Teleport") inside it, each folding too.
+                List<string> categories = ParameterBlackboard.CategoriesOf(blackboard);
+                foreach (string top in categories.Select(TopOf).Distinct())
                 {
-                    List<ExposedParameter> inCategory = shown
-                        .Where(parameter => ParameterBlackboard.CategoryOf(parameter) == category)
+                    List<ExposedParameter> inTop = shown
+                        .Where(parameter => TopOf(ParameterBlackboard.CategoryOf(parameter)) == top)
                         .ToList();
 
-                    if (inCategory.Count == 0)
+                    if (inTop.Count == 0)
                     {
                         continue;
                     }
 
                     // Uncategorized folds like the others, so every row lines up.
-                    if (!DrawCategoryFoldout(blackboard, category, inCategory))
+                    if (!DrawCategoryFoldout(blackboard, top, inTop))
                     {
                         continue;
                     }
 
-                    foreach (ExposedParameter parameter in inCategory)
+                    foreach (ExposedParameter parameter in inTop.Where(parameter => ParameterBlackboard.CategoryOf(parameter) == top))
                     {
                         DrawParameter(parameter, CategoryIndent);
+                    }
+
+                    foreach (string sub in categories.Where(category => category != top && TopOf(category) == top))
+                    {
+                        List<ExposedParameter> inSub = inTop
+                            .Where(parameter => ParameterBlackboard.CategoryOf(parameter) == sub)
+                            .ToList();
+                        int depth = sub.Count(character => character == '/');
+
+                        if (inSub.Count == 0 ||
+                            !DrawCategoryFoldout(blackboard, sub, inSub, sub.Substring(sub.LastIndexOf('/') + 1), CategoryIndent * depth))
+                        {
+                            continue;
+                        }
+
+                        foreach (ExposedParameter parameter in inSub)
+                        {
+                            DrawParameter(parameter, CategoryIndent * (depth + 1));
+                        }
                     }
                 }
 
@@ -139,16 +160,30 @@ namespace Yuki.Learning.StateMachine.Editor
         }
 
         // A light band with a fold arrow: "Attack (2)". Open or closed is remembered for this Editor session.
-        private bool DrawCategoryFoldout(ExposedParametersSO blackboard, string category, List<ExposedParameter> parameters)
+        // "RandomPosition" -> "RandomPosition"; "RandomPosition/Teleport" -> "RandomPosition".
+        private static string TopOf(string category)
+        {
+            int slash = category.IndexOf('/');
+            return slash < 0 ? category : category.Substring(0, slash);
+        }
+
+        // label / indent: a sub-category shows only its own part of the name, further in.
+        private bool DrawCategoryFoldout(
+            ExposedParametersSO blackboard,
+            string category,
+            List<ExposedParameter> parameters,
+            string label = null,
+            float indent = 0f)
         {
             string key = $"StateMachineParameters.{AssetDatabase.GetAssetPath(blackboard)}.{category}";
             bool isOpen = SessionState.GetBool(key, true);
 
             Rect rect = GUILayoutUtility.GetRect(0f, 20f, GUILayout.ExpandWidth(true));
+            rect.xMin += indent;
             EditorGUI.DrawRect(rect, CategoryBandColor);
 
             int overridden = parameters.Count(parameter => IndexOf(parameter.Name) >= 0);
-            string name = category == string.Empty ? "Uncategorized" : category;
+            string name = label ?? (category == string.Empty ? "Uncategorized" : category);
             string title = overridden > 0
                 ? $"{name} ({parameters.Count}, {overridden} overridden)"
                 : $"{name} ({parameters.Count})";

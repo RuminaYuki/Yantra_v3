@@ -62,6 +62,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             int undoGroup = Undo.GetCurrentGroup();
 
             ScriptableObject item = EmbeddedAssets.Create(_table, type, baseName);
+            ClaimForSubTable(_table, item);
             AfterCreate(item, folderPath, undoGroup);
         }
 

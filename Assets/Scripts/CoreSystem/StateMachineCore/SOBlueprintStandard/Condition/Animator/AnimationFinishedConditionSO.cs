@@ -6,7 +6,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 [RequiresOwnerComponent(typeof(Animator))]
 [CreateAssetMenu(
     fileName = "NewAnimFin_Condition",
-    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/Animation Finished")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/Animator/Animation Finished")]
 public class AnimationFinishedConditionSO : StateConditionSO
 {
     [Header("Leave empty to auto-detect whichever state the Animator is currently playing")]

@@ -151,9 +151,11 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             var referenced = new List<StateSO>();
             var used = new HashSet<ScriptableObject>(TableContents.CollectUsed(_table, referenced));
             referenced.RemoveAll(state => used.Contains(state));
+            // A sub-state machine's table in its parent's file: only the unused ones created here (see
+            // ClaimForSubTable); the rest of the file's unused ones are offered under From Parent.
             List<ScriptableObject> unused = AssetDatabase.IsMainAsset(_table)
                 ? TableContents.UnusedInFile(_table)
-                : new List<ScriptableObject>();
+                : ClaimedUnused(_table);
             List<ScriptableObject> shown = used.Union(unused).ToList();
             string tablePath = AssetDatabase.GetAssetPath(_table);
 
@@ -170,7 +172,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             // Inside a sub-state machine's table in its parent's file: the parent's actions and conditions.
             (TransitionTableSO parentTable, StateSO parentState) = TableContents.FindParentInFile(_table);
             List<ScriptableObject> parentItems = parentTable != null
-                ? ParentItems(parentTable, used)
+                ? ParentItems(parentTable, new HashSet<ScriptableObject>(shown))
                 : new List<ScriptableObject>();
 
             if (_search.Length > 0)

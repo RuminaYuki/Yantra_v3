@@ -5,7 +5,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 [UseSelfAnchor]
 [RequiresOwnerComponent(typeof(AttackSphereCast))]
 [CreateAssetMenu(
-    fileName = "NewSetADParameter_Action",
+    fileName = "NewSetAnimDamageParameter_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Attack/AttackShpereCast/Set Attack Damage Parameter")]
 public class SetAttackDamageParameterActionSO : StateActionSO
 {

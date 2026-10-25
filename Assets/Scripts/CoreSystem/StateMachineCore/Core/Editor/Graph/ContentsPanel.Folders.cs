@@ -432,7 +432,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // Copies into this table's file, used by nothing yet (○), like Ctrl+V but states stay off the
         // graph. What they use from their own file comes along (see EmbeddedAssets.CopyInto). Copies of
         // the dropped group's kind go into the folder dropped on. The original files are left alone.
-        // ○ items only show in the file's main table.
+        // ○ items show in the file's main table, and in the sub-state machine table they were dropped in.
         // Without Undo, like the other drops: Unity's own revert right after a drag ends would destroy
         // the copies in memory while the file on disk kept them (they showed in Project, not here).
         // Remove one again with Delete... in its right-click menu.
@@ -440,6 +440,10 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         {
             Dictionary<ScriptableObject, ScriptableObject> copies =
                 EmbeddedAssets.CopyInto(_table, items, recordUndo: false);
+            foreach (ScriptableObject copy in copies.Values)
+            {
+                ClaimForSubTable(_table, copy);
+            }
 
             if (folderPath.Length > 0)
             {

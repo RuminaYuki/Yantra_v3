@@ -32,13 +32,18 @@ public class LocomotionAnim
     //SetMove Method Overload
     public void SetMove(float velocityX, float velocityZ)
     {
+        if (_animator == null) return;
+
         float finalVelocityX = velocityX * _multiply;
         float finalVelocityZ = velocityZ * _multiply;
-        _animator.SetFloat(_moveX, finalVelocityX, _dampTime, Time.deltaTime);
-        _animator.SetFloat(_moveZ, finalVelocityZ, _dampTime, Time.deltaTime);
+        // Hash 0 = empty parameter name in the Inspector: skip, instead of a warning every frame.
+        if (_moveX != 0) _animator.SetFloat(_moveX, finalVelocityX, _dampTime, Time.deltaTime);
+        if (_moveZ != 0) _animator.SetFloat(_moveZ, finalVelocityZ, _dampTime, Time.deltaTime);
     }
     public void SetMove(float velocityZ)
     {
+        if (_animator == null || _moveZ == 0) return;
+
         float finalVelocity = velocityZ * _multiply;
         _animator.SetFloat(_moveZ, finalVelocity, _dampTime, Time.deltaTime);
     }

@@ -15,8 +15,10 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
         private void OnEnable()
         {
-            var selection = (TransitionSelection)target;
-            _table = selection.Table != null ? new SerializedObject(selection.Table) : null;
+            // Unity can enable this editor once more for a stand-in the graph just destroyed (a reload
+            // selects a new one), when target is no longer a TransitionSelection.
+            var selection = target as TransitionSelection;
+            _table = selection != null && selection.Table != null ? new SerializedObject(selection.Table) : null;
         }
 
         // Keep the live condition results updating while playing.
@@ -24,9 +26,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
         public override void OnInspectorGUI()
         {
-            var selection = (TransitionSelection)target;
+            var selection = target as TransitionSelection;
 
-            if (_table == null || _table.targetObject == null)
+            if (selection == null || _table == null || _table.targetObject == null)
             {
                 EditorGUILayout.HelpBox("Select the arrow in the graph again.", MessageType.Info);
                 return;

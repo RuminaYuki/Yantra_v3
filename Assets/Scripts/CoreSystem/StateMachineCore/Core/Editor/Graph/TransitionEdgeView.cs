@@ -80,6 +80,20 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             MarkDirtyRepaint();
         }
 
+        // A condition is being dragged over this arrow (see StateMachineGraphView.RegisterConditionDropCallbacks).
+        private bool _isDropTarget;
+
+        public void SetDropTarget(bool isTarget)
+        {
+            if (_isDropTarget == isTarget)
+            {
+                return;
+            }
+
+            _isDropTarget = isTarget;
+            MarkDirtyRepaint();
+        }
+
         public Node From { get; }
         public Node To { get; }
 
@@ -376,7 +390,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 return;
             }
 
-            Color color = selected ? SelectedColor
+            Color color = selected || _isDropTarget ? SelectedColor
                 : _usesSelection ? UsesSelectionColor
                 : IsRemoved ? RemovedColor
                 : IsOverridden ? OverriddenColor
@@ -385,7 +399,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             Painter2D painter = context.painter2D;
 
             painter.strokeColor = color;
-            painter.lineWidth = _usesSelection && !selected ? LineWidth + 1f : LineWidth;
+            painter.lineWidth = _isDropTarget ? LineWidth + 2f
+                : _usesSelection && !selected ? LineWidth + 1f
+                : LineWidth;
             painter.lineCap = LineCap.Round;
             painter.BeginPath();
             painter.MoveTo(_start);

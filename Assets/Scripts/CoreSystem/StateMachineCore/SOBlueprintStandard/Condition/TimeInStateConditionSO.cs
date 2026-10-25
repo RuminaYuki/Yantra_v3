@@ -3,9 +3,9 @@ using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
-    fileName = "NewCDTimer_Condition",
-    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/Count Down Timer")]
-public class CountDownTimerConditionSO : StateConditionSO
+    fileName = "NewTimeInState_Condition",
+    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/Time In State")]
+public class TimeInStateConditionSO : StateConditionSO
 {
     [Header("Set Max Duration to 0 to disable randomization")]
     [SerializeField,Exposed] private float minDuration = 0f;
@@ -48,15 +48,15 @@ public class CountDownTimerConditionSO : StateConditionSO
 
     public void ResetTimer() => _condition?.OnStateEnter();
 
-    private CountDownTimerCondition _condition;
+    private TimeInStateCondition _condition;
     protected override Condition OnCreateCondition()
     {
-        _condition = new CountDownTimerCondition(minDuration, maxDuration);
+        _condition = new TimeInStateCondition(minDuration, maxDuration);
         return _condition;
     }
 }
 
-public class CountDownTimerCondition : Condition
+public class TimeInStateCondition : Condition
 {
     private readonly float _minDuration;
     private readonly float _maxDuration;
@@ -67,7 +67,7 @@ public class CountDownTimerCondition : Condition
     public float Duration { get; private set; }
     public float Remaining => Mathf.Max(0f, Duration - (Time.time - _startTime));
 
-    public CountDownTimerCondition(float minDuration, float maxDuration)
+    public TimeInStateCondition(float minDuration, float maxDuration)
     {
         _minDuration = minDuration;
         _maxDuration = maxDuration;

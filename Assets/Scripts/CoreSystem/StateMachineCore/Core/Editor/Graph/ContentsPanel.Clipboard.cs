@@ -147,6 +147,10 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             Dictionary<Object, string> oldFolders = FolderData.Load(_table).ItemFolders;
             Dictionary<ScriptableObject, ScriptableObject> copies = EmbeddedAssets.CopyInto(_table, items);
+            foreach (ScriptableObject copy in copies.Values)
+            {
+                ClaimForSubTable(_table, copy);
+            }
 
             EditFolders(folders =>
             {

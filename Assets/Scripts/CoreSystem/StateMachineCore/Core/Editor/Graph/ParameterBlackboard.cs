@@ -127,11 +127,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             if (parameters == null)
             {
                 // Nothing exposed yet, but categories made with + still show, ready to drop into.
-                foreach (string category in _emptyCategories)
-                {
-                    AddSection(CreateSection(category));
-                }
-
+                AddCategorySections(null, new List<string>(_emptyCategories));
                 AddBaseSections();
                 return;
             }
@@ -152,23 +148,233 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 subTitle += $" · {unused} unused";
             }
 
-            foreach (string category in ShownCategories(parameters))
-            {
-                int count = parameters.Parameters.Count(parameter => CategoryOf(parameter) == category);
-                BlackboardSection section = CreateSection(category, count);
+            AddCategorySections(parameters, ShownCategories(parameters));
+            AddBaseSections();
+        }
 
-                for (int i = 0; i < parameters.Parameters.Count; i++)
+        // ---------- Sub-categories ----------
+        // A category can sit inside another with "/" ("RandomPosition/Teleport"), the way Unity menus nest.
+        // One section per top-level name; inside it, the top level's own rows, then a heading per
+        // sub-category (indented by depth) with its rows. Dropping rows on a heading moves them into it.
+
+        private const string SubcategoryClass = "parameter-subcategory";
+
+        private static string TopOf(string category)
+        {
+            int slash = category.IndexOf('/');
+            return slash < 0 ? category : category.Substring(0, slash);
+        }
+
+        private static string LastPartOf(string category)
+        {
+            int slash = category.LastIndexOf('/');
+            return slash < 0 ? category : category.Substring(slash + 1);
+        }
+
+        private static int DepthOf(string category)
+        {
+            return category.Count(character => character == '/');
+        }
+
+        // "A / B /" -> "A/B": no empty parts, no spaces around them.
+        private static string CleanCategory(string category)
+        {
+            return string.Join("/", (category ?? string.Empty)
+                .Split('/')
+                .Select(part => part.Trim())
+                .Where(part => part.Length > 0));
+        }
+
+        private void AddCategorySections(ExposedParametersSO parameters, List<string> categories)
+        {
+            foreach (string top in categories.Select(TopOf).Distinct().ToList())
+            {
+                int count = parameters != null
+                    ? parameters.Parameters.Count(parameter => TopOf(CategoryOf(parameter)) == top)
+                    : 0;
+                BlackboardSection section = CreateSection(top, count);
+                if (top != string.Empty)
                 {
-                    if (CategoryOf(parameters.Parameters[i]) == category)
-                    {
-                        section.Add(CreateRow(parameters.Parameters[i], i));
-                    }
+                    section.title = $"{FoldArrow(top)} {section.title}";
+                }
+
+                if (IsCollapsed(top))
+                {
+                    AddSection(section);
+                    continue;
+                }
+
+                AddRowsOf(section, parameters, top);
+
+                // A folded sub-category hides the ones inside it too.
+                foreach (string sub in categories.Where(category =>
+                             category != top && TopOf(category) == top && !IsInsideCollapsed(category)))
+                {
+                    section.Add(CreateSubcategory(parameters, sub));
                 }
 
                 AddSection(section);
             }
+        }
 
-            AddBaseSections();
+        private void AddRowsOf(VisualElement parent, ExposedParametersSO parameters, string category)
+        {
+            if (parameters == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < parameters.Parameters.Count; i++)
+            {
+                if (CategoryOf(parameters.Parameters[i]) == category)
+                {
+                    parent.Add(CreateRow(parameters.Parameters[i], i));
+                }
+            }
+        }
+
+        //   ── Teleport (2) ─────────     (right-click: add here, add a sub-category, rename)
+        //      rows of RandomPosition/Teleport
+        private VisualElement CreateSubcategory(ExposedParametersSO parameters, string path)
+        {
+            int depth = DepthOf(path);
+            int count = parameters != null ? parameters.Parameters.Count(parameter => CategoryOf(parameter) == path) : 0;
+
+            // userData: read by CategoryAt when rows are dropped on it.
+            var container = new VisualElement { userData = path };
+            container.AddToClassList(SubcategoryClass);
+            container.style.marginLeft = 8f * (depth - 1);
+
+            var heading = new Label($"{FoldArrow(path)} {LastPartOf(path)} ({count})");
+            heading.tooltip = path;
+            heading.style.fontSize = 10;
+            heading.style.unityFontStyleAndWeight = FontStyle.Bold;
+            heading.style.color = new Color(0.8f, 0.8f, 0.8f);
+            heading.style.paddingLeft = 8f;
+            heading.style.paddingTop = 4f;
+            heading.style.paddingBottom = 1f;
+            heading.style.marginTop = 2f;
+            heading.style.borderBottomWidth = 1f;
+            heading.style.borderBottomColor = SectionLineColor;
+            heading.AddManipulator(new ContextualMenuManipulator(evt => AppendCategoryMenu(evt, path)));
+            container.Add(heading);
+            RegisterCategoryDrag(container, heading, path);
+
+            if (IsCollapsed(path))
+            {
+                return container;
+            }
+
+            AddRowsOf(container, parameters, path);
+
+            if (count == 0)
+            {
+                var hint = new Label("Empty: drag parameters here, or use Move to Category.");
+                hint.pickingMode = PickingMode.Ignore;
+                hint.style.fontSize = 10;
+                hint.style.unityFontStyleAndWeight = FontStyle.Italic;
+                hint.style.color = new Color(1f, 1f, 1f, 0.4f);
+                hint.style.paddingLeft = 12f;
+                container.Add(hint);
+            }
+
+            return container;
+        }
+
+        // ---------- Folding ----------
+        // Click a category header or sub-category heading to fold it (a drag moves it instead). Only
+        // this panel's view: kept per table in EditorPrefs, so it stays after Unity restarts.
+
+        private const string CollapsedKeyPrefix = "YSM.ParameterCollapsed.";
+
+        private string CollapsedKey => CollapsedKeyPrefix + GlobalObjectId.GetGlobalObjectIdSlow(_table);
+
+        private HashSet<string> LoadCollapsed()
+        {
+            return _table == null
+                ? new HashSet<string>()
+                : new HashSet<string>(EditorPrefs.GetString(CollapsedKey, "").Split('\n', StringSplitOptions.RemoveEmptyEntries));
+        }
+
+        private bool IsCollapsed(string category)
+        {
+            return category != string.Empty && LoadCollapsed().Contains(category);
+        }
+
+        // A folded category above it ("A" or "A/B" for "A/B/C").
+        private bool IsInsideCollapsed(string category)
+        {
+            HashSet<string> collapsed = LoadCollapsed();
+            for (int slash = category.IndexOf('/'); slash >= 0; slash = category.IndexOf('/', slash + 1))
+            {
+                if (collapsed.Contains(category.Substring(0, slash)))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private string FoldArrow(string category)
+        {
+            return IsCollapsed(category) ? "▶" : "▼";
+        }
+
+        private void ToggleCollapsed(string category)
+        {
+            if (_table == null || category == string.Empty)
+            {
+                return;
+            }
+
+            HashSet<string> collapsed = LoadCollapsed();
+            if (!collapsed.Remove(category))
+            {
+                collapsed.Add(category);
+            }
+
+            EditorPrefs.SetString(CollapsedKey, string.Join("\n", collapsed));
+
+            // Not while the mouse event is still being sent around the elements Rebuild removes.
+            schedule.Execute(Rebuild);
+        }
+
+        // A category's right-click menu, on a section header or a sub-category heading.
+        private void AppendCategoryMenu(ContextualMenuPopulateEvent evt, string category)
+        {
+            Vector2 mouse = evt.mousePosition;
+            evt.menu.AppendAction("Add Parameter Here...", _ => OpenFieldSearch(
+                "Add Parameter",
+                null,
+                mouse,
+                (item, fieldName) => AddParameters(new List<(StateElementSO, string)> { (item, fieldName) }, category)));
+
+            evt.menu.AppendAction("Add Sub-Category...", _ => NamePromptWindow.Show(
+                "New Sub-Category",
+                string.Empty,
+                name => AddEmptyCategory($"{category}/{name}")));
+
+            evt.menu.AppendAction("Rename Category", _ => NamePromptWindow.Show(
+                "Rename Category",
+                LastPartOf(category),
+                newName =>
+                {
+                    int slash = category.LastIndexOf('/');
+                    string parent = slash < 0 ? string.Empty : category.Substring(0, slash + 1);
+                    RenameCategory(category, parent + newName);
+                }));
+
+            if (_emptyCategories.Contains(category))
+            {
+                evt.menu.AppendAction("Remove Category", _ =>
+                {
+                    _emptyCategories.Remove(category);
+                    Rebuild();
+                });
+            }
+
+            evt.StopPropagation();
         }
 
         // ---------- A variant's Base ----------
@@ -708,7 +914,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
         private void AddEmptyCategory(string name)
         {
-            name = name?.Trim();
+            name = CleanCategory(name);
             if (string.IsNullOrEmpty(name) || ShownCategories(Find(_table)).Contains(name))
             {
                 return;
@@ -764,7 +970,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             {
                 RegisterCategoryDrag(section, category);
 
-                // Only for clicks on the header: a row's own menu bubbles up through the section.
+                // Only for clicks on the header: a row's own menu bubbles up through the section, and a
+                // sub-category heading has its own (it stops the event).
                 section.AddManipulator(new ContextualMenuManipulator(evt =>
                 {
                     if (evt.target is VisualElement clicked && clicked.GetFirstAncestorOfType<BlackboardRow>() != null)
@@ -772,26 +979,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                         return;
                     }
 
-                    Vector2 mouse = evt.mousePosition;
-                    evt.menu.AppendAction("Add Parameter Here...", _ => OpenFieldSearch(
-                        "Add Parameter",
-                        null,
-                        mouse,
-                        (item, fieldName) => AddParameters(new List<(StateElementSO, string)> { (item, fieldName) }, category)));
-
-                    evt.menu.AppendAction("Rename Category", _ => NamePromptWindow.Show(
-                        "Rename Category",
-                        category,
-                        newName => RenameCategory(category, newName)));
-
-                    if (_emptyCategories.Contains(category))
-                    {
-                        evt.menu.AppendAction("Remove Category", _ =>
-                        {
-                            _emptyCategories.Remove(category);
-                            Rebuild();
-                        });
-                    }
+                    AppendCategoryMenu(evt, category);
                 }));
             }
 
@@ -830,8 +1018,28 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             SetCategory(new List<int> { index }, category);
         }
 
+        // The panel's category order comes from where each category's first parameter sits in the list,
+        // so a moved parameter would drag its new category up to where it was. The list is put back in
+        // the order shown before the move (a new category goes after its parent's, or last).
         private void SetCategory(List<int> indexes, string category, bool recordUndo = true)
         {
+            string target = CleanCategory(category);
+
+            List<string> order = ShownCategories(Find(_table));
+            if (!order.Contains(target))
+            {
+                int lastOfFamily = target == string.Empty
+                    ? -1
+                    : order.FindLastIndex(member => member != string.Empty && TopOf(member) == TopOf(target));
+                order.Insert(lastOfFamily < 0 ? order.Count : lastOfFamily + 1, target);
+            }
+
+            var rank = new Dictionary<string, int>();
+            for (int i = 0; i < order.Count; i++)
+            {
+                rank[order[i]] = i;
+            }
+
             EditParameters(list =>
             {
                 foreach (int index in indexes)
@@ -840,24 +1048,38 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                     {
                         list.GetArrayElementAtIndex(index)
                             .FindPropertyRelative(CategoryProperty)
-                            .stringValue = category?.Trim() ?? string.Empty;
+                            .stringValue = target;
                     }
                 }
+
+                SortByCategory(list, rank);
             }, recordUndo: recordUndo);
         }
 
+        // Its sub-categories come along: renaming "A" to "C" makes "A/B" "C/B".
         private void RenameCategory(string oldName, string newName)
         {
-            newName = newName?.Trim();
+            newName = CleanCategory(newName);
             if (string.IsNullOrEmpty(newName) || newName == oldName)
             {
                 return;
             }
 
-            int empty = _emptyCategories.IndexOf(oldName);
-            if (empty >= 0)
+            string Renamed(string category) =>
+                category == oldName ? newName
+                : category.StartsWith(oldName + "/", StringComparison.Ordinal) ? newName + category.Substring(oldName.Length)
+                : category;
+
+            for (int i = 0; i < _emptyCategories.Count; i++)
             {
-                _emptyCategories[empty] = newName;
+                _emptyCategories[i] = Renamed(_emptyCategories[i]);
+            }
+
+            ExposedParametersSO parameters = Find(_table);
+            bool anyParameter = parameters != null &&
+                                parameters.Parameters.Any(parameter => Renamed(CategoryOf(parameter)) != CategoryOf(parameter));
+            if (!anyParameter)
+            {
                 Rebuild();
                 return;
             }
@@ -867,10 +1089,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 for (int i = 0; i < list.arraySize; i++)
                 {
                     SerializedProperty category = list.GetArrayElementAtIndex(i).FindPropertyRelative(CategoryProperty);
-                    if (category.stringValue == oldName)
-                    {
-                        category.stringValue = newName;
-                    }
+                    category.stringValue = Renamed(category.stringValue);
                 }
             });
         }
@@ -881,7 +1100,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             foreach (string category in ShownCategories(parameters))
             {
-                string label = category == string.Empty ? UncategorizedTitle : category;
+                // "A › B": a "/" would make a submenu, which can't sit next to an item "A" of the same name.
+                string label = category == string.Empty ? UncategorizedTitle : category.Replace("/", " › ");
                 menu.AppendAction(
                     $"Move to Category/{label}",
                     _ => SetCategory(index, category),
@@ -898,7 +1118,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             menu.AppendAction("Move to Category/New Category...", _ => NamePromptWindow.Show(
                 "New Category",
                 string.Empty,
-                newName => SetCategory(index, newName)));
+                newName => SetCategory(index, CleanCategory(newName))));
         }
 
         // ---------- The Blackboard asset ----------
@@ -1243,12 +1463,33 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             return string.Join(" › ", (path ?? string.Empty).Split('.').Select(ObjectNames.NicifyVariableName));
         }
 
-        // Is this SO / field already bound by any parameter? A field set by two parameters would fight.
+        // Is this SO / field already bound by any parameter? A field set by two parameters would fight,
+        // and so would a whole Vector3 and one of its axes ("_offsetMin" and "_offsetMin.z").
         private static bool IsBound(ExposedParametersSO parameters, StateElementSO item, string fieldName)
         {
             return parameters != null &&
                    parameters.Parameters.Any(parameter =>
-                       parameter.Bindings.Any(binding => binding.Target == item && binding.FieldName == fieldName));
+                       parameter.Bindings.Any(binding => binding.Target == item && Overlaps(binding.FieldName, fieldName)));
+        }
+
+        // "_offsetMin.z" when _offsetMin is a Vector3 / Vector2 (see LeavesOf).
+        private static bool IsVectorAxis(Type itemType, string path)
+        {
+            int dot = path.LastIndexOf('.');
+            if (dot < 0)
+            {
+                return false;
+            }
+
+            Type parent = FindExposedPath(itemType, path.Substring(0, dot));
+            return parent == typeof(Vector3) || parent == typeof(Vector2);
+        }
+
+        private static bool Overlaps(string path, string other)
+        {
+            return path == other ||
+                   path.StartsWith(other + ".", StringComparison.Ordinal) ||
+                   other.StartsWith(path + ".", StringComparison.Ordinal);
         }
 
         // ---------- Field choices ----------
@@ -1520,12 +1761,26 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // On a row: a menu adds bindings to that parameter (same type only), like wiring a VFX property
         // to another node. Elsewhere: a menu picks fields to become new parameters, in the category
         // dropped on.
+        // TrickleDown: the panel sees a drop before the BlackboardSection under the mouse. A section moves
+        // dropped rows around on screen by itself (its own reordering) without changing any data, which
+        // would swallow a drop onto a sub-category inside the same section.
         private void RegisterDropCallbacks()
         {
             RegisterCallback<DragUpdatedEvent>(evt =>
             {
                 // A category header dragged to a new place (see RegisterCategoryDrag).
-                if (DraggedCategory() != null)
+                string dragged = DraggedCategory();
+                if (dragged != null && DepthOf(dragged) > 0)
+                {
+                    (string target, VisualElement line, bool isAfter) =
+                        SubcategoryInsertTargetAt(dragged, evt.target, evt.mousePosition);
+                    DragAndDrop.visualMode = target != null ? DragAndDropVisualMode.Move : DragAndDropVisualMode.Rejected;
+                    MarkInsert(line, isAfter);
+                    evt.StopPropagation();
+                    return;
+                }
+
+                if (dragged != null)
                 {
                     DragAndDrop.visualMode = DragAndDropVisualMode.Move;
                     (BlackboardSection section, bool isAfter) = InsertTargetAt(evt.target, evt.mousePosition);
@@ -1551,7 +1806,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
                 HighlightDropSection(SectionAt(evt.target));
                 evt.StopPropagation();
-            });
+            }, TrickleDown.TrickleDown);
 
             RegisterCallback<DragLeaveEvent>(_ =>
             {
@@ -1569,6 +1824,22 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 HighlightDropSection(null);
 
                 string draggedCategory = DraggedCategory();
+                if (draggedCategory != null && DepthOf(draggedCategory) > 0)
+                {
+                    (string target, _, bool isAfter) =
+                        SubcategoryInsertTargetAt(draggedCategory, evt.target, evt.mousePosition);
+                    MarkInsert(null, false);
+                    DragAndDrop.AcceptDrag();
+                    evt.StopPropagation();
+
+                    if (target != null)
+                    {
+                        schedule.Execute(() => MoveCategory(draggedCategory, target, isAfter));
+                    }
+
+                    return;
+                }
+
                 if (draggedCategory != null)
                 {
                     (BlackboardSection section, bool isAfter) = InsertTargetAt(evt.target, evt.mousePosition);
@@ -1611,7 +1882,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 string category = CategoryAt(evt.target);
                 Vector2 mouse = evt.mousePosition;
                 schedule.Execute(() => ShowDropMenu(items, rowIndex, category, mouse));
-            });
+            }, TrickleDown.TrickleDown);
         }
 
         // Add All, or one field. Already bound ones are ticked and greyed out.
@@ -1634,7 +1905,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                         continue;
                     }
 
-                    // One item: "Min Duration". Several: "TestCDTimer_Condition › Min Duration".
+                    // One item: "Min Duration". Several: "TestTimeInState_Condition › Min Duration".
                     string label = PathLabel(path);
                     if (items.Count > 1)
                     {
@@ -1648,7 +1919,13 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                     }
 
                     string fieldName = path;
-                    free.Add((item, fieldName));
+
+                    // Add All takes the whole Vector3, not its axes as well (they'd fight over it).
+                    if (!IsVectorAxis(item.GetType(), path))
+                    {
+                        free.Add((item, fieldName));
+                    }
+
                     menu.AddItem(label, false, () =>
                     {
                         var picked = new List<(StateElementSO, string)> { (item, fieldName) };
@@ -1704,10 +1981,24 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 .ToList();
         }
 
-        // The category of the section under the mouse ("" outside any, or on Uncategorized).
+        // The category under the mouse: a sub-category heading or its rows, else the section ("" outside
+        // any, or on Uncategorized).
         private static string CategoryAt(IEventHandler target)
         {
-            return SectionAt(target)?.userData as string ?? string.Empty;
+            for (var element = target as VisualElement; element != null; element = element.parent)
+            {
+                if (element.ClassListContains(SubcategoryClass) && element.userData is string path)
+                {
+                    return path;
+                }
+
+                if (element is BlackboardSection section)
+                {
+                    return section.userData as string ?? string.Empty;
+                }
+            }
+
+            return string.Empty;
         }
 
         private static BlackboardSection SectionAt(IEventHandler target)
@@ -1777,8 +2068,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         private string _categoryDragCandidate;
         private Vector2 _categoryDragStart;
 
-        // The section showing the insert line.
-        private BlackboardSection _insertMarked;
+        // The section (or sub-category) showing the insert line.
+        private VisualElement _insertMarked;
 
         // On the section, in the trickle-down phase, by where the mouse is: the header and its label may
         // not take clicks themselves (the section gets them), and the Blackboard's own Dragger (which
@@ -1787,11 +2078,16 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         private void RegisterCategoryDrag(BlackboardSection section, string category)
         {
             VisualElement header = section.Q("sectionHeader");
-            if (header == null)
+            if (header != null)
             {
-                return;
+                RegisterCategoryDrag(section, header, category);
             }
+        }
 
+        // `section` is the element holding `header`: a BlackboardSection, or a sub-category's container
+        // (dragged among the sub-categories next to it, see SubcategoryInsertTargetAt).
+        private void RegisterCategoryDrag(VisualElement section, VisualElement header, string category)
+        {
             section.RegisterCallback<MouseDownEvent>(evt =>
             {
                 if (evt.button != 0 || !header.worldBound.Contains(evt.mousePosition))
@@ -1836,6 +2132,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 {
                     section.ReleaseMouse();
                 }
+
+                // Pressed and let go without dragging: a click, which folds / unfolds it.
+                ToggleCollapsed(category);
             }, TrickleDown.TrickleDown);
         }
 
@@ -1859,8 +2158,55 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             return (section, isAfter);
         }
 
+        // A sub-category only moves among the ones next to it (same parent): the one under the mouse, or the
+        // one holding the sub-category under the mouse. Before it (upper half of it with its own
+        // sub-categories) or after. Target null = can't go there (another parent, itself, outside).
+        // Line: the sub-category heading the insert line is drawn on.
+        private static (string Target, VisualElement Line, bool IsAfter) SubcategoryInsertTargetAt(
+            string dragged,
+            IEventHandler target,
+            Vector2 mouse)
+        {
+            string parent = dragged.Substring(0, dragged.LastIndexOf('/'));
+
+            var hovered = target as VisualElement;
+            while (hovered != null && !(hovered.ClassListContains(SubcategoryClass) && hovered.userData is string))
+            {
+                hovered = hovered.parent;
+            }
+
+            if (hovered == null || !((string)hovered.userData).StartsWith(parent + "/"))
+            {
+                return (null, null, false);
+            }
+
+            string rest = ((string)hovered.userData).Substring(parent.Length + 1);
+            int slash = rest.IndexOf('/');
+            string sibling = $"{parent}/{(slash < 0 ? rest : rest.Substring(0, slash))}";
+            if (sibling == dragged)
+            {
+                return (null, null, false);
+            }
+
+            BlackboardSection section = hovered.GetFirstAncestorOfType<BlackboardSection>();
+            List<VisualElement> block = section != null
+                ? section.Query(className: SubcategoryClass)
+                    .Where(element => element.userData is string path &&
+                                      (path == sibling || path.StartsWith(sibling + "/")))
+                    .ToList()
+                : new List<VisualElement> { hovered };
+            if (block.Count == 0)
+            {
+                block.Add(hovered);
+            }
+
+            float middle = (block[0].worldBound.yMin + block[block.Count - 1].worldBound.yMax) * 0.5f;
+            bool isAfter = mouse.y > middle;
+            return (sibling, isAfter ? block[block.Count - 1] : block[0], isAfter);
+        }
+
         // A blue line over or under the section where the category would go.
-        private void MarkInsert(BlackboardSection section, bool isAfter)
+        private void MarkInsert(VisualElement section, bool isAfter)
         {
             if (_insertMarked != null)
             {
@@ -1896,19 +2242,36 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             ExposedParametersSO parameters = Find(_table);
             List<string> order = ShownCategories(parameters);
-            order.Remove(category);
 
-            int index = order.IndexOf(targetCategory);
-            index = index < 0 ? order.Count : isAfter ? index + 1 : index;
+            // A category moves with its sub-categories as one block, and lands before / after the target's
+            // whole block. (A sub-category's target is always one next to it, see SubcategoryInsertTargetAt.)
+            bool InFamily(string member, string path) =>
+                member != string.Empty && (member == path || member.StartsWith(path + "/"));
+
+            List<string> family = order.Where(member => InFamily(member, category)).ToList();
+            order.RemoveAll(member => InFamily(member, category));
+
+            int index;
+            if (targetCategory == string.Empty)
+            {
+                index = order.IndexOf(string.Empty);
+                index = index < 0 ? 0 : isAfter ? index + 1 : index;
+            }
+            else
+            {
+                int firstOfTarget = order.FindIndex(member => InFamily(member, targetCategory));
+                int lastOfTarget = order.FindLastIndex(member => InFamily(member, targetCategory));
+                index = firstOfTarget < 0 ? order.Count : isAfter ? lastOfTarget + 1 : firstOfTarget;
+            }
 
             int first = order.Count > 0 && order[0] == string.Empty ? 1 : 0;
-            order.Insert(Mathf.Clamp(index, first, order.Count), category);
+            order.InsertRange(Mathf.Clamp(index, first, order.Count), family);
 
             List<string> empties = order.Where(_emptyCategories.Contains).ToList();
             _emptyCategories.Clear();
             _emptyCategories.AddRange(empties);
 
-            if (parameters == null || empties.Contains(category))
+            if (parameters == null || family.All(empties.Contains))
             {
                 Rebuild();
                 return;
@@ -2057,6 +2420,19 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             if (IsSettable(type))
             {
                 yield return (path, type);
+
+                // One axis on its own too ("_offsetMin.z"), for a float parameter. FieldPathUtility sets
+                // it like any struct field, and FindProperty reads it the same way.
+                if (type == typeof(Vector3) || type == typeof(Vector2))
+                {
+                    yield return ($"{path}.x", typeof(float));
+                    yield return ($"{path}.y", typeof(float));
+                    if (type == typeof(Vector3))
+                    {
+                        yield return ($"{path}.z", typeof(float));
+                    }
+                }
+
                 yield break;
             }
 

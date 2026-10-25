@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
@@ -18,33 +19,38 @@ public class StartCooldownActionSO : StateActionSO
     }
 
     [SerializeField] private CooldownSO _cooldown;
-    [SerializeField, Min(0f), Exposed] private float _duration = 1f;
+    [SerializeField, Min(0f), Exposed, FormerlySerializedAs("_duration")] private float _minDuration = 1f;
+    [Tooltip("Above Min Duration: each start picks a random time between the two. 0 = always Min Duration.")]
+    [SerializeField, Min(0f), Exposed] private float _maxDuration;
     [SerializeField] private When _when = When.OnEnter;
-    [Tooltip("Restart: always from Duration. Keep Longer: only if it would end later than what's left.")]
+    [Tooltip("Restart: always from the new duration. Keep Longer: only if it would end later than what's left.")]
     [SerializeField] private CooldownController.StartMode _mode = CooldownController.StartMode.Restart;
 
     protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
-        return new StartCooldownAction(_cooldown, _duration, _when, _mode);
+        return new StartCooldownAction(_cooldown, _minDuration, _maxDuration, _when, _mode);
     }
 }
 
 public class StartCooldownAction : StateAction
 {
     private readonly CooldownSO _cooldown;
-    private readonly float _duration;
+    private readonly float _minDuration;
+    private readonly float _maxDuration;
     private readonly StartCooldownActionSO.When _when;
     private readonly CooldownController.StartMode _mode;
     private AnchorReference<CooldownController> _controller;
 
     public StartCooldownAction(
         CooldownSO cooldown,
-        float duration,
+        float minDuration,
+        float maxDuration,
         StartCooldownActionSO.When when,
         CooldownController.StartMode mode)
     {
         _cooldown = cooldown;
-        _duration = duration;
+        _minDuration = minDuration;
+        _maxDuration = maxDuration;
         _when = when;
         _mode = mode;
     }
@@ -77,7 +83,9 @@ public class StartCooldownAction : StateAction
     {
         if (_cooldown != null && _controller.TryGet(out CooldownController controller))
         {
-            controller.StartCooldown(_cooldown, _duration, _mode);
+            // Rolled again on every start.
+            float duration = _maxDuration > _minDuration ? Random.Range(_minDuration, _maxDuration) : _minDuration;
+            controller.StartCooldown(_cooldown, duration, _mode);
         }
     }
 }

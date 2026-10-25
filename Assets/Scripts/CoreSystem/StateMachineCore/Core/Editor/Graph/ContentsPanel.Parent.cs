@@ -40,6 +40,56 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 .ToList();
         }
 
+        // ---------- Created here, not used yet ----------
+
+        // An action or condition created in a sub-state machine's table lands in the parent's file, and
+        // until something uses it nothing says which table it's for, so it would show under From Parent.
+        // The table remembers what was created from it (SessionState: kept through script reloads,
+        // gone when Unity closes) and lists those in its own groups as ○ until they're used.
+        private const string ClaimedKeyPrefix = "YSM.ContentsClaimed.";
+
+        private static string ClaimedKey(TransitionTableSO table)
+        {
+            return ClaimedKeyPrefix + GlobalObjectId.GetGlobalObjectIdSlow(table);
+        }
+
+        private static void ClaimForSubTable(TransitionTableSO table, ScriptableObject item)
+        {
+            if (AssetDatabase.IsMainAsset(table))
+            {
+                return;
+            }
+
+            string key = ClaimedKey(table);
+            string id = GlobalObjectId.GetGlobalObjectIdSlow(item).ToString();
+            string[] ids = SessionState.GetString(key, "").Split('\n', System.StringSplitOptions.RemoveEmptyEntries);
+            if (!ids.Contains(id))
+            {
+                SessionState.SetString(key, string.Join("\n", ids.Append(id)));
+            }
+        }
+
+        // The file's unused items this table created. Ones used (or deleted) since are dropped from the record.
+        private static List<ScriptableObject> ClaimedUnused(TransitionTableSO table)
+        {
+            string key = ClaimedKey(table);
+            var ids = new HashSet<string>(
+                SessionState.GetString(key, "").Split('\n', System.StringSplitOptions.RemoveEmptyEntries));
+            if (ids.Count == 0)
+            {
+                return new List<ScriptableObject>();
+            }
+
+            List<ScriptableObject> claimed = TableContents.UnusedInFile(table)
+                .Where(item => item is StateActionSO || item is StateConditionSO)
+                .Where(item => ids.Contains(GlobalObjectId.GetGlobalObjectIdSlow(item).ToString()))
+                .ToList();
+
+            SessionState.SetString(key, string.Join("\n",
+                claimed.Select(item => GlobalObjectId.GetGlobalObjectIdSlow(item).ToString())));
+            return claimed;
+        }
+
         private static bool IsSubStateMachineWiring(Object item)
         {
             return item is SubStateMachineActionSO ||

@@ -4,18 +4,16 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [UseSelfAnchor]
 [RequiresOwnerComponent(typeof(CharacterTeleporter))]
+[RequiresOwnerComponent(typeof(StandablePointValidator))]
 [CreateAssetMenu(
     fileName = "TeleportAnchorRing_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Locomotion/Navigation/Teleport Anchor Ring")]
 public class TeleportAnchorRingActionSO : StateActionSO
 {
-    [Tooltip("Where to teleport. Empty = Owner. Self Anchor is the one that teleports.")]
+    [Tooltip("Teleports to a random free spot in a ring around this. Empty = Owner. Self Anchor is the one that teleports.")]
     [SerializeField] private AnchorIDSO _targetAnchor;
     [SerializeField] private bool _faceTarget = true;
-
-    [Header("Random Around Target (needs StandablePointValidator)")]
-    [SerializeField] private bool _randomAroundTarget = false;
-    [SerializeField] private RingSampleParameters _ringParameters =
+    [SerializeField,Exposed] private RingSampleParameters _ringParameters =
         new() { radius = 8f, minDistance = 4f, directionCount = 16 };
     [SerializeField, Min(1)] private int _maxAttempts = 3;
 
@@ -24,17 +22,18 @@ public class TeleportAnchorRingActionSO : StateActionSO
         return new TeleportAnchorRingAction(
             _targetAnchor,
             _faceTarget,
-            _randomAroundTarget,
             _ringParameters,
             _maxAttempts);
     }
 }
 
-public class TeleportAnchorRingAction : StateAction
+// Failed: no valid spot after Max Attempts (or a needed component is missing), so it didn't move.
+public class TeleportAnchorRingAction : StateAction, IFallibleAction
 {
+    public bool Failed { get; private set; }
+
     private readonly AnchorIDSO _targetAnchor;
     private readonly bool _faceTarget;
-    private readonly bool _randomAroundTarget;
     private readonly RingSampleParameters _ringParameters;
     private readonly int _maxAttempts;
 
@@ -46,13 +45,11 @@ public class TeleportAnchorRingAction : StateAction
     public TeleportAnchorRingAction(
         AnchorIDSO targetAnchor,
         bool faceTarget,
-        bool randomAroundTarget,
         RingSampleParameters ringParameters,
         int maxAttempts)
     {
         _targetAnchor = targetAnchor;
         _faceTarget = faceTarget;
-        _randomAroundTarget = randomAroundTarget;
         _ringParameters = ringParameters;
         _maxAttempts = Mathf.Max(1, maxAttempts);
     }
@@ -61,28 +58,18 @@ public class TeleportAnchorRingAction : StateAction
     {
         _owner = stateMachine.Owner;
         _teleporter = new AnchorReference<CharacterTeleporter>(stateMachine, this);
+        _pointValidator = new AnchorReference<StandablePointValidator>(stateMachine, this);
         _target = new AnchorReference<Transform>(stateMachine, _targetAnchor, this);
-
-        if (_randomAroundTarget)
-            _pointValidator = new AnchorReference<StandablePointValidator>(stateMachine, this);
     }
 
     public override void OnStateEnter()
     {
+        // Cleared only when it teleports.
+        Failed = true;
+
         if (!_teleporter.TryGet(out CharacterTeleporter teleporter) ||
+            !_pointValidator.TryGet(out StandablePointValidator pointValidator) ||
             !_target.TryGet(out Transform target))
-            return;
-
-        if (!_randomAroundTarget)
-        {
-            // Standing on the target: face the way the target faces instead of looking at itself.
-            teleporter.Teleport(target.position);
-            if (_faceTarget)
-                teleporter.transform.rotation = Quaternion.Euler(0f, target.eulerAngles.y, 0f);
-            return;
-        }
-
-        if (!_pointValidator.TryGet(out StandablePointValidator pointValidator))
             return;
 
         Vector3 origin = target.position;
@@ -101,6 +88,7 @@ public class TeleportAnchorRingAction : StateAction
             else
                 teleporter.Teleport(position);
 
+            Failed = false;
             return;
         }
 

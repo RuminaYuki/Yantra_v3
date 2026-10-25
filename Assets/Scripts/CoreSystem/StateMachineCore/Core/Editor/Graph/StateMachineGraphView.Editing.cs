@@ -192,6 +192,141 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             StateMachineGraphWindow.ReloadAll();
         }
 
+        // ---------- Dropping conditions on an arrow ----------
+
+        // Conditions dragged from Contents or the Project window onto an arrow are ANDed onto it: added to
+        // every OR group (or a new group when it has none), expecting True. Ones a group already has are
+        // skipped. Only this table's own arrows with a single transition: an inherited arrow is overridden
+        // from its Inspector, and on a several-transitions arrow it isn't clear which one is meant.
+        // Without Undo, like the action drops.
+        private TransitionEdgeView _conditionDropTarget;
+
+        private void RegisterConditionDropCallbacks()
+        {
+            RegisterCallback<DragUpdatedEvent>(evt =>
+            {
+                if (_table == null || !DraggedConditions().Any())
+                {
+                    return;
+                }
+
+                TransitionEdgeView edge = ConditionDropEdgeAt(evt.target);
+                SetConditionDropTarget(edge);
+                DragAndDrop.visualMode = edge != null ? DragAndDropVisualMode.Copy : DragAndDropVisualMode.Rejected;
+                evt.StopPropagation();
+            });
+
+            RegisterCallback<DragLeaveEvent>(_ => SetConditionDropTarget(null));
+            RegisterCallback<DragExitedEvent>(_ => SetConditionDropTarget(null));
+
+            RegisterCallback<DragPerformEvent>(evt =>
+            {
+                List<StateConditionSO> conditions = DraggedConditions().ToList();
+                TransitionEdgeView edge = ConditionDropEdgeAt(evt.target);
+                SetConditionDropTarget(null);
+
+                if (_table == null || conditions.Count == 0 || edge == null)
+                {
+                    return;
+                }
+
+                DragAndDrop.AcceptDrag();
+                evt.StopPropagation();
+
+                // Editing while the drop event is still being sent around is unsafe, so wait a frame.
+                object fromKey = GetNodeKey(edge.From);
+                object toKey = GetNodeKey(edge.To);
+                string arrayName = edge.IsAnyState ? StateMachineFields.AnyTransitions : StateMachineFields.Transitions;
+                int index = edge.TransitionIndices[0];
+
+                schedule.Execute(() => AddConditions(arrayName, index, conditions, fromKey, toKey));
+            });
+        }
+
+        private static IEnumerable<StateConditionSO> DraggedConditions()
+        {
+            return DragAndDrop.objectReferences.OfType<StateConditionSO>().Distinct();
+        }
+
+        private static TransitionEdgeView ConditionDropEdgeAt(IEventHandler target)
+        {
+            TransitionEdgeView edge = (target as VisualElement)?.GetFirstOfType<TransitionEdgeView>();
+            return edge != null && !edge.IsInherited && edge.TransitionIndices.Count == 1 ? edge : null;
+        }
+
+        private void SetConditionDropTarget(TransitionEdgeView edge)
+        {
+            if (_conditionDropTarget == edge)
+            {
+                return;
+            }
+
+            _conditionDropTarget?.SetDropTarget(false);
+            _conditionDropTarget = edge;
+            _conditionDropTarget?.SetDropTarget(true);
+        }
+
+        private void AddConditions(
+            string arrayName,
+            int transitionIndex,
+            List<StateConditionSO> conditions,
+            object fromKey,
+            object toKey)
+        {
+            _serializedTable.Update();
+            SerializedProperty array = _serializedTable.FindProperty(arrayName);
+            if (transitionIndex >= array.arraySize)
+            {
+                return;
+            }
+
+            SerializedProperty groups = array.GetArrayElementAtIndex(transitionIndex).FindPropertyRelative("ConditionGroups");
+            if (groups.arraySize == 0)
+            {
+                groups.InsertArrayElementAtIndex(0);
+                groups.GetArrayElementAtIndex(0).FindPropertyRelative("Conditions").arraySize = 0;
+            }
+
+            int added = 0;
+            for (int g = 0; g < groups.arraySize; g++)
+            {
+                SerializedProperty list = groups.GetArrayElementAtIndex(g).FindPropertyRelative("Conditions");
+
+                var existing = new HashSet<Object>();
+                for (int i = 0; i < list.arraySize; i++)
+                {
+                    existing.Add(list.GetArrayElementAtIndex(i).FindPropertyRelative("Condition").objectReferenceValue);
+                }
+
+                foreach (StateConditionSO condition in conditions)
+                {
+                    if (!existing.Add(condition))
+                    {
+                        continue;
+                    }
+
+                    list.InsertArrayElementAtIndex(list.arraySize);
+                    SerializedProperty usage = list.GetArrayElementAtIndex(list.arraySize - 1);
+                    usage.FindPropertyRelative("Condition").objectReferenceValue = condition;
+                    usage.FindPropertyRelative("ExpectedResult").enumValueIndex = (int)TransitionTableSO.Result.True;
+                    added++;
+                }
+            }
+
+            if (added == 0)
+            {
+                return;
+            }
+
+            _serializedTable.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(_table);
+            AssetDatabase.SaveAssetIfDirty(_table);
+
+            // Redraw (parameter tags, ⚙) and keep the arrow selected so its Inspector shows the new conditions.
+            Load(_table);
+            SelectEdge(fromKey, toKey);
+        }
+
         // ---------- Right-click menu ----------
 
         public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
