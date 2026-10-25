@@ -30,6 +30,38 @@ MonoBehaviour:
   _selfAnchor: {fileID: 11400000, guid: ded8b5ee8f0dd57488cc9fa0e5c0d061, type: 2}
   value: 1
   resetValueOnExit: 0
+--- !u!114 &-7407465959219067308
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c807c0fe937f0941bc0ea49af3c0c0a, type: 3}
+  m_Name: SetTaneeInteractFalseFlagOnEnter_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SetFlagOnEnterActionSO
+  _selfAnchor: {fileID: 11400000, guid: 48e12e710fca4a848b2773a5c3675db1, type: 2}
+  flag: {fileID: 11400000, guid: 49f1e080a3b824f4f9dbdfa58d0288a0, type: 2}
+  value: 1
+  changeValueOnExit: 0
+--- !u!114 &-7046636321241546014
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c807c0fe937f0941bc0ea49af3c0c0a, type: 3}
+  m_Name: SetTaneeInteractTrueFlagOnEnter_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SetFlagOnEnterActionSO
+  _selfAnchor: {fileID: 11400000, guid: 48e12e710fca4a848b2773a5c3675db1, type: 2}
+  flag: {fileID: 11400000, guid: 49f1e080a3b824f4f9dbdfa58d0288a0, type: 2}
+  value: 1
+  changeValueOnExit: 0
 --- !u!114 &-5042621771395516419
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -66,7 +98,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b5a693c5528e9f44bbb825620166d61f, type: 3}
-  m_Name: SetFalsePlayerInteractableDontReset_Action (1)
+  m_Name: SetFalsePlayerInteractableDontReset_Action
   m_EditorClassIdentifier: Assembly-CSharp::SetPlayerInteractableActionSO
   _selfAnchor: {fileID: 11400000, guid: ded8b5ee8f0dd57488cc9fa0e5c0d061, type: 2}
   value: 0
@@ -108,18 +140,21 @@ MonoBehaviour:
       - Condition: {fileID: -2562014455139046867}
         ExpectedResult: 0
     ToState: {fileID: 4976359958184078471}
+    Id: 825ce999-cf7d-430e-bbe4-934fc066a64d
   - FromState: {fileID: 4976359958184078471}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: 4597949339803982710}
         ExpectedResult: 0
     ToState: {fileID: 3872022564976640089}
+    Id: 641b5113-c458-41b5-821f-343fd92c18e1
   - FromState: {fileID: 3872022564976640089}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: 1480600121332913776}
         ExpectedResult: 0
     ToState: {fileID: 3455943299773967449}
+    Id: 3b2d1abc-9ecb-48c1-a557-3f405d26a5df
   - FromState: {fileID: 3455943299773967449}
     ConditionGroups:
     - Conditions:
@@ -128,6 +163,15 @@ MonoBehaviour:
       - Condition: {fileID: -2562014455139046867}
         ExpectedResult: 1
     ToState: {fileID: -5042621771395516419}
+    Id: f556bfe7-7bb2-48f1-9e30-fccf35d37cf7
+  _base: {fileID: 0}
+  _fieldOverrides: []
+  _removedIds: []
+  _transitionOverrides: []
+  _conditionReplaces: []
+  _transitionRetargets: []
+  _actionChanges: []
+  _actionOrders: []
   _exposedParameters: {fileID: 0}
   _nodePositions:
   - State: {fileID: -5042621771395516419}
@@ -142,6 +186,8 @@ MonoBehaviour:
   _anyStateNodePosition: {x: 0, y: 120}
   _contentsFolders: []
   _contentsFolderPaths: []
+  _stateDisplayNames: []
+  _removedParameters: []
 --- !u!114 &1480600121332913776
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -249,3 +295,4 @@ MonoBehaviour:
   - {fileID: -7962281494737663566}
   - {fileID: 4801895335125465723}
   - {fileID: -1655661976764212870}
+  - {fileID: -7046636321241546014}
