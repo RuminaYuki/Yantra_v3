@@ -26,6 +26,18 @@ public class PairedAnimationPlayer : MonoBehaviour
     // true ตั้งแต่ท่าจบจนกว่าจะเริ่มท่าใหม่ ให้ State Machine อ่านได้แม้ actor ถูก Stop ไปแล้ว
     public bool HasFinished => _hasFinished;
 
+    // ท่า Loop เล่นอยู่จริง (ผ่านช่วง Snap / หันกล้องแล้ว)
+    public bool IsLooping => _isPlaying && !_isPreparing && _actor.IsLooping;
+
+    public PairedAnimationActor Actor => _actor;
+
+    // ปล่อยท่า Loop แล้วเล่นท่าจบต่อ (ว่าง = จบทันที)
+    public void EndLoop(PairedAnimationId finishAnimation)
+    {
+        if (_isPlaying)
+            _actor.EndLoop(finishAnimation);
+    }
+
     private void Awake()
     {
         _actor = GetComponent<PairedAnimationActor>();

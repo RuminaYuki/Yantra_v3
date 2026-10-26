@@ -27,6 +27,9 @@ public class PairedAnimationId : ScriptableObject
 
     [SerializeField, Min(0f)] private float _transitionDuration = 0.15f;
 
+    [Tooltip("ติ๊ก = วนค้างไว้จนกว่าจะมีคนสั่ง EndLoop (ใช้กับ QTE) — state ใน Animator ต้องติ๊ก Loop Time ด้วย\nไม่ติ๊ก = จบเองเมื่อเล่นครบ 1 รอบ")]
+    [SerializeField] private bool _loop;
+
     [Header("Movement จากจุดเริ่ม → จุดจบ (แกน X = เวลาท่า 0-1)")]
     [Tooltip("เวลาดูดตัวเข้าจุดเริ่ม (วินาที) — ทำไปพร้อมกับท่าเลย")]
     [SerializeField, Min(0f)] private float _snapDuration = 0.2f;
@@ -40,6 +43,7 @@ public class PairedAnimationId : ScriptableObject
     public PairedAnimatorState Body => _body;
     public PairedAnimatorState Arm => _arm;
     public float TransitionDuration => _transitionDuration;
+    public bool Loop => _loop;
     public float SnapDuration => _snapDuration;
     public AnimationCurve UpCurve => _upCurve;
     public AnimationCurve ForwardCurve => _forwardCurve;
