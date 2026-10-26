@@ -23,7 +23,7 @@ MonoBehaviour:
   _conditionReplaces:
   - _transitionId: 6af50fa5-0383-4afe-950e-4b3665c2dda8
     _from: {fileID: 7954348948201577819, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
-    _to: {fileID: 148733803568735999, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    _to: {fileID: -2166989886472301640}
     _remove: 0
   _transitionRetargets:
   - _transitionId: 6af50fa5-0383-4afe-950e-4b3665c2dda8
@@ -39,9 +39,11 @@ MonoBehaviour:
   - State: {fileID: -2422205497665446699, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
     Position: {x: 364, y: 0}
   - State: {fileID: 3843580741982143811, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
-    Position: {x: 364, y: 76}
+    Position: {x: 364, y: 98}
   - State: {fileID: 8565915144001029950, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
     Position: {x: 172, y: 0}
+  - State: {fileID: 1245683662207517576, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    Position: {x: 172, y: 98}
   _entryNodePosition: {x: 0, y: 0}
   _anyStateNodePosition: {x: 0, y: 120}
   _contentsFolders: []
@@ -50,6 +52,21 @@ MonoBehaviour:
   - State: {fileID: 1245683662207517576, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
     Name: Cooldown
   _removedParameters: []
+--- !u!114 &-2166989886472301640
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9857d4c9abc56a458a25ef29958bfb6, type: 3}
+  m_Name: ReachPathNavigatorTarget_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::ReachPathNavigatorTargetConditionSO
+  _selfAnchor: {fileID: 0}
+  _arrivalDistance: 0.5
+  _randomArrivalRange: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -114,7 +131,7 @@ MonoBehaviour:
     Position: {x: 591, y: 97}
   - State: {fileID: 9204605873900580318, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
     Position: {x: 198, y: 94}
-  - State: {fileID: -6437948323864379113, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+  - State: {fileID: 0}
     Position: {x: 198, y: 156}
   - State: {fileID: 5838480089549137350, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
     Position: {x: 198, y: 232}
@@ -141,6 +158,11 @@ MonoBehaviour:
   m_Name: Exposed_Parameters
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.ExposedParametersSO
   _parameters:
+  - _name: PlayerPathNavigatorOffsetRandom
+    _bindings:
+    - _target: {fileID: 2018981407000030339, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+      _fieldName: _randomOffsetRange
+    _category: Attack
   - _name: SetProjectileHeight
     _bindings:
     - _target: {fileID: 4916025918269346807}

@@ -12,7 +12,7 @@ public class SetPathNavigatorTargetActionSO : StateActionSO
     [SerializeField] private AnchorIDSO _targetAnchor;
     [SerializeField, Exposed] private Vector3 _offset;
     [Header("Randomize offset per axis (+-range) each time the state is entered")]
-    [SerializeField] private Vector3 _randomOffsetRange = Vector3.zero;
+    [SerializeField, Exposed] private Vector3 _randomOffsetRange = Vector3.zero;
 
     /// <summary>The target as seen by this owner (through its Provider), or null if not linked.</summary>
     public Transform GetTargetTransform(GameObject owner)
