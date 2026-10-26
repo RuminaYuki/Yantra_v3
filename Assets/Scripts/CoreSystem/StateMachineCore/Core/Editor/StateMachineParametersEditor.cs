@@ -11,8 +11,8 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 namespace Yuki.Learning.StateMachine.Editor
 {
     // Like the Properties section of VisualEffect: lists every exposed parameter of the tables on the
-    // StateMachineController next to it. Ticking one adds an override (starting at the SO's value);
-    // unticking removes it, so the character uses the SO's value again.
+    // StateMachineController next to it. Ticking one adds an override (starting at the value it has now:
+    // a variant table's Field Override if one sets it, else the SO's); unticking removes it again.
     // Looks like prefab overrides: an overridden row has a blue bar on the left and a bold name.
     // Each table shows how many it overrides; categories fold. Overrides whose name no table has any
     // more are listed in red at the bottom.
@@ -38,6 +38,9 @@ namespace Yuki.Learning.StateMachine.Editor
         private static readonly Color MissingColor = new Color(1f, 0.45f, 0.45f);
 
         private SerializedProperty _overrides;
+
+        // The controller's tables and their Bases, each variant before its Base (refreshed every draw).
+        private List<TransitionTableSO> _tableChain = new List<TransitionTableSO>();
 
         private static GUIStyle _nameStyle;
         private static GUIStyle _overriddenNameStyle;
@@ -67,6 +70,7 @@ namespace Yuki.Learning.StateMachine.Editor
             serializedObject.Update();
 
             var controller = ((Component)target).GetComponent<StateMachineController>();
+            _tableChain = TableChainOf(controller);
             List<ExposedParametersSO> blackboards = BlackboardsOf(controller);
             var known = new HashSet<string>();
 
@@ -200,10 +204,11 @@ namespace Yuki.Learning.StateMachine.Editor
         // ---------- Rows ----------
 
         // [tick] [name] [value]. Ticked: blue bar, bold name, the override's value to edit.
-        // Not ticked: the SO's own value, greyed out.
+        // Not ticked: the value the character runs with, greyed out (a variant's Field Override, else the SO's).
         private void DrawParameter(ExposedParameter parameter, float indent)
         {
             SerializedProperty source = SourceProperty(parameter);
+            SerializedProperty variantOverride = VariantOverrideOf(parameter);
             System.Type valueType = ValueTypeOf(parameter);
             int index = IndexOf(parameter.Name);
             bool isOverridden = index >= 0;
@@ -257,7 +262,15 @@ namespace Yuki.Learning.StateMachine.Editor
             {
                 using (new EditorGUI.DisabledScope(true))
                 {
-                    DrawSourceValue(source, valueType);
+                    // Same slots as this component's overrides, so it draws the same way (read-only here).
+                    if (variantOverride != null)
+                    {
+                        DrawOverrideValue(variantOverride, parameter, source, valueType);
+                    }
+                    else
+                    {
+                        DrawSourceValue(source, valueType);
+                    }
                 }
             }
 
@@ -265,7 +278,7 @@ namespace Yuki.Learning.StateMachine.Editor
 
             if (shouldOverride && !isOverridden)
             {
-                AddOverride(parameter.Name, source);
+                AddOverride(parameter.Name, source, variantOverride);
             }
             else if (!shouldOverride && isOverridden)
             {
@@ -462,12 +475,24 @@ namespace Yuki.Learning.StateMachine.Editor
 
         // ---------- Data ----------
 
-        // A new override starts at the SO's current value, in the slot that matches its type.
-        private void AddOverride(string name, SerializedProperty source)
+        // A new override starts at the value the character runs with now, in the slot that matches its type:
+        // a variant's Field Override (same slots, copied as is), else the SO's current value.
+        private void AddOverride(string name, SerializedProperty source, SerializedProperty variantOverride = null)
         {
             _overrides.arraySize++;
             SerializedProperty element = _overrides.GetArrayElementAtIndex(_overrides.arraySize - 1);
             element.FindPropertyRelative(NameProperty).stringValue = name;
+
+            if (variantOverride != null)
+            {
+                element.FindPropertyRelative(ValueProperty).floatValue = variantOverride.FindPropertyRelative(ValueProperty).floatValue;
+                element.FindPropertyRelative(BoolProperty).boolValue = variantOverride.FindPropertyRelative(BoolProperty).boolValue;
+                element.FindPropertyRelative(StringProperty).stringValue = variantOverride.FindPropertyRelative(StringProperty).stringValue;
+                element.FindPropertyRelative(VectorProperty).vector3Value = variantOverride.FindPropertyRelative(VectorProperty).vector3Value;
+                element.FindPropertyRelative(ColorProperty).colorValue = variantOverride.FindPropertyRelative(ColorProperty).colorValue;
+                element.FindPropertyRelative(ObjectProperty).objectReferenceValue = variantOverride.FindPropertyRelative(ObjectProperty).objectReferenceValue;
+                return;
+            }
 
             switch (source.propertyType)
             {
@@ -598,6 +623,60 @@ namespace Yuki.Learning.StateMachine.Editor
             }
 
             return null;
+        }
+
+        // The Field Override a variant table sets on the same binding SourceProperty reads, or null.
+        // The most derived variant wins, like at runtime.
+        private SerializedProperty VariantOverrideOf(ExposedParameter parameter)
+        {
+            foreach (ExposedBinding binding in parameter.Bindings)
+            {
+                if (binding.Target == null || new SerializedObject(binding.Target).FindProperty(binding.FieldName) == null)
+                {
+                    continue;
+                }
+
+                foreach (TransitionTableSO table in _tableChain)
+                {
+                    SerializedProperty list = new SerializedObject(table).FindProperty(StateMachineFields.FieldOverrides);
+                    for (int i = list.arraySize - 1; i >= 0; i--)
+                    {
+                        SerializedProperty element = list.GetArrayElementAtIndex(i);
+                        if (element.FindPropertyRelative("_target").objectReferenceValue == binding.Target &&
+                            element.FindPropertyRelative("_fieldPath").stringValue == binding.FieldName)
+                        {
+                            return element;
+                        }
+                    }
+                }
+
+                return null;
+            }
+
+            return null;
+        }
+
+        // Each of the controller's tables, then its Base, its Base's Base ...
+        private static List<TransitionTableSO> TableChainOf(StateMachineController controller)
+        {
+            var result = new List<TransitionTableSO>();
+            if (controller == null)
+            {
+                return result;
+            }
+
+            SerializedProperty tables = new SerializedObject(controller).FindProperty("_transitionTables");
+            for (int i = 0; i < tables.arraySize; i++)
+            {
+                for (var table = tables.GetArrayElementAtIndex(i).objectReferenceValue as TransitionTableSO;
+                     table != null && !result.Contains(table);
+                     table = new SerializedObject(table).FindProperty(BaseProperty).objectReferenceValue as TransitionTableSO)
+                {
+                    result.Add(table);
+                }
+            }
+
+            return result;
         }
 
         // One Blackboard per table file. Tables are read like the Inspector does (the field is private).

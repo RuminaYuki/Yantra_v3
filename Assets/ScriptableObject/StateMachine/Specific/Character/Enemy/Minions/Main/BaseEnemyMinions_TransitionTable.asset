@@ -153,6 +153,7 @@ MonoBehaviour:
   _fieldOverrides: []
   _removedIds: []
   _transitionOverrides: []
+  _conditionReplaces: []
   _transitionRetargets: []
   _actionChanges: []
   _actionOrders: []
@@ -402,6 +403,7 @@ MonoBehaviour:
   _fieldOverrides: []
   _removedIds: []
   _transitionOverrides: []
+  _conditionReplaces: []
   _transitionRetargets: []
   _actionChanges: []
   _actionOrders: []
@@ -559,10 +561,11 @@ MonoBehaviour:
   _stateName: Dead
   _layerIndex: 0
   _transitionDuration: 0.25
-  _normalizedStartTime: 0
+  _startTimeOffset: 0
+  _waitForStateName: 
   _exitStateName: 
   _exitTransitionDuration: 0.25
-  _exitNormalizedStartTime: 0
+  _exitStartTimeOffset: 0
 --- !u!114 &-5670934711078985649
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -930,6 +933,7 @@ MonoBehaviour:
   _fieldOverrides: []
   _removedIds: []
   _transitionOverrides: []
+  _conditionReplaces: []
   _transitionRetargets: []
   _actionChanges: []
   _actionOrders: []
@@ -1024,10 +1028,11 @@ MonoBehaviour:
   _stateName: ReadyGlory
   _layerIndex: 0
   _transitionDuration: 0.25
-  _normalizedStartTime: 0
+  _startTimeOffset: 0
+  _waitForStateName: 
   _exitStateName: 
   _exitTransitionDuration: 0.25
-  _exitNormalizedStartTime: 0
+  _exitStartTimeOffset: 0
 --- !u!114 &478421693232287662
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1059,10 +1064,11 @@ MonoBehaviour:
   _stateName: BaseMovement
   _layerIndex: 0
   _transitionDuration: 0.25
-  _normalizedStartTime: 0
+  _startTimeOffset: 0
+  _waitForStateName: 
   _exitStateName: 
   _exitTransitionDuration: 0.25
-  _exitNormalizedStartTime: 0
+  _exitStartTimeOffset: 0
 --- !u!114 &996522589302933064
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1093,10 +1099,11 @@ MonoBehaviour:
   _stateName: BaseMovement
   _layerIndex: 0
   _transitionDuration: 0.25
-  _normalizedStartTime: 0
+  _startTimeOffset: 0
+  _waitForStateName: 
   _exitStateName: 
   _exitTransitionDuration: 0.25
-  _exitNormalizedStartTime: 0
+  _exitStartTimeOffset: 0
 --- !u!114 &1011012115699903786
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1262,10 +1269,11 @@ MonoBehaviour:
   _stateName: ExitReadyGlory
   _layerIndex: 0
   _transitionDuration: 0.25
-  _normalizedStartTime: 0
+  _startTimeOffset: 0
+  _waitForStateName: 
   _exitStateName: 
   _exitTransitionDuration: 0.25
-  _exitNormalizedStartTime: 0
+  _exitStartTimeOffset: 0
 --- !u!114 &2860989851991372328
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1296,10 +1304,11 @@ MonoBehaviour:
   _stateName: Attack
   _layerIndex: 0
   _transitionDuration: 0.25
-  _normalizedStartTime: 0
+  _startTimeOffset: 0
+  _waitForStateName: 
   _exitStateName: BaseMovement
   _exitTransitionDuration: 0.25
-  _exitNormalizedStartTime: 0
+  _exitStartTimeOffset: 0
 --- !u!114 &3167863012095809452
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1449,6 +1458,7 @@ MonoBehaviour:
   _fieldOverrides: []
   _removedIds: []
   _transitionOverrides: []
+  _conditionReplaces: []
   _transitionRetargets: []
   _actionChanges: []
   _actionOrders: []
@@ -1807,11 +1817,6 @@ MonoBehaviour:
     - _target: {fileID: -1710659756149652121}
       _fieldName: minDuration
     _category: Attack
-  - _name: PlayerPathNavigatorOffset
-    _bindings:
-    - _target: {fileID: 2018981407000030339}
-      _fieldName: _offset
-    _category: Attack
   - _name: ExecuteAttackRange
     _bindings:
     - _target: {fileID: 7901874687563359647}
@@ -1832,6 +1837,16 @@ MonoBehaviour:
     - _target: {fileID: -1529617912093970073}
       _fieldName: _attackParameters.attackRadius
     _category: Attack
+  - _name: PlayerPathNavigatorOffset
+    _bindings:
+    - _target: {fileID: 2018981407000030339}
+      _fieldName: _offset
+    _category: Attack/NavigatorOffset
+  - _name: PlayerPathNavigatorOffsetRandomRange
+    _bindings:
+    - _target: {fileID: 2018981407000030339}
+      _fieldName: _randomOffsetRange
+    _category: Attack/NavigatorOffset
 --- !u!114 &7939826431760218860
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1943,10 +1958,11 @@ MonoBehaviour:
   _stateName: WeakHurt
   _layerIndex: 0
   _transitionDuration: 0.25
-  _normalizedStartTime: 0
+  _startTimeOffset: 0
+  _waitForStateName: 
   _exitStateName: BaseMovement
   _exitTransitionDuration: 0.25
-  _exitNormalizedStartTime: 0
+  _exitStartTimeOffset: 0
 --- !u!114 &8982604528455279916
 MonoBehaviour:
   m_ObjectHideFlags: 0
