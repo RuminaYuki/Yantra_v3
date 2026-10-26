@@ -130,12 +130,12 @@ public class AnimationFinishedCondition : Condition
             return;
         }
 
-        finishedSince ??= Time.time;
+        finishedSince ??= Time.Now;
     }
 
     protected override bool Statement()
     {
         return finishedSince.HasValue &&
-               Time.time - finishedSince.Value >= extraSeconds;
+               Time.Now - finishedSince.Value >= extraSeconds;
     }
 }

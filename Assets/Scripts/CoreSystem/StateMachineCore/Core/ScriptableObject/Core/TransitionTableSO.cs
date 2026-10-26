@@ -714,7 +714,7 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
 
             // Initialize the runtime Condition.
             newCondition.DebugName = conditionSO.name;
-            newCondition.Awake(stateMachine);
+            newCondition.Initialize(stateMachine);
 
             // StateMachine owns this runtime Condition
             // and will dispose it when the controller is destroyed.

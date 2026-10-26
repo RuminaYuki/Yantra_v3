@@ -60,8 +60,8 @@ public class FallbackAction : StateAction, IFallibleAction
     public override void Awake(StateMachine stateMachine)
     {
         // The state only knows about this wrapper, so pass Awake on.
-        _primary?.Awake(stateMachine);
-        _fallback?.Awake(stateMachine);
+        _primary?.Initialize(stateMachine);
+        _fallback?.Initialize(stateMachine);
 
         if (_primary == null)
         {

@@ -66,10 +66,10 @@ public class InputActionCondition : Condition
     }
 
     private void OnPerformed(InputAction.CallbackContext ctx) =>
-        _performedBufferedUntil = Time.time + _bufferTime;
+        _performedBufferedUntil = UnityEngine.Time.time + _bufferTime;
 
     private void OnCanceled(InputAction.CallbackContext ctx) =>
-        _releasedBufferedUntil = Time.time + _bufferTime;
+        _releasedBufferedUntil = UnityEngine.Time.time + _bufferTime;
 
     protected override bool Statement()
     {
@@ -83,9 +83,9 @@ public class InputActionCondition : Condition
 
         return _checkType switch
         {
-            InputCheckType.PerformedThisFrame => Time.time <= _performedBufferedUntil,
+            InputCheckType.PerformedThisFrame => UnityEngine.Time.time <= _performedBufferedUntil,
             InputCheckType.Held => action.IsPressed(),
-            InputCheckType.ReleasedThisFrame => Time.time <= _releasedBufferedUntil,
+            InputCheckType.ReleasedThisFrame => UnityEngine.Time.time <= _releasedBufferedUntil,
             _ => false
         };
     }

@@ -16,6 +16,8 @@ namespace Yuki.Learning.StateMachine
         private bool _isDisposed;
 
         public GameObject Owner => _owner;
+        public StateMachineClock Clock { get; }
+
         public bool IsDisposed => _isDisposed;
         public string CurrentStateName => _currentState?.DebugName ?? "None";
         public State CurrentState => _currentState;
@@ -35,6 +37,8 @@ namespace Yuki.Learning.StateMachine
             _owner = owner != null
                 ? owner
                 : throw new ArgumentNullException(nameof(owner));
+
+            Clock = new StateMachineClock(_owner);
         }
 
         internal static void DisableRequester(object requester)

@@ -82,8 +82,8 @@ public class DelayedCondition : Condition
             return;
         }
 
-        // The transition table only knows about this wrapper, so pass Awake on.
-        _inner.Awake(stateMachine);
+        // The transition table only knows about this wrapper, so pass Initialize on.
+        _inner.Initialize(stateMachine);
 
         // A broken inner condition makes this one broken too (see StateCondition.IsMet).
         if (_inner.IsDisabled)
@@ -116,7 +116,7 @@ public class DelayedCondition : Condition
 
         if (matches)
         {
-            _matchedSince ??= Time.time;
+            _matchedSince ??= Time.Now;
         }
         else if (_mode == DelayedConditionSO.DelayMode.Sustained)
         {
@@ -127,6 +127,6 @@ public class DelayedCondition : Condition
     protected override bool Statement()
     {
         return _matchedSince.HasValue &&
-               Time.time - _matchedSince.Value >= _delay;
+               Time.Now - _matchedSince.Value >= _delay;
     }
 }

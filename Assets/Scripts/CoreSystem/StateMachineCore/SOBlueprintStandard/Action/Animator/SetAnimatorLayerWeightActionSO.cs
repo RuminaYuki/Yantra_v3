@@ -124,7 +124,7 @@ public class SetAnimatorLayerWeightAction : StateAction
 
         while (elapsedTime < duration)
         {
-            elapsedTime += Time.deltaTime;
+            elapsedTime += Time.DeltaTime;
             float t = Mathf.Clamp01(elapsedTime / duration);
 
             if (animator == null) yield break;   // destroyed mid-lerp

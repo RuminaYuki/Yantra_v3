@@ -7,12 +7,19 @@ namespace Yuki.Learning.StateMachine
         public string DebugName { get; internal set; }
         internal void Disable() => IsDisabled = true;
 
+        protected StateMachineClock Time { get; private set; }
+
         private bool _isCached;
         private bool _cachedStatement;
         public bool LastResult => _cachedStatement;
         public int LastEvaluatedFrame { get; private set; } = -1;
         private int _lastTickFrame = -1;
 
+        public void Initialize(StateMachine stateMachine)
+        {
+            Time = stateMachine.Clock;
+            Awake(stateMachine);
+        }
         public virtual void Awake(StateMachine stateMachine){}
         public virtual void OnStateEnter(){}
         protected abstract bool Statement();
