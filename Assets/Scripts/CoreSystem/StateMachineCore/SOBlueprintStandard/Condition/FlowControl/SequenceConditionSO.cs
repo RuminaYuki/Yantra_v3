@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "NewSequence_Condition",
-    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/Sequence")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/FlowControl/Sequence")]
 public class SequenceConditionSO : StateConditionSO
 {
     [Tooltip("Waited on first. Once it matches it's done with: it doesn't have to stay matching.")]
@@ -56,8 +56,8 @@ public class SequenceCondition : Condition
         }
 
         // The transition table only knows about this wrapper, so pass Awake on.
-        _first.Awake(stateMachine);
-        _then.Awake(stateMachine);
+        _first.Initialize(stateMachine);
+        _then.Initialize(stateMachine);
 
         // A broken inner condition makes this one broken too (see StateCondition.IsMet).
         if (_first.IsDisabled || _then.IsDisabled)

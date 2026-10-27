@@ -14,7 +14,7 @@ public interface IFallibleAction
 // instead. Updates and exit go to whichever one ran. Fallback can be another Fallback Action, for a chain.
 [CreateAssetMenu(
     fileName = "NewFallback_Action",
-    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Standard/Fallback")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Standard/FlowControl/Fallback")]
 public class FallbackActionSO : StateActionSO
 {
     [Tooltip("Tried first. Needs to be an action that can fail (IFallibleAction), or Fallback never runs.")]
@@ -60,8 +60,8 @@ public class FallbackAction : StateAction, IFallibleAction
     public override void Awake(StateMachine stateMachine)
     {
         // The state only knows about this wrapper, so pass Awake on.
-        _primary?.Awake(stateMachine);
-        _fallback?.Awake(stateMachine);
+        _primary?.Initialize(stateMachine);
+        _fallback?.Initialize(stateMachine);
 
         if (_primary == null)
         {

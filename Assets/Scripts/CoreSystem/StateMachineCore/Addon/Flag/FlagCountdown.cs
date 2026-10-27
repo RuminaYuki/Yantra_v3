@@ -2,6 +2,7 @@ using NUnit.Framework;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Yuki.Learning.StateMachine;
 
 [System.Serializable]
 public class FlagCDData
@@ -22,11 +23,13 @@ public class FlagCountdown : MonoBehaviour
 {
     [SerializeField] private List<FlagCDData> flagCountdowns = new();
     [SerializeField] private StateFlags stateFlags;
+    private StateMachineClock clock;
 
     private void Awake()
     {
         if (stateFlags == null)
             stateFlags = GetComponent<StateFlags>();
+        clock = new StateMachineClock(gameObject);
     }
 
     //function to set a flag with a countdown timer,
@@ -85,7 +88,7 @@ public class FlagCountdown : MonoBehaviour
     {
         while (flagData.remainingTime > 0)
         {
-            flagData.remainingTime -= Time.deltaTime;
+            flagData.remainingTime -= clock.DeltaTime;
             //Debug.Log($"CountdownCoroutine: {flagData.flag.name}, remainingTime: {flagData.remainingTime}");
             yield return null;
         }

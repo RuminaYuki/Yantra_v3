@@ -99,12 +99,12 @@ public class PlayAnimatorStateAction : StateAction
         // The previous state's Exit State CrossFade only shows in the Animator after its next update,
         // so it can't be seen yet: look from the next frame on (OnUpdate).
         _isWaiting = true;
-        _enterFrame = Time.frameCount;
+        _enterFrame = UnityEngine.Time.frameCount;
     }
 
     public override void OnUpdate()
     {
-        if (!_isWaiting || Time.frameCount == _enterFrame)
+        if (!_isWaiting || UnityEngine.Time.frameCount == _enterFrame)
         {
             return;
         }

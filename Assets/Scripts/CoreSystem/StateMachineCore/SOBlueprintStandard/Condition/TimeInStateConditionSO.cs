@@ -65,7 +65,7 @@ public class TimeInStateCondition : Condition
     // Statement() only compares it with the current time.
     private float _startTime;
     public float Duration { get; private set; }
-    public float Remaining => Mathf.Max(0f, Duration - (Time.time - _startTime));
+    public float Remaining => Mathf.Max(0f, Duration - (Time.Now - _startTime));
 
     public TimeInStateCondition(float minDuration, float maxDuration)
     {
@@ -79,11 +79,11 @@ public class TimeInStateCondition : Condition
             ? Random.Range(_minDuration, _maxDuration)
             : _minDuration;
 
-        _startTime = Time.time;
+        _startTime = Time.Now;
     }
 
     protected override bool Statement()
     {
-        return Time.time - _startTime >= Duration;
+        return Time.Now - _startTime >= Duration;
     }
 }

@@ -4,7 +4,8 @@ using UnityEngine;
 public enum PairedActionType
 {
     Climb,
-    Glory
+    Glory,
+    Grab
 }
 
 public interface IPairedInteractionSource
@@ -128,6 +129,10 @@ public class PairedAnimationActor : MonoBehaviour
     private float _savedGravity;
     private LocomotionMoveMode _savedMoveMode;
 
+    // ท่าที่กำลังเล่นอยู่จริง — ปกติคือท่าของคำขอ แต่หลัง EndLoop จะเป็นท่าจบ (เช่น ท่าดิ้นหลุด)
+    private PairedAnimationId _playing;
+    private bool _loopReleased;
+
     private Vector3 _snapFromPosition;
     private Quaternion _snapFromRotation;
     private Vector3 _startPosition;
@@ -136,6 +141,9 @@ public class PairedAnimationActor : MonoBehaviour
     public bool IsBusy => HasAnyPending || _phase != Phase.Idle;
     public bool IsPreparing => _phase == Phase.Prepare;
     public bool IsFinished => _phase == Phase.Finished;
+
+    // ท่า Loop กำลังวนค้างอยู่ รอใครสักคนสั่ง EndLoop
+    public bool IsLooping => _phase == Phase.Play && _playing != null && _playing.Loop && !_loopReleased;
     public PairedRequest CurrentRequest => _current;
 
     private bool HasAnyPending =>
@@ -225,13 +233,43 @@ public class PairedAnimationActor : MonoBehaviour
             _locomotion.MoveMode = LocomotionMoveMode.FullRootMotion;
         }
 
-        PairedAnimationId animation = _current.Animation;
-        PlayState(_bodyAnimator, animation.Body.Layer, animation.Body.StateName, animation.TransitionDuration);
-        PlayState(_armAnimator, animation.Arm.Layer, animation.Arm.StateName, animation.TransitionDuration);
+        _playing = _current.Animation;
+        _loopReleased = false;
+        _bodyStateHash = Animator.StringToHash(_playing.Body.StateName ?? string.Empty);
+        PlayState(_bodyAnimator, _playing.Body.Layer, _playing.Body.StateName, _playing.TransitionDuration);
+        PlayState(_armAnimator, _playing.Arm.Layer, _playing.Arm.StateName, _playing.TransitionDuration);
 
         _hasEnteredState = false;
         _elapsed = 0f;
         _phase = Phase.Play;
+    }
+
+    // ปล่อยท่า Loop — ใส่ท่าจบ (เช่น ดิ้นหลุด) จะเล่นต่อจนจบแล้วค่อย Finished / ว่าง = จบทันที
+    public void EndLoop(PairedAnimationId finishAnimation)
+    {
+        if (_phase == Phase.Prepare)
+        {
+            Finish();
+            return;
+        }
+
+        if (_phase != Phase.Play || _loopReleased)
+            return;
+
+        _loopReleased = true;
+
+        if (finishAnimation == null || string.IsNullOrWhiteSpace(finishAnimation.Body.StateName))
+        {
+            Finish();
+            return;
+        }
+
+        _playing = finishAnimation;
+        _bodyStateHash = Animator.StringToHash(finishAnimation.Body.StateName);
+        PlayState(_bodyAnimator, finishAnimation.Body.Layer, finishAnimation.Body.StateName, finishAnimation.TransitionDuration);
+        PlayState(_armAnimator, finishAnimation.Arm.Layer, finishAnimation.Arm.StateName, finishAnimation.TransitionDuration);
+        _hasEnteredState = false;
+        _elapsed = 0f;
     }
 
     public void Tick()
@@ -246,7 +284,7 @@ public class PairedAnimationActor : MonoBehaviour
     {
         if (_hasTakenControl)
         {
-            PairedAnimationId animation = _current.Animation;
+            PairedAnimationId animation = _playing != null ? _playing : _current.Animation;
             if (animation != null && _phase != Phase.Prepare)
             {
                 PlayExit(_bodyAnimator, animation.Body, animation.TransitionDuration);
@@ -263,6 +301,8 @@ public class PairedAnimationActor : MonoBehaviour
         _hasTakenControl = false;
         _phase = Phase.Idle;
         _current = default;
+        _playing = null;
+        _loopReleased = false;
     }
 
     private void UpdatePrepare()
@@ -281,7 +321,7 @@ public class PairedAnimationActor : MonoBehaviour
 
     private void UpdatePlay()
     {
-        PairedAnimationId animation = _current.Animation;
+        PairedAnimationId animation = _playing;
         _elapsed += Time.deltaTime;
 
         bool inState = TryGetStateTime(_bodyAnimator, animation.Body.Layer, _bodyStateHash, out float stateTime);
@@ -290,7 +330,10 @@ public class PairedAnimationActor : MonoBehaviour
 
         // ไม่ใช้ UpCurve / ForwardCurve ขยับตัวละครแล้ว ปล่อยให้ FullRootMotion ใน BaseLocomotion ขยับ 100%
 
-        if (_hasEnteredState && (!inState || stateTime >= 1f))
+        // ท่า Loop ไม่จบเอง ต้องรอ EndLoop
+        bool holdLoop = animation.Loop && !_loopReleased;
+
+        if (_hasEnteredState && !holdLoop && (!inState || stateTime >= 1f))
         {
             Finish();
         }

@@ -685,6 +685,65 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 777a677026287794c836349a288e0995, type: 3}
+--- !u!1 &182773185
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 182773187}
+  - component: {fileID: 182773186}
+  m_Layer: 0
+  m_Name: RandomAmbientSequencer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &182773186
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 182773185}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2d11e12877538c4a8d5c77fbaf593b9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RandomAmbientSequencer
+  _sounds:
+  - {fileID: 11400000, guid: bee03ee04fa73b84db1c74568234ae0f, type: 2}
+  - {fileID: 11400000, guid: fc14dc5f1119afa42a9704603a8d1191, type: 2}
+  - {fileID: 11400000, guid: 0a13969328008ca429d8effea485175c, type: 2}
+  - {fileID: 11400000, guid: a378433d39d3fa7429a3cad4f67a86a9, type: 2}
+  _minInterval: 1
+  _maxInterval: 2
+  _startDelay: 8
+  _positionAroundListener: 1
+  _minDistance: 6
+  _maxDistance: 8
+  _heightVariation: 2
+  _skipDuringCutscene: 1
+  _avoidRepeat: 1
+  _logPlays: 0
+--- !u!4 &182773187
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 182773185}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &193239324
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4791,6 +4850,56 @@ Transform:
   m_Children: []
   m_Father: {fileID: 242899610}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &761421104
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 761421106}
+  - component: {fileID: 761421105}
+  m_Layer: 0
+  m_Name: BattleMusicController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &761421105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 761421104}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51beb8fd57a288746949e613f0614f37, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BattleMusicController
+  _onEnterBattle: {fileID: 11400000, guid: b8ce22274883fd844a112f11326fa3cb, type: 2}
+  _onEnterIdle: {fileID: 11400000, guid: 70924c209c91e1e48ae830155e5500e6, type: 2}
+  _idleMusic: {fileID: 11400000, guid: 18c340755bcf8ad42992e7bcef1cde2e, type: 2}
+  _battleMusic: {fileID: 11400000, guid: 0fdede9a04a8e344f8bd1c2720d2e698, type: 2}
+  _playIdleOnStart: 1
+  _logStateChange: 1
+--- !u!4 &761421106
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 761421104}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.25088, y: -0, z: 8.4835}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &766172542
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8365,6 +8474,8 @@ MonoBehaviour:
   _renderers: []
   _dissolveMaterial: {fileID: 2100000, guid: 70e8f820fd329144081a561d9fe12fae, type: 2}
   _amountProperty: _DissolveAmount
+  _logMaterialCopy: 1
+  _logSteps: 1
   _delay: 0.2
   _duration: 1.5
   _visibleAmount: 0
@@ -8890,6 +9001,56 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 777a677026287794c836349a288e0995, type: 3}
+--- !u!1 &1913234148
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1913234150}
+  - component: {fileID: 1913234149}
+  m_Layer: 0
+  m_Name: LevelAudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &1913234149
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1913234148}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19f8d0478e10dad40858b38539d4c088, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LevelAudioManager
+  sceneBGM: {fileID: 0}
+  logMuffleCalls: 0
+  cutsceneAmbientMultiplier: 0.4
+  cutsceneFadeTime: 1
+  outsideAmbientSounds:
+  - {fileID: 11400000, guid: cdff1f107d41ab64191bd624db954c84, type: 2}
+--- !u!4 &1913234150
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1913234148}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 879.19104, y: 440.9966, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1944258205
 GameObject:
   m_ObjectHideFlags: 0
@@ -9724,3 +9885,6 @@ SceneRoots:
   - {fileID: 766172542}
   - {fileID: 588629143}
   - {fileID: 614685074}
+  - {fileID: 182773187}
+  - {fileID: 761421106}
+  - {fileID: 1913234150}

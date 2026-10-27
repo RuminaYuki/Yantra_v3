@@ -19,7 +19,7 @@ namespace Yuki.Learning.StateMachine
 
             foreach (StateAction action in actions)
             {
-                action.Awake(stateMachine);
+                action.Initialize(stateMachine);
             }
             _actions = Array.FindAll(actions, action => !action.IsDisabled);
         }

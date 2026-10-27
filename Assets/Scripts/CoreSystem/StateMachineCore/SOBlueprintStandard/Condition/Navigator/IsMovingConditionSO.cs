@@ -55,7 +55,9 @@ public class IsMovingCondition : Condition
 
     protected override void OnTick()
     {
-        if (_owner == null || Time.deltaTime <= 0f)
+        // ใช้ delta ของ state machine: ตัวที่ถูก slow ยังนับว่า "กำลังเดิน" ด้วย threshold เดิม
+        float dt = Time.DeltaTime;
+        if (_owner == null || dt <= 0f)
         {
             return;
         }
@@ -67,11 +69,11 @@ public class IsMovingCondition : Condition
             delta.y = 0f;
         }
 
-        float rawSpeed = delta.magnitude / Time.deltaTime;
+        float rawSpeed = delta.magnitude / dt;
 
         CurrentSpeed = _smoothing <= 0f
             ? rawSpeed
-            : Mathf.Lerp(CurrentSpeed, rawSpeed, 1f - Mathf.Exp(-_smoothing * Time.deltaTime));
+            : Mathf.Lerp(CurrentSpeed, rawSpeed, 1f - Mathf.Exp(-_smoothing * dt));
     }
 
     protected override bool Statement()

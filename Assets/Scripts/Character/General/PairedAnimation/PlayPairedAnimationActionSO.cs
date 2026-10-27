@@ -239,7 +239,7 @@ public class PlayPairedAnimationAction : StateAction
         if (!_isPreparing)
             return;
 
-        _preparationElapsed += Time.deltaTime;
+        _preparationElapsed += UnityEngine.Time.deltaTime;   // camera timeout: world time, not the character's
         float minimumTime = _request.Animation != null ? _request.Animation.SnapDuration : 0f;
         bool pitchCentered = _camera != null &&
             Mathf.Abs(_camera.CameraRotation.y) <= 0.05f &&
