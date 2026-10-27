@@ -17,6 +17,22 @@ MonoBehaviour:
   layerIndex: 0
   finishTime: 0
   extraSeconds: 0
+--- !u!114 &-8333454843085663134
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b4617ca13e18154ab1b5632de63a9c3, type: 3}
+  m_Name: Burrowing_Group_Action
+  m_EditorClassIdentifier: Assembly-CSharp::GroupActionSO
+  _selfAnchor: {fileID: 0}
+  _actions:
+  - {fileID: 3946619953045979342}
+  - {fileID: 7879996508394324503}
 --- !u!114 &-8328554604172996139
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -151,24 +167,10 @@ MonoBehaviour:
   - FromState: {fileID: 4857598221223251227}
     ConditionGroups:
     - Conditions:
-      - Condition: {fileID: -6991968770991651269}
-        ExpectedResult: 0
-    ToState: {fileID: 280113622199568939}
-    Id: 737d519d-ffd0-4024-9518-b197956940d7
-  - FromState: {fileID: 280113622199568939}
-    ConditionGroups:
-    - Conditions:
       - Condition: {fileID: -7893609018704758165}
         ExpectedResult: 0
     ToState: {fileID: 3877864877082832280}
-    Id: 2673aee7-61c4-4897-becf-afea0ca497f2
-  - FromState: {fileID: 280113622199568939}
-    ConditionGroups:
-    - Conditions:
-      - Condition: {fileID: 5655249779303119488}
-        ExpectedResult: 0
-    ToState: {fileID: 4857598221223251227}
-    Id: 32b888a3-4da9-4721-a533-ed1464977776
+    Id: 74158470-a467-4d9a-b430-f8f979217132
   _base: {fileID: 0}
   _fieldOverrides: []
   _removedIds: []
@@ -180,15 +182,19 @@ MonoBehaviour:
   _exposedParameters: {fileID: 3406922056072897844}
   _nodePositions:
   - State: {fileID: 4857598221223251227}
-    Position: {x: 195, y: 0}
+    Position: {x: 164, y: -2}
   - State: {fileID: 3877864877082832280}
-    Position: {x: 386, y: 65}
-  - State: {fileID: 280113622199568939}
-    Position: {x: 195, y: 65}
+    Position: {x: 147, y: 73}
   _entryNodePosition: {x: 0, y: 0}
-  _anyStateNodePosition: {x: 0, y: 120}
-  _contentsFolders: []
-  _contentsFolderPaths: []
+  _anyStateNodePosition: {x: 2, y: 70}
+  _contentsFolders:
+  - Item: {fileID: -2214602330484021119}
+    Folder: RepeatDeahtBlossomAnim
+  - Item: {fileID: 916758302756585191}
+    Folder: RepeatDeahtBlossomAnim
+  _contentsFolderPaths:
+  - Group: Actions
+    Path: RepeatDeahtBlossomAnim
   _stateDisplayNames: []
   _removedParameters: []
 --- !u!114 &-6761734385814222937
@@ -227,7 +233,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 13e31a6492864794f9d364c3dc14d9dd, type: 3}
-  m_Name: RestStartCooldown_Action
+  m_Name: Rest_StartCooldown_Action
   m_EditorClassIdentifier: Assembly-CSharp::StartCooldownActionSO
   _selfAnchor: {fileID: 0}
   _cooldown: {fileID: 11400000, guid: 75c307c80ddee504db0bf0bb73335527, type: 2}
@@ -388,8 +394,7 @@ MonoBehaviour:
   m_Name: BurrowingToPrepareATK
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
-  - {fileID: 3946619953045979342}
-  - {fileID: 1898925047156986070}
+  - {fileID: -8333454843085663134}
 --- !u!114 &-5261541522726581089
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -477,11 +482,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
-  m_Name: Burrowing
+  m_Name: BurrowingToRest
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
-  - {fileID: 3946619953045979342}
-  - {fileID: 1898925047156986070}
+  - {fileID: 7131593150393633867}
+  - {fileID: -8333454843085663134}
 --- !u!114 &-3411280740989632322
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -496,6 +501,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExitSubStateMachineActionSO
   _selfAnchor: {fileID: 0}
   _exitId: ExitToRest
+--- !u!114 &-2934392541409511602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9942d9bd8f1e0b0459cea61a31bda641, type: 3}
+  m_Name: Rest_RandomPicked_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::RandomPickedConditionSO
+  _selfAnchor: {fileID: 0}
+  _pool: {fileID: 11400000, guid: e167968d1872e5f4e827f767fc8ae440, type: 2}
+  _option: {fileID: 11400000, guid: 24e3be00ec5937044b8da6bfa907b759, type: 2}
 --- !u!114 &-2602068328119213129
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -587,6 +607,25 @@ MonoBehaviour:
   _fallbackPrefab: {fileID: 6334340395841921896, guid: 380480700b7ca8f42830a12ca31c966b, type: 3}
   _targetAnchor: {fileID: 11400000, guid: ded8b5ee8f0dd57488cc9fa0e5c0d061, type: 2}
   _targetOffset: {x: 0, y: 1, z: 0}
+--- !u!114 &-2214602330484021119
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bf803a9cd311c443874aa4244011285, type: 3}
+  m_Name: DeathBlossomAnim_Repeat_Action
+  m_EditorClassIdentifier: Assembly-CSharp::RepeatActionSO
+  _selfAnchor: {fileID: 0}
+  _actions:
+  - {fileID: 916758302756585191}
+  _roundEndsWhen: {fileID: -6991968770991651269}
+  _counter: {fileID: 11400000, guid: 8fd082c4a046d78438bcb766fe16ba16, type: 2}
+  _count: 3
+  _exitEveryRound: 1
 --- !u!114 &-1956449057561256609
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -639,7 +678,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7a4c24e552329624bbd6bd5cfef99b8b, type: 3}
-  m_Name: DeathBlossomResetChangeCounter_Action
+  m_Name: DeathBlossomReset_ChangeCounter_Action
   m_EditorClassIdentifier: Assembly-CSharp::ChangeCounterActionSO
   _selfAnchor: {fileID: 0}
   _counter: {fileID: 11400000, guid: 8fd082c4a046d78438bcb766fe16ba16, type: 2}
@@ -792,6 +831,8 @@ MonoBehaviour:
     - Conditions:
       - Condition: {fileID: 1790145170704217784}
         ExpectedResult: 0
+      - Condition: {fileID: -2934392541409511602}
+        ExpectedResult: 0
     ToState: {fileID: -6140166368431256099}
     Id: 52655e09-8945-4c5f-ad1c-fc76e65e9c05
   - FromState: {fileID: -250177761744804098}
@@ -847,6 +888,15 @@ MonoBehaviour:
         ExpectedResult: 0
     ToState: {fileID: -3866483475985023219}
     Id: f7731c54-c742-4ca5-b7ef-9c40c9f00ed4
+  - FromState: {fileID: -3866483475985023219}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 1790145170704217784}
+        ExpectedResult: 0
+      - Condition: {fileID: 865648703522994665}
+        ExpectedResult: 0
+    ToState: {fileID: 4798041465453816357}
+    Id: c4dd1e40-c38f-41b1-96f0-bd08a7789fa4
   _base: {fileID: 0}
   _fieldOverrides: []
   _removedIds: []
@@ -916,6 +966,26 @@ MonoBehaviour:
     Folder: Navigator/Rest
   - Item: {fileID: -7472285065994476893}
     Folder: Navigator/Rest
+  - Item: {fileID: -8333454843085663134}
+    Folder: BurrowingGroup
+  - Item: {fileID: 7879996508394324503}
+    Folder: BurrowingGroup
+  - Item: {fileID: 1898925047156986070}
+    Folder: BurrowingGroup
+  - Item: {fileID: -2594195061900493074}
+    Folder: Other
+  - Item: {fileID: 5655249779303119488}
+    Folder: Other
+  - Item: {fileID: -2441834422539578995}
+    Folder: Other
+  - Item: {fileID: 1896445126729073591}
+    Folder: Other
+  - Item: {fileID: 6037934602718916035}
+    Folder: Other
+  - Item: {fileID: -2934392541409511602}
+    Folder: RestRandomPicker
+  - Item: {fileID: 865648703522994665}
+    Folder: RestRandomPicker
   _contentsFolderPaths:
   - Group: Actions
     Path: Animator
@@ -927,21 +997,14 @@ MonoBehaviour:
     Path: Navigator
   - Group: Actions
     Path: Navigator/PrepareAttack
+  - Group: Actions
+    Path: BurrowingGroup
+  - Group: Conditions
+    Path: Other
+  - Group: Conditions
+    Path: RestRandomPicker
   _stateDisplayNames: []
   _removedParameters: []
---- !u!114 &280113622199568939
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
-  m_Name: NullDeathBlossom
-  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
-  _actions: []
 --- !u!114 &421504577681913907
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -960,6 +1023,21 @@ MonoBehaviour:
   _offsetMax: {x: 1, y: 0, z: 1.25}
   _maxAttempts: 8
   _faceTarget: 1
+--- !u!114 &865648703522994665
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9942d9bd8f1e0b0459cea61a31bda641, type: 3}
+  m_Name: Prepare_RandomPicked_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::RandomPickedConditionSO
+  _selfAnchor: {fileID: 0}
+  _pool: {fileID: 11400000, guid: e167968d1872e5f4e827f767fc8ae440, type: 2}
+  _option: {fileID: 11400000, guid: bbf78fcba49fbd246908a80ae2162f17, type: 2}
 --- !u!114 &916758302756585191
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -970,7 +1048,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 77e8ae40d928604408f37497243c6985, type: 3}
-  m_Name: DeathBlossomPlayAnimState_Action
+  m_Name: DeathBlossom_PlayAnimState_Action
   m_EditorClassIdentifier: Assembly-CSharp::PlayAnimatorStateActionSO
   _selfAnchor: {fileID: 0}
   _stateName: DeathBlossom
@@ -1102,8 +1180,7 @@ MonoBehaviour:
   m_Name: Burrowing
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
-  - {fileID: 3946619953045979342}
-  - {fileID: 1898925047156986070}
+  - {fileID: -8333454843085663134}
 --- !u!114 &3184415026357308539
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1118,23 +1195,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: 7485206492641367341}
---- !u!114 &3327510370578035778
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a4c24e552329624bbd6bd5cfef99b8b, type: 3}
-  m_Name: DeathBlossomChangeCounter_Action
-  m_EditorClassIdentifier: Assembly-CSharp::ChangeCounterActionSO
-  _selfAnchor: {fileID: 0}
-  _counter: {fileID: 11400000, guid: 8fd082c4a046d78438bcb766fe16ba16, type: 2}
-  _operation: 1
-  _value: 1
-  _when: 0
 --- !u!114 &3406922056072897844
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1148,83 +1208,98 @@ MonoBehaviour:
   m_Name: Exposed_Parameters
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.ExposedParametersSO
   _parameters:
-  - _name: RestStartCooldown_Action.MinDuration
+  - _name: RestStartCooldown.MinDuration
     _bindings:
     - _target: {fileID: -6264164636885564472}
       _fieldName: _minDuration
     _category: RestState/RestTimer
-  - _name: RestStartCooldown_Action.MaxDuration
+  - _name: RestStartCooldown.MaxDuration
     _bindings:
     - _target: {fileID: -6264164636885564472}
       _fieldName: _maxDuration
     _category: RestState/RestTimer
-  - _name: PrepareATKTimeInState_MinDuration
+  - _name: PrepareATKTimeInState.MinDuration
     _bindings:
     - _target: {fileID: -1751025949700094690}
       _fieldName: minDuration
     _category: PrepareAttack/TimeInState
-  - _name: PrepareATKTimeInState_MaxDuration
+  - _name: PrepareATKTimeInState.MaxDuration
     _bindings:
     - _target: {fileID: -1751025949700094690}
       _fieldName: maxDuration
     _category: PrepareAttack/TimeInState
-  - _name: PrepareATKTeleportAnchorMin
+  - _name: PrepareATKTeleportAnchor.Min
     _bindings:
     - _target: {fileID: 8081074778761077577}
       _fieldName: _ringParameters.minDistance
     - _target: {fileID: -3936094420739335838}
       _fieldName: _offsetMin.z
     _category: PrepareAttack/TeleportAroundPlayer
-  - _name: PrepareATKTeleportAnchorMax
+  - _name: PrepareATKTeleportAnchor.Max
     _bindings:
     - _target: {fileID: 8081074778761077577}
       _fieldName: _ringParameters.radius
     - _target: {fileID: -3936094420739335838}
       _fieldName: _offsetMax.z
     _category: PrepareAttack/TeleportAroundPlayer
-  - _name: NormalATKSetAnimDamageParameter_Action.DamageAmount
+  - _name: NormalATK.DamageAmount
     _bindings:
     - _target: {fileID: -304040775506763751}
       _fieldName: _attackParameters.damageAmount
     _category: NormalAttack/AttackParameter
-  - _name: NormalATKSetAnimDamageParameter_Action.AttackRange
+  - _name: NormalATK.AttackRange
     _bindings:
     - _target: {fileID: -304040775506763751}
       _fieldName: _attackParameters.attackRange
     _category: NormalAttack/AttackParameter
-  - _name: NormalATKSetAnimDamageParameter_Action.AttackRadius
+  - _name: NormalATK.AttackRadius
     _bindings:
     - _target: {fileID: -304040775506763751}
       _fieldName: _attackParameters.attackRadius
     _category: NormalAttack/AttackParameter
-  - _name: RestTeleportAnchorMin
+  - _name: RestTeleportAnchor.Min
     _bindings:
     - _target: {fileID: -7472285065994476893}
       _fieldName: _ringParameters.minDistance
     - _target: {fileID: 7057493912611012562}
       _fieldName: _offsetMin.z
     _category: RestState/TeleportAroundPlayer
-  - _name: RestTeleportAnchorMax
+  - _name: RestTeleportAnchor.Max
     _bindings:
     - _target: {fileID: -7472285065994476893}
       _fieldName: _ringParameters.radius
     - _target: {fileID: 7057493912611012562}
       _fieldName: _offsetMax.z
     _category: RestState/TeleportAroundPlayer
-  - _name: NormalAttackTeleportAnchorMin
+  - _name: NormalAttackTeleportAnchor.Min
     _bindings:
     - _target: {fileID: -2440816541855557872}
       _fieldName: _ringParameters.minDistance
     - _target: {fileID: 421504577681913907}
       _fieldName: _offsetMin.z
     _category: NormalAttack/TeleportToAnchor
-  - _name: NormalAttackTeleportAnchorMax
+  - _name: NormalAttackTeleportAnchor.Max
     _bindings:
     - _target: {fileID: -2440816541855557872}
       _fieldName: _ringParameters.radius
     - _target: {fileID: 421504577681913907}
       _fieldName: _offsetMax.z
     _category: NormalAttack/TeleportToAnchor
+  - _name: DeathBlossom.ProjectileDamage
+    _bindings:
+    - _target: {fileID: -2246391376952511542}
+      _fieldName: _config.damage
+    _category: DeathBlossom/ProjectileConfig
+  - _name: DeathBlossom.ProjectileSpeed
+    _bindings:
+    - _target: {fileID: -2246391376952511542}
+      _fieldName: _config.projectileSpeed
+    _category: DeathBlossom/ProjectileConfig
+  - _name: DeathBlossomHit.Count
+    _bindings:
+    - _target: {fileID: -2214602330484021119}
+      _fieldName: _count
+    _category: DeathBlossom
 --- !u!114 &3877864877082832280
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1275,7 +1350,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SubStateMachineActionSO
   _selfAnchor: {fileID: 0}
   _transitionTable: {fileID: -6770472972828221010}
-  _forceExitState: {fileID: 0}
+  _forceExitState: {fileID: 3877864877082832280}
 --- !u!114 &4723500324061256117
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1324,10 +1399,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: -2246391376952511542}
-  - {fileID: 916758302756585191}
-  - {fileID: 916758302756585191}
+  - {fileID: -2214602330484021119}
   - {fileID: 6510767695726320371}
-  - {fileID: 3327510370578035778}
 --- !u!114 &4909592212119637531
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1531,6 +1604,20 @@ MonoBehaviour:
   _offsetMax: {x: 3.5, y: 0, z: 12}
   _maxAttempts: 8
   _faceTarget: 1
+--- !u!114 &7131593150393633867
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f45f29be3089ac444a6a4db4bae888af, type: 3}
+  m_Name: Rest_RollRandomPool_Action
+  m_EditorClassIdentifier: Assembly-CSharp::RollRandomPoolActionSO
+  _selfAnchor: {fileID: 0}
+  _pool: {fileID: 11400000, guid: e167968d1872e5f4e827f767fc8ae440, type: 2}
 --- !u!114 &7201636916893211207
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1596,6 +1683,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CooldownReadyConditionSO
   _selfAnchor: {fileID: 0}
   _cooldown: {fileID: 11400000, guid: 75c307c80ddee504db0bf0bb73335527, type: 2}
+--- !u!114 &7879996508394324503
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6242ce9779011754583216c1b6d67946, type: 3}
+  m_Name: PassThroughSetLayer_Timed_Action
+  m_EditorClassIdentifier: Assembly-CSharp::TimedActionSO
+  _selfAnchor: {fileID: 0}
+  _unit: 1
+  _start: 0.5
+  _end: 1
+  _action: {fileID: 1898925047156986070}
+  _stateName: Jump_ShowDown
+  _layerIndex: 0
 --- !u!114 &8081074778761077577
 MonoBehaviour:
   m_ObjectHideFlags: 0

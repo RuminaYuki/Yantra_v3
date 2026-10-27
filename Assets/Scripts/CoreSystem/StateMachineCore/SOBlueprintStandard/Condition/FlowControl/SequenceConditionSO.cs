@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "NewSequence_Condition",
-    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/Sequence")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/FlowControl/Sequence")]
 public class SequenceConditionSO : StateConditionSO
 {
     [Tooltip("Waited on first. Once it matches it's done with: it doesn't have to stay matching.")]

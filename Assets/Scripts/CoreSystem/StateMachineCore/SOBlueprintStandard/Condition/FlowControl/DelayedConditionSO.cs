@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 [CreateAssetMenu(
     fileName = "NewDelayed_Condition",
-    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/Delayed")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/FlowControl/Delayed")]
 public class DelayedConditionSO : StateConditionSO
 {
     public enum DelayMode
