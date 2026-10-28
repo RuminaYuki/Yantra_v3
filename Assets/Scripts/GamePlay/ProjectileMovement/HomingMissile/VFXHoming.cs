@@ -8,8 +8,12 @@ public class VFXHoming : MonoBehaviour
     [SerializeField] VisualEffect vfx;
     [SerializeField] string vfxPositionPropertyName = "InitializePosition";
 
+    private bool isDestroying = false;
+
     private void Update()
     {
+        if (isDestroying) return;
+
         if (target == null)
         {
             Debug.LogWarning("Target is not assigned.");
