@@ -25,14 +25,21 @@ public static class SaveFileService
 
         string path = PathOf(slot);
         string tmp = path + ".tmp";
+        string bak = path + ".bak";
 
         try
         {
             Directory.CreateDirectory(Folder);
             File.WriteAllText(tmp, JsonUtility.ToJson(data, true));
 
-            if (File.Exists(path)) File.Replace(tmp, path, path + ".bak");
-            else File.Move(tmp, path);
+            // Swap the files by hand instead of File.Replace:
+            // Mono's File.Replace on Windows can crash the Editor when the target already exists.
+            if (File.Exists(path))
+            {
+                if (File.Exists(bak)) File.Delete(bak);
+                File.Move(path, bak);   // old save -> .bak
+            }
+            File.Move(tmp, path);       // new save -> main file
 
             return true;
         }
