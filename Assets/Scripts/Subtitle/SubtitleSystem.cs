@@ -37,9 +37,17 @@ public class SubtitleSystem : MonoBehaviour
 
     private Coroutine _subtitleCoroutine;
     private bool _isHeld;
+    private bool _skipLineRequested;
 
     /// <summary>ตอนนี้มีบทพูดเล่นอยู่มั้ย (เผื่อระบบอื่นอยากเช็คก่อนแทรก)</summary>
     public bool IsPlaying => _subtitleCoroutine != null;
+
+    /// <summary>ข้ามไปประโยคถัดไป (ตัดเสียงพากย์ประโยคนี้ทิ้ง) — ประโยคสุดท้ายแล้วจะจบบทเลย</summary>
+    public void SkipLine()
+    {
+        if (_subtitleCoroutine != null)
+            _skipLineRequested = true;
+    }
 
     private void Awake()
     {
@@ -113,6 +121,7 @@ public class SubtitleSystem : MonoBehaviour
         }
 
         _isHeld = false;
+        _skipLineRequested = false;
         StopVoice();
 
         OnSubtitleToggle?.Invoke(false);
@@ -128,20 +137,29 @@ public class SubtitleSystem : MonoBehaviour
 
         foreach (var line in subtitleData.Lines)
         {
+            _skipLineRequested = false;
             OnSubtitleUpdate?.Invoke(BuildDisplayText(line));
 
             // รอให้ซับเฟดขึ้นมาก่อนค่อยปล่อยเสียง
             if (voiceDelayToMatchFade > 0f)
                 yield return WaitWhileRunning(voiceDelayToMatchFade);
 
-            float waitTime = PlayLineVoice(line);
-            waitTime = Mathf.Max(waitTime, GetFallbackDuration(line));
+            if (!_skipLineRequested)
+            {
+                float waitTime = PlayLineVoice(line);
+                waitTime = Mathf.Max(waitTime, GetFallbackDuration(line));
 
-            yield return WaitWhileRunning(waitTime);
+                yield return WaitWhileRunning(waitTime);
+            }
 
-            if (gapBetweenLines > 0f)
+            // กดข้าม — ตัดแค่เสียงประโยคนี้ เพลงยังหรี่ค้างไว้จนจบบท
+            if (_skipLineRequested)
+                StopLineVoice();
+            else if (gapBetweenLines > 0f)
                 yield return WaitWhileRunning(gapBetweenLines);
         }
+
+        _skipLineRequested = false;
 
         if (routeVoiceThroughSoundManager && SoundManager.Instance != null)
             SoundManager.Instance.SetVoiceDuckHold(false);
@@ -156,7 +174,7 @@ public class SubtitleSystem : MonoBehaviour
     {
         float elapsed = 0f;
 
-        while (elapsed < seconds)
+        while (elapsed < seconds && !_skipLineRequested)
         {
             if (!ShouldHold())
                 elapsed += Time.unscaledDeltaTime;
@@ -218,6 +236,15 @@ public class SubtitleSystem : MonoBehaviour
 
         if (fallbackAudioSource != null)
             fallbackAudioSource.UnPause();
+    }
+
+    private void StopLineVoice()
+    {
+        if (routeVoiceThroughSoundManager && SoundManager.Instance != null)
+            SoundManager.Instance.StopVoice();
+
+        if (fallbackAudioSource != null)
+            fallbackAudioSource.Stop();
     }
 
     private void StopVoice()

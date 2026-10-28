@@ -26,11 +26,15 @@ public class GameOverScreen : UIScreen
         if (_freezeTime) Time.timeScale = 1f;
     }
 
-    /// <summary>เล่นด่านเดิมใหม่</summary>
+    /// <summary>เล่นใหม่ — มีเซฟก็กลับไปจุดเซฟล่าสุด ไม่มีเซฟก็โหลดด่านเดิมใหม่</summary>
     public void OnRetryClicked()
     {
         Time.timeScale = 1f;
         UIManager.Instance.CloseAll(instant: true);
+
+        SaveManager save = SaveManager.Instance;
+        if (save != null && save.LoadLastSave())
+            return;
 
         SceneLoader.Instance.ReloadCurrentScene();
     }
