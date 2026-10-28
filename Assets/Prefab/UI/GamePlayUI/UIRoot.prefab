@@ -5612,6 +5612,75 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &2819904589065516920
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1914849838760009068}
+  - component: {fileID: 5732919201735773735}
+  m_Layer: 5
+  m_Name: ScreenBlood
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1914849838760009068
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2819904589065516920}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5000963256050386043}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &5732919201735773735
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2819904589065516920}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1518da7f37d82cc45b4cf20b1373cd46, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScreenBloodOverlay
+  _splats:
+  - {fileID: 2800000, guid: be76340726f209043ac8056571c51203, type: 3}
+  - {fileID: 2800000, guid: 3adc3ead68cf5694d8679cef2e901bbd, type: 3}
+  - {fileID: 2800000, guid: 3afac813dbf9e894e9d057bdd9918799, type: 3}
+  - {fileID: 2800000, guid: 7fdd1a81736051745ae8b7857d29cb05, type: 3}
+  - {fileID: 2800000, guid: 9c557c39fac14384c88d6a9160dcc186, type: 3}
+  - {fileID: 2800000, guid: a17a8ce55e540d646bfa3983de2bb06d, type: 3}
+  _tint: {r: 1, g: 1, b: 1, a: 1}
+  _minCount: 2
+  _maxCount: 4
+  _minSize: 0.35
+  _maxSize: 0.7
+  _keepCenterClear: 0.35
+  _popTime: 0.06
+  _holdTime: 1.2
+  _fadeTime: 1.5
+  _slideDistance: 0.015
+  _dripStretch: 0.1
+  _hideWhenMenuOpen: 1
+  _maxOnScreen: 12
+  _logSplash: 0
 --- !u!1 &2825107849719694851
 GameObject:
   m_ObjectHideFlags: 0
@@ -10870,6 +10939,7 @@ RectTransform:
   - {fileID: 2970944579046504223}
   - {fileID: 6909034163274291919}
   - {fileID: 1814178094374366160}
+  - {fileID: 1914849838760009068}
   - {fileID: 696735227681929228}
   - {fileID: 8354375621148846018}
   m_Father: {fileID: 0}

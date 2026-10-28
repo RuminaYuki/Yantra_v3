@@ -383,6 +383,8 @@ GameObject:
   - component: {fileID: 5576540633263213476}
   - component: {fileID: 5098707057134905944}
   - component: {fileID: 1002007669417644985}
+  - component: {fileID: 5584625577014986441}
+  - component: {fileID: 3947757692435528440}
   m_Layer: 7
   m_Name: EnemeyController
   m_TagString: Enemy
@@ -886,6 +888,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 5584625577014986441}
+        m_TargetAssemblyTypeName: DissolveSoundPlayer, Assembly-CSharp
+        m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   _onDissolveFinished:
     m_PersistentCalls:
       m_Calls: []
@@ -906,6 +920,35 @@ MonoBehaviour:
   _amountProperty: _DissolveAmount
   _fadeFaster: 5
   _logSteps: 0
+--- !u!114 &5584625577014986441
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1362228334903577606}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db825033d94e3b3409075006dd28840b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DissolveSoundPlayer
+  _sound: {fileID: 11400000, guid: ffce35e189e255444a3e529047b482ff, type: 2}
+--- !u!114 &3947757692435528440
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1362228334903577606}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85cd48f97c96de340808032fd6a120f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GlorySoundPlayer
+  _sound: {fileID: 11400000, guid: 734719fc9b7b5894caa0c036903f46ed, type: 2}
+  _useTimedSounds: 0
+  _timedSounds: []
+  _logPlay: 0
 --- !u!1 &1696219248566727934
 GameObject:
   m_ObjectHideFlags: 0
@@ -998,6 +1041,7 @@ GameObject:
   - component: {fileID: 3514192086412688569}
   - component: {fileID: 8449954458309523893}
   - component: {fileID: 5210573628592056479}
+  - component: {fileID: 6868712533054142343}
   m_Layer: 12
   m_Name: TestButtonInteract
   m_TagString: Untagged
@@ -1095,7 +1139,29 @@ MonoBehaviour:
   _victim: {fileID: 1682672883883980451}
   _playerAnimation: {fileID: 11400000, guid: f0df5507a2c6b8a4ba07fb6cd07eb755, type: 2}
   _victimAnimation: {fileID: 11400000, guid: f3f77b162d6deb8479c0beb4f44eb5ac, type: 2}
-  _distance: 1.2
+  _distance: 1.1
+--- !u!114 &6868712533054142343
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2702147522898941712}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b5c45b748985d5141a5c329aea9d1239, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GloryBloodTrigger
+  _bloodTimes:
+  - 0.7
+  - 1.7
+  - 2.7
+  _splatterEffect: {fileID: 7188267930824792108, guid: f61ce61c3e2f30d4f9d1d1fd6cd66549, type: 3}
+  _effectPoint: {fileID: 8750988943549715822}
+  _direction: 0
+  _effectLifetime: 15
+  _splashScreen: 1
+  _logPlay: 0
 --- !u!1 &4119834516680558976
 GameObject:
   m_ObjectHideFlags: 0
@@ -1329,6 +1395,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7247124060316814567}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8351965730536542894
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8750988943549715822}
+  m_Layer: 0
+  m_Name: BloodHead
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8750988943549715822
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8351965730536542894}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.000043632626, y: 0.9999989, z: -0.000000029802315, w: 0.0015140875}
+  m_LocalPosition: {x: -0, y: 0.003, z: 0.065}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1641637414839960573}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &406140075213461473
 PrefabInstance:
@@ -1773,8 +1870,16 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: 610e169f9d184014992b9a1382c2eef7, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1070177650532018801}
+    - targetCorrespondingSourceObject: {fileID: -734076753103460111, guid: 610e169f9d184014992b9a1382c2eef7, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8750988943549715822}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 610e169f9d184014992b9a1382c2eef7, type: 3}
+--- !u!4 &1641637414839960573 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -734076753103460111, guid: 610e169f9d184014992b9a1382c2eef7, type: 3}
+  m_PrefabInstance: {fileID: 7140542502496611084}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &6958758719593242486 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8968294421659224966, guid: 610e169f9d184014992b9a1382c2eef7, type: 3}

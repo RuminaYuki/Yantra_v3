@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(Animator))]
@@ -16,6 +17,12 @@ public class AnimationProgressDriver : MonoBehaviour
     [Header("Setting")]
     [SerializeField] float speedMultiple = 1f;
 
+    [Header("Catch Up")]
+    [Tooltip("Seconds the animation should take to close the gap to the real progress. Smaller = snappier.")]
+    [SerializeField, Min(0.01f)] float catchUpTime = 0.25f;
+    [Tooltip("Gap (normalized) treated as already caught up.")]
+    [SerializeField, Min(0f)] float arriveThreshold = 0.002f;
+
     [Header("Smoothing")]
     [Tooltip("เวลาที่ใช้ไล่ speed ไปหาค่าเป้าหมาย (ยิ่งมากยิ่งนุ่ม แต่ตอบสนองช้าลง)")]
     [SerializeField, Min(0f)] float speedSmoothTime = 0.1f;
@@ -24,6 +31,10 @@ public class AnimationProgressDriver : MonoBehaviour
     [Tooltip("เวลาที่ใช้คืน speed กลับเป็น 1 หลังปิด driver")]
     [SerializeField, Min(0f)] float releaseSmoothTime = 0.15f;
 
+    //เวลารอก่อนปรับ AnimatorUpdateMode กลับเป็น Normal หลังปิด driver (กันกระชากเวลา progress กระโดดไกล)
+    [Header("Release Delay")]
+    [SerializeField, Min(0f)] float releaseDelay = 0.1f;
+
     private int _layerIndex;
     private int _stateHash;
     private bool _active = false;
@@ -31,6 +42,7 @@ public class AnimationProgressDriver : MonoBehaviour
     private float _progress = 0;
     private float _currentSpeed = 1f;
     private float _speedVelocity = 0f;
+    private float _stateLength = 1f;
     AnimatorStateInfo stateInfo;
     private bool _isCurrentStateValid = true;
 
@@ -129,14 +141,19 @@ public class AnimationProgressDriver : MonoBehaviour
         }
 
         float animProgress = stateInfo.normalizedTime;
-        float targetSpeed = CalculatSpeed(animProgress);
+        CacheStateLength(stateInfo);
 
+        float targetSpeed = CalculatSpeed(animProgress);
         _currentSpeed = Smooth(_currentSpeed, targetSpeed, speedSmoothTime);
 
-        animProgress = stateInfo.normalizedTime;
-        if (animProgress > _progress) _currentSpeed = 0f;
+        // Never step past the target this frame (replaces the hard stop to 0)
+        float noOvershoot = MaxSpeedWithoutOvershoot(animProgress);
+        if (_currentSpeed > noOvershoot)
+        {
+            _currentSpeed = noOvershoot;
+            _speedVelocity = 0f;
+        }
 
-        Debug.Log($"AnimationProgressDriver | animProgress={animProgress} | targetSpeed={targetSpeed} | _currentSpeed={_currentSpeed}");
         _animator.speed = _currentSpeed;
     }
 
@@ -163,14 +180,39 @@ public class AnimationProgressDriver : MonoBehaviour
 
     private float CalculatSpeed(float animProgress)
     {
-        float diff = _progress - animProgress;
-        float speed = Mathf.Max(diff, 0f) * 10f * speedMultiple; // เดินไปข้างหน้าอย่างเดียว ไม่ถอย
+        float gap = _progress - animProgress;
+        if (gap <= arriveThreshold) return 0f; // forward only, never rewind
+
+        // Normalized time per second needed to close the gap in catchUpTime,
+        // converted to Animator.speed using the state length.
+        float neededRate = gap / catchUpTime;
+        float speed = neededRate * _stateLength * speedMultiple;
         return Mathf.Min(speed, maxSpeed);
+    }
+
+    private float MaxSpeedWithoutOvershoot(float animProgress)
+    {
+        float gap = _progress - animProgress;
+        if (gap <= 0f) return 0f;
+
+        float dt = _animator.updateMode == AnimatorUpdateMode.UnscaledTime
+            ? Time.unscaledDeltaTime
+            : Time.deltaTime;
+        if (dt <= 0f) return maxSpeed;
+
+        return gap * _stateLength / dt;
+    }
+
+    private void CacheStateLength(AnimatorStateInfo info)
+    {
+        // length can be Infinity when the state speed is 0, keep the last valid value
+        if (!float.IsInfinity(info.length) && info.length > 0.0001f)
+            _stateLength = info.length;
     }
 
     private void ReleaseSpeed()
     {
-        _currentSpeed = Smooth(_currentSpeed, 1f, releaseSmoothTime);
+        _currentSpeed = 1;
 
         if (Mathf.Abs(_currentSpeed - 1f) < 0.01f)
         {
@@ -180,7 +222,7 @@ public class AnimationProgressDriver : MonoBehaviour
         }
 
         _animator.speed = _currentSpeed;
-        _animator.updateMode = AnimatorUpdateMode.Normal;
+        StartCoroutine(ReleaseDelayRoutine());
     }
 
     private float Smooth(float current, float target, float smoothTime)
@@ -281,5 +323,12 @@ public class AnimationProgressDriver : MonoBehaviour
             // ไม่ตั้ง speed = 0 ทันที ปล่อยให้ SmoothDamp ค่อยๆ ลด/เพิ่มเอง  
             _progress = progress;
         }
+    }
+
+    //นับเวลาปรับ animator updateMode กลับเป็น Normal หลังปิด driver
+    private IEnumerator ReleaseDelayRoutine()
+    {
+        yield return new WaitForSeconds(releaseDelay);
+        _animator.updateMode = AnimatorUpdateMode.Normal;
     }
 }

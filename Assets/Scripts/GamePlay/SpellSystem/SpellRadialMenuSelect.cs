@@ -26,7 +26,23 @@ public class SpellRadialMenuSelect : MonoBehaviour
     int _Id;
     bool _radialOpen;
 
-    public bool HasSelection => _radialOpen && _Id >= 0;
+    public bool HasSelection
+    {
+        get 
+        {
+            bool hasSelection = _radialOpen && _Id >= 0;
+
+            var list = _runtimeData.GetListData();
+
+            RadialMenuButtonData data = list[_Id];
+            if (data.spellPrefab == null)
+            {
+                hasSelection = false;
+            }
+
+            return hasSelection;
+        }
+    }
 
     private void Awake()
     {

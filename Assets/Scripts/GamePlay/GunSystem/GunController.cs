@@ -31,6 +31,9 @@ public class GunController : MonoBehaviour
 
     private float currentDelay;
     private GunMode pendingShotMode;
+    // Set by TryShooting; the anim event only fires a bullet when this is true
+    private bool hasPendingShot;
+    private bool warnedMissingRefs;
 
     private void Awake()
     {
@@ -66,15 +69,38 @@ public class GunController : MonoBehaviour
     public bool CanShoot()
     {
         if (currentDelay > 0) return false;
-        if (useItemBullet && playerInventory != null && playerInventory.Inventory.CountOf(ItemBullet) <= 0) return false;
+        if (!HasBulletItem()) return false;
         switch (gunMode)
         {
             case GunMode.Normal:
                 return true;
             case GunMode.Special:
-                if (skillPoints != null && !skillPoints.TryConsume(settingSpecialMode.skillPointUsage)) return false;                return true;
+                if (skillPoints != null && !skillPoints.TryConsume(settingSpecialMode.skillPointUsage)) return false;
+                return true;
         }
         return false;
+    }
+
+    // True when the gun does not need items, or the inventory holds at least one bullet item.
+    // Missing inventory or item reference counts as "no bullet" so the gun can't fire for free.
+    private bool HasBulletItem()
+    {
+        if (!useItemBullet) return true;
+
+        // The gun prefab can't reference the scene's inventory, so find it if it wasn't assigned
+        if (playerInventory == null) playerInventory = FindAnyObjectByType<PlayerInventory>();
+
+        if (playerInventory == null || playerInventory.Inventory == null || ItemBullet == null)
+        {
+            if (!warnedMissingRefs)
+            {
+                warnedMissingRefs = true;
+                Debug.LogWarning($"GunController: useItemBullet is on but " +
+                    $"{(ItemBullet == null ? "ItemBullet" : "PlayerInventory")} is missing, so the gun can't shoot.", this);
+            }
+            return false;
+        }
+        return playerInventory.Inventory.CountOf(ItemBullet) > 0;
     }
 
     public float GetCurrentBullet()
@@ -118,30 +144,36 @@ public class GunController : MonoBehaviour
                 break;
         }
 
+        hasPendingShot = true;
         return true;
     }
 
     private void Shoot()
     {
+        // The anim event can fire even when TryShooting failed (e.g. the shoot animation still played),
+        // so only spawn bullets for a shot that TryShooting approved.
+        if (!hasPendingShot) return;
+        hasPendingShot = false;
+
+        // Re-check the item: it may have been used/dropped between TryShooting and the anim event
+        if (useItemBullet)
+        {
+            if (!HasBulletItem()) return;
+
+            playerInventory.Inventory.TryRemove(ItemBullet, 1);
+        }
+
         int amountBullet = 0;
         GunMode shotMode = pendingShotMode;
 
         // Pay the cost once per shot, not once per spawner
         if (shotMode == GunMode.Special && settingSpecialMode.useThisSetting)
         {
-            // Check the item first so skill points are not lost if the bullet item is gone
-            bool needItem = useItemBullet && playerInventory != null;
-            if (needItem && playerInventory.Inventory.CountOf(ItemBullet) <= 0)
-                return;
-
             if (skillPoints != null && !skillPoints.consume(settingSpecialMode.skillPointUsage))
             {
                 gunMode = GunMode.Normal;
                 return;
             }
-
-            if (needItem)
-                playerInventory.Inventory.TryRemove(ItemBullet, 1);
         }
 
         foreach (Spawner spawner in spawners)

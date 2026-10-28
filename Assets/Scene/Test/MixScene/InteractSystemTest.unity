@@ -958,6 +958,28 @@ MonoBehaviour:
   m_SelectedFaces: 
   m_SelectedEdges: []
   m_SelectedVertices: 
+--- !u!1 &200417088 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1362228334903577606, guid: 777a677026287794c836349a288e0995, type: 3}
+  m_PrefabInstance: {fileID: 1479204417}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &200417114
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 200417088}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8796731234f2bf4a90f388485a9c966, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LootDropper
+  maxLootDrops: 1
+  noDropWeight: 0
+  lootTable:
+  - itemPrefab: {fileID: 2759364773010167794, guid: 0734cd233c5ad574da9cb40ab81f9056, type: 3}
+    weight: 1
 --- !u!1001 &220712768
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1442,6 +1464,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Rin(Player)
       objectReference: {fileID: 0}
+    - target: {fileID: 1075256099564993152, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: ItemBullet
+      value: 
+      objectReference: {fileID: 11400000, guid: 2192083227f477749b9ba795a2bdfc2a, type: 2}
     - target: {fileID: 1108516229437652499, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_Alpha
       value: 0
@@ -1455,8 +1481,24 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2859177828134115449, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: flags.Array.data[3].InitialValue
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2859177828134115449, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: flags.Array.data[3].runtimeValue
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2859177828134115449, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: flags.Array.data[4].InitialValue
-      value: 0
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2859177828134115449, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: flags.Array.data[4].runtimeValue
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2859177828134115449, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: flags.Array.data[5].runtimeValue
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3970455072621369329, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_Controller
@@ -1465,7 +1507,7 @@ PrefabInstance:
     - target: {fileID: 4775584325482975735, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: _dataSO
       value: 
-      objectReference: {fileID: 11400000, guid: eb868a75d494ccd4f88ea6dcf34d4909, type: 2}
+      objectReference: {fileID: 11400000, guid: 3292eaeb66915a64dbe1216b946cd3e9, type: 2}
     - target: {fileID: 4775584325482975735, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: _spellUnlocks
       value: 
@@ -1473,6 +1515,18 @@ PrefabInstance:
     - target: {fileID: 4968871862757283367, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_SizeDelta.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8636793298182785553, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: catchUpTime
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 8636793298182785553, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: releaseDelay
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8636793298182785553, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: speedSmoothTime
+      value: 0.05
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
@@ -3072,6 +3126,7 @@ MonoBehaviour:
   - flagSO: {fileID: 11400000, guid: c74e338715f473e40a12992295979ef4, type: 2}
     value: 1
     forceAdd: 0
+    lockWhenReached: 0
 --- !u!1001 &647411714
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6595,7 +6650,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1362228334903577606, guid: 777a677026287794c836349a288e0995, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 200417114}
   m_SourcePrefab: {fileID: 100100000, guid: 777a677026287794c836349a288e0995, type: 3}
 --- !u!1001 &1503486148
 PrefabInstance:
