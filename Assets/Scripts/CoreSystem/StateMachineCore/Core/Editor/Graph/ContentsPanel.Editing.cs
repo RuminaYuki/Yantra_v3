@@ -187,7 +187,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             string message = uses == 0
                 ? $"Delete {item.name}? Nothing uses it."
                 : $"Delete {item.name}? It's used in {uses} place(s) in this table. {UsesWarning}";
-            message += "\n\nAnything in this file that only it used is deleted too. This can't be undone.";
+            message += TableContents.IsDataItem(item)
+                ? "\n\nScenes, prefabs and other tables using it will show Missing. This can't be undone."
+                : "\n\nAnything in this file that only it used is deleted too. This can't be undone.";
 
             if (EditorUtility.DisplayDialog("Delete", message, "Delete", "Cancel"))
             {
@@ -484,6 +486,13 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                         evt.menu.AppendAction("Create Condition/" + type.MenuPath, _ => CreateItem(folderPath, type.Type, type.BaseName));
                     }
                     break;
+
+                case DataGroup:
+                    foreach (CreatableType type in DataCreatableTypes())
+                    {
+                        evt.menu.AppendAction("Create/" + type.MenuPath, _ => CreateItem(folderPath, type.Type, type.BaseName));
+                    }
+                    break;
             }
 
             evt.menu.AppendSeparator();
@@ -492,11 +501,15 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 ShowNamePopup(header, "New Folder", "", name =>
                     EditFolders(folders => folders.CreateFolder(group, JoinPath(folderPath, name)))));
 
-            // The group header itself can't be renamed or deleted.
+            // The group header itself can't be renamed or deleted. Data has no ○ (scenes can use it).
             if (folderPath.Length == 0)
             {
-                evt.menu.AppendSeparator();
-                evt.menu.AppendAction("Delete All Unused (○)...", _ => DeleteAllUnused());
+                if (group != DataGroup)
+                {
+                    evt.menu.AppendSeparator();
+                    evt.menu.AppendAction("Delete All Unused (○)...", _ => DeleteAllUnused());
+                }
+
                 return;
             }
 
@@ -542,7 +555,12 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             if (isEmbedded)
             {
-                evt.menu.AppendAction("Make Shared (own file)...", _ => MakeShared(item));
+                // Make Shared makes a new object, which as a Data id would no longer match the scene's.
+                if (group != DataGroup)
+                {
+                    evt.menu.AppendAction("Make Shared (own file)...", _ => MakeShared(item));
+                }
+
                 evt.menu.AppendAction("Delete...", _ => DeleteItem(item));
             }
             else

@@ -361,11 +361,14 @@ GameObject:
   - component: {fileID: 1955717982505358442}
   - component: {fileID: 144474349157592221}
   - component: {fileID: 1150524656121399684}
+  - component: {fileID: 1661088192327583440}
   - component: {fileID: 3588670109824123795}
   - component: {fileID: 5558076529591241558}
   - component: {fileID: 6533914171750714662}
   - component: {fileID: 4787971761126211817}
   - component: {fileID: 2655409881752305145}
+  - component: {fileID: 7404301504982022380}
+  - component: {fileID: 5462895832801143804}
   - component: {fileID: 4360286393625741986}
   - component: {fileID: 6213817039430501731}
   - component: {fileID: 8999378210419535593}
@@ -381,6 +384,7 @@ GameObject:
   - component: {fileID: 6937792664942880573}
   - component: {fileID: 1682672883883980451}
   - component: {fileID: 5576540633263213476}
+  - component: {fileID: 1970438460640689224}
   - component: {fileID: 5098707057134905944}
   - component: {fileID: 1002007669417644985}
   - component: {fileID: 5584625577014986441}
@@ -459,6 +463,21 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1661088192327583440
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1362228334903577606}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13c353cc95c3c5c4aa3621edd1005f12, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ComponentGroupHeader
+  groupName: StatemachineLogic
+  color: {r: 0.3962264, g: 0.0990566, b: 0.0990566, a: 1}
+  collapsed: 0
 --- !u!114 &3588670109824123795
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -514,7 +533,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StateFlags
   flags:
-  - Flag: {fileID: 11400000, guid: 02fbf06f3aae8a04b8dee37780e76d4b, type: 2}
+  - Flag: {fileID: -2570622780656827608, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
     InitialValue: 0
     runtimeValue: 0
 --- !u!114 &2655409881752305145
@@ -536,6 +555,44 @@ MonoBehaviour:
   - Anchor: {fileID: 11400000, guid: 7e0c6e6867689484fb85c18d09184466, type: 2}
     Tag: Player
     Name: IKTarget
+--- !u!114 &7404301504982022380
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1362228334903577606}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ed16ff03258e444e88ede26172c7ee3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RandomPickController
+  _pools:
+  - Id: {fileID: 3217853684232111228, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    Options:
+    - Option: {fileID: 170521044431323945, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+      Weight: 0.573
+      Cooldown: {fileID: 0}
+      CooldownDuration: 0
+    - Option: {fileID: -7736586252646909596, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+      Weight: 1
+      Cooldown: {fileID: 0}
+      CooldownDuration: 0
+--- !u!114 &5462895832801143804
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1362228334903577606}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13c353cc95c3c5c4aa3621edd1005f12, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ComponentGroupHeader
+  groupName: Behavior
+  color: {r: 0.18307227, g: 0.18307225, b: 0.3207547, a: 1}
+  collapsed: 0
 --- !u!114 &4360286393625741986
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -835,6 +892,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4681aae2f75dd804fbf5009cb3483ae6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PairedAnimationPlayer
+--- !u!114 &1970438460640689224
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1362228334903577606}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13c353cc95c3c5c4aa3621edd1005f12, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ComponentGroupHeader
+  groupName: Feedback
+  color: {r: 0.22067097, g: 0.3018868, b: 0.16375935, a: 1}
+  collapsed: 1
 --- !u!114 &5098707057134905944
 MonoBehaviour:
   m_ObjectHideFlags: 0

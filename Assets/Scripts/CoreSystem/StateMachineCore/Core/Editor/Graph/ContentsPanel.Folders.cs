@@ -11,7 +11,7 @@ using Object = UnityEngine.Object;
 
 namespace Yuki.Learning.StateMachine.Editor.Graph
 {
-    // Folders, like the Project window: a folder belongs to one group (States, Actions or Conditions)
+    // Folders, like the Project window: a folder belongs to one group (States, Actions, Conditions or Data)
     // and only organizes this panel. Right-click a group or folder to create, rename or delete folders;
     // drag items or folders onto a folder, or onto a group header to take them out.
     // Stored in the table's hidden _contentsFolders (which folder each item is in) and
@@ -52,6 +52,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             // Entries may stay for anything the table uses or holds in its file.
             var known = new HashSet<ScriptableObject>(TableContents.CollectUsed(_table));
             known.UnionWith(TableContents.CollectEmbedded(_table));
+            known.UnionWith(TableContents.CollectData(_table));
             folders.Save(_table, known, recordUndo);
 
             Rebuild();
@@ -372,7 +373,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             {
                 bool isFromProject = DraggedFromProject().Count > 0;
                 bool canDrop = isFromProject || CanDrop(group, folderPath);
-                DragAndDrop.visualMode = isFromProject ? DragAndDropVisualMode.Copy
+                DragAndDrop.visualMode = isFromProject && !_isDataPanel ? DragAndDropVisualMode.Copy
                     : canDrop ? DragAndDropVisualMode.Move
                     : DragAndDropVisualMode.Rejected;
                 SetDropHighlight(canDrop ? header : null);
@@ -387,7 +388,15 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                     DragAndDrop.AcceptDrag();
                     SetDropHighlight(null);
                     evt.StopPropagation();
-                    schedule.Execute(() => CopyFromProject(fromProject, group, folderPath));
+                    if (_isDataPanel)
+                    {
+                        schedule.Execute(() => MoveIn(fromProject, folderPath));
+                    }
+                    else
+                    {
+                        schedule.Execute(() => CopyFromProject(fromProject, group, folderPath));
+                    }
+
                     return;
                 }
 
@@ -408,7 +417,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // ---------- Dropping files from the Project window ----------
 
         // States, actions and conditions dragged in from the Project window (not a drag that started in
-        // this panel), from other files than this table's.
+        // this panel), from other files than this table's. In the Data panel: ids that can move in.
         private List<ScriptableObject> DraggedFromProject()
         {
             if (_table == null || DragAndDrop.GetGenericData(DragDataKey) != null)
@@ -417,6 +426,15 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             }
 
             string tablePath = AssetDatabase.GetAssetPath(_table);
+            if (_isDataPanel)
+            {
+                return DragAndDrop.objectReferences
+                    .OfType<ScriptableObject>()
+                    .Where(item => TableContents.CanMoveIn(item, tablePath))
+                    .Distinct()
+                    .ToList();
+            }
+
             return DragAndDrop.objectReferences
                 .OfType<ScriptableObject>()
                 .Where(TableContents.IsContentItem)

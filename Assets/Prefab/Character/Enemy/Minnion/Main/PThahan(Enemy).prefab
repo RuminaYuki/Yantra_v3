@@ -265,6 +265,7 @@ GameObject:
   - component: {fileID: 9087765588107246808}
   - component: {fileID: 1164534005706985808}
   - component: {fileID: 1496280935832184233}
+  - component: {fileID: 7851509951193127981}
   m_Layer: 7
   m_Name: EnemeyController
   m_TagString: Enemy
@@ -394,7 +395,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::StateFlags
   flags:
-  - Flag: {fileID: 11400000, guid: 02fbf06f3aae8a04b8dee37780e76d4b, type: 2}
+  - Flag: {fileID: -2570622780656827608, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
     InitialValue: 0
     runtimeValue: 0
 --- !u!114 &9035622197156565843
@@ -788,6 +789,29 @@ MonoBehaviour:
   _amountProperty: _DissolveAmount
   _fadeFaster: 5
   _logSteps: 0
+--- !u!114 &7851509951193127981
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3655578508217946147}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ed16ff03258e444e88ede26172c7ee3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RandomPickController
+  _pools:
+  - Id: {fileID: 3217853684232111228, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    Options:
+    - Option: {fileID: 170521044431323945, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+      Weight: 0.573
+      Cooldown: {fileID: 0}
+      CooldownDuration: 0
+    - Option: {fileID: -7736586252646909596, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+      Weight: 1
+      Cooldown: {fileID: 0}
+      CooldownDuration: 0
 --- !u!1 &3672652285642102640
 GameObject:
   m_ObjectHideFlags: 0

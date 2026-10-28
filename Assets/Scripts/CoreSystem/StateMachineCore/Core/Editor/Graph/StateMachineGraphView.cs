@@ -57,6 +57,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             RegisterStateDropCallbacks();
             RegisterActionDropCallbacks();
             RegisterConditionDropCallbacks();
+            RegisterDataDropCallbacks();
 
             // Mouse wheel zoom.
             SetupZoom(

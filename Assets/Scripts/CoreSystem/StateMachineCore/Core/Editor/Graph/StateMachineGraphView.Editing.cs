@@ -76,6 +76,56 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             return DragAndDrop.objectReferences.OfType<StateSO>();
         }
 
+        // ---------- Dropping Data onto the graph ----------
+
+        // Any other .asset (an AnchorIDSO, a CooldownSO, ...) dragged from the Project window onto the
+        // graph moves into the table's file; the window hands it to the Data panel, which asks first.
+        public event System.Action<List<ScriptableObject>> DataDropped;
+
+        private void RegisterDataDropCallbacks()
+        {
+            RegisterCallback<DragUpdatedEvent>(evt =>
+            {
+                if (DraggedData().Count == 0)
+                {
+                    return;
+                }
+
+                DragAndDrop.visualMode = DragAndDropVisualMode.Move;
+                evt.StopPropagation();
+            });
+
+            RegisterCallback<DragPerformEvent>(evt =>
+            {
+                List<ScriptableObject> items = DraggedData();
+                if (items.Count == 0)
+                {
+                    return;
+                }
+
+                DragAndDrop.AcceptDrag();
+                evt.StopPropagation();
+
+                // A dialog isn't safe while the drop is still being sent around.
+                schedule.Execute(() => DataDropped?.Invoke(items));
+            });
+        }
+
+        private List<ScriptableObject> DraggedData()
+        {
+            if (_table == null)
+            {
+                return new List<ScriptableObject>();
+            }
+
+            string tablePath = AssetDatabase.GetAssetPath(_table);
+            return DragAndDrop.objectReferences
+                .OfType<ScriptableObject>()
+                .Where(item => TableContents.CanMoveIn(item, tablePath))
+                .Distinct()
+                .ToList();
+        }
+
         // ---------- Dropping actions on a state ----------
 
         // Actions dragged from Contents or the Project window onto a state node go at the end of its

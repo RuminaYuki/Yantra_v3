@@ -22,11 +22,14 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
     // nothing uses it. Clicking a row shows it in Unity's Inspector (Ctrl / Shift-click select several,
     // and dragging a selected row drags them all); the right-click menus create,
     // rename, share, copy and delete. Typing in the search field shows a flat list of matches instead.
+    // A second one, made with isDataPanel, is the Data panel under it: the file's other sub-assets
+    // (ids and keys), with the same rows and folders.
     // Looks are in ContentsPanel.uss. The code is split by job:
     //   ContentsPanel.cs            layout, rows, selection, search
     //   ContentsPanel.Folders.cs    folders and drag and drop
     //   ContentsPanel.SubStates.cs  the SubStates group and State Exit
     //   ContentsPanel.Editing.cs    create, rename, share / copy, delete, menus
+    //   ContentsPanel.Data.cs       the Data panel
     public partial class ContentsPanel : VisualElement
     {
         private const string StyleSheetName = "ContentsPanel";
@@ -34,6 +37,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         private const string StatesGroup = "States";
         private const string ActionsGroup = "Actions";
         private const string ConditionsGroup = "Conditions";
+        private const string DataGroup = "Data";
 
         private const string EmbeddedMark = "●";
         private const string SharedMark = "◆";
@@ -50,6 +54,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         private readonly Action<StateSO> _onStateCreated;
         private readonly Action<StateSO, TransitionTableSO> _onOpenSubStateMachine;
         private readonly ScrollView _list;
+
+        // The Data panel instead of Contents (ContentsPanel.Data.cs).
+        private readonly bool _isDataPanel;
 
         // Each item's row, for the selection highlight and so a new item can go straight into rename.
         private readonly Dictionary<Object, (VisualElement Row, Label Label)> _rows =
@@ -73,16 +80,19 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // onItemClicked: a state selects its node in the graph, anything else goes to the Inspector.
         // onStateCreated: a state made here has to be put on the graph by the window.
         // onOpenSubStateMachine: double-clicking a sub-state machine goes into its table, like in the graph.
+        // isDataPanel: the Data panel (the other two callbacks aren't used then).
         public ContentsPanel(
             EditorWindow window,
             Action<Object> onItemClicked,
             Action<StateSO> onStateCreated,
-            Action<StateSO, TransitionTableSO> onOpenSubStateMachine)
+            Action<StateSO, TransitionTableSO> onOpenSubStateMachine,
+            bool isDataPanel = false)
         {
             _window = window;
             _onItemClicked = onItemClicked;
             _onStateCreated = onStateCreated;
             _onOpenSubStateMachine = onOpenSubStateMachine;
+            _isDataPanel = isDataPanel;
 
             GraphStyleSheets.AddTo(this, StyleSheetName);
             AddToClassList("contents");
@@ -91,7 +101,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             header.AddToClassList("contents__header");
             Add(header);
 
-            var title = new Label("Contents");
+            var title = new Label(_isDataPanel ? "Data" : "Contents");
             title.AddToClassList("contents__title");
             header.Add(title);
 
@@ -127,7 +137,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
         public void SetTable(TransitionTableSO table)
         {
-            _table = table;
+            _table = _isDataPanel ? MainTableOf(table) : table;
             LoadCollapsed();
             Rebuild();
         }
@@ -144,6 +154,12 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             if (_table == null)
             {
                 _list.Add(CreateEmptyHint("No Transition Table."));
+                return;
+            }
+
+            if (_isDataPanel)
+            {
+                RebuildData();
                 return;
             }
 
@@ -287,7 +303,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 case StateSO _: return StatesGroup;
                 case StateActionSO _: return ActionsGroup;
                 case StateConditionSO _: return ConditionsGroup;
-                default: return null;
+                default: return TableContents.IsDataItem(item) ? DataGroup : null;
             }
         }
 
@@ -344,7 +360,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 case StateActionSO _: return "Action";
                 case StateConditionSO _: return "Condition";
                 case TransitionTableSO _: return "Table";
-                default: return null;
+                default: return TableContents.IsDataItem(item) ? ObjectNames.NicifyVariableName(item.GetType().Name) : null;
             }
         }
 
@@ -522,7 +538,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             if (sorted.Count == 0 && groupFolders.Count == 0)
             {
-                groupView.Add(CreateEmptyHint($"No {group.ToLowerInvariant()} yet. Right-click {group} to create one."));
+                groupView.Add(CreateEmptyHint(group == DataGroup
+                    ? "Nothing yet. Right-click Data to create one, or drag an id (Anchor, Cooldown, Flag, ...) from the Project window onto the graph or here."
+                    : $"No {group.ToLowerInvariant()} yet. Right-click {group} to create one."));
             }
 
             var folderViews = new Dictionary<string, Foldout>();
@@ -661,9 +679,10 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // (and the sub-states, which start folded: AddFoldArrow startOpen).
         private const string CollapsedPrefsKey = "StateMachineGraph.Contents.Collapsed.";
 
+        // The Data panel shows the same table, so it keeps its own.
         private string CollapsedPrefsKeyOf(TransitionTableSO table)
         {
-            return CollapsedPrefsKey + GlobalObjectId.GetGlobalObjectIdSlow(table);
+            return CollapsedPrefsKey + (_isDataPanel ? "Data." : "") + GlobalObjectId.GetGlobalObjectIdSlow(table);
         }
 
         private void LoadCollapsed()

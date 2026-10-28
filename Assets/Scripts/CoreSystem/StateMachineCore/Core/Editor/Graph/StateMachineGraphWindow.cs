@@ -37,6 +37,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         private ToolbarBreadcrumbs _breadcrumbs;
         private ContentsPanel _contentsPanel;
 
+        // Under Contents: the ids and keys inside the table's file (ContentsPanel.Data.cs).
+        private ContentsPanel _dataPanel;
+
         // Exposed parameters panel floating over the graph (like VFX Graph's Blackboard).
         private ParameterBlackboard _blackboard;
 
@@ -146,11 +149,19 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 state => _graphView.AddStateAtViewCenter(state),
                 EnterSubStateMachine);
 
-            // Contents on the left, graph on the right, with a draggable divider. Contents starts 220px wide.
+            _dataPanel = new ContentsPanel(this, ShowContentsItem, null, null, isDataPanel: true);
+            _graphView.DataDropped += items => _dataPanel.MoveIn(items);
+
+            // Contents and Data on the left, graph on the right, with draggable dividers. The left side
+            // starts 220px wide, Data 180px tall.
             // Details of the selection show in Unity's own Inspector (see ShowInUnityInspector).
             var split = new TwoPaneSplitView(0, 220f, TwoPaneSplitViewOrientation.Horizontal);
             split.style.flexGrow = 1;
-            split.Add(_contentsPanel);
+
+            var left = new TwoPaneSplitView(1, 180f, TwoPaneSplitViewOrientation.Vertical);
+            left.Add(_contentsPanel);
+            left.Add(_dataPanel);
+            split.Add(left);
 
             // Renaming on a node uses the Contents panel's rename, so both work the same way.
             _graphView.StateRenameRequested += (state, newName) => _contentsPanel.RenameFromGraph(state, newName);
@@ -229,6 +240,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             RebuildBreadcrumbs();
 
             _contentsPanel.SetTable(_table);
+            _dataPanel.SetTable(_table);
             _graphView.Load(_table);
             _blackboard.SetTable(_table);
         }
@@ -285,6 +297,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         {
             _graphView?.Reload();
             _contentsPanel?.Rebuild();
+            _dataPanel?.Rebuild();
             _blackboard?.Rebuild();
         }
 
