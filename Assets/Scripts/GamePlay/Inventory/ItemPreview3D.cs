@@ -104,9 +104,15 @@ public class ItemPreview3D : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
             stagingRoot.transform.SetParent(pivot, false);
         }
 
+        bool dedicatedPreview = item.previewPrefab != null;
+
         // Instantiate under an inactive parent: Awake/OnEnable of gameplay scripts never run.
         GameObject model = Instantiate(source, stagingRoot.transform);
-        StripToVisuals(model);
+
+        // Only strip the fallback worldPrefab (it carries gameplay scripts).
+        // A dedicated preview prefab is kept as-is so VFX, Animator, etc. still work.
+        if (!dedicatedPreview) StripToVisuals(model);
+        else UseUnscaledTimeForParticles(model);
 
         SetLayerRecursive(model, previewLayer);
 
@@ -167,11 +173,14 @@ public class ItemPreview3D : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     // Centers the model on the pivot and finds a camera distance that fits it.
     private void FitToCamera()
     {
-        Renderer[] renderers = currentModel.GetComponentsInChildren<Renderer>();
-        if (renderers.Length == 0) { fitDistance = 2f; PlaceCamera(); return; }
+        // Frame only the actual mesh; particle/trail bounds would throw off the fit.
+        var renderers = new List<Renderer>();
+        foreach (Renderer r in currentModel.GetComponentsInChildren<Renderer>())
+            if (r is MeshRenderer || r is SkinnedMeshRenderer) renderers.Add(r);
+        if (renderers.Count == 0) { fitDistance = 2f; PlaceCamera(); return; }
 
         Bounds b = renderers[0].bounds;
-        for (int i = 1; i < renderers.Length; i++) b.Encapsulate(renderers[i].bounds);
+        for (int i = 1; i < renderers.Count; i++) b.Encapsulate(renderers[i].bounds);
 
         // Move the model so its visual center sits exactly on the pivot.
         currentModel.transform.position -= b.center - pivot.position;
@@ -271,6 +280,16 @@ public class ItemPreview3D : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
         foreach (Component c in others) if (c != null) DestroyImmediate(c);
         foreach (Component c in extraRenderers) if (c != null) DestroyImmediate(c);
         foreach (Component c in bodies) if (c != null) DestroyImmediate(c);
+    }
+
+    // Particles keep playing even if the game is paused while the inventory is open.
+    private static void UseUnscaledTimeForParticles(GameObject root)
+    {
+        foreach (ParticleSystem ps in root.GetComponentsInChildren<ParticleSystem>(true))
+        {
+            ParticleSystem.MainModule main = ps.main;
+            main.useUnscaledTime = true;
+        }
     }
 
     private static void SetLayerRecursive(GameObject go, int layer)
