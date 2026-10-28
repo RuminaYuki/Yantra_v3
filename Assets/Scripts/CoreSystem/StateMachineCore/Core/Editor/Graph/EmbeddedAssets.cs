@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 using Object = UnityEngine.Object;
 
@@ -95,6 +97,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // names ("Chase_Condition 1"). Nothing uses them yet. Returns original -> copy.
         // From this file: only the items (a copied state shares its actions, like Animator's Duplicate).
         // From another file: also whatever they use there, so no copy points into someone else's file.
+        // Except its Data (ids like AnchorIDSO): a copy of an id would be a different id, so the copies
+        // keep using the other file's.
         // recordUndo false for a drop: Unity can revert the current Undo group right after a drag ends,
         // which would destroy the copies in memory while the file on disk still has them.
         public static Dictionary<ScriptableObject, ScriptableObject> CopyInto(
@@ -110,7 +114,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             {
                 IEnumerable<ScriptableObject> needed = AssetDatabase.GetAssetPath(item) == path
                     ? new[] { item }
-                    : TableContents.ReachableInSameFile(item).Where(original => original is not TransitionTableSO);
+                    : TableContents.ReachableInSameFile(item).Where(original =>
+                        original is not TransitionTableSO &&
+                        (original == item || !TableContents.IsDataItem(original)));
 
                 foreach (ScriptableObject original in needed)
                 {
@@ -302,7 +308,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // ◆ -> ●: a copy of the shared item goes inside the table's file, and this table uses the copy.
         // Whatever the item uses from its own file comes along (e.g. a sub-state machine's table brings
         // the states, actions and conditions embedded next to it), and the copies point at each other.
-        // Things in other files stay shared. The original file and the tables that use it are left alone.
+        // Things in other files stay shared, and so do Data items in its file (see CopyInto).
+        // The original file and the tables that use it are left alone.
         public static ScriptableObject MakeLocalCopy(TransitionTableSO table, ScriptableObject item)
         {
             return MakeLocalCopy(table, item, Array.Empty<ScriptableObject>());
@@ -319,7 +326,12 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             var copies = new Dictionary<Object, Object>();
             List<ScriptableObject> items = alongWith.Prepend(item).Distinct().ToList();
 
-            foreach (ScriptableObject original in items.SelectMany(TableContents.ReachableInSameFile).Distinct())
+            IEnumerable<ScriptableObject> needed = items
+                .SelectMany(TableContents.ReachableInSameFile)
+                .Where(original => items.Contains(original) || !TableContents.IsDataItem(original))
+                .Distinct();
+
+            foreach (ScriptableObject original in needed)
             {
                 ScriptableObject copy = Object.Instantiate(original);
                 copy.name = UniqueName(table, original.name);
@@ -352,15 +364,19 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             }
         }
 
-        private static void Remap(Object asset, Dictionary<Object, Object> map)
+        // onlyOverrides: a prefab instance's fields that only follow their prefab are left alone.
+        // Returns true if anything changed.
+        private static bool Remap(Object asset, Dictionary<Object, Object> map, bool onlyOverrides = false)
         {
             var serializedAsset = new SerializedObject(asset);
             SerializedProperty property = serializedAsset.GetIterator();
             bool isChanged = false;
+            bool isPrefabInstance = onlyOverrides && PrefabUtility.IsPartOfPrefabInstance(asset);
 
             while (property.Next(true))
             {
-                if (property.propertyType == SerializedPropertyType.ObjectReference &&
+                if ((!isPrefabInstance || property.prefabOverride) &&
+                    property.propertyType == SerializedPropertyType.ObjectReference &&
                     property.objectReferenceValue != null &&
                     map.TryGetValue(property.objectReferenceValue, out Object replacement))
                 {
@@ -372,6 +388,160 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             if (isChanged)
             {
                 serializedAsset.ApplyModifiedPropertiesWithoutUndo();
+            }
+
+            return isChanged;
+        }
+
+        // ---------- Move in (Data) ----------
+        // Not undoable, like moving files in the Project window.
+
+        // Files that can point at an asset. The project saves them as text (Force Text).
+        private static readonly string[] ReferencingExtensions =
+        {
+            ".unity", ".prefab", ".asset", ".controller", ".overrideController", ".playable", ".anim", ".mat", ".preset"
+        };
+
+        // Every file under Assets that points at one of the items, other than the items' own files.
+        public static List<string> FilesUsing(IEnumerable<ScriptableObject> items)
+        {
+            var guids = new List<string>();
+            var ownPaths = new HashSet<string>();
+            foreach (ScriptableObject item in items)
+            {
+                string path = AssetDatabase.GetAssetPath(item);
+                ownPaths.Add(path);
+                guids.Add(AssetDatabase.AssetPathToGUID(path));
+            }
+
+            return Directory.EnumerateFiles("Assets", "*", SearchOption.AllDirectories)
+                .Where(path => ReferencingExtensions.Contains(Path.GetExtension(path), StringComparer.OrdinalIgnoreCase))
+                .Select(path => path.Replace('\\', '/'))
+                .Where(path => !ownPaths.Contains(path))
+                .Where(path =>
+                {
+                    string text = File.ReadAllText(path);
+                    return guids.Any(guid => text.Contains(guid, StringComparison.Ordinal));
+                })
+                .ToList();
+        }
+
+        // Each item (alone in its own .asset file, see TableContents.CanMoveIn) moves inside the table's
+        // file, and everything that pointed at its file points at the moved one instead: this file,
+        // other assets, prefabs and scenes on disk, and open scenes in memory. Then its old file is
+        // deleted. So an id stays one id: an action in the table and a component in the scene still share it.
+        // Returns (old path, moved one) per item.
+        public static List<(string OldPath, ScriptableObject Moved)> MoveInto(
+            TransitionTableSO table,
+            IEnumerable<ScriptableObject> items)
+        {
+            // Files are edited as text below, so what's on disk has to be current.
+            AssetDatabase.SaveAssets();
+
+            string tablePath = AssetDatabase.GetAssetPath(table);
+            string tableGuid = AssetDatabase.AssetPathToGUID(tablePath);
+
+            var map = new Dictionary<Object, Object>();
+            var oldIds = new Dictionary<Object, string>();
+            var result = new List<(string OldPath, ScriptableObject Moved)>();
+
+            foreach (ScriptableObject item in items)
+            {
+                if (!AssetDatabase.TryGetGUIDAndLocalFileIdentifier(item, out string guid, out long localId))
+                {
+                    continue;
+                }
+
+                ScriptableObject moved = Object.Instantiate(item);
+                moved.name = UniqueName(table, item.name);
+                AssetDatabase.AddObjectToAsset(moved, table);
+
+                map[item] = moved;
+                oldIds[item] = FileIdText(localId, guid);
+                result.Add((AssetDatabase.GetAssetPath(item), moved));
+            }
+
+            // A sub-asset only has its id in the file once it's saved.
+            AssetDatabase.SaveAssetIfDirty(table);
+
+            var replacements = new Dictionary<string, string>();
+            foreach (KeyValuePair<Object, Object> pair in map)
+            {
+                AssetDatabase.TryGetGUIDAndLocalFileIdentifier(pair.Value, out string _, out long newLocalId);
+                replacements[oldIds[pair.Key]] = FileIdText(newLocalId, tableGuid);
+            }
+
+            // In memory: moved ones that point at each other, then everything in this file.
+            foreach (Object moved in map.Values)
+            {
+                Remap(moved, map);
+            }
+
+            ReplaceReferences(table, map);
+            AssetDatabase.SaveAssetIfDirty(table);
+
+            // On disk: every other file, as text.
+            foreach (string path in FilesUsing(map.Keys.Cast<ScriptableObject>()).Where(path => path != tablePath))
+            {
+                string text = File.ReadAllText(path);
+                string replaced = replacements.Aggregate(text, (current, pair) => current.Replace(pair.Key, pair.Value));
+                if (replaced != text)
+                {
+                    File.WriteAllText(path, replaced);
+                    AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+                }
+            }
+
+            // Before the old files go, while the originals can still be told apart.
+            RemapOpenScenes(map);
+
+            foreach ((string oldPath, ScriptableObject _) in result)
+            {
+                AssetDatabase.DeleteAsset(oldPath);
+            }
+
+            AssetDatabase.SaveAssets();
+            return result;
+        }
+
+        // As written inside a reference: {fileID: 11400000, guid: e167..., type: 2}
+        private static string FileIdText(long localId, string guid) => $"fileID: {localId}, guid: {guid}";
+
+        // Open scenes (and an open prefab) have their objects in memory, so changing their files on disk
+        // isn't enough: their fields point at the moved ones too, and the scene is left to be saved.
+        // A prefab instance's field that only follows its prefab is left alone; the prefab file changed.
+        private static void RemapOpenScenes(Dictionary<Object, Object> map)
+        {
+            var scenes = new List<Scene>();
+            for (int i = 0; i < SceneManager.sceneCount; i++)
+            {
+                scenes.Add(SceneManager.GetSceneAt(i));
+            }
+
+            PrefabStage prefabStage = PrefabStageUtility.GetCurrentPrefabStage();
+            if (prefabStage != null)
+            {
+                scenes.Add(prefabStage.scene);
+            }
+
+            foreach (Scene scene in scenes.Where(scene => scene.isLoaded))
+            {
+                bool isChanged = false;
+                foreach (GameObject root in scene.GetRootGameObjects())
+                {
+                    foreach (Component component in root.GetComponentsInChildren<Component>(true))
+                    {
+                        if (component != null && Remap(component, map, onlyOverrides: true))
+                        {
+                            isChanged = true;
+                        }
+                    }
+                }
+
+                if (isChanged)
+                {
+                    EditorSceneManager.MarkSceneDirty(scene);
+                }
             }
         }
 
@@ -433,10 +603,13 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         }
 
         // `removed` and what they used in the table's file, minus anything the file's main table still reaches.
+        // Data items only go when they're one of `removed`: nothing in the table may use an id any more,
+        // but a component in the scene still can.
         private static List<ScriptableObject> UnreachableAfter(TransitionTableSO table, IEnumerable<ScriptableObject> removed)
         {
+            var removedSet = new HashSet<ScriptableObject>(removed);
             var candidates = new HashSet<ScriptableObject>();
-            foreach (ScriptableObject item in removed)
+            foreach (ScriptableObject item in removedSet)
             {
                 if (item != null && TableContents.IsInSameFile(item, table))
                 {
@@ -451,7 +624,12 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             }
 
             var reached = new HashSet<ScriptableObject>(TableContents.ReachableInSameFile(root));
-            return candidates.Where(candidate => candidate != root && !reached.Contains(candidate)).ToList();
+            return candidates
+                .Where(candidate =>
+                    candidate != root &&
+                    !reached.Contains(candidate) &&
+                    (removedSet.Contains(candidate) || !TableContents.IsDataItem(candidate)))
+                .ToList();
         }
 
         // Takes the item out of everything in the table's file, without leaving empty slots that would

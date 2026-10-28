@@ -334,6 +334,18 @@ MonoBehaviour:
   _targetAnchor: {fileID: 11400000, guid: ded8b5ee8f0dd57488cc9fa0e5c0d061, type: 2}
   _offset: {x: 0, y: 0, z: 0}
   _randomOffsetRange: {x: 0, y: 0, z: 0}
+--- !u!114 &-7736586252646909596
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2d7c4dfc85d07b498d74fb3a7a830e3, type: 3}
+  m_Name: NotGlory_RandomOption
+  m_EditorClassIdentifier: Assembly-CSharp::RandomOptionSO
 --- !u!114 &-7674414976858596810
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -528,6 +540,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExitSubStateMachineActionSO
   _selfAnchor: {fileID: 0}
   _exitId: Chase
+--- !u!114 &-6668908239051255673
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9942d9bd8f1e0b0459cea61a31bda641, type: 3}
+  m_Name: Glory_RandomPicked_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::RandomPickedConditionSO
+  _selfAnchor: {fileID: 0}
+  _pool: {fileID: 3217853684232111228}
+  _option: {fileID: 170521044431323945}
 --- !u!114 &-6437948323864379113
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -608,6 +635,20 @@ MonoBehaviour:
   m_Name: Kill_Action
   m_EditorClassIdentifier: Assembly-CSharp::KillActionSO
   _selfAnchor: {fileID: 0}
+--- !u!114 &-4669643337480278969
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f45f29be3089ac444a6a4db4bae888af, type: 3}
+  m_Name: Glory_RollRandomPool_Action
+  m_EditorClassIdentifier: Assembly-CSharp::RollRandomPoolActionSO
+  _selfAnchor: {fileID: 0}
+  _pool: {fileID: 3217853684232111228}
 --- !u!114 &-4475073733079415938
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -695,9 +736,21 @@ MonoBehaviour:
   m_Name: SetHasGloryTrueFlagOnEnter_Action
   m_EditorClassIdentifier: Assembly-CSharp::SetFlagOnEnterActionSO
   _selfAnchor: {fileID: 0}
-  flag: {fileID: 11400000, guid: 02fbf06f3aae8a04b8dee37780e76d4b, type: 2}
+  flag: {fileID: -2570622780656827608}
   value: 1
   changeValueOnExit: 0
+--- !u!114 &-2570622780656827608
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6687386e458fac4db6106b19ddf0699, type: 3}
+  m_Name: HasGloryFlag
+  m_EditorClassIdentifier: Assembly-CSharp::FlagSO
 --- !u!114 &-2422205497665446699
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -788,6 +841,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FollowPathLocomotionActionSO
   _selfAnchor: {fileID: 0}
   _updateFacing: 1
+--- !u!114 &-1199315090856683543
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: RandomGlory_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: -4669643337480278969}
+  - {fileID: -2684913095445780014}
 --- !u!114 &-826374903660021616
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -853,6 +921,8 @@ MonoBehaviour:
         ExpectedResult: 0
       - Condition: {fileID: 2860989851991372328}
         ExpectedResult: 0
+      - Condition: {fileID: 3688329626171703647}
+        ExpectedResult: 0
     Id: 27dcddf9-f36b-4c7b-b19a-965dba13ed19
   - ToState: {fileID: 9204605873900580318}
     ConditionGroups:
@@ -866,7 +936,7 @@ MonoBehaviour:
       - Condition: {fileID: 6461264793314673001}
         ExpectedResult: 0
     Id: 7bcc6de5-9726-4796-8c7c-db488fba4352
-  - ToState: {fileID: -6437948323864379113}
+  - ToState: {fileID: -1199315090856683543}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: 2860989851991372328}
@@ -929,6 +999,20 @@ MonoBehaviour:
         ExpectedResult: 0
     ToState: {fileID: 1350832784552190812}
     Id: 523ceb09-b5b8-4ee4-9217-fb8b0a4f4c62
+  - FromState: {fileID: -1199315090856683543}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -6668908239051255673}
+        ExpectedResult: 0
+    ToState: {fileID: -6437948323864379113}
+    Id: 4a0522ad-dcc9-4ddd-8beb-d010beb2c578
+  - FromState: {fileID: -1199315090856683543}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 3688329626171703647}
+        ExpectedResult: 0
+    ToState: {fileID: 1350832784552190812}
+    Id: 8bf9967a-2746-43ca-ba19-f59d0c3aac89
   _base: {fileID: 0}
   _fieldOverrides: []
   _removedIds: []
@@ -942,7 +1026,7 @@ MonoBehaviour:
   - State: {fileID: 9204605873900580318}
     Position: {x: 351, y: 175}
   - State: {fileID: 5838480089549137350}
-    Position: {x: 351, y: 313}
+    Position: {x: 353, y: 299}
   - State: {fileID: 1350832784552190812}
     Position: {x: 550, y: 175}
   - State: {fileID: 5521259893469218469}
@@ -952,7 +1036,9 @@ MonoBehaviour:
   - State: {fileID: -5670934711078985649}
     Position: {x: 767, y: 175}
   - State: {fileID: -6437948323864379113}
-    Position: {x: 351, y: 237}
+    Position: {x: 550, y: 237}
+  - State: {fileID: -1199315090856683543}
+    Position: {x: 353, y: 237}
   _entryNodePosition: {x: 175, y: 98}
   _anyStateNodePosition: {x: 175, y: 175}
   _contentsFolders:
@@ -990,11 +1076,37 @@ MonoBehaviour:
     Folder: HealthSystem
   - Item: {fileID: -7082964100799712683}
     Folder: HealthSystem
+  - Item: {fileID: 3217853684232111228}
+    Folder: RandomPicker
+  - Item: {fileID: 170521044431323945}
+    Folder: RandomPicker/RandomPicker
+  - Item: {fileID: -7736586252646909596}
+    Folder: RandomPicker/RandomPicker
+  - Item: {fileID: -4813554661904948984}
+    Folder: Other
+  - Item: {fileID: -1634625438273243614}
+    Folder: Other
+  - Item: {fileID: -6761548379165742067}
+    Folder: Other
+  - Item: {fileID: -8835025516484844155}
+    Folder: Other
+  - Item: {fileID: -4669643337480278969}
+    Folder: Other
+  - Item: {fileID: -2570622780656827608}
+    Folder: Flag
   _contentsFolderPaths:
   - Group: Actions
     Path: Animator
   - Group: Conditions
     Path: HealthSystem
+  - Group: Data
+    Path: RandomPicker
+  - Group: Data
+    Path: RandomPicker/RandomPicker
+  - Group: Actions
+    Path: Other
+  - Group: Data
+    Path: Flag
   _stateDisplayNames: []
   _removedParameters: []
 --- !u!114 &148733803568735999
@@ -1033,6 +1145,18 @@ MonoBehaviour:
   _exitStateName: 
   _exitTransitionDuration: 0.25
   _exitStartTimeOffset: 0
+--- !u!114 &170521044431323945
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2d7c4dfc85d07b498d74fb3a7a830e3, type: 3}
+  m_Name: Glory_RandomOption
+  m_EditorClassIdentifier: Assembly-CSharp::RandomOptionSO
 --- !u!114 &478421693232287662
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1201,7 +1325,6 @@ MonoBehaviour:
   _actions:
   - {fileID: -8949796662600874686}
   - {fileID: -387289859703755849}
-  - {fileID: -2684913095445780014}
   - {fileID: -3267611607820468640}
   - {fileID: 6901939431842232502}
 --- !u!114 &1943822056990883776
@@ -1287,7 +1410,7 @@ MonoBehaviour:
   m_Name: HasGloryFlag_Condition
   m_EditorClassIdentifier: Assembly-CSharp::FlagConditionSO
   _selfAnchor: {fileID: 0}
-  flag: {fileID: 11400000, guid: 02fbf06f3aae8a04b8dee37780e76d4b, type: 2}
+  flag: {fileID: -2570622780656827608}
 --- !u!114 &2938497538905103224
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1324,6 +1447,18 @@ MonoBehaviour:
   _selfAnchor: {fileID: 0}
   _percent: 0
   _resetOnStateExit: 0
+--- !u!114 &3217853684232111228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8efa81ee0d5b6b4786029864f2ae53d, type: 3}
+  m_Name: GloryRandomPool
+  m_EditorClassIdentifier: Assembly-CSharp::RandomPoolSO
 --- !u!114 &3589744455036417229
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1338,6 +1473,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: -8835025516484844155}
+--- !u!114 &3688329626171703647
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9942d9bd8f1e0b0459cea61a31bda641, type: 3}
+  m_Name: NotGlory_RandomPicked_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::RandomPickedConditionSO
+  _selfAnchor: {fileID: 0}
+  _pool: {fileID: 3217853684232111228}
+  _option: {fileID: -7736586252646909596}
 --- !u!114 &3786700636523022769
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1591,6 +1741,7 @@ MonoBehaviour:
   - {fileID: 6091821685268474597}
   - {fileID: -6761548379165742067}
   - {fileID: -1634625438273243614}
+  - {fileID: -4813554661904948984}
 --- !u!114 &6091821685268474597
 MonoBehaviour:
   m_ObjectHideFlags: 0

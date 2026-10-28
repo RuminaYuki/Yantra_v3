@@ -17,6 +17,42 @@ MonoBehaviour:
   layerIndex: 0
   finishTime: 0
   extraSeconds: 0
+--- !u!114 &-8949616441336892990
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2d7c4dfc85d07b498d74fb3a7a830e3, type: 3}
+  m_Name: Rest_RandomOption
+  m_EditorClassIdentifier: Assembly-CSharp::RandomOptionSO
+--- !u!114 &-8747857617684719084
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 033a21f8e53c4ec48ad1347c970453da, type: 3}
+  m_Name: DeathBlossomAttackCooldownID
+  m_EditorClassIdentifier: Assembly-CSharp::CooldownSO
+--- !u!114 &-8381629492539063695
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2d7c4dfc85d07b498d74fb3a7a830e3, type: 3}
+  m_Name: NormalAttackPatternID
+  m_EditorClassIdentifier: Assembly-CSharp::AttackPatternIDSO
 --- !u!114 &-8333454843085663134
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -67,7 +103,7 @@ MonoBehaviour:
   m_Name: CounterCompare_Condition
   m_EditorClassIdentifier: Assembly-CSharp::CounterConditionSO
   _selfAnchor: {fileID: 0}
-  _counter: {fileID: 11400000, guid: 8fd082c4a046d78438bcb766fe16ba16, type: 2}
+  _counter: {fileID: 1722439833922476378}
   _comparison: 5
   _value: 3
 --- !u!114 &-7774704481344654937
@@ -84,6 +120,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: -3411280740989632322}
+--- !u!114 &-7768782795258394293
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 033a21f8e53c4ec48ad1347c970453da, type: 3}
+  m_Name: NormalAttackCooldownID
+  m_EditorClassIdentifier: Assembly-CSharp::CooldownSO
 --- !u!114 &-7472285065994476893
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -236,11 +284,35 @@ MonoBehaviour:
   m_Name: Rest_StartCooldown_Action
   m_EditorClassIdentifier: Assembly-CSharp::StartCooldownActionSO
   _selfAnchor: {fileID: 0}
-  _cooldown: {fileID: 11400000, guid: 75c307c80ddee504db0bf0bb73335527, type: 2}
+  _cooldown: {fileID: 2208140158005836818}
   _minDuration: 6
   _maxDuration: 4
   _when: 0
   _mode: 0
+--- !u!114 &-6240642961074268868
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2d7c4dfc85d07b498d74fb3a7a830e3, type: 3}
+  m_Name: PrepareATK_RandomOption
+  m_EditorClassIdentifier: Assembly-CSharp::RandomOptionSO
+--- !u!114 &-6178983506818785293
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2d7c4dfc85d07b498d74fb3a7a830e3, type: 3}
+  m_Name: DeathBlossomPatternID
+  m_EditorClassIdentifier: Assembly-CSharp::AttackPatternIDSO
 --- !u!114 &-6140166368431256099
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -292,8 +364,8 @@ MonoBehaviour:
   m_Name: SpawnMinnionRandomPicked_Condition
   m_EditorClassIdentifier: Assembly-CSharp::RandomPickedConditionSO
   _selfAnchor: {fileID: 0}
-  _pool: {fileID: 11400000, guid: f6d72d3bf5fe5c2449379f4cb95b449f, type: 2}
-  _option: {fileID: 11400000, guid: 30b3767fc8763e4469bfac4088de9cc0, type: 2}
+  _pool: {fileID: 2275656192919492967}
+  _option: {fileID: 2861199784143342715}
 --- !u!114 &-5397472596640054704
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -408,7 +480,19 @@ MonoBehaviour:
   m_Name: AttackRollRandomPool_Action
   m_EditorClassIdentifier: Assembly-CSharp::RollRandomPoolActionSO
   _selfAnchor: {fileID: 0}
-  _pool: {fileID: 11400000, guid: f6d72d3bf5fe5c2449379f4cb95b449f, type: 2}
+  _pool: {fileID: 2275656192919492967}
+--- !u!114 &-4772696351766426647
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8efa81ee0d5b6b4786029864f2ae53d, type: 3}
+  m_Name: RestRandomPool
+  m_EditorClassIdentifier: Assembly-CSharp::RandomPoolSO
 --- !u!114 &-4621473839124061901
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -452,8 +536,8 @@ MonoBehaviour:
   m_Name: DeathBlossomRandomPicked_Condition
   m_EditorClassIdentifier: Assembly-CSharp::RandomPickedConditionSO
   _selfAnchor: {fileID: 0}
-  _pool: {fileID: 11400000, guid: f6d72d3bf5fe5c2449379f4cb95b449f, type: 2}
-  _option: {fileID: 11400000, guid: 45390d6a611e42b4cafba57b5252ef15, type: 2}
+  _pool: {fileID: 2275656192919492967}
+  _option: {fileID: -6178983506818785293}
 --- !u!114 &-3936094420739335838
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -501,6 +585,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExitSubStateMachineActionSO
   _selfAnchor: {fileID: 0}
   _exitId: ExitToRest
+--- !u!114 &-3263197428825212322
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2d7c4dfc85d07b498d74fb3a7a830e3, type: 3}
+  m_Name: VengeFulRootsPatternID
+  m_EditorClassIdentifier: Assembly-CSharp::AttackPatternIDSO
 --- !u!114 &-2934392541409511602
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -514,8 +610,8 @@ MonoBehaviour:
   m_Name: Rest_RandomPicked_Condition
   m_EditorClassIdentifier: Assembly-CSharp::RandomPickedConditionSO
   _selfAnchor: {fileID: 0}
-  _pool: {fileID: 11400000, guid: e167968d1872e5f4e827f767fc8ae440, type: 2}
-  _option: {fileID: 11400000, guid: 24e3be00ec5937044b8da6bfa907b759, type: 2}
+  _pool: {fileID: -4772696351766426647}
+  _option: {fileID: -8949616441336892990}
 --- !u!114 &-2602068328119213129
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -543,7 +639,7 @@ MonoBehaviour:
   m_Name: InteractFlag_Condition
   m_EditorClassIdentifier: Assembly-CSharp::FlagConditionSO
   _selfAnchor: {fileID: 0}
-  flag: {fileID: 11400000, guid: 49f1e080a3b824f4f9dbdfa58d0288a0, type: 2}
+  flag: {fileID: -815653257355904210}
 --- !u!114 &-2441834422539578995
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -623,7 +719,7 @@ MonoBehaviour:
   _actions:
   - {fileID: 916758302756585191}
   _roundEndsWhen: {fileID: -6991968770991651269}
-  _counter: {fileID: 11400000, guid: 8fd082c4a046d78438bcb766fe16ba16, type: 2}
+  _counter: {fileID: 1722439833922476378}
   _count: 3
   _exitEveryRound: 1
 --- !u!114 &-1956449057561256609
@@ -681,10 +777,22 @@ MonoBehaviour:
   m_Name: DeathBlossomReset_ChangeCounter_Action
   m_EditorClassIdentifier: Assembly-CSharp::ChangeCounterActionSO
   _selfAnchor: {fileID: 0}
-  _counter: {fileID: 11400000, guid: 8fd082c4a046d78438bcb766fe16ba16, type: 2}
+  _counter: {fileID: 1722439833922476378}
   _operation: 0
   _value: 0
   _when: 0
+--- !u!114 &-815653257355904210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6687386e458fac4db6106b19ddf0699, type: 3}
+  m_Name: TaneeInteractFlag
+  m_EditorClassIdentifier: Assembly-CSharp::FlagSO
 --- !u!114 &-304040775506763751
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -986,6 +1094,36 @@ MonoBehaviour:
     Folder: RestRandomPicker
   - Item: {fileID: 865648703522994665}
     Folder: RestRandomPicker
+  - Item: {fileID: 2275656192919492967}
+    Folder: Picker/AttackPattern
+  - Item: {fileID: -4772696351766426647}
+    Folder: Picker/RestPattern
+  - Item: {fileID: -6178983506818785293}
+    Folder: Picker/AttackPattern/PatternID
+  - Item: {fileID: -8381629492539063695}
+    Folder: Picker/AttackPattern/PatternID
+  - Item: {fileID: 2861199784143342715}
+    Folder: Picker/AttackPattern/PatternID
+  - Item: {fileID: -3263197428825212322}
+    Folder: Picker/AttackPattern/PatternID
+  - Item: {fileID: 2208140158005836818}
+    Folder: Cooldown
+  - Item: {fileID: 5065839278962015797}
+    Folder: Picker/AttackPattern/CooldownID
+  - Item: {fileID: 741395715690122083}
+    Folder: Picker/AttackPattern/CooldownID
+  - Item: {fileID: -8747857617684719084}
+    Folder: Picker/AttackPattern/CooldownID
+  - Item: {fileID: -7768782795258394293}
+    Folder: Picker/AttackPattern/CooldownID
+  - Item: {fileID: -6240642961074268868}
+    Folder: Picker/RestPattern/PatternID
+  - Item: {fileID: -8949616441336892990}
+    Folder: Picker/RestPattern/PatternID
+  - Item: {fileID: 1722439833922476378}
+    Folder: Counter
+  - Item: {fileID: -815653257355904210}
+    Folder: Flag
   _contentsFolderPaths:
   - Group: Actions
     Path: Animator
@@ -1003,6 +1141,16 @@ MonoBehaviour:
     Path: Other
   - Group: Conditions
     Path: RestRandomPicker
+  - Group: Data
+    Path: Cooldown
+  - Group: Data
+    Path: Picker/AttackPattern/PatternID
+  - Group: Data
+    Path: Picker/RestPattern/PatternID
+  - Group: Data
+    Path: Counter
+  - Group: Data
+    Path: Flag
   _stateDisplayNames: []
   _removedParameters: []
 --- !u!114 &421504577681913907
@@ -1023,6 +1171,18 @@ MonoBehaviour:
   _offsetMax: {x: 1, y: 0, z: 1.25}
   _maxAttempts: 8
   _faceTarget: 1
+--- !u!114 &741395715690122083
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 033a21f8e53c4ec48ad1347c970453da, type: 3}
+  m_Name: VengeFulRootsCooldownID
+  m_EditorClassIdentifier: Assembly-CSharp::CooldownSO
 --- !u!114 &865648703522994665
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1036,8 +1196,8 @@ MonoBehaviour:
   m_Name: Prepare_RandomPicked_Condition
   m_EditorClassIdentifier: Assembly-CSharp::RandomPickedConditionSO
   _selfAnchor: {fileID: 0}
-  _pool: {fileID: 11400000, guid: e167968d1872e5f4e827f767fc8ae440, type: 2}
-  _option: {fileID: 11400000, guid: bbf78fcba49fbd246908a80ae2162f17, type: 2}
+  _pool: {fileID: -4772696351766426647}
+  _option: {fileID: -6240642961074268868}
 --- !u!114 &916758302756585191
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1119,6 +1279,18 @@ MonoBehaviour:
   _selfAnchor: {fileID: 0}
   _primary: {fileID: 421504577681913907}
   _fallback: {fileID: -2440816541855557872}
+--- !u!114 &1722439833922476378
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f34e21551a3ee947abedefbe7ace21e, type: 3}
+  m_Name: DeathBlossomCounter
+  m_EditorClassIdentifier: Assembly-CSharp::CounterSO
 --- !u!114 &1790145170704217784
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1167,6 +1339,42 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 2048
   _restoreOnExit: 1
+--- !u!114 &2208140158005836818
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 033a21f8e53c4ec48ad1347c970453da, type: 3}
+  m_Name: RestCooldownID
+  m_EditorClassIdentifier: Assembly-CSharp::CooldownSO
+--- !u!114 &2275656192919492967
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8efa81ee0d5b6b4786029864f2ae53d, type: 3}
+  m_Name: AttackRandomPool
+  m_EditorClassIdentifier: Assembly-CSharp::RandomPoolSO
+--- !u!114 &2861199784143342715
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2d7c4dfc85d07b498d74fb3a7a830e3, type: 3}
+  m_Name: SpawnMinnionPatternID
+  m_EditorClassIdentifier: Assembly-CSharp::AttackPatternIDSO
 --- !u!114 &3137754659813419830
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1429,8 +1637,20 @@ MonoBehaviour:
   m_Name: NormalAttackRandomPicked_Condition
   m_EditorClassIdentifier: Assembly-CSharp::RandomPickedConditionSO
   _selfAnchor: {fileID: 0}
-  _pool: {fileID: 11400000, guid: f6d72d3bf5fe5c2449379f4cb95b449f, type: 2}
-  _option: {fileID: 11400000, guid: 77b03eee1b8f8d2498b4fc5aab837c2b, type: 2}
+  _pool: {fileID: 2275656192919492967}
+  _option: {fileID: -8381629492539063695}
+--- !u!114 &5065839278962015797
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 033a21f8e53c4ec48ad1347c970453da, type: 3}
+  m_Name: SpawnMinnionCooldownID
+  m_EditorClassIdentifier: Assembly-CSharp::CooldownSO
 --- !u!114 &5390626094658260857
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1444,8 +1664,8 @@ MonoBehaviour:
   m_Name: VengeFulRootsRandomPicked_Condition
   m_EditorClassIdentifier: Assembly-CSharp::RandomPickedConditionSO
   _selfAnchor: {fileID: 0}
-  _pool: {fileID: 11400000, guid: f6d72d3bf5fe5c2449379f4cb95b449f, type: 2}
-  _option: {fileID: 11400000, guid: 3fd9285edd3936549b1d7579b03865ba, type: 2}
+  _pool: {fileID: 2275656192919492967}
+  _option: {fileID: -3263197428825212322}
 --- !u!114 &5655249779303119488
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1617,7 +1837,7 @@ MonoBehaviour:
   m_Name: Rest_RollRandomPool_Action
   m_EditorClassIdentifier: Assembly-CSharp::RollRandomPoolActionSO
   _selfAnchor: {fileID: 0}
-  _pool: {fileID: 11400000, guid: e167968d1872e5f4e827f767fc8ae440, type: 2}
+  _pool: {fileID: -4772696351766426647}
 --- !u!114 &7201636916893211207
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1682,7 +1902,7 @@ MonoBehaviour:
   m_Name: RestCooldownReady_Condition
   m_EditorClassIdentifier: Assembly-CSharp::CooldownReadyConditionSO
   _selfAnchor: {fileID: 0}
-  _cooldown: {fileID: 11400000, guid: 75c307c80ddee504db0bf0bb73335527, type: 2}
+  _cooldown: {fileID: 2208140158005836818}
 --- !u!114 &7879996508394324503
 MonoBehaviour:
   m_ObjectHideFlags: 0

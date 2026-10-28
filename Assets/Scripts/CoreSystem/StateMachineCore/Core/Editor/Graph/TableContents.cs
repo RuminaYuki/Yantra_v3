@@ -254,6 +254,50 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             return int.Parse(path.Substring(prefix.Length, end - prefix.Length));
         }
 
+        // ---------- Data ----------
+
+        // Anything else the table's file holds: ids and keys that its actions and conditions share with
+        // components in the scene (AnchorIDSO, CooldownSO, RandomPoolSO, flags, counters, ...).
+        // The Data panel lists these.
+        public static bool IsDataItem(Object item)
+        {
+            return item is ScriptableObject && IsDataType(item.GetType());
+        }
+
+        public static bool IsDataType(Type type)
+        {
+            return typeof(ScriptableObject).IsAssignableFrom(type) &&
+                   !typeof(StateSO).IsAssignableFrom(type) &&
+                   !typeof(StateActionSO).IsAssignableFrom(type) &&
+                   !typeof(StateConditionSO).IsAssignableFrom(type) &&
+                   !typeof(TransitionTableSO).IsAssignableFrom(type) &&
+                   !typeof(ExposedParametersSO).IsAssignableFrom(type);
+        }
+
+        public static List<ScriptableObject> CollectData(TransitionTableSO table)
+        {
+            return AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GetAssetPath(table))
+                .OfType<ScriptableObject>()
+                .Where(IsDataItem)
+                .ToList();
+        }
+
+        // A data item that can move into the table's file (EmbeddedAssets.MoveInto): alone in its own
+        // .asset file. One inside another file (e.g. another table's Data) stays where it is.
+        public static bool CanMoveIn(ScriptableObject item, string tablePath)
+        {
+            if (!IsDataItem(item))
+            {
+                return false;
+            }
+
+            string path = AssetDatabase.GetAssetPath(item);
+            return path.EndsWith(".asset", StringComparison.Ordinal) &&
+                   path != tablePath &&
+                   AssetDatabase.IsMainAsset(item) &&
+                   AssetDatabase.LoadAllAssetsAtPath(path).Length == 1;
+        }
+
         // ---------- Actions in a state ----------
 
         // The state's action list, without empty slots or repeats.

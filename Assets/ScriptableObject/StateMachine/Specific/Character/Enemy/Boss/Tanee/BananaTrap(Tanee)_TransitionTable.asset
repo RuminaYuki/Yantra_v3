@@ -42,8 +42,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c807c0fe937f0941bc0ea49af3c0c0a, type: 3}
   m_Name: SetTaneeInteractFalseFlagOnEnter_Action
   m_EditorClassIdentifier: Assembly-CSharp::SetFlagOnEnterActionSO
-  _selfAnchor: {fileID: 11400000, guid: 48e12e710fca4a848b2773a5c3675db1, type: 2}
-  flag: {fileID: 11400000, guid: 49f1e080a3b824f4f9dbdfa58d0288a0, type: 2}
+  _selfAnchor: {fileID: 3487733036866874053}
+  flag: {fileID: -815653257355904210, guid: 4afba263dd48e504d81a0fabc94e8771, type: 2}
   value: 1
   changeValueOnExit: 0
 --- !u!114 &-7046636321241546014
@@ -58,8 +58,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c807c0fe937f0941bc0ea49af3c0c0a, type: 3}
   m_Name: SetTaneeInteractTrueFlagOnEnter_Action
   m_EditorClassIdentifier: Assembly-CSharp::SetFlagOnEnterActionSO
-  _selfAnchor: {fileID: 11400000, guid: 48e12e710fca4a848b2773a5c3675db1, type: 2}
-  flag: {fileID: 11400000, guid: 49f1e080a3b824f4f9dbdfa58d0288a0, type: 2}
+  _selfAnchor: {fileID: 3487733036866874053}
+  flag: {fileID: -815653257355904210, guid: 4afba263dd48e504d81a0fabc94e8771, type: 2}
   value: 1
   changeValueOnExit: 0
 --- !u!114 &-5042621771395516419
@@ -115,7 +115,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9fe732abf4533e40a9dae6f7869e88f, type: 3}
   m_Name: PlayDissolveVisualEffect_Action
   m_EditorClassIdentifier: Assembly-CSharp::PlayVisualEffectActionSO
-  _selfAnchor: {fileID: 11400000, guid: e3942a853d2e7e04cac50efb564acc40, type: 2}
+  _selfAnchor: {fileID: 1209619474501955622}
   _eventName: 
   _reinitOnEnter: 0
   _stopOnStateExit: 0
@@ -184,7 +184,13 @@ MonoBehaviour:
     Position: {x: 160, y: 80}
   _entryNodePosition: {x: 0, y: 0}
   _anyStateNodePosition: {x: 0, y: 120}
-  _contentsFolders: []
+  _contentsFolders:
+  - Item: {fileID: 3487733036866874053}
+    Folder: Anchor
+  - Item: {fileID: -5417837792806821655}
+    Folder: Anchor
+  - Item: {fileID: 1209619474501955622}
+    Folder: Anchor
   _contentsFolderPaths: []
   _stateDisplayNames: []
   _removedParameters: []
@@ -214,8 +220,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cea39afc1a75b7646a1bd105ab75cb29, type: 3}
   m_Name: TaneeToHerHomePointTeleportAnchorOffset_Action
   m_EditorClassIdentifier: Assembly-CSharp::TeleportAnchorOffsetActionSO
-  _selfAnchor: {fileID: 11400000, guid: 48e12e710fca4a848b2773a5c3675db1, type: 2}
-  _targetAnchor: {fileID: 11400000, guid: b596b1f0bdc34b749bae8284d152fff5, type: 2}
+  _selfAnchor: {fileID: 3487733036866874053}
+  _targetAnchor: {fileID: -5417837792806821655}
   _offsetMin: {x: 0, y: 0, z: 0}
   _offsetMax: {x: 0, y: 0, z: 0}
   _maxAttempts: 8
@@ -273,7 +279,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cea39afc1a75b7646a1bd105ab75cb29, type: 3}
   m_Name: TaneeToPlayerTeleportAnchorOffset_Action
   m_EditorClassIdentifier: Assembly-CSharp::TeleportAnchorOffsetActionSO
-  _selfAnchor: {fileID: 11400000, guid: 48e12e710fca4a848b2773a5c3675db1, type: 2}
+  _selfAnchor: {fileID: 3487733036866874053}
   _targetAnchor: {fileID: 11400000, guid: ded8b5ee8f0dd57488cc9fa0e5c0d061, type: 2}
   _offsetMin: {x: -2, y: 0, z: 2}
   _offsetMax: {x: 2, y: 0, z: 3}
@@ -296,3 +302,39 @@ MonoBehaviour:
   - {fileID: 4801895335125465723}
   - {fileID: -1655661976764212870}
   - {fileID: -7046636321241546014}
+--- !u!114 &3487733036866874053
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29aaa39665320664388a123863eae513, type: 3}
+  m_Name: TaneeGameObject_AnchorID
+  m_EditorClassIdentifier: Assembly-CSharp::GameObjectAnchor
+--- !u!114 &-5417837792806821655
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29aaa39665320664388a123863eae513, type: 3}
+  m_Name: TaneeHomePoint_AnchorID
+  m_EditorClassIdentifier: Assembly-CSharp::GameObjectAnchor
+--- !u!114 &1209619474501955622
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29aaa39665320664388a123863eae513, type: 3}
+  m_Name: TaneeVFXDissolve_AnchorID
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.AnchorIDSO

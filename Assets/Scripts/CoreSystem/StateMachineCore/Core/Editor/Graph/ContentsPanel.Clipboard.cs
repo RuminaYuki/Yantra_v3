@@ -63,7 +63,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 case "Duplicate":
                     return SelectedCopyable().Count > 0;
                 case "Paste":
-                    return Clipboard.Any(item => item != null);
+                    return Pastable().Count > 0;
                 case "SelectAll":
                     return true;
                 default:
@@ -82,7 +82,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                     PasteCopies(SelectedCopyable());
                     break;
                 case "Paste":
-                    PasteCopies(Clipboard.Where(item => item != null).ToList());
+                    PasteCopies(Pastable());
                     break;
                 case "SelectAll":
                     Selection.objects = ShownItemsInOrder().ToArray();
@@ -100,10 +100,11 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             string count = targets.Count > 1 ? $" ({targets.Count})" : "";
 
             menu.AppendAction($"Copy{count}", _ => CopyToClipboard(targets), status);
+            List<ScriptableObject> pastable = Pastable();
             menu.AppendAction(
                 "Paste",
-                _ => PasteCopies(Clipboard.Where(clipped => clipped != null).ToList()),
-                Clipboard.Any(clipped => clipped != null)
+                _ => PasteCopies(pastable),
+                pastable.Count > 0
                     ? DropdownMenuAction.Status.Normal
                     : DropdownMenuAction.Status.Disabled);
             menu.AppendAction($"Duplicate{count}", _ => PasteCopies(targets), status);
@@ -126,6 +127,12 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         }
 
         // ---------- Copy / Paste ----------
+
+        // What was copied in this kind of panel: Data items paste only into Data, the rest only into Contents.
+        private List<ScriptableObject> Pastable()
+        {
+            return Clipboard.Where(item => item != null && TableContents.IsDataItem(item) == _isDataPanel).ToList();
+        }
 
         private static void CopyToClipboard(List<ScriptableObject> items)
         {
