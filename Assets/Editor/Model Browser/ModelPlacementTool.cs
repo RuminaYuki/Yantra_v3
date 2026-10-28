@@ -31,6 +31,14 @@ namespace ModelBrowser
         static Vector3 posePos;
         static Quaternion poseRot;
         static Vector2 rmbDownPos;
+        static Vector2 lastMouse;
+        static bool poseDirty;           // set by shortcuts (no GUI context there); pose is recomputed on next Scene GUI event
+        static float heightOffset;       // manual offset (E / Q, Ctrl+Scroll), kept between placements
+        public static float HeightOffset
+        {
+            get => heightOffset;
+            set { heightOffset = value; poseDirty = true; SceneView.RepaintAll(); }
+        }
         static readonly PlacementShortcutContext shortcutContext = new PlacementShortcutContext();
         static bool contextRegistered;
 
@@ -82,14 +90,27 @@ namespace ModelBrowser
         [Shortcut("Model Browser/Rotate Counter-Clockwise", typeof(PlacementShortcutContext), KeyCode.R, ShortcutModifiers.Shift)]
         static void RotateCounterClockwise() => Rotate(-1);
 
+        [Shortcut("Model Browser/Raise", typeof(PlacementShortcutContext), KeyCode.E)]
+        static void Raise() => ChangeHeight(1);
+
+        [Shortcut("Model Browser/Lower", typeof(PlacementShortcutContext), KeyCode.Q)]
+        static void Lower() => ChangeHeight(-1);
+
+        [Shortcut("Model Browser/Reset Height Offset", typeof(PlacementShortcutContext), KeyCode.Q, ShortcutModifiers.Shift)]
+        static void ResetHeight() { HeightOffset = 0f; Changed?.Invoke(); }
+
+        static float HeightStepValue => ModelBrowserPrefs.SnapY ? ModelBrowserPrefs.GridSize : ModelBrowserPrefs.HeightStep;
+
+        static void ChangeHeight(int dir)
+        {
+            HeightOffset = Mathf.Round((heightOffset + dir * HeightStepValue) * 1000f) / 1000f;
+            Changed?.Invoke();
+        }
+
         static void Rotate(int dir)
         {
             yaw = Mathf.Repeat(yaw + dir * ModelBrowserPrefs.RotationStep, 360f);
-            if (hasPose)
-            {
-                poseRot = BaseRotation() * Quaternion.Euler(0f, yaw, 0f);
-                ShowGhost(posePos, poseRot);
-            }
+            poseDirty = true;
             SceneView.RepaintAll();
         }
 
@@ -100,6 +121,12 @@ namespace ModelBrowser
             Event e = Event.current;
             if (HandleDrag(e)) return;
             if (!IsActive) return;
+
+            if (poseDirty && e.type != EventType.Used)
+            {
+                poseDirty = false;
+                UpdatePose(lastMouse);
+            }
 
             int id = GUIUtility.GetControlID(FocusType.Passive);
             switch (e.type)
@@ -150,10 +177,14 @@ namespace ModelBrowser
                     break;
 
                 case EventType.ScrollWheel:
-                    if (e.shift)
+                    if (e.shift || e.control)
                     {
                         float d = Mathf.Abs(e.delta.y) > Mathf.Abs(e.delta.x) ? e.delta.y : e.delta.x;
-                        if (d != 0f) Rotate(d > 0 ? 1 : -1);
+                        if (d != 0f)
+                        {
+                            if (e.control) ChangeHeight(d > 0 ? -1 : 1); // scroll up = raise
+                            else Rotate(d > 0 ? 1 : -1);
+                        }
                         e.Use();
                     }
                     break;
@@ -203,6 +234,7 @@ namespace ModelBrowser
 
         static void UpdatePose(Vector2 mouse)
         {
+            lastMouse = mouse;
             hasPose = ComputePose(mouse, out posePos, out poseRot);
             if (hasPose) ShowGhost(posePos, poseRot);
             else if (ghost) ghost.SetActive(false);
@@ -221,42 +253,160 @@ namespace ModelBrowser
             return p ? p.rotation : Quaternion.identity;
         }
 
+        /// <summary>Where the last pose got its height from (shown in the HUD).</summary>
+        static string heightSource = "";
+        static float lockedSurfaceY;
+        static bool hasLockedY;
+
         static bool ComputePose(Vector2 mouse, out Vector3 pos, out Quaternion rot)
         {
             pos = default;
-            rot = Quaternion.identity;
+            rot = BaseRotation() * Quaternion.Euler(0f, yaw, 0f);
+            Ray ray = HandleUtility.GUIPointToWorldRay(mouse);
+            GameObject surfaceObj = null;
             bool hit = false;
 
-            if (ModelBrowserPrefs.SurfaceMode)
+            // The ghost lives on the Ignore Raycast layer and is excluded from picking, so it can't hit itself.
             {
-                // Hide the ghost so the raycast doesn't hit it.
-                bool ghostWasActive = ghost && ghost.activeSelf;
-                if (ghost) ghost.SetActive(false);
-                hit = HandleUtility.PlaceObject(mouse, out pos, out _);
-                if (ghost) ghost.SetActive(ghostWasActive);
+                if (ModelBrowserPrefs.SurfaceMode)
+                    hit = RaycastSurface(mouse, ray, out pos, out surfaceObj);
+
+                if (!hit)
+                {
+                    var plane = new Plane(Vector3.up, new Vector3(0f, ModelBrowserPrefs.PlaneHeight, 0f));
+                    if (!plane.Raycast(ray, out float d)) return false;
+                    pos = ray.GetPoint(d);
+                    heightSource = $"plane Y {ModelBrowserPrefs.PlaneHeight:0.##}";
+                }
+
+                Transform parent = EffectiveParent();
+                if (ModelBrowserPrefs.Snap)
+                {
+                    float g = ModelBrowserPrefs.GridSize;
+                    Vector3 local = parent ? parent.InverseTransformPoint(pos) : pos;
+                    local.x = Mathf.Round(local.x / g) * g;
+                    local.z = Mathf.Round(local.z / g) * g;
+                    pos = parent ? parent.TransformPoint(local) : local;
+
+                    // X/Z moved to the grid point → re-sample the ground height there (slopes, terrain, steps).
+                    if (hit && ProbeDown(pos, surfaceObj, out float groundY)) pos.y = groundY;
+                }
             }
 
-            if (!hit)
-            {
-                Ray ray = HandleUtility.GUIPointToWorldRay(mouse);
-                var plane = new Plane(Vector3.up, new Vector3(0f, ModelBrowserPrefs.PlaneHeight, 0f));
-                if (!plane.Raycast(ray, out float d)) return false;
-                pos = ray.GetPoint(d);
-            }
-
-            Transform parent = EffectiveParent();
-            if (ModelBrowserPrefs.Snap)
+            if (ModelBrowserPrefs.SnapY)
             {
                 float g = ModelBrowserPrefs.GridSize;
-                Vector3 local = parent ? parent.InverseTransformPoint(pos) : pos;
-                local.x = Mathf.Round(local.x / g) * g;
-                local.z = Mathf.Round(local.z / g) * g;
-                if (ModelBrowserPrefs.SnapY) local.y = Mathf.Round(local.y / g) * g;
-                pos = parent ? parent.TransformPoint(local) : local;
+                pos.y = Mathf.Round(pos.y / g) * g;
             }
 
-            rot = BaseRotation() * Quaternion.Euler(0f, yaw, 0f);
+            // Hold Shift = lock height: keep the last surface height while sliding over other objects.
+            bool lockY = Event.current != null && Event.current.shift && hasLockedY;
+            if (lockY) { pos.y = lockedSurfaceY; heightSource = "locked (Shift)"; }
+            else { lockedSurfaceY = pos.y; hasLockedY = true; }
+
+            // Lift so the bottom of the model sits on the surface (pivot not at the bottom).
+            if (ModelBrowserPrefs.AlignBase && ghostLocalCorners.Count > 0)
+            {
+                Matrix4x4 m = Matrix4x4.TRS(pos, rot * ghostRootRotation, ghostRootScale);
+                float minY = float.MaxValue;
+                foreach (var c in ghostLocalCorners) minY = Mathf.Min(minY, m.MultiplyPoint3x4(c).y);
+                pos.y += pos.y - minY;
+            }
+
+            pos.y += heightOffset;
             return true;
+        }
+
+        /// <summary>Closest hit from colliders (Physics) and from the mesh under the mouse (no collider needed).</summary>
+        static bool RaycastSurface(Vector2 mouse, Ray ray, out Vector3 point, out GameObject surfaceObj)
+        {
+            point = default;
+            surfaceObj = null;
+            float best = float.MaxValue;
+
+            var physics = PhysicsSceneForPlacement();
+            Physics.SyncTransforms();
+            if (physics.Raycast(ray.origin, ray.direction, out RaycastHit ph, 100000f, RayMask, QueryTriggerInteraction.Ignore))
+            {
+                best = ph.distance;
+                point = ph.point;
+                surfaceObj = ph.collider.gameObject;
+                heightSource = "collider: " + ph.collider.name;
+            }
+
+            var picked = HandleUtility.PickGameObject(mouse, false, ghostObjects);
+            if (picked && IsInMask(picked) && !IsGhost(picked) && RaycastObjectMeshes(ray, picked, out RaycastHit mh) && mh.distance < best)
+            {
+                best = mh.distance;
+                point = mh.point;
+                surfaceObj = picked;
+                heightSource = "mesh: " + picked.name;
+            }
+
+            return best < float.MaxValue;
+        }
+
+        const int IgnoreRaycastLayer = 2;
+        static int RayMask => ModelBrowserPrefs.SurfaceMask & ~(1 << IgnoreRaycastLayer);
+        static bool IsInMask(GameObject go) => (RayMask & (1 << go.layer)) != 0;
+        static bool IsGhost(GameObject go) => ghost && go.transform.IsChildOf(ghost.transform);
+        static GameObject[] ghostObjects = new GameObject[0];
+
+        /// <summary>Vertical ray down from slightly above the point, against colliders and the surface object's meshes.</summary>
+        static bool ProbeDown(Vector3 at, GameObject surfaceObj, out float y)
+        {
+            y = at.y;
+            const float above = 0.5f;
+            var ray = new Ray(at + Vector3.up * above, Vector3.down);
+            float best = float.MaxValue;
+
+            if (PhysicsSceneForPlacement().Raycast(ray.origin, ray.direction, out RaycastHit ph, 1000f, RayMask, QueryTriggerInteraction.Ignore))
+            {
+                best = ph.distance;
+                y = ph.point.y;
+            }
+            if (surfaceObj && RaycastObjectMeshes(ray, surfaceObj, out RaycastHit mh) && mh.distance < best)
+            {
+                best = mh.distance;
+                y = mh.point.y;
+            }
+            return best < float.MaxValue;
+        }
+
+        static PhysicsScene PhysicsSceneForPlacement()
+        {
+            var stage = PrefabStageUtility.GetCurrentPrefabStage();
+            return stage != null ? stage.scene.GetPhysicsScene() : Physics.defaultPhysicsScene;
+        }
+
+        // HandleUtility.IntersectRayMesh is internal; it's what Unity's own scene picking uses (works without colliders).
+        static readonly System.Reflection.MethodInfo intersectRayMesh = typeof(HandleUtility).GetMethod("IntersectRayMesh",
+            System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public,
+            null, new[] { typeof(Ray), typeof(Mesh), typeof(Matrix4x4), typeof(RaycastHit).MakeByRefType() }, null);
+
+        static bool RaycastObjectMeshes(Ray ray, GameObject go, out RaycastHit best)
+        {
+            best = default;
+            if (intersectRayMesh == null) return false;
+            bool found = false;
+            RaycastHit closest = default;
+            var args = new object[4];
+
+            void Test(Mesh mesh, Matrix4x4 matrix)
+            {
+                if (!mesh) return;
+                args[0] = ray; args[1] = mesh; args[2] = matrix; args[3] = null;
+                if ((bool)intersectRayMesh.Invoke(null, args))
+                {
+                    var h = (RaycastHit)args[3];
+                    if (!found || h.distance < closest.distance) { closest = h; found = true; }
+                }
+            }
+
+            foreach (var mf in go.GetComponents<MeshFilter>()) Test(mf.sharedMesh, mf.transform.localToWorldMatrix);
+            foreach (var smr in go.GetComponents<SkinnedMeshRenderer>()) Test(smr.sharedMesh, smr.transform.localToWorldMatrix);
+            best = closest;
+            return found;
         }
 
         // ---------------- Ghost ----------------
@@ -276,11 +426,44 @@ namespace ModelBrowser
                 if (mb == null) continue;
                 try { Object.DestroyImmediate(mb); } catch { /* dependency order, ignore */ }
             }
-            foreach (var t in ghost.GetComponentsInChildren<Transform>(true))
+            var all = ghost.GetComponentsInChildren<Transform>(true);
+            foreach (var t in all)
+            {
                 t.gameObject.hideFlags = HideFlags.HideAndDontSave;
+                t.gameObject.layer = IgnoreRaycastLayer; // never hit by our own raycasts
+            }
+            ghostObjects = System.Array.ConvertAll(all, t => t.gameObject);
             ghostRootRotation = prefab.transform.localRotation;
+            ghostRootScale = prefab.transform.localScale;
+            CacheLocalCorners();
             ghostPath = path;
             ghost.SetActive(false);
+        }
+
+        // Mesh bounds corners in the prefab root's local space (unscaled), used for "Base" alignment.
+        static readonly System.Collections.Generic.List<Vector3> ghostLocalCorners = new System.Collections.Generic.List<Vector3>();
+        static Vector3 ghostRootScale = Vector3.one;
+
+        static void CacheLocalCorners()
+        {
+            ghostLocalCorners.Clear();
+            if (!ghost) return;
+            Matrix4x4 rootInv = Matrix4x4.TRS(ghost.transform.position, ghost.transform.rotation, ghost.transform.lossyScale).inverse;
+
+            void Add(Mesh mesh, Transform t)
+            {
+                if (!mesh) return;
+                Bounds b = mesh.bounds;
+                Matrix4x4 m = rootInv * t.localToWorldMatrix;
+                for (int i = 0; i < 8; i++)
+                {
+                    var c = b.center + Vector3.Scale(b.extents, new Vector3((i & 1) == 0 ? -1 : 1, (i & 2) == 0 ? -1 : 1, (i & 4) == 0 ? -1 : 1));
+                    ghostLocalCorners.Add(m.MultiplyPoint3x4(c));
+                }
+            }
+
+            foreach (var mf in ghost.GetComponentsInChildren<MeshFilter>(true)) Add(mf.sharedMesh, mf.transform);
+            foreach (var smr in ghost.GetComponentsInChildren<SkinnedMeshRenderer>(true)) Add(smr.sharedMesh, smr.transform);
         }
 
         static void ShowGhost(Vector3 pos, Quaternion rot)
@@ -295,13 +478,14 @@ namespace ModelBrowser
             if (ghost) Object.DestroyImmediate(ghost);
             ghost = null;
             ghostPath = null;
+            ghostObjects = new GameObject[0];
         }
 
         static void DrawGizmo()
         {
             if (!hasPose || !ghost || !ghost.activeSelf) return;
             var renderers = ghost.GetComponentsInChildren<Renderer>();
-            if (renderers.Length > 0)
+            if (ModelBrowserPrefs.ShowBounds && renderers.Length > 0)
             {
                 Bounds b = renderers[0].bounds;
                 foreach (var r in renderers) b.Encapsulate(r.bounds);
@@ -318,7 +502,9 @@ namespace ModelBrowser
         {
             Handles.BeginGUI();
             string name = System.IO.Path.GetFileNameWithoutExtension(ActivePath);
-            string text = $"{name}   {yaw:0}°\nLMB place · R / Shift+R rotate · Esc / RMB exit";
+            string offset = heightOffset == 0f ? "" : $"   offset {(heightOffset > 0 ? "+" : "")}{heightOffset:0.###} m";
+            string text = $"{name}   {yaw:0}°   Y {posePos.y:0.##} ({heightSource}){offset}\n" +
+                          "LMB place · hold Shift lock height · R / Shift+R rotate · E / Q up-down (Ctrl+Scroll) · Shift+Q reset · Esc / RMB exit";
             var content = new GUIContent(text);
             var style = EditorStyles.helpBox;
             Vector2 size = style.CalcSize(content);

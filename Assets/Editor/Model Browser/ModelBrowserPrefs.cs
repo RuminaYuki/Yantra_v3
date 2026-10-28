@@ -20,8 +20,17 @@ namespace ModelBrowser
         /// <summary>true = stick to surfaces under the mouse; false = always use the horizontal plane.</summary>
         public static bool SurfaceMode { get => EditorPrefs.GetBool(Prefix + "SurfaceMode", true); set => EditorPrefs.SetBool(Prefix + "SurfaceMode", value); }
         public static float PlaneHeight { get => EditorPrefs.GetFloat(Prefix + "PlaneHeight", 0f); set => EditorPrefs.SetFloat(Prefix + "PlaneHeight", value); }
+        /// <summary>Lift the object so the bottom of its bounds sits on the surface (for prefabs whose pivot isn't at the bottom).</summary>
+        /// <summary>Layers the placement ray may stick to (e.g. only "Ground"). Default: everything.</summary>
+        public static int SurfaceMask { get => EditorPrefs.GetInt(Prefix + "SurfaceMask", ~0); set => EditorPrefs.SetInt(Prefix + "SurfaceMask", value); }
+        public static bool ShowBounds { get => EditorPrefs.GetBool(Prefix + "ShowBounds", false); set => EditorPrefs.SetBool(Prefix + "ShowBounds", value); }
+        public static bool AlignBase { get => EditorPrefs.GetBool(Prefix + "AlignBase", true); set => EditorPrefs.SetBool(Prefix + "AlignBase", value); }
+        /// <summary>Step for manual height offset (E / Q, Ctrl+Scroll). Uses Grid size when Snap Y is on.</summary>
+        public static float HeightStep { get => EditorPrefs.GetFloat(Prefix + "HeightStep", 0.25f); set => EditorPrefs.SetFloat(Prefix + "HeightStep", Mathf.Max(0.001f, value)); }
 
         // ---- Thumbnails ----
+        /// <summary>false = use Unity's AssetPreview only (handy for checking whether a GPU error comes from our renderer).</summary>
+        public static bool UseCustomThumbnails { get => EditorPrefs.GetBool(Prefix + "UseCustomThumbs", true); set => EditorPrefs.SetBool(Prefix + "UseCustomThumbs", value); }
         public static float ThumbYaw { get => EditorPrefs.GetFloat(Prefix + "ThumbYaw", 215f); set => EditorPrefs.SetFloat(Prefix + "ThumbYaw", value); }
         public static float ThumbPitch { get => EditorPrefs.GetFloat(Prefix + "ThumbPitch", 25f); set => EditorPrefs.SetFloat(Prefix + "ThumbPitch", value); }
         public static float ThumbLight { get => EditorPrefs.GetFloat(Prefix + "ThumbLight", 1.3f); set => EditorPrefs.SetFloat(Prefix + "ThumbLight", value); }

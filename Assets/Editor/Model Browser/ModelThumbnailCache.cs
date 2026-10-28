@@ -32,18 +32,77 @@ namespace ModelBrowser
         static PreviewRenderUtility pru;
         static double idleSince;
 
+        // ---- GPU error tracking ----
+        // DX11/D3D errors don't say which object caused them. We remember the prefab rendered most recently;
+        // a GPU error logged during or shortly after its render is attributed to it, and that prefab
+        // falls back to Unity's AssetPreview from then on (list kept in Library, cleared by "Clear cache").
+        static readonly HashSet<string> problems = new HashSet<string>();
+        static string lastRenderedGuid;
+        static double lastRenderTime;
+        const double ErrorAttributionWindow = 1.0; // seconds
+        public static int ProblemCount => problems.Count;
+        public static event Action ProblemsChanged;
+
         static string Folder => Path.Combine(Path.GetDirectoryName(Application.dataPath) ?? "", "Library", "ModelBrowserThumbnails");
+        static string ProblemsFile => Path.Combine(Folder, "_problems.txt");
 
         static ModelThumbnailCache()
         {
             EditorApplication.update += Update;
             AssemblyReloadEvents.beforeAssemblyReload += Shutdown;
             EditorApplication.quitting += Shutdown;
+            Application.logMessageReceived += OnLog;
+            LoadProblems();
+        }
+
+        public static bool IsProblem(string guid) => problems.Contains(guid);
+
+        static bool IsGpuError(string msg) =>
+            msg.IndexOf("Texture index out of range", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            msg.IndexOf("d3d11", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            msg.IndexOf("dx11", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            msg.IndexOf("d3d12", StringComparison.OrdinalIgnoreCase) >= 0;
+
+        static void OnLog(string message, string stackTrace, LogType type)
+        {
+            if (type != LogType.Error && type != LogType.Assert && type != LogType.Exception) return;
+            if (lastRenderedGuid == null || message.StartsWith("[Model Browser]")) return;
+            if (EditorApplication.timeSinceStartup - lastRenderTime > ErrorAttributionWindow) return;
+            if (!IsGpuError(message)) return;
+
+            string guid = lastRenderedGuid;
+            lastRenderedGuid = null;
+            if (!problems.Add(guid)) return;
+
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            UnityEngine.Debug.LogWarning($"[Model Browser] GPU error while rendering the thumbnail of \"{path}\" → that prefab now uses Unity's preview instead.\nError: {message}\nCheck the shader / material of this prefab (sampler count, Texture2DArray index, Decal/VFX).",
+                AssetDatabase.LoadMainAssetAtPath(path));
+            DeleteFiles(guid);
+            if (loaded.TryGetValue(guid, out var t) && t != null) Object.DestroyImmediate(t);
+            loaded.Remove(guid);
+            loadedKey.Remove(guid);
+            SaveProblems();
+            ProblemsChanged?.Invoke();
+        }
+
+        static void LoadProblems()
+        {
+            problems.Clear();
+            if (File.Exists(ProblemsFile))
+                foreach (var line in File.ReadAllLines(ProblemsFile))
+                    if (!string.IsNullOrWhiteSpace(line)) problems.Add(line.Trim());
+        }
+
+        static void SaveProblems()
+        {
+            Directory.CreateDirectory(Folder);
+            File.WriteAllLines(ProblemsFile, problems);
         }
 
         /// <summary>Returns the cached thumbnail, or null and queues a render.</summary>
         public static Texture2D Get(string guid)
         {
+            if (!ModelBrowserPrefs.UseCustomThumbnails || problems.Contains(guid)) return null;
             string key = Key(guid);
             if (key == null) return null;
             if (loaded.TryGetValue(guid, out var tex) && tex != null && loadedKey[guid] == key) return tex;
@@ -63,6 +122,7 @@ namespace ModelBrowser
 
         public static void ForceRerender(string guid)
         {
+            if (problems.Remove(guid)) { SaveProblems(); ProblemsChanged?.Invoke(); }
             DeleteFiles(guid);
             if (loaded.TryGetValue(guid, out var t) && t != null) Object.DestroyImmediate(t);
             loaded.Remove(guid);
@@ -76,7 +136,9 @@ namespace ModelBrowser
             foreach (var t in loaded.Values) if (t != null) Object.DestroyImmediate(t);
             loaded.Clear();
             loadedKey.Clear();
+            problems.Clear();
             if (Directory.Exists(Folder)) Directory.Delete(Folder, true);
+            ProblemsChanged?.Invoke();
         }
 
         /// <summary>Drop queued jobs (e.g. when switching tabs) so the new view renders first.</summary>
@@ -113,36 +175,69 @@ namespace ModelBrowser
 
         static void Update()
         {
-            if (queue.Count == 0)
+            // Rendering itself happens in ProcessQueue (called from a GUI Repaint). Here we only release
+            // the preview scene a few seconds after the queue empties.
+            if (queue.Count == 0 && pru != null && EditorApplication.timeSinceStartup - idleSince > 5)
             {
-                // Release the preview scene a few seconds after the queue empties.
-                if (pru != null && EditorApplication.timeSinceStartup - idleSince > 5) { pru.Cleanup(); pru = null; }
-                return;
+                pru.Cleanup();
+                pru = null;
             }
-
-            var sw = Stopwatch.StartNew();
-            while (queue.Count > 0 && sw.Elapsed.TotalMilliseconds < FrameBudgetMs)
-            {
-                string guid = queue.Dequeue();
-                queued.Remove(guid);
-                BatchDone++;
-                try { RenderOne(guid); }
-                catch (Exception e) { UnityEngine.Debug.LogWarning($"[Model Browser] Thumbnail failed for {AssetDatabase.GUIDToAssetPath(guid)}: {e.Message}"); }
-            }
-            idleSince = EditorApplication.timeSinceStartup;
         }
 
-        static void RenderOne(string guid)
+        static readonly List<string> readyBuffer = new List<string>();
+        static bool processing;
+
+        /// <summary>
+        /// Renders queued thumbnails for up to <see cref="FrameBudgetMs"/>.
+        /// MUST be called during a GUI Repaint event (e.g. from an IMGUIContainer) — rendering from
+        /// EditorApplication.update happens outside the graphics frame and triggers
+        /// "GUI Window tried to begin rendering..." / "device.IsInsideFrame()" errors.
+        /// </summary>
+        public static void ProcessQueue()
+        {
+            if (processing || queue.Count == 0) return;
+            if (Event.current == null || Event.current.type != EventType.Repaint) return;
+            processing = true;
+            try
+            {
+                var sw = Stopwatch.StartNew();
+                while (queue.Count > 0 && sw.Elapsed.TotalMilliseconds < FrameBudgetMs)
+                {
+                    string guid = queue.Dequeue();
+                    queued.Remove(guid);
+                    BatchDone++;
+                    try { if (RenderOne(guid)) readyBuffer.Add(guid); }
+                    catch (Exception e) { UnityEngine.Debug.LogWarning($"[Model Browser] Thumbnail failed for {AssetDatabase.GUIDToAssetPath(guid)}: {e.Message}"); }
+                }
+            }
+            finally
+            {
+                processing = false;
+                idleSince = EditorApplication.timeSinceStartup;
+            }
+
+            // Notify after the repaint finishes so the UI isn't modified mid-paint.
+            if (readyBuffer.Count > 0)
+            {
+                var done = readyBuffer.ToArray();
+                readyBuffer.Clear();
+                EditorApplication.delayCall += () => { foreach (var g in done) Ready?.Invoke(g); };
+            }
+        }
+
+        static bool RenderOne(string guid)
         {
             string path = AssetDatabase.GUIDToAssetPath(guid);
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
-            if (prefab == null) return;
+            if (prefab == null || problems.Contains(guid)) return false;
             string key = Key(guid);
 
             EnsureUtility();
+            lastRenderedGuid = guid;
+            lastRenderTime = EditorApplication.timeSinceStartup;
             // Instantiate directly into the utility's private preview scene (never touches the open scene).
             var inst = PrefabUtility.InstantiatePrefab(prefab, pru.camera.scene) as GameObject;
-            if (inst == null) return;
+            if (inst == null) return false;
             try
             {
                 foreach (var c in inst.GetComponentsInChildren<Camera>(true)) c.enabled = false;
@@ -183,7 +278,16 @@ namespace ModelBrowser
             {
                 Object.DestroyImmediate(inst);
             }
-            Ready?.Invoke(guid);
+            // An error caught synchronously during Render() already flagged this prefab: discard its image.
+            if (problems.Contains(guid))
+            {
+                DeleteFiles(guid);
+                if (loaded.TryGetValue(guid, out var bad) && bad != null) Object.DestroyImmediate(bad);
+                loaded.Remove(guid);
+                loadedKey.Remove(guid);
+                return false;
+            }
+            return true;
         }
 
         static void EnsureUtility()

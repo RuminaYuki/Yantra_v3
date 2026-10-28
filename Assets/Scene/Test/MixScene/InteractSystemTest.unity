@@ -1506,7 +1506,7 @@ PrefabInstance:
     - target: {fileID: 4775584325482975735, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: _dataSO
       value: 
-      objectReference: {fileID: 11400000, guid: eb868a75d494ccd4f88ea6dcf34d4909, type: 2}
+      objectReference: {fileID: 11400000, guid: 3292eaeb66915a64dbe1216b946cd3e9, type: 2}
     - target: {fileID: 4775584325482975735, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: _spellUnlocks
       value: 
@@ -1514,6 +1514,18 @@ PrefabInstance:
     - target: {fileID: 4968871862757283367, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_SizeDelta.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8636793298182785553, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: catchUpTime
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: 8636793298182785553, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: releaseDelay
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8636793298182785553, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: speedSmoothTime
+      value: 0.05
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
@@ -3113,6 +3125,7 @@ MonoBehaviour:
   - flagSO: {fileID: 11400000, guid: c74e338715f473e40a12992295979ef4, type: 2}
     value: 1
     forceAdd: 0
+    lockWhenReached: 0
 --- !u!1001 &647411714
 PrefabInstance:
   m_ObjectHideFlags: 0

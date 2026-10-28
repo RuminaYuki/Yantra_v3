@@ -174,9 +174,6 @@ public class GunController : MonoBehaviour
                 gunMode = GunMode.Normal;
                 return;
             }
-
-            if (useItemBullet)
-                playerInventory.Inventory.TryRemove(ItemBullet, 1);
         }
 
         foreach (Spawner spawner in spawners)

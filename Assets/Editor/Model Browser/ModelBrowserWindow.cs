@@ -30,6 +30,8 @@ namespace ModelBrowser
         VisualElement body, tabsRow, sidebarList, sourcesPanel, gridContent;
         ScrollView gridScroll;
         Label statusLabel, placingLabel;
+        FloatField offsetField;
+        IMGUIContainer renderHost;
         readonly Dictionary<string, Image> cardImages = new Dictionary<string, Image>();
         readonly Dictionary<string, VisualElement> cards = new Dictionary<string, VisualElement>();
         readonly Dictionary<SubCategory, List<string>> resolveCache = new Dictionary<SubCategory, List<string>>();
@@ -64,6 +66,7 @@ namespace ModelBrowser
             ModelThumbnailCache.Ready += OnThumbnailReady;
             ModelPlacementTool.Changed += OnPlacementChanged;
             ModelBrowserPrefs.RecentChanged += OnRecentChanged;
+            ModelThumbnailCache.ProblemsChanged += OnProblemsChanged;
             Undo.undoRedoPerformed += QueueRefresh;
         }
 
@@ -74,6 +77,7 @@ namespace ModelBrowser
             ModelThumbnailCache.Ready -= OnThumbnailReady;
             ModelPlacementTool.Changed -= OnPlacementChanged;
             ModelBrowserPrefs.RecentChanged -= OnRecentChanged;
+            ModelThumbnailCache.ProblemsChanged -= OnProblemsChanged;
             Undo.undoRedoPerformed -= QueueRefresh;
         }
 
@@ -143,6 +147,16 @@ namespace ModelBrowser
             statusLabel.style.opacity = 0.7f;
             right.Add(statusLabel);
 
+            // Thumbnails must be rendered inside a GUI Repaint (not from EditorApplication.update),
+            // otherwise HDRP/D3D asserts "device.IsInsideFrame()". This tiny IMGUIContainer does that.
+            renderHost = new IMGUIContainer(ModelThumbnailCache.ProcessQueue);
+            renderHost.style.position = Position.Absolute;
+            renderHost.style.width = renderHost.style.height = 1;
+            renderHost.style.left = renderHost.style.bottom = 0;
+            renderHost.pickingMode = PickingMode.Ignore;
+            root.Add(renderHost);
+            root.schedule.Execute(() => { if (ModelThumbnailCache.Pending > 0) renderHost.MarkDirtyRepaint(); }).Every(33);
+
             root.schedule.Execute(UpdateStatus).Every(250);
             RebuildAll();
         }
@@ -182,6 +196,9 @@ namespace ModelBrowser
         VisualElement BuildPlacementBar()
         {
             var bar = new Toolbar();
+            bar.style.flexWrap = Wrap.Wrap;
+            bar.style.height = StyleKeyword.Auto;
+            bar.style.minHeight = 21;
 
             var snap = new ToolbarToggle { text = "Snap", value = ModelBrowserPrefs.Snap, tooltip = "Snap X/Z to grid" };
             snap.RegisterValueChangedCallback(e => ModelBrowserPrefs.Snap = e.newValue);
@@ -199,7 +216,26 @@ namespace ModelBrowser
             surface.RegisterValueChangedCallback(e => ModelBrowserPrefs.SurfaceMode = e.newValue);
             bar.Add(surface);
 
+            var layers = new LayerMaskField { value = ModelBrowserPrefs.SurfaceMask, tooltip = "Layers the object may stick to (e.g. only Ground / Terrain)" };
+            layers.style.width = 95;
+            layers.RegisterValueChangedCallback(e => ModelBrowserPrefs.SurfaceMask = e.newValue);
+            bar.Add(layers);
+
             bar.Add(SmallFloat("Plane Y", ModelBrowserPrefs.PlaneHeight, v => ModelBrowserPrefs.PlaneHeight = v, "Height of the ground plane used when nothing is under the mouse"));
+
+            var alignBase = new ToolbarToggle { text = "Base", value = ModelBrowserPrefs.AlignBase, tooltip = "Lift the model so its bottom sits on the surface (for prefabs whose pivot is not at the bottom)" };
+            alignBase.RegisterValueChangedCallback(e => ModelBrowserPrefs.AlignBase = e.newValue);
+            bar.Add(alignBase);
+
+            var bounds = new ToolbarToggle { text = "Bounds", value = ModelBrowserPrefs.ShowBounds, tooltip = "Show the bounding box around the preview" };
+            bounds.RegisterValueChangedCallback(e => { ModelBrowserPrefs.ShowBounds = e.newValue; SceneView.RepaintAll(); });
+            bar.Add(bounds);
+
+            var offsetRow = SmallFloat("Offset Y", ModelPlacementTool.HeightOffset, v => ModelPlacementTool.HeightOffset = v,
+                "Manual height offset — in Scene: E / Q (or Ctrl+Scroll) to raise/lower, Shift+Q to reset");
+            offsetField = offsetRow.Q<FloatField>();
+            bar.Add(offsetRow);
+            bar.Add(SmallFloat("Step", ModelBrowserPrefs.HeightStep, v => ModelBrowserPrefs.HeightStep = v, "Height step for E / Q (uses Grid size when Snap Y is on)"));
 
             var useParent = new ToolbarToggle { text = "Parent", value = ModelBrowserPrefs.UseParent, tooltip = "Place new objects under this parent" };
             useParent.RegisterValueChangedCallback(e => ModelBrowserPrefs.UseParent = e.newValue);
@@ -635,6 +671,7 @@ namespace ModelBrowser
             gridContent.Clear();
             cards.Clear();
             cardImages.Clear();
+            fallbackPending.Clear();
 
             var items = CurrentItems();
             itemCount = items.Count;
@@ -668,7 +705,9 @@ namespace ModelBrowser
             SetBorder(card, 2, Color.clear);
 
             var img = new Image { scaleMode = ScaleMode.ScaleToFit };
-            img.image = ModelThumbnailCache.Get(guid) ?? AssetDatabase.GetCachedIcon(path);
+            Texture thumb = ModelThumbnailCache.Get(guid);
+            if (thumb == null) thumb = FallbackPreview(guid, path);
+            img.image = thumb;
             SetRadius(img, 3);
             card.Add(img);
 
@@ -802,8 +841,35 @@ namespace ModelBrowser
             if (cardImages.TryGetValue(guid, out var img)) img.image = ModelThumbnailCache.GetLoaded(guid);
         }
 
+        // Cards waiting for Unity's AssetPreview (custom renderer off, or this prefab caused a GPU error).
+        readonly HashSet<string> fallbackPending = new HashSet<string>();
+
+        Texture FallbackPreview(string guid, string path)
+        {
+            if (ModelBrowserPrefs.UseCustomThumbnails && !ModelThumbnailCache.IsProblem(guid))
+                return AssetDatabase.GetCachedIcon(path); // placeholder until our render finishes
+            var obj = AssetDatabase.LoadMainAssetAtPath(path);
+            Texture preview = obj ? AssetPreview.GetAssetPreview(obj) : null;
+            if (preview != null) { fallbackPending.Remove(guid); return preview; }
+            fallbackPending.Add(guid);
+            return AssetDatabase.GetCachedIcon(path);
+        }
+
+        void PollFallbackPreviews()
+        {
+            if (fallbackPending.Count == 0) return;
+            foreach (var guid in fallbackPending.ToList())
+            {
+                if (!cardImages.TryGetValue(guid, out var img)) { fallbackPending.Remove(guid); continue; }
+                img.image = FallbackPreview(guid, AssetDatabase.GUIDToAssetPath(guid));
+            }
+        }
+
+        void OnProblemsChanged() => QueueRefresh();
+
         void OnPlacementChanged()
         {
+            offsetField?.SetValueWithoutNotify(ModelPlacementTool.HeightOffset);
             if (placingLabel != null)
                 placingLabel.text = ModelPlacementTool.IsActive ? "● Placing: " + Path.GetFileNameWithoutExtension(ModelPlacementTool.ActivePath) + "  (Esc to exit)" : "";
             foreach (var kv in cards)
@@ -816,9 +882,14 @@ namespace ModelBrowser
         void UpdateStatus()
         {
             if (statusLabel == null) return;
+            PollFallbackPreviews();
             string s = $"{itemCount} items";
-            if (ModelThumbnailCache.Pending > 0)
+            if (!ModelBrowserPrefs.UseCustomThumbnails)
+                s += "   ·   Thumbnails: Unity AssetPreview (custom renderer off)";
+            else if (ModelThumbnailCache.Pending > 0)
                 s += $"   ·   Rendering thumbnails {ModelThumbnailCache.BatchDone}/{ModelThumbnailCache.BatchTotal}";
+            if (ModelThumbnailCache.ProblemCount > 0)
+                s += $"   ·   ⚠ {ModelThumbnailCache.ProblemCount} prefab(s) caused GPU errors → using Unity preview (see Console)";
             statusLabel.text = s;
         }
 
@@ -1051,10 +1122,21 @@ namespace ModelBrowser
                 bg = ModelBrowserPrefs.ThumbBackground;
             }
 
-            public override Vector2 GetWindowSize() => new Vector2(280, 230);
+            public override Vector2 GetWindowSize() => new Vector2(280, 270);
 
             public override void OnGUI(Rect rect)
             {
+                EditorGUI.BeginChangeCheck();
+                bool custom = EditorGUILayout.ToggleLeft(new GUIContent("Custom renderer (HDRP)", "Off = Unity AssetPreview only. Turn off to check whether a GPU error comes from this tool."), ModelBrowserPrefs.UseCustomThumbnails);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    ModelBrowserPrefs.UseCustomThumbnails = custom;
+                    window.OnThumbnailSettingsChanged();
+                }
+                if (ModelThumbnailCache.ProblemCount > 0)
+                    EditorGUILayout.HelpBox($"{ModelThumbnailCache.ProblemCount} prefab(s) caused GPU errors and use Unity's preview. \"Clear cache\" retries them.", MessageType.Warning);
+                GUILayout.Space(4);
+
                 EditorGUILayout.LabelField("Thumbnail Camera", EditorStyles.boldLabel);
                 yaw = EditorGUILayout.Slider("Yaw", yaw, 0, 360);
                 pitch = EditorGUILayout.Slider("Pitch", pitch, -10, 89);
