@@ -4,7 +4,7 @@ using UnityEngine;
 // Weighted random picks per pool, skipping options still on cooldown, so a state machine can roll
 // once on enter (Roll Random Pool) and let each transition just check the result (Random Picked).
 // Picking an option starts its cooldown, so the states after it don't need a StartCooldown action.
-[RequireComponent(typeof(CooldownController))]
+// CooldownController is optional: without one, every option counts as ready.
 public class RandomPickController : MonoBehaviour
 {
     [System.Serializable]
@@ -36,7 +36,21 @@ public class RandomPickController : MonoBehaviour
 
     private void Awake()
     {
-        _cooldowns = GetComponent<CooldownController>();
+        if (TryGetComponent(out _cooldowns))
+        {
+            return;
+        }
+
+        foreach (Pool pool in _pools)
+        {
+            foreach (Entry entry in pool.Options)
+            {
+                if (entry.Cooldown != null)
+                {
+                    Debug.LogWarning($"Option {(entry.Option != null ? entry.Option.name : "None")} has a cooldown but there's no CooldownController, so it's ignored.", this);
+                }
+            }
+        }
     }
 
     public RandomOptionSO GetCurrent(RandomPoolSO pool)
@@ -106,14 +120,14 @@ public class RandomPickController : MonoBehaviour
 
     private bool IsReady(Entry entry)
     {
-        return entry.Cooldown == null || _cooldowns.IsReady(entry.Cooldown);
+        return entry.Cooldown == null || _cooldowns == null || _cooldowns.IsReady(entry.Cooldown);
     }
 
     private RandomOptionSO Pick(RandomPoolSO pool, Entry entry)
     {
         _current[pool] = entry.Option;
 
-        if (entry.Cooldown != null)
+        if (entry.Cooldown != null && _cooldowns != null)
         {
             _cooldowns.StartCooldown(entry.Cooldown, entry.CooldownDuration);
         }
