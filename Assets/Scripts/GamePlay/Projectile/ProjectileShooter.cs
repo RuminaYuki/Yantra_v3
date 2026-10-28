@@ -22,7 +22,7 @@ public class ProjectileShooter : MonoBehaviour
         homing = new ProjectileBullet.HomingSettings { turnSpeed = 120f, duration = 1.5f, maxAngle = 70f }
     };
 
-    // Cached by SetTarget()/SetBulletConfig() ahead of time, consumed by the next parameterless Execute() call.
+    // Cached by SetTarget()/SetBulletConfig() ahead of time, consumed by the next ShootProjectile() call.
     private Vector3? _pendingTarget;
 
     // A Transform target: aimed at where it is when fired, and followed if the config homes.
@@ -83,7 +83,7 @@ public class ProjectileShooter : MonoBehaviour
 
     // Parameterless entry point for Animation Events (and for wiring into a UnityEvent/Action) — fires using
     // whatever target/config was last armed via SetTarget()/SetBulletConfig(), falling back to a straight shot.
-    public void Execute()
+    public void ShootProjectile()
     {
         if (_pendingTargetTransform != null)
             ShootAtTarget(_pendingTargetTransform.position + _pendingTargetOffset);

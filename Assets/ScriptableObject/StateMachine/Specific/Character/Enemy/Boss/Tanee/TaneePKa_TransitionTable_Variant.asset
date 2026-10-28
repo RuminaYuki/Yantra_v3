@@ -1,0 +1,93 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-6567139661606512749
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: Spawn_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: -1657162643103411415}
+--- !u!114 &-1657162643103411415
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77e8ae40d928604408f37497243c6985, type: 3}
+  m_Name: SpawnPlayAnimState_Action
+  m_EditorClassIdentifier: Assembly-CSharp::PlayAnimatorStateActionSO
+  _selfAnchor: {fileID: 0}
+  _stateName: Spawn
+  _layerIndex: 0
+  _transitionDuration: 0.25
+  _startTimeOffset: 0
+  _waitForStateName: 
+  _exitStateName: BaseMovement
+  _exitTransitionDuration: 0.25
+  _exitStartTimeOffset: 0
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5492ed31ba40b643aaf3d94f1de0aa7, type: 3}
+  m_Name: TaneePKa_TransitionTable_Variant
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
+  _initialState: {fileID: -6567139661606512749}
+  _anyTransitions: []
+  _transitions:
+  - FromState: {fileID: -6567139661606512749}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 3786700636523022769, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+        ExpectedResult: 0
+    ToState: {fileID: 5521259893469218469, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    Id: eea5917d-7c79-45c9-a80a-a9c5a5ec137f
+  _base: {fileID: 11400000, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+  _fieldOverrides: []
+  _removedIds: []
+  _transitionOverrides: []
+  _conditionReplaces: []
+  _transitionRetargets: []
+  _actionChanges: []
+  _actionOrders: []
+  _exposedParameters: {fileID: 0}
+  _nodePositions:
+  - State: {fileID: 5521259893469218469, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    Position: {x: 399, y: 3}
+  - State: {fileID: 3589744455036417229, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    Position: {x: 616, y: 3}
+  - State: {fileID: 1350832784552190812, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    Position: {x: 399, y: 117}
+  - State: {fileID: -5670934711078985649, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    Position: {x: 616, y: 117}
+  - State: {fileID: 9204605873900580318, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    Position: {x: 200, y: 117}
+  - State: {fileID: -6437948323864379113, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    Position: {x: 399, y: 197}
+  - State: {fileID: 5838480089549137350, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    Position: {x: 200, y: 288}
+  - State: {fileID: -1199315090856683543, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    Position: {x: 200, y: 197}
+  - State: {fileID: -6567139661606512749}
+    Position: {x: 200, y: 3}
+  _entryNodePosition: {x: 0, y: 3}
+  _anyStateNodePosition: {x: 0, y: 120}
+  _contentsFolders: []
+  _contentsFolderPaths: []
+  _stateDisplayNames: []
+  _removedParameters: []

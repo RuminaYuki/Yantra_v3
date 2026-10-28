@@ -2031,11 +2031,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 8849103926970512020, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
   m_PrefabInstance: {fileID: 789030942}
   m_PrefabAsset: {fileID: 0}
---- !u!4 &1055844002 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 6735792637204446139, guid: 98c418c7c058835438f5999e589a2043, type: 3}
-  m_PrefabInstance: {fileID: 6867052551053827599}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1078111432
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2661,6 +2656,7 @@ GameObject:
   - component: {fileID: 1246795876}
   - component: {fileID: 1246795886}
   - component: {fileID: 1246795882}
+  - component: {fileID: 1246795891}
   m_Layer: 7
   m_Name: EnemyController
   m_TagString: Untagged
@@ -2977,7 +2973,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ProjectileShooter
   _firePoint: {fileID: 630653976}
   _projectilePrefab: {fileID: 0}
-  _poolTag: 
+  _poolTag: DeathBlossomBullet
   _owner: {fileID: 0}
   _bulletConfig:
     aimMode: 0
@@ -3078,6 +3074,21 @@ MonoBehaviour:
   groupName: Statemachine
   color: {r: 0.6415094, g: 0.16642934, b: 0.17046247, a: 1}
   collapsed: 0
+--- !u!114 &1246795891
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1246795869}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00b75da7baeaada488031c8dff909a06, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PatternSpawner
+  _prefab: {fileID: 5768404878224972482, guid: 8d94e6f1f0f2c0646a74110c787924e3, type: 3}
+  _pattern: {fileID: 5864627315608765965, guid: 98c418c7c058835438f5999e589a2043, type: 3}
+  _anchor: {fileID: 1246795870}
 --- !u!1 &1270426050
 GameObject:
   m_ObjectHideFlags: 0
@@ -7445,26 +7456,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: SpawnMinnion
       objectReference: {fileID: 0}
-    - target: {fileID: 5864627315608765965, guid: 98c418c7c058835438f5999e589a2043, type: 3}
-      propertyPath: _transforms.Array.size
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 5864627315608765965, guid: 98c418c7c058835438f5999e589a2043, type: 3}
-      propertyPath: '_transforms.Array.data[0]'
-      value: 
-      objectReference: {fileID: 1055844002}
-    - target: {fileID: 5864627315608765965, guid: 98c418c7c058835438f5999e589a2043, type: 3}
-      propertyPath: '_transforms.Array.data[1]'
-      value: 
-      objectReference: {fileID: 6867052551053827602}
-    - target: {fileID: 5864627315608765965, guid: 98c418c7c058835438f5999e589a2043, type: 3}
-      propertyPath: '_transforms.Array.data[2]'
-      value: 
-      objectReference: {fileID: 6867052551053827601}
-    - target: {fileID: 5864627315608765965, guid: 98c418c7c058835438f5999e589a2043, type: 3}
-      propertyPath: '_transforms.Array.data[3]'
-      value: 
-      objectReference: {fileID: 6867052551053827600}
     - target: {fileID: 7480579432140341519, guid: 98c418c7c058835438f5999e589a2043, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -7510,21 +7501,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 98c418c7c058835438f5999e589a2043, type: 3}
---- !u!4 &6867052551053827600 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2850196902728525245, guid: 98c418c7c058835438f5999e589a2043, type: 3}
-  m_PrefabInstance: {fileID: 6867052551053827599}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &6867052551053827601 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2045299279613890552, guid: 98c418c7c058835438f5999e589a2043, type: 3}
-  m_PrefabInstance: {fileID: 6867052551053827599}
-  m_PrefabAsset: {fileID: 0}
---- !u!4 &6867052551053827602 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2967807828939881730, guid: 98c418c7c058835438f5999e589a2043, type: 3}
-  m_PrefabInstance: {fileID: 6867052551053827599}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

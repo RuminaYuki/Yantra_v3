@@ -184,6 +184,22 @@ MonoBehaviour:
   layerIndex: 0
   finishTime: 1
   extraSeconds: 0
+--- !u!114 &-6975061100128951906
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c308fba7bd53dab45bab731061d29e77, type: 3}
+  m_Name: SetSpawnPattern_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SetSpawnPatternActionSO
+  _selfAnchor: {fileID: 0}
+  _prefab: {fileID: 5768404878224972482, guid: 8d94e6f1f0f2c0646a74110c787924e3, type: 3}
+  _pattern: {fileID: 5864627315608765965, guid: 98c418c7c058835438f5999e589a2043, type: 3}
+  _anchor: {fileID: 0}
 --- !u!114 &-6898559248043170897
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -781,6 +797,21 @@ MonoBehaviour:
   _operation: 0
   _value: 0
   _when: 0
+--- !u!114 &-879497161767425172
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: SpawnMinnion_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: -6975061100128951906}
+  - {fileID: 2168784493406263502}
 --- !u!114 &-815653257355904210
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -925,7 +956,7 @@ MonoBehaviour:
     - Conditions:
       - Condition: {fileID: -1751025949700094690}
         ExpectedResult: 0
-    ToState: {fileID: 9032502992824110892}
+    ToState: {fileID: -879497161767425172}
     Id: 50fa65ec-7011-4dd2-b210-8f9b3e698cc0
   - FromState: {fileID: -5386280242133745992}
     ConditionGroups:
@@ -989,13 +1020,6 @@ MonoBehaviour:
         ExpectedResult: 0
     ToState: {fileID: -5386280242133745992}
     Id: 9070abec-22d5-40c5-aa89-70092e0e782e
-  - FromState: {fileID: 9032502992824110892}
-    ConditionGroups:
-    - Conditions:
-      - Condition: {fileID: 6264151689091379834}
-        ExpectedResult: 0
-    ToState: {fileID: -3866483475985023219}
-    Id: f7731c54-c742-4ca5-b7ef-9c40c9f00ed4
   - FromState: {fileID: -3866483475985023219}
     ConditionGroups:
     - Conditions:
@@ -1005,6 +1029,13 @@ MonoBehaviour:
         ExpectedResult: 0
     ToState: {fileID: 4798041465453816357}
     Id: c4dd1e40-c38f-41b1-96f0-bd08a7789fa4
+  - FromState: {fileID: -879497161767425172}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -6991968770991651269}
+        ExpectedResult: 0
+    ToState: {fileID: -3866483475985023219}
+    Id: 0c3dced5-acbd-41e7-b306-95c5f862959a
   _base: {fileID: 0}
   _fieldOverrides: []
   _removedIds: []
@@ -1036,6 +1067,8 @@ MonoBehaviour:
   - State: {fileID: 3184415026357308539}
     Position: {x: 535, y: 259}
   - State: {fileID: 9032502992824110892}
+    Position: {x: 718, y: 259}
+  - State: {fileID: -879497161767425172}
     Position: {x: 535, y: 150}
   _entryNodePosition: {x: 358, y: -135}
   _anyStateNodePosition: {x: 557, y: -135}
@@ -1339,6 +1372,27 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 2048
   _restoreOnExit: 1
+--- !u!114 &2168784493406263502
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77e8ae40d928604408f37497243c6985, type: 3}
+  m_Name: SpawnMinnion_PlayAnimState_Action
+  m_EditorClassIdentifier: Assembly-CSharp::PlayAnimatorStateActionSO
+  _selfAnchor: {fileID: 0}
+  _stateName: SpawnMinnion
+  _layerIndex: 0
+  _transitionDuration: 0.25
+  _startTimeOffset: 0
+  _waitForStateName: 
+  _exitStateName: 
+  _exitTransitionDuration: 0.25
+  _exitStartTimeOffset: 0
 --- !u!114 &2208140158005836818
 MonoBehaviour:
   m_ObjectHideFlags: 0
