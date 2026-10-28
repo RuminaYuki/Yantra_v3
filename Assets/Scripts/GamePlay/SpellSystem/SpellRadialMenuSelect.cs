@@ -33,6 +33,7 @@ public class SpellRadialMenuSelect : MonoBehaviour
             bool hasSelection = _radialOpen && _Id >= 0;
 
             var list = _runtimeData.GetListData();
+            if (_Id < 0 || _Id >= list.Count) return false;
 
             RadialMenuButtonData data = list[_Id];
             if (data.spellPrefab == null)
