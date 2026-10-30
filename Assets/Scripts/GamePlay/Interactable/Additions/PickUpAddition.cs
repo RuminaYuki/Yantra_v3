@@ -1,3 +1,4 @@
+using System.Collections;
 using SDFcl.GamePlay.Interactable;
 using UnityEngine;
 
@@ -10,6 +11,7 @@ public class PickUpAddition : MonoBehaviour
 
     Iinteractor interactor;
     PlayerInventory inventory;
+    Coroutine Coroutine;
 
     private void Awake()
     {
@@ -18,33 +20,35 @@ public class PickUpAddition : MonoBehaviour
 
     private void OnEnable()
     {
+        interactor.AddCanInteractModifier(HandleCanInteract);
         interactor.OnInteract += HandleOnInteract;
         interactor.OnEndInteract += HandleOnEndInteract;
     }
 
     private void OnDisable()
     {
+        interactor.RemoveCanInteractModifier(HandleCanInteract);
         interactor.OnInteract -= HandleOnInteract;
         interactor.OnEndInteract -= HandleOnEndInteract;
     }
-
-    private void Update()
+    private bool HandleCanInteract(GameObject rootplayer)
     {
-        if (isPickedUp)
-        {
-            DelayPickup -= Time.deltaTime;
-            if (DelayPickup <= 0f)
-            {
-                if (inventory == null) return;
-                inventory.TryPickup(worldItem);
-            }
-        }
+        inventory = rootplayer.GetComponentInChildren<PlayerInventory>();
+        if (inventory == null) return false;
+        // TryAdd returns the leftover amount that did NOT fit.
+        // Allow pickup if at least one item fits.
+        int left = inventory.Inventory.TryAdd(worldItem.Stack.item, worldItem.Stack.quantity, true);
+        return left < worldItem.Stack.quantity;
     }
 
     private void HandleOnInteract(GameObject rootplayer)
     {
-        inventory = rootplayer.GetComponentInChildren<PlayerInventory>();
-        isPickedUp = true;
+        if (Coroutine != null)
+        {
+            return;
+        }
+
+        Coroutine = StartCoroutine(DelayPickupCoroutine());
     }
 
     private void HandleOnEndInteract(GameObject rootplayer)
@@ -53,8 +57,14 @@ public class PickUpAddition : MonoBehaviour
         // If the inventory was full, the remainder stays on the ground.
         if (worldItem.Stack.IsEmpty)
         {
-            isPickedUp = false;
             Destroy(worldItem.gameObject, 0.01f);
         }
+    }
+
+    IEnumerator DelayPickupCoroutine()
+    {
+        yield return new WaitForSeconds(DelayPickup);
+        if (inventory == null) yield break;
+        inventory.TryPickup(worldItem);
     }
 }

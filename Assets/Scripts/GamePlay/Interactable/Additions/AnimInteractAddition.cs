@@ -9,8 +9,12 @@ public class AnimInteractAddition : MonoBehaviour
 
     Iinteractor _interactor;
     GameObject rootPlayer;
-    SerializableAction serializableAction;
     PlayerInteract playerInteract;
+
+    // The anim-end event this object is listening to. Every item listens to the same shared
+    // event on the player's arm, so it must always be removed again, otherwise a destroyed
+    // item stays subscribed and breaks the next pickup.
+    SerializableAction subscribedAction;
 
     bool IsPlayAnimation = false;
 
@@ -24,13 +28,7 @@ public class AnimInteractAddition : MonoBehaviour
         _interactor.OnInteract += HandleInteract;
         _interactor.AddCanCancelInteractModifier(CanInteract);
         _interactor.AddCanInteractModifier(CanInteract);
-
-        if (serializableAction != null )
-        {
-            serializableAction.AddListener(HandleEndInteract);
-        }
     }
-    
 
     private void OnDisable()
     {
@@ -38,18 +36,16 @@ public class AnimInteractAddition : MonoBehaviour
         _interactor.RemoveCanCancelInteractModifier(CanInteract);
         _interactor.RemoveCanInteractModifier(CanInteract);
 
-        if (serializableAction != null)
-        {
-            serializableAction.RemoveListener(HandleEndInteract);
-        }
+        Unsubscribe();
     }
 
     private void Update()
     {
-        if (IsPlayAnimation)
-        {
-            serializableAction = playerInteract.PlayAnimation(AnimationID);
-        }
+        if (!IsPlayAnimation) return;
+
+        // Keeps asking until the animation is really playing. PlayAnimation returns null
+        // while it is already playing or fading in, which is ignored here.
+        Subscribe(playerInteract.PlayAnimation(AnimationID));
     }
 
     private bool CanInteract(GameObject rootPlayer)
@@ -62,16 +58,34 @@ public class AnimInteractAddition : MonoBehaviour
         rootPlayer = rootplayer;
 
         playerInteract = rootPlayer.GetComponentInChildren<PlayerInteract>();
-        serializableAction = playerInteract.PlayAnimation(AnimationID);
-        if (serializableAction != null )
-        {
-            serializableAction.AddListener(HandleEndInteract);
-            IsPlayAnimation = true;
-        }
+        SerializableAction action = playerInteract.PlayAnimation(AnimationID);
+        if (action == null) return;
+
+        Subscribe(action);
+        IsPlayAnimation = true;
     }
+
     private void HandleEndInteract()
     {
+        Unsubscribe(); // stop listening before anything else runs
         IsPlayAnimation = false;
         _interactor.CancelInteraction(rootPlayer);
+    }
+
+    private void Subscribe(SerializableAction action)
+    {
+        if (action == null || action == subscribedAction) return;
+
+        Unsubscribe();
+        subscribedAction = action;
+        subscribedAction.AddListener(HandleEndInteract);
+    }
+
+    private void Unsubscribe()
+    {
+        if (subscribedAction == null) return;
+
+        subscribedAction.RemoveListener(HandleEndInteract);
+        subscribedAction = null;
     }
 }

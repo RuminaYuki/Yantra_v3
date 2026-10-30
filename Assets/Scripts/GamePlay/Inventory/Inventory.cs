@@ -149,6 +149,7 @@ public class Inventory
             amount -= p.Quantity;
         }
 
+        Debug.Assert(amount >= 0, "Inventory logic error: negative remainder");
         return amount;
     }
 

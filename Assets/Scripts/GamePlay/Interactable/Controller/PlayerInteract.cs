@@ -141,18 +141,20 @@ namespace SDFcl.GamePlay.Interactable
             {
                 if (interacsAnimation[i].ID != _ID) continue;
 
-                if (interacsAnimation[i].Animator.GetCurrentAnimatorStateInfo(0).
-                        IsName(interacsAnimation[i].stateName))
+                Animator animator = interacsAnimation[i].Animator;
+                int layer = interacsAnimation[i].indexLayer;
+                string stateName = interacsAnimation[i].stateName;
+
+                // Already playing, or already fading into it: don't restart the crossfade.
+                // Restarting it every frame kept the old state (e.g. the gun clip) blending
+                // and firing its animation events.
+                bool playing = animator.GetCurrentAnimatorStateInfo(layer).IsName(stateName);
+                bool fadingIn = animator.IsInTransition(layer) &&
+                                animator.GetNextAnimatorStateInfo(layer).IsName(stateName);
+                if (playing || fadingIn)
                     return null;
 
-                interacsAnimation[i].Dispat.
-                    GetEvent(interacsAnimation[i].EventID);
-
-                Animator animator = interacsAnimation[i].Animator;
-                animator.CrossFade(
-                    interacsAnimation[i].stateName,
-                    interacsAnimation[i].crossfade,
-                    interacsAnimation[i].indexLayer);
+                animator.CrossFade(stateName, interacsAnimation[i].crossfade, layer);
 
                 return interacsAnimation[i].Dispat.
                     GetEvent(interacsAnimation[i].EventID);

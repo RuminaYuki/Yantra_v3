@@ -52,6 +52,13 @@ public class ItemContextMenu : MonoBehaviour, IPointerClickHandler
         gameObject.SetActive(false);
     }
 
+    // Gamepad: highlight the first entry so D-pad + A (UI Submit) can choose it.
+    public void SelectFirst()
+    {
+        if (spawned.Count == 0 || EventSystem.current == null) return;
+        EventSystem.current.SetSelectedGameObject(spawned[0].gameObject);
+    }
+
     // Click on the blocker (anywhere outside a button) closes the menu.
     public void OnPointerClick(PointerEventData e) => Close();
 

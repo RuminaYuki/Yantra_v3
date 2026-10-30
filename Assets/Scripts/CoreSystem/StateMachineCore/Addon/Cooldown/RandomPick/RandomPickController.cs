@@ -58,6 +58,18 @@ public class RandomPickController : MonoBehaviour
         return pool != null && _current.TryGetValue(pool, out RandomOptionSO option) ? option : null;
     }
 
+    // Sets the pool's current pick without rolling and without starting any cooldown.
+    // Used to overwrite an old result, e.g. after leaving Glory so "Random Picked" checks see the new value.
+    public void SetCurrent(RandomPoolSO pool, RandomOptionSO option)
+    {
+        if (pool == null)
+        {
+            return;
+        }
+
+        _current[pool] = option;
+    }
+
     public RandomOptionSO Roll(RandomPoolSO pool)
     {
         Pool found = FindPool(pool);
