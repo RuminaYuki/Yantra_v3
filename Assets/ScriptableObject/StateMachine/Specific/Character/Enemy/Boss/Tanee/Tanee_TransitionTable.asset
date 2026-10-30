@@ -116,7 +116,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
-  m_Name: RandomAttackSubExitToRestExit_State
+  m_Name: RandomAttackSubExit_State
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: -3411280740989632322}
@@ -132,6 +132,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 033a21f8e53c4ec48ad1347c970453da, type: 3}
   m_Name: NormalAttackCooldownID
   m_EditorClassIdentifier: Assembly-CSharp::CooldownSO
+--- !u!114 &-7689692648791979929
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cea39afc1a75b7646a1bd105ab75cb29, type: 3}
+  m_Name: Vengeful_TeleportAnchorOffset_Action
+  m_EditorClassIdentifier: Assembly-CSharp::TeleportAnchorOffsetActionSO
+  _selfAnchor: {fileID: 0}
+  _targetAnchor: {fileID: 11400000, guid: ded8b5ee8f0dd57488cc9fa0e5c0d061, type: 2}
+  _offsetMin: {x: -1, y: 0, z: 5}
+  _offsetMax: {x: 1, y: 0, z: 6}
+  _maxAttempts: 8
+  _faceTarget: 1
+  _lead:
+    usePrediction: 1
+    leadTime: 0.5
+    maxDistance: 3
 --- !u!114 &-7472285065994476893
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -152,6 +174,10 @@ MonoBehaviour:
     minDistance: 2
     directionCount: 16
   _maxAttempts: 3
+  _lead:
+    usePrediction: 1
+    leadTime: 0.5
+    maxDistance: 3
 --- !u!114 &-7162928016612475818
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -162,7 +188,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
-  m_Name: PrepareNormalAttack_State
+  m_Name: NormalAttackPrepare_State
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: 1624386439248732606}
@@ -194,10 +220,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c308fba7bd53dab45bab731061d29e77, type: 3}
-  m_Name: SetSpawnPattern_Action
+  m_Name: Minnion_SetSpawnPattern_Action
   m_EditorClassIdentifier: Assembly-CSharp::SetSpawnPatternActionSO
   _selfAnchor: {fileID: 0}
   _prefab: {fileID: 5768404878224972482, guid: 8d94e6f1f0f2c0646a74110c787924e3, type: 3}
+  _poolTag: 
   _pattern: {fileID: 5864627315608765965, guid: 98c418c7c058835438f5999e589a2043, type: 3}
   _anchor: {fileID: 0}
 --- !u!114 &-6898559248043170897
@@ -256,37 +283,21 @@ MonoBehaviour:
     Folder: RepeatDeahtBlossomAnim
   - Item: {fileID: 916758302756585191}
     Folder: RepeatDeahtBlossomAnim
+  - Item: {fileID: -2246391376952511542}
+    Folder: Other
+  - Item: {fileID: -898081848615392078}
+    Folder: Other
+  - Item: {fileID: 6510767695726320371}
+    Folder: Other
   _contentsFolderPaths:
   - Group: Actions
     Path: RepeatDeahtBlossomAnim
+  - Group: Actions
+    Path: Other
+  - Group: Actions
+    Path: Navigator
   _stateDisplayNames: []
   _removedParameters: []
---- !u!114 &-6761734385814222937
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
-  m_Name: New_State (1)
-  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
-  _actions: []
---- !u!114 &-6319296030552163185
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
-  m_Name: New_State
-  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
-  _actions: []
 --- !u!114 &-6264164636885564472
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -402,41 +413,57 @@ MonoBehaviour:
     - Conditions:
       - Condition: {fileID: 4971951026947002424}
         ExpectedResult: 0
-    ToState: {fileID: 6344917057749561092}
+    ToState: {fileID: 3184415026357308539}
     Id: 4283484e-6f05-4344-b38b-4c33d1b301de
   - FromState: {fileID: 7008634821877137313}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: -4093878426821921426}
         ExpectedResult: 0
-    ToState: {fileID: -6319296030552163185}
+    ToState: {fileID: 9032502992824110892}
     Id: fa6a4844-063a-478d-83a7-cdfee240ff3c
   - FromState: {fileID: 7008634821877137313}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: -5837156480623330001}
         ExpectedResult: 0
-    ToState: {fileID: -6761734385814222937}
+    ToState: {fileID: -879497161767425172}
     Id: 55d4c4db-609c-44cb-af08-94d838918d33
   - FromState: {fileID: 7008634821877137313}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: 5390626094658260857}
         ExpectedResult: 0
-    ToState: {fileID: 8118747668644971282}
+    ToState: {fileID: 7760642376545991185}
     Id: c221c4b4-b5cf-48c8-b955-8efad1dd2c55
-  - FromState: {fileID: -6319296030552163185}
-    ConditionGroups: []
+  - FromState: {fileID: 3184415026357308539}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 8198953454802553894}
+        ExpectedResult: 0
     ToState: {fileID: -7774704481344654937}
-    Id: 98519e89-1453-4515-9bad-ebd7987e7182
-  - FromState: {fileID: -6761734385814222937}
-    ConditionGroups: []
+    Id: 79056661-3561-485e-b468-393e9d9f1ec6
+  - FromState: {fileID: 9032502992824110892}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 6264151689091379834}
+        ExpectedResult: 0
     ToState: {fileID: -7774704481344654937}
-    Id: 792f2e6e-f37c-45a3-8dfb-d19a8e9a0727
-  - FromState: {fileID: 8118747668644971282}
-    ConditionGroups: []
+    Id: f21ee62e-6582-4557-8c47-74d515175c26
+  - FromState: {fileID: -879497161767425172}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -6991968770991651269}
+        ExpectedResult: 0
     ToState: {fileID: -7774704481344654937}
-    Id: 0fa5118b-0a27-451b-8756-b7664a9bf254
+    Id: 99e6dcf4-2b64-437d-9ffd-4d50cc69d0fd
+  - FromState: {fileID: 7760642376545991185}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 3380560704688042137}
+        ExpectedResult: 0
+    ToState: {fileID: -7774704481344654937}
+    Id: 4d120698-d6c4-4bdd-9fa1-387bc3ade4fc
   _base: {fileID: 0}
   _fieldOverrides: []
   _removedIds: []
@@ -448,21 +475,17 @@ MonoBehaviour:
   _exposedParameters: {fileID: 3406922056072897844}
   _nodePositions:
   - State: {fileID: -7774704481344654937}
-    Position: {x: 598, y: -1}
+    Position: {x: 586, y: 7}
   - State: {fileID: 7008634821877137313}
     Position: {x: 189, y: -1}
-  - State: {fileID: -6319296030552163185}
-    Position: {x: 397, y: -1}
-  - State: {fileID: -6761734385814222937}
-    Position: {x: 394, y: 128}
-  - State: {fileID: 8118747668644971282}
-    Position: {x: 394, y: 185}
-  - State: {fileID: 6344917057749561092}
-    Position: {x: 395, y: 66}
   - State: {fileID: 3184415026357308539}
-    Position: {x: 758, y: 249}
-  - State: {fileID: -1688088357247979748}
-    Position: {x: 397, y: 311}
+    Position: {x: 395, y: 2}
+  - State: {fileID: 7760642376545991185}
+    Position: {x: 395, y: 230}
+  - State: {fileID: -879497161767425172}
+    Position: {x: 395, y: 167}
+  - State: {fileID: 9032502992824110892}
+    Position: {x: 395, y: 82}
   _entryNodePosition: {x: 0, y: 0}
   _anyStateNodePosition: {x: 0, y: 120}
   _contentsFolders: []
@@ -483,6 +506,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: -8333454843085663134}
+--- !u!114 &-5317733203777165071
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: VengefulRoots_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 4925119286315533947}
+  - {fileID: 9090953038823750421}
 --- !u!114 &-5261541522726581089
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -497,6 +535,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RollRandomPoolActionSO
   _selfAnchor: {fileID: 0}
   _pool: {fileID: 2275656192919492967}
+--- !u!114 &-4791556768564746296
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: VengefulBurrowing_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: -8333454843085663134}
 --- !u!114 &-4772696351766426647
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -572,6 +624,10 @@ MonoBehaviour:
   _offsetMax: {x: 3, y: 0, z: 10}
   _maxAttempts: 8
   _faceTarget: 1
+  _lead:
+    usePrediction: 1
+    leadTime: 0.5
+    maxDistance: 3
 --- !u!114 &-3866483475985023219
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -587,6 +643,35 @@ MonoBehaviour:
   _actions:
   - {fileID: 7131593150393633867}
   - {fileID: -8333454843085663134}
+--- !u!114 &-3793379331387818751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2ef262a749aaf741855b6e4bddb2add, type: 3}
+  m_Name: VengefulRootsSubExitExitSubStateMachine_Action
+  m_EditorClassIdentifier: Assembly-CSharp::ExitSubStateMachineActionSO
+  _selfAnchor: {fileID: 0}
+  _exitId: Exit
+--- !u!114 &-3485846655665348216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 980dfb7f48049f446a18747273209362, type: 3}
+  m_Name: VengefulRootsSubSubStateMachine_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SubStateMachineActionSO
+  _selfAnchor: {fileID: 0}
+  _transitionTable: {fileID: -71561965455795426}
+  _forceExitState: {fileID: 0}
 --- !u!114 &-3411280740989632322
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -597,10 +682,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b2ef262a749aaf741855b6e4bddb2add, type: 3}
-  m_Name: RandomAttackSubExitExitToRestSubStateMachine_Action
+  m_Name: RandomAttackSubExitSubStateMachine_Action
   m_EditorClassIdentifier: Assembly-CSharp::ExitSubStateMachineActionSO
   _selfAnchor: {fileID: 0}
-  _exitId: ExitToRest
+  _exitId: Exit
 --- !u!114 &-3263197428825212322
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -613,6 +698,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d2d7c4dfc85d07b498d74fb3a7a830e3, type: 3}
   m_Name: VengeFulRootsPatternID
   m_EditorClassIdentifier: Assembly-CSharp::AttackPatternIDSO
+--- !u!114 &-3198682659154997523
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: VengefulPrepare_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 8299861116441461489}
+  - {fileID: -5875219725648853835}
 --- !u!114 &-2934392541409511602
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -628,6 +728,20 @@ MonoBehaviour:
   _selfAnchor: {fileID: 0}
   _pool: {fileID: -4772696351766426647}
   _option: {fileID: -8949616441336892990}
+--- !u!114 &-2882471448055322586
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae75f5365ad06ad4ebb6bb2bce623372, type: 3}
+  m_Name: RandomAttackSubExitSubSMExited_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::SubStateMachineExitedConditionSO
+  _selfAnchor: {fileID: 0}
+  _exitId: Exit
 --- !u!114 &-2602068328119213129
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -689,6 +803,10 @@ MonoBehaviour:
     minDistance: 1
     directionCount: 16
   _maxAttempts: 3
+  _lead:
+    usePrediction: 1
+    leadTime: 0.5
+    maxDistance: 3
 --- !u!114 &-2246391376952511542
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -767,7 +885,7 @@ MonoBehaviour:
   _selfAnchor: {fileID: 0}
   minDuration: 1
   maxDuration: 2
---- !u!114 &-1688088357247979748
+--- !u!114 &-1592584824808758575
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -777,9 +895,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
-  m_Name: DeathBlossom_State
+  m_Name: VengefulRootsSubExitExit_State
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
-  _actions: []
+  _actions:
+  - {fileID: -3793379331387818751}
 --- !u!114 &-898081848615392078
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -902,15 +1021,15 @@ MonoBehaviour:
   _exposedParameters: {fileID: 3406922056072897844}
   _nodePositions:
   - State: {fileID: -7162928016612475818}
-    Position: {x: 164, y: 59}
+    Position: {x: 163, y: 63}
   - State: {fileID: 4909592212119637531}
     Position: {x: 166, y: 126}
   - State: {fileID: 3137754659813419830}
-    Position: {x: 170, y: -3}
+    Position: {x: 156, y: -4}
   - State: {fileID: -4621473839124061901}
     Position: {x: 153, y: 193}
-  _entryNodePosition: {x: 0, y: -1}
-  _anyStateNodePosition: {x: 1, y: 104}
+  _entryNodePosition: {x: -3, y: -1}
+  _anyStateNodePosition: {x: -3, y: 104}
   _contentsFolders:
   - Item: {fileID: 421504577681913907}
     Folder: Navigator
@@ -921,6 +1040,74 @@ MonoBehaviour:
   _contentsFolderPaths:
   - Group: Actions
     Path: Navigator
+  _stateDisplayNames: []
+  _removedParameters: []
+--- !u!114 &-71561965455795426
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5492ed31ba40b643aaf3d94f1de0aa7, type: 3}
+  m_Name: VengefulRootsSub_TransitionTable
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
+  _initialState: {fileID: -4791556768564746296}
+  _anyTransitions: []
+  _transitions:
+  - FromState: {fileID: -4791556768564746296}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 1790145170704217784}
+        ExpectedResult: 0
+    ToState: {fileID: -3198682659154997523}
+    Id: 394d02fe-5a0e-4cd8-a7cc-9e4542ef2975
+  - FromState: {fileID: -3198682659154997523}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -8958082062454541370}
+        ExpectedResult: 0
+    ToState: {fileID: -5317733203777165071}
+    Id: 81307bd7-9d8d-481b-85d9-63776895f898
+  - FromState: {fileID: -5317733203777165071}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -6991968770991651269}
+        ExpectedResult: 0
+    ToState: {fileID: -1592584824808758575}
+    Id: b93aea24-a9cc-498d-9eb5-fefe490fed0c
+  _base: {fileID: 0}
+  _fieldOverrides: []
+  _removedIds: []
+  _transitionOverrides: []
+  _conditionReplaces: []
+  _transitionRetargets: []
+  _actionChanges: []
+  _actionOrders: []
+  _exposedParameters: {fileID: 3406922056072897844}
+  _nodePositions:
+  - State: {fileID: -4791556768564746296}
+    Position: {x: 180, y: 1}
+  - State: {fileID: -3198682659154997523}
+    Position: {x: 181, y: 66}
+  - State: {fileID: -5317733203777165071}
+    Position: {x: 183, y: 131}
+  - State: {fileID: -1592584824808758575}
+    Position: {x: 167, y: 196}
+  _entryNodePosition: {x: 0, y: 0}
+  _anyStateNodePosition: {x: 0, y: 120}
+  _contentsFolders:
+  - Item: {fileID: -7689692648791979929}
+    Folder: Teteport
+  - Item: {fileID: 8299861116441461489}
+    Folder: Teteport
+  - Item: {fileID: 8255050085657976198}
+    Folder: Teteport
+  _contentsFolderPaths:
+  - Group: Actions
+    Path: Teteport
   _stateDisplayNames: []
   _removedParameters: []
 --- !u!114 &11400000
@@ -956,7 +1143,7 @@ MonoBehaviour:
     - Conditions:
       - Condition: {fileID: -1751025949700094690}
         ExpectedResult: 0
-    ToState: {fileID: -879497161767425172}
+    ToState: {fileID: 1363888680366224215}
     Id: 50fa65ec-7011-4dd2-b210-8f9b3e698cc0
   - FromState: {fileID: -5386280242133745992}
     ConditionGroups:
@@ -1029,13 +1216,20 @@ MonoBehaviour:
         ExpectedResult: 0
     ToState: {fileID: 4798041465453816357}
     Id: c4dd1e40-c38f-41b1-96f0-bd08a7789fa4
-  - FromState: {fileID: -879497161767425172}
+  - FromState: {fileID: 1004980816539490594}
     ConditionGroups:
     - Conditions:
-      - Condition: {fileID: -6991968770991651269}
+      - Condition: {fileID: 7869160746251894541}
+        ExpectedResult: 0
+    ToState: {fileID: -5386280242133745992}
+    Id: 4cfb1b48-ddc6-4b79-9dd2-13101fcb8724
+  - FromState: {fileID: 1363888680366224215}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -2882471448055322586}
         ExpectedResult: 0
     ToState: {fileID: -3866483475985023219}
-    Id: 0c3dced5-acbd-41e7-b306-95c5f862959a
+    Id: 2ed4fa42-bc19-440e-80ca-106c2ffddbdf
   _base: {fileID: 0}
   _fieldOverrides: []
   _removedIds: []
@@ -1053,7 +1247,7 @@ MonoBehaviour:
   - State: {fileID: 4798041465453816357}
     Position: {x: 535, y: 51}
   - State: {fileID: 1363888680366224215}
-    Position: {x: 340, y: 259}
+    Position: {x: 536, y: 151}
   - State: {fileID: -5386280242133745992}
     Position: {x: 340, y: 51}
   - State: {fileID: -3866483475985023219}
@@ -1064,12 +1258,6 @@ MonoBehaviour:
     Position: {x: 144, y: 51}
   - State: {fileID: 1004980816539490594}
     Position: {x: 144, y: -48}
-  - State: {fileID: 3184415026357308539}
-    Position: {x: 535, y: 259}
-  - State: {fileID: 9032502992824110892}
-    Position: {x: 718, y: 259}
-  - State: {fileID: -879497161767425172}
-    Position: {x: 535, y: 150}
   _entryNodePosition: {x: 358, y: -135}
   _anyStateNodePosition: {x: 557, y: -135}
   _contentsFolders:
@@ -1115,11 +1303,7 @@ MonoBehaviour:
     Folder: BurrowingGroup
   - Item: {fileID: -2594195061900493074}
     Folder: Other
-  - Item: {fileID: 5655249779303119488}
-    Folder: Other
   - Item: {fileID: -2441834422539578995}
-    Folder: Other
-  - Item: {fileID: 1896445126729073591}
     Folder: Other
   - Item: {fileID: 6037934602718916035}
     Folder: Other
@@ -1204,6 +1388,10 @@ MonoBehaviour:
   _offsetMax: {x: 1, y: 0, z: 1.25}
   _maxAttempts: 8
   _faceTarget: 1
+  _lead:
+    usePrediction: 1
+    leadTime: 0.5
+    maxDistance: 3
 --- !u!114 &741395715690122083
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1341,20 +1529,6 @@ MonoBehaviour:
   layerIndex: 0
   finishTime: 1
   extraSeconds: 0
---- !u!114 &1896445126729073591
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ae75f5365ad06ad4ebb6bb2bce623372, type: 3}
-  m_Name: RandomAttackSubExitToIdleSubSMExited_Condition
-  m_EditorClassIdentifier: Assembly-CSharp::SubStateMachineExitedConditionSO
-  _selfAnchor: {fileID: 0}
-  _exitId: ExitToRest
 --- !u!114 &1898925047156986070
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1439,7 +1613,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
-  m_Name: Burrowing
+  m_Name: NormalAttackBurrowing_State
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: -8333454843085663134}
@@ -1457,6 +1631,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: 7485206492641367341}
+--- !u!114 &3380560704688042137
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae75f5365ad06ad4ebb6bb2bce623372, type: 3}
+  m_Name: VengefulRootsSubExitSubSMExited_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::SubStateMachineExitedConditionSO
+  _selfAnchor: {fileID: 0}
+  _exitId: Exit
 --- !u!114 &3406922056072897844
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1562,6 +1750,20 @@ MonoBehaviour:
     - _target: {fileID: -2214602330484021119}
       _fieldName: _count
     _category: DeathBlossom
+  - _name: VengefuTeleportAnchor.Max
+    _bindings:
+    - _target: {fileID: 8255050085657976198}
+      _fieldName: _ringParameters.radius
+    - _target: {fileID: -7689692648791979929}
+      _fieldName: _offsetMax.z
+    _category: VengefulRoots
+  - _name: VengefuTeleportAnchor.Min
+    _bindings:
+    - _target: {fileID: 8255050085657976198}
+      _fieldName: _ringParameters.minDistance
+    - _target: {fileID: -7689692648791979929}
+      _fieldName: _offsetMin.z
+    _category: VengefulRoots
 --- !u!114 &3877864877082832280
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1673,11 +1875,28 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
-  m_Name: ExcuteNormalAttack_State
+  m_Name: NormalAttackExcute_State
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: -304040775506763751}
   - {fileID: 7201636916893211207}
+--- !u!114 &4925119286315533947
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c308fba7bd53dab45bab731061d29e77, type: 3}
+  m_Name: Vengeful_SetSpawnPattern_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SetSpawnPatternActionSO
+  _selfAnchor: {fileID: 0}
+  _prefab: {fileID: 0}
+  _poolTag: VengefulRoots
+  _pattern: {fileID: 0}
+  _anchor: {fileID: 0}
 --- !u!114 &4971951026947002424
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1720,19 +1939,6 @@ MonoBehaviour:
   _selfAnchor: {fileID: 0}
   _pool: {fileID: 2275656192919492967}
   _option: {fileID: -3263197428825212322}
---- !u!114 &5655249779303119488
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfcaae7805ae66b4588545169ca0a35e, type: 3}
-  m_Name: NextState_Condition
-  m_EditorClassIdentifier: Assembly-CSharp::NextStateConditionSO
-  _selfAnchor: {fileID: 0}
 --- !u!114 &6037934602718916035
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1761,32 +1967,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SubStateMachineExitedConditionSO
   _selfAnchor: {fileID: 0}
   _exitId: Exit
---- !u!114 &6344917057749561092
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
-  m_Name: New_State (3)
-  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
-  _actions: []
---- !u!114 &6376317542541277679
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
-  m_Name: NewSubStart_State
-  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
-  _actions: []
 --- !u!114 &6510767695726320371
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1878,6 +2058,10 @@ MonoBehaviour:
   _offsetMax: {x: 3.5, y: 0, z: 12}
   _maxAttempts: 8
   _faceTarget: 1
+  _lead:
+    usePrediction: 1
+    leadTime: 0.5
+    maxDistance: 3
 --- !u!114 &7131593150393633867
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1943,6 +2127,20 @@ MonoBehaviour:
   _selfAnchor: {fileID: 0}
   _primary: {fileID: -3936094420739335838}
   _fallback: {fileID: 8081074778761077577}
+--- !u!114 &7760642376545991185
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: VengefulRootsSub_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: -3485846655665348216}
 --- !u!114 &7869160746251894541
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1996,19 +2194,10 @@ MonoBehaviour:
     minDistance: 8
     directionCount: 16
   _maxAttempts: 3
---- !u!114 &8118747668644971282
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
-  m_Name: New_State (2)
-  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
-  _actions: []
+  _lead:
+    usePrediction: 1
+    leadTime: 0.5
+    maxDistance: 3
 --- !u!114 &8198953454802553894
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2023,6 +2212,45 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SubStateMachineExitedConditionSO
   _selfAnchor: {fileID: 0}
   _exitId: Exit
+--- !u!114 &8255050085657976198
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 013117ca7418a2544aabfc8bad5df2d7, type: 3}
+  m_Name: Vengeful_TeleportAnchorRing_Action
+  m_EditorClassIdentifier: Assembly-CSharp::TeleportAnchorRingActionSO
+  _selfAnchor: {fileID: 0}
+  _targetAnchor: {fileID: 11400000, guid: ded8b5ee8f0dd57488cc9fa0e5c0d061, type: 2}
+  _faceTarget: 1
+  _ringParameters:
+    radius: 6
+    minDistance: 5
+    directionCount: 16
+  _maxAttempts: 3
+  _lead:
+    usePrediction: 1
+    leadTime: 0.5
+    maxDistance: 3
+--- !u!114 &8299861116441461489
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8c2056c17dcfcc45bedff6bda33eb8a, type: 3}
+  m_Name: Vengeful_Teleprot_Fallback_Action
+  m_EditorClassIdentifier: Assembly-CSharp::FallbackActionSO
+  _selfAnchor: {fileID: 0}
+  _primary: {fileID: -7689692648791979929}
+  _fallback: {fileID: 8255050085657976198}
 --- !u!114 &9032502992824110892
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2037,3 +2265,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: 4041423068706326232}
+--- !u!114 &9090953038823750421
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77e8ae40d928604408f37497243c6985, type: 3}
+  m_Name: Vengeful_PlayAnimState_Action
+  m_EditorClassIdentifier: Assembly-CSharp::PlayAnimatorStateActionSO
+  _selfAnchor: {fileID: 0}
+  _stateName: SpawnVengeful
+  _layerIndex: 0
+  _transitionDuration: 0.25
+  _startTimeOffset: 0
+  _waitForStateName: 
+  _exitStateName: 
+  _exitTransitionDuration: 0.25
+  _exitStartTimeOffset: 0

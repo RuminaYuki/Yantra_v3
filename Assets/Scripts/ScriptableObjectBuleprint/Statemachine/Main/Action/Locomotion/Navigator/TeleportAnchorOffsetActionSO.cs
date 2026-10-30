@@ -18,6 +18,8 @@ public class TeleportAnchorOffsetActionSO : StateActionSO
     [SerializeField,Exposed] private Vector3 _offsetMax = new(2f, 0f, -2f);
     [SerializeField, Min(1)] private int _maxAttempts = 8;
     [SerializeField] private bool _faceTarget = true;
+    [SerializeField,Exposed] private TargetLeadSettings _lead =
+        new() { usePrediction = false, leadTime = 0.5f, maxDistance = 3f };
 
     protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
@@ -26,7 +28,8 @@ public class TeleportAnchorOffsetActionSO : StateActionSO
             _offsetMin,
             _offsetMax,
             _maxAttempts,
-            _faceTarget);
+            _faceTarget,
+            _lead);
     }
 }
 
@@ -40,6 +43,7 @@ public class TeleportAnchorOffsetAction : StateAction, IFallibleAction
     private readonly Vector3 _offsetMax;
     private readonly int _maxAttempts;
     private readonly bool _faceTarget;
+    private readonly TargetLeadSettings _lead;
 
     private AnchorReference<CharacterTeleporter> _teleporter;
     private AnchorReference<StandablePointValidator> _pointValidator;
@@ -51,13 +55,15 @@ public class TeleportAnchorOffsetAction : StateAction, IFallibleAction
         Vector3 offsetMin,
         Vector3 offsetMax,
         int maxAttempts,
-        bool faceTarget)
+        bool faceTarget,
+        TargetLeadSettings lead)
     {
         _targetAnchor = targetAnchor;
         _offsetMin = Vector3.Min(offsetMin, offsetMax);
         _offsetMax = Vector3.Max(offsetMin, offsetMax);
         _maxAttempts = Mathf.Max(1, maxAttempts);
         _faceTarget = faceTarget;
+        _lead = lead;
     }
 
     public override void Awake(StateMachine stateMachine)
@@ -78,7 +84,7 @@ public class TeleportAnchorOffsetAction : StateAction, IFallibleAction
             !_target.TryGet(out Transform target))
             return;
 
-        Vector3 origin = target.position;
+        Vector3 origin = TargetLead.Predict(target, in _lead);
         Quaternion yaw = Quaternion.Euler(0f, target.eulerAngles.y, 0f);
 
         for (int i = 0; i < _maxAttempts; i++)

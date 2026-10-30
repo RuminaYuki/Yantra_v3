@@ -5,19 +5,19 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 [UseSelfAnchor]
 [RequiresOwnerComponent(typeof(AttackSphereCast))]
 [CreateAssetMenu(
-    fileName = "NewOnAttackHit_Condition",
-    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Attack/On Attack Hit")]
-public class OnAttackHitConditionSO : StateConditionSO
+    fileName = "NewOnSphereCastHit_Condition",
+    menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Attack/On Sphere Cast Hit")]
+public class OnSphereCastHitConditionSO : StateConditionSO
 {
     protected override Condition OnCreateCondition()
     {
-        return new OnAttackHitCondition();
+        return new OnSphereCastHitCondition();
     }
 }
 
 // True once this owner's AttackSphereCast has hit something since entering the state,
 // and stays true until the state is entered again.
-public class OnAttackHitCondition : Condition
+public class OnSphereCastHitCondition : Condition
 {
     private AnchorReference<AttackSphereCast> _attackSphereCast;
     private AttackSphereCast _subscribed;   // the one we are listening to right now
