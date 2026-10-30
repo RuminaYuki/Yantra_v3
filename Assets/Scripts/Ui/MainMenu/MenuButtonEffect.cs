@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class MenuButtonEffect : MonoBehaviour,
     IPointerEnterHandler, IPointerExitHandler,
@@ -17,6 +18,16 @@ public class MenuButtonEffect : MonoBehaviour,
     [Header("Color")]
     [SerializeField] private Color _normalColor = new(0.65f, 0.65f, 0.65f, 1f);
     [SerializeField] private Color _hoverColor = Color.white;
+
+    [Header("Highlight Image (ไม่ใส่ก็ได้)")]
+    [Tooltip("Image ลูกของปุ่มที่วางไว้ใต้ตัวหนังสือ — โผล่จางๆ ตอนเมาส์ชี้ / ถูกเลือก")]
+    [SerializeField] private Image _highlightImage;
+
+    [Tooltip("ความเข้มตอนโผล่เต็มที่ — 0.5 = จางครึ่งนึง")]
+    [SerializeField, Range(0f, 1f)] private float _highlightAlpha = 0.5f;
+
+    [Tooltip("ติ๊ก = ค่อยๆ ปาดจากซ้ายไปขวาตอนโผล่\nต้องตั้ง Image Type ของรูปเป็น Filled / Fill Method = Horizontal")]
+    [SerializeField] private bool _highlightWipe = true;
 
     [Header("Pulse")]
     [Tooltip("ให้ตัวที่เลือกอยู่เต้นเบา ๆ แบบ GTA")]
@@ -37,11 +48,17 @@ public class MenuButtonEffect : MonoBehaviour,
     private bool _isSelected;
     private bool _isHighlighted;
 
+    private float _highlight;
+
     private void Awake()
     {
         _rect = GetComponent<RectTransform>();
         _label = GetComponentInChildren<TMP_Text>();
         _baseScale = _rect.localScale;
+
+        // รูปไม่ควรบังคลิกของปุ่ม
+        if (_highlightImage != null)
+            _highlightImage.raycastTarget = false;
     }
 
     private void OnEnable()
@@ -56,6 +73,9 @@ public class MenuButtonEffect : MonoBehaviour,
 
         _slide = 0f;
         _enabledFrame = Time.frameCount;
+
+        _highlight = 0f;
+        ApplyHighlight();
     }
 
     private void OnDisable()
@@ -80,7 +100,22 @@ public class MenuButtonEffect : MonoBehaviour,
         if (_label != null)
             _label.color = Color.Lerp(_label.color, _isHighlighted ? _hoverColor : _normalColor, t);
 
+        _highlight = Mathf.Lerp(_highlight, _isHighlighted ? 1f : 0f, t);
+        ApplyHighlight();
+
         UpdateSlide(t);
+    }
+
+    private void ApplyHighlight()
+    {
+        if (_highlightImage == null) return;
+
+        Color color = _highlightImage.color;
+        color.a = _highlight * _highlightAlpha;
+        _highlightImage.color = color;
+
+        if (_highlightWipe && _highlightImage.type == Image.Type.Filled)
+            _highlightImage.fillAmount = _highlight;
     }
 
     private void UpdateSlide(float t)
