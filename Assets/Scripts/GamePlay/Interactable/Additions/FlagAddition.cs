@@ -22,7 +22,7 @@ public class FlagAddition : MonoBehaviour
     {
         if (interactor != null)
         {
-            interactor.OnInteract += HandleInteract;
+            interactor.OnEndInteract += HandleEndInteract;
             interactor.AddCanInteractModifier(CanInteract);
         }
     }
@@ -31,7 +31,7 @@ public class FlagAddition : MonoBehaviour
     {
         if (interactor != null)
         {
-            interactor.OnInteract -= HandleInteract;
+            interactor.OnEndInteract -= HandleEndInteract;
             interactor.RemoveCanInteractModifier(CanInteract);
         }
     }
@@ -54,7 +54,7 @@ public class FlagAddition : MonoBehaviour
         return true;
     }
 
-    public void HandleInteract(GameObject rootplayer)
+    public void HandleEndInteract(GameObject rootplayer)
     {
         if (rootplayer == null) return;
 

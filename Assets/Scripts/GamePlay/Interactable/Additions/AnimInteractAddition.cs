@@ -17,6 +17,7 @@ public class AnimInteractAddition : MonoBehaviour
     SerializableAction subscribedAction;
 
     bool IsPlayAnimation = false;
+    bool cancelNextFrame = false;
 
     private void Awake()
     {
@@ -26,21 +27,36 @@ public class AnimInteractAddition : MonoBehaviour
     private void OnEnable()
     {
         _interactor.OnInteract += HandleInteract;
-        _interactor.AddCanCancelInteractModifier(CanInteract);
+        _interactor.AddCanCancelInteractModifier(CanCancel);
         _interactor.AddCanInteractModifier(CanInteract);
     }
 
     private void OnDisable()
     {
         _interactor.OnInteract -= HandleInteract;
-        _interactor.RemoveCanCancelInteractModifier(CanInteract);
+        _interactor.RemoveCanCancelInteractModifier(CanCancel);
         _interactor.RemoveCanInteractModifier(CanInteract);
 
         Unsubscribe();
+
+        // Disabled/destroyed mid-interaction (e.g. PickUpAddition destroys the item before
+        // the anim end event fires). Nothing would cancel it any more, so release the player now.
+        bool wasActive = IsPlayAnimation || cancelNextFrame;
+        IsPlayAnimation = false;
+        cancelNextFrame = false;
+        if (wasActive && rootPlayer != null)
+            _interactor.CancelInteraction(rootPlayer, true);
     }
 
     private void Update()
     {
+        if (cancelNextFrame)
+        {
+            cancelNextFrame = false;
+            if (rootPlayer != null) _interactor.CancelInteraction(rootPlayer, true);
+            return;
+        }
+
         if (!IsPlayAnimation) return;
 
         // Keeps asking until the animation is really playing. PlayAnimation returns null
@@ -49,6 +65,17 @@ public class AnimInteractAddition : MonoBehaviour
     }
 
     private bool CanInteract(GameObject rootPlayer)
+    {
+        if (IsPlayAnimation) return false;
+
+        // Block while the player is already playing this same animation (e.g. from another item)
+        PlayerInteract pi = rootPlayer != null ? rootPlayer.GetComponentInChildren<PlayerInteract>() : null;
+        return pi == null || pi.CanPlayAnimation(AnimationID);
+    }
+
+    // Cancel only waits for our own animation; the anim-state check is left out on purpose
+    // because the end event fires while the state is still playing.
+    private bool CanCancel(GameObject rootPlayer)
     {
         return !IsPlayAnimation;
     }
@@ -59,7 +86,14 @@ public class AnimInteractAddition : MonoBehaviour
 
         playerInteract = rootPlayer.GetComponentInChildren<PlayerInteract>();
         SerializableAction action = playerInteract.PlayAnimation(AnimationID);
-        if (action == null) return;
+        if (action == null)
+        {
+            // No animation started, so no end event will ever cancel this interaction.
+            // Cancel next frame: we are still inside base.Interact, which sets
+            // SetIsInterctable(true) after this and would overwrite a cancel made now.
+            cancelNextFrame = true;
+            return;
+        }
 
         Subscribe(action);
         IsPlayAnimation = true;

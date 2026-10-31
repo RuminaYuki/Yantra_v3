@@ -162,6 +162,26 @@ namespace SDFcl.GamePlay.Interactable
             return null;
         }
 
+        // False when the state for this ID is already playing or fading in
+        public bool CanPlayAnimation(string _ID)
+        {
+            for (int i = 0; i < interacsAnimation.Length; i++)
+            {
+                if (interacsAnimation[i].ID != _ID) continue;
+
+                Animator animator = interacsAnimation[i].Animator;
+                if (animator == null) return false;
+
+                int layer = interacsAnimation[i].indexLayer;
+                string stateName = interacsAnimation[i].stateName;
+
+                bool playing = animator.GetCurrentAnimatorStateInfo(layer).IsName(stateName);
+                bool fadingIn = animator.IsInTransition(layer) &&
+                                animator.GetNextAnimatorStateInfo(layer).IsName(stateName);
+                return !(playing || fadingIn);
+            }
+            return true; // unknown ID: nothing is playing for it
+        }
 
         #endregion
 

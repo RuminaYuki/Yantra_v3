@@ -53,7 +53,7 @@ public class BaseProjectileMovement : MonoBehaviour
 
     }
 
-    protected virtual void Update()
+    protected virtual void FixedUpdate()
     {
         _lifeTimer += Time.deltaTime;
         if (_lifeTimer > 0f && _lifeTimer >= lifetime)
