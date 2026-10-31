@@ -93,7 +93,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // Right-click menu: Copy / Paste / Duplicate for the selection (or just this row if it isn't selected).
         private void AppendClipboardActions(DropdownMenu menu, ScriptableObject item)
         {
-            List<ScriptableObject> targets = SelectionTargetsFor(item).Where(CanCopy).ToList();
+            List<ScriptableObject> targets = CopyTargetsFor(item);
             DropdownMenuAction.Status status = targets.Count > 0
                 ? DropdownMenuAction.Status.Normal
                 : DropdownMenuAction.Status.Disabled;
@@ -121,9 +121,36 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 : new List<ScriptableObject> { item };
         }
 
+        // From Base / From Parent rows: only Copy / Duplicate (the copy lands in this table; the other
+        // table's item stays as it is).
+        private void AppendReadOnlyClipboardActions(DropdownMenu menu, ScriptableObject item)
+        {
+            List<ScriptableObject> targets = CopyTargetsFor(item);
+            DropdownMenuAction.Status status = targets.Count > 0
+                ? DropdownMenuAction.Status.Normal
+                : DropdownMenuAction.Status.Disabled;
+            string count = targets.Count > 1 ? $" ({targets.Count})" : "";
+
+            menu.AppendAction($"Copy{count}", _ => CopyToClipboard(targets), status);
+            menu.AppendAction($"Duplicate into this table{count}", _ => PasteCopies(targets), status);
+        }
+
+        // Copying never changes the original, so From Base / From Parent rows count here too.
+        private List<ScriptableObject> CopyTargetsFor(ScriptableObject item)
+        {
+            List<ScriptableObject> targets = IsSelected(item)
+                ? SelectedCopyable()
+                : new List<ScriptableObject> { item };
+            return targets.Where(CanCopy).ToList();
+        }
+
         private List<ScriptableObject> SelectedCopyable()
         {
-            return SelectedRowItems().OfType<ScriptableObject>().Where(CanCopy).ToList();
+            return Selection.objects
+                .Where(selected => selected != null && _rows.ContainsKey(selected))
+                .OfType<ScriptableObject>()
+                .Where(CanCopy)
+                .ToList();
         }
 
         // ---------- Copy / Paste ----------

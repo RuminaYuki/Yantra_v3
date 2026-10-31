@@ -1,8 +1,9 @@
+using System.Collections.Generic;
 using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
-// Runs one action only during a window of the state: the action is entered when the window opens,
+// Runs a list of actions only during a window of the state: they're entered when the window opens,
 // updated while it's open, and exited when it closes or when the state is left early (so a hitbox
 // can't be left on). Each window opens at most once per pass through the state.
 // Self Anchor is only used in Anim Normalized mode, to find the Animator.
@@ -10,7 +11,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 [CreateAssetMenu(
     fileName = "NewTimed_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Standard/FlowControl/Timed")]
-public class TimedActionSO : StateActionSO
+public class TimedActionSO : StateActionSO, ISerializationCallbackReceiver
 {
     public enum TimeUnit
     {
@@ -30,8 +31,12 @@ public class TimedActionSO : StateActionSO
     [Tooltip("When the action stops, in the chosen unit. 0 = keeps running until the state exits.")]
     [SerializeField, Min(0f), Exposed] private float _end;
 
-    [Tooltip("The action to run during the window.")]
-    [SerializeField] private StateActionSO _action;
+    [Tooltip("The actions to run during the window, in order.")]
+    [SerializeField] private StateActionSO[] _actions = System.Array.Empty<StateActionSO>();
+
+    // The old single Action slot. Kept only so assets made before the list still load; moved into
+    // _actions on load and saved that way the next time the asset is saved.
+    [SerializeField, HideInInspector] private StateActionSO _action;
 
     [Header("Anim Normalized only")]
     [Tooltip("The Animator state whose progress is read. Before it plays (e.g. during the fade in), the window stays shut.")]
@@ -40,15 +45,48 @@ public class TimedActionSO : StateActionSO
 
     protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
-        StateAction action = null;
-        if (_action != null)
+        var created = new List<StateAction>();
+        foreach (StateActionSO actionSO in _actions)
         {
+            if (actionSO == null)
+            {
+                continue;
+            }
+
             // Through the Resolver, like StateSO.CreateState, so Variant and character overrides reach it.
-            StateActionSO resolved = stateMachine.Resolver != null ? stateMachine.Resolver.Resolve(_action) : _action;
-            action = resolved.CreateAction(stateMachine);
+            StateActionSO resolved = stateMachine.Resolver != null ? stateMachine.Resolver.Resolve(actionSO) : actionSO;
+            StateAction action = resolved.CreateAction(stateMachine);
+            if (action != null)
+            {
+                created.Add(action);
+            }
         }
 
-        return new TimedAction(action, _unit, _start, _end, _stateName, _layerIndex);
+        // More than one runs through a GroupAction, so the window logic below still drives a single action.
+        StateAction inner = created.Count switch
+        {
+            0 => null,
+            1 => created[0],
+            _ => new GroupAction(created.ToArray())
+        };
+
+        return new TimedAction(inner, _unit, _start, _end, _stateName, _layerIndex);
+    }
+
+    public void OnBeforeSerialize() { }
+
+    public void OnAfterDeserialize()
+    {
+        if (_action == null)
+        {
+            return;
+        }
+
+        if (_actions == null || _actions.Length == 0)
+        {
+            _actions = new[] { _action };
+        }
+        _action = null;
     }
 }
 

@@ -93,8 +93,13 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                     ? SubOverriddenColor
                     : new Color(1f, 1f, 1f, 0.6f);
                 subLabel.style.paddingLeft = 8;
+                subLabel.style.paddingRight = 8;
                 subLabel.style.paddingTop = 2;
                 subLabel.style.paddingBottom = 3;
+
+                // A long sub variant name wraps onto more lines instead of widening the node.
+                subLabel.style.whiteSpace = WhiteSpace.Normal;
+                subLabel.style.maxWidth = 220;
                 mainContainer.Add(subLabel);
             }
 

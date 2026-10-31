@@ -24,6 +24,7 @@ namespace Yuki.Learning.StateMachine.Editor
 
         // SubStateMachineActionSO
         public const string TransitionTable = "_transitionTable";
+        public const string ForceExitState = "_forceExitState";
 
         // ExitSubStateMachineActionSO and SubStateMachineExitedConditionSO
         public const string ExitId = "_exitId";

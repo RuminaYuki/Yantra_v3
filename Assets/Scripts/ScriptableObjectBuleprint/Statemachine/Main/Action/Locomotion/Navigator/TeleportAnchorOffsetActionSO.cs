@@ -18,6 +18,8 @@ public class TeleportAnchorOffsetActionSO : StateActionSO
     [SerializeField,Exposed] private Vector3 _offsetMax = new(2f, 0f, -2f);
     [SerializeField, Min(1)] private int _maxAttempts = 8;
     [SerializeField] private bool _faceTarget = true;
+    [Tooltip("Copy the target's facing (yaw only) after teleporting. Overrides Face Target.")]
+    [SerializeField] private bool _matchTargetRotation;
     [SerializeField,Exposed] private TargetLeadSettings _lead =
         new() { usePrediction = false, leadTime = 0.5f, maxDistance = 3f };
 
@@ -29,6 +31,7 @@ public class TeleportAnchorOffsetActionSO : StateActionSO
             _offsetMax,
             _maxAttempts,
             _faceTarget,
+            _matchTargetRotation,
             _lead);
     }
 }
@@ -43,6 +46,7 @@ public class TeleportAnchorOffsetAction : StateAction, IFallibleAction
     private readonly Vector3 _offsetMax;
     private readonly int _maxAttempts;
     private readonly bool _faceTarget;
+    private readonly bool _matchTargetRotation;
     private readonly TargetLeadSettings _lead;
 
     private AnchorReference<CharacterTeleporter> _teleporter;
@@ -56,6 +60,7 @@ public class TeleportAnchorOffsetAction : StateAction, IFallibleAction
         Vector3 offsetMax,
         int maxAttempts,
         bool faceTarget,
+        bool matchTargetRotation,
         TargetLeadSettings lead)
     {
         _targetAnchor = targetAnchor;
@@ -63,6 +68,7 @@ public class TeleportAnchorOffsetAction : StateAction, IFallibleAction
         _offsetMax = Vector3.Max(offsetMin, offsetMax);
         _maxAttempts = Mathf.Max(1, maxAttempts);
         _faceTarget = faceTarget;
+        _matchTargetRotation = matchTargetRotation;
         _lead = lead;
     }
 
@@ -99,7 +105,12 @@ public class TeleportAnchorOffsetAction : StateAction, IFallibleAction
             if (!pointValidator.TryValidatePoint(origin, candidate, out Vector3 position))
                 continue;
 
-            if (_faceTarget)
+            if (_matchTargetRotation)
+            {
+                teleporter.Teleport(position);
+                teleporter.transform.rotation = yaw;
+            }
+            else if (_faceTarget)
                 teleporter.TeleportAndFace(position, origin);
             else
                 teleporter.Teleport(position);

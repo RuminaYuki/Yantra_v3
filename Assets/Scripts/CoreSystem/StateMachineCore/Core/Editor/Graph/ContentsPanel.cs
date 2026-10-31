@@ -193,9 +193,13 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             if (_search.Length > 0)
             {
-                AddSearchResults(
-                    shown.Concat(inSubTables.Keys).Concat(subStates.Values.Select(parts => parts.Table)),
-                    listed, subStates, tablePath, parentItems);
+                List<ScriptableObject> candidates = shown
+                    .Concat(inSubTables.Keys)
+                    .Concat(subStates.Values.Select(parts => parts.Table))
+                    .ToList();
+                var known = new HashSet<ScriptableObject>(candidates.Concat(parentItems));
+                AddSearchResults(candidates, listed, subStates, tablePath, parentItems,
+                    OtherTablesInFile(_table, tablePath, known));
                 ShowSelection();
                 return;
             }
@@ -312,17 +316,21 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // Every item whose name contains the search text, in one list like the Project window's search,
         // each with what kind it is. Double-clicking a sub-state machine still goes inside.
         // parentItems: From Parent's items, found too and marked "Parent".
+        // inOtherTables: the rest of the file (other tables' items → that table's name), read-only here.
         private void AddSearchResults(
             IEnumerable<ScriptableObject> items,
             HashSet<ScriptableObject> used,
             Dictionary<StateSO, TableContents.SubStateParts> subStates,
             string tablePath,
-            List<ScriptableObject> parentItems)
+            List<ScriptableObject> parentItems,
+            Dictionary<ScriptableObject, string> inOtherTables = null)
         {
             var fromParent = new HashSet<ScriptableObject>(parentItems);
+            inOtherTables ??= new Dictionary<ScriptableObject, string>();
 
             List<ScriptableObject> matches = items
                 .Concat(fromParent)
+                .Concat(inOtherTables.Keys)
                 .Where(item => item != null && item.name.IndexOf(_search, StringComparison.OrdinalIgnoreCase) >= 0)
                 .Distinct()
                 .OrderBy(item => item.name)
@@ -343,6 +351,13 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                     continue;
                 }
 
+                if (inOtherTables.TryGetValue(item, out string otherTable))
+                {
+                    _list.Add(CreateRow(item, null, null, true, tablePath, null,
+                        hint: $"{KindOf(item, subStates)} · {otherTable}", inOtherTable: otherTable));
+                    continue;
+                }
+
                 Action open = item is StateSO state && subStates.TryGetValue(state, out TableContents.SubStateParts parts)
                     ? () => _onOpenSubStateMachine?.Invoke(state, parts.Table)
                     : (Action)null;
@@ -350,6 +365,52 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 bool isUsed = used.Contains(item) || item is TransitionTableSO;
                 _list.Add(CreateRow(item, null, null, isUsed, tablePath, null, open, KindOf(item, subStates)));
             }
+        }
+
+        // Search only: the file's states, actions, conditions and tables this table doesn't list (known),
+        // each with the name of a table that uses it ("unused" if none does).
+        private static Dictionary<ScriptableObject, string> OtherTablesInFile(
+            TransitionTableSO table,
+            string tablePath,
+            HashSet<ScriptableObject> known)
+        {
+            var result = new Dictionary<ScriptableObject, string>();
+            List<ScriptableObject> fileItems = AssetDatabase.LoadAllAssetsAtPath(tablePath)
+                .OfType<ScriptableObject>()
+                .Where(item => item != table && !known.Contains(item) &&
+                               (item is StateSO || item is StateActionSO || item is StateConditionSO ||
+                                item is TransitionTableSO))
+                .ToList();
+            if (fileItems.Count == 0)
+            {
+                return result;
+            }
+
+            var ownerByItem = new Dictionary<ScriptableObject, string>();
+            foreach (TransitionTableSO other in AssetDatabase.LoadAllAssetsAtPath(tablePath).OfType<TransitionTableSO>())
+            {
+                if (other == table)
+                {
+                    continue;
+                }
+
+                foreach (ScriptableObject used in TableContents.CollectUsed(other))
+                {
+                    if (used != null && !ownerByItem.ContainsKey(used))
+                    {
+                        ownerByItem[used] = other.name;
+                    }
+                }
+            }
+
+            foreach (ScriptableObject item in fileItems)
+            {
+                result[item] = item is TransitionTableSO
+                    ? "other table"
+                    : ownerByItem.TryGetValue(item, out string owner) ? owner : "unused";
+            }
+
+            return result;
         }
 
         private static string KindOf(Object item, Dictionary<StateSO, TableContents.SubStateParts> subStates)
@@ -762,9 +823,10 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             Action onDoubleClick = null,
             string hint = null,
             bool isFromParent = false,
-            bool isFromBase = false)
+            bool isFromBase = false,
+            string inOtherTable = null)
         {
-            bool isReadOnly = isFromParent || isFromBase;
+            bool isReadOnly = isFromParent || isFromBase || inOtherTable != null;
 
             // A sub-asset has the same asset path as the file it lives in.
             string itemPath = AssetDatabase.GetAssetPath(item);
@@ -813,6 +875,11 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             if (isFromBase)
             {
                 row.tooltip += "\nFrom the Base table: change it there, or override it for this table in the graph.";
+            }
+
+            if (inOtherTable != null)
+            {
+                row.tooltip += $"\nIn {inOtherTable} (same file): copy it here, or open that table to edit it.";
             }
 
             var label = new Label(string.IsNullOrEmpty(item.name) ? "(no name)" : item.name);
@@ -866,12 +933,18 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 }
             });
 
-            // From Parent / From Base: no F2 / Delete and no menu, so nothing of the other table changes here.
+            // From Parent / From Base: no F2 / Delete and only Copy / Duplicate in the menu, so nothing of
+            // the other table changes here.
             if (!isReadOnly)
             {
                 RegisterRowKeys(row, label, item, isEmbedded);
                 row.AddManipulator(new ContextualMenuManipulator(evt =>
                     BuildRowMenu(evt, row, label, item, isEmbedded, group, folder, groupFolders)));
+            }
+            else
+            {
+                row.AddManipulator(new ContextualMenuManipulator(evt =>
+                    AppendReadOnlyClipboardActions(evt.menu, item)));
             }
 
             RegisterDragSource(row, new DragPayload { Group = group, Item = item });

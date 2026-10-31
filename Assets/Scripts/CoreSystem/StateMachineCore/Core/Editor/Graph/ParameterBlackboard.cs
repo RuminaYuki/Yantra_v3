@@ -123,6 +123,13 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             // The badges on the graph follow the panel.
             (graphView as StateMachineGraphView)?.RefreshParameterTags();
 
+            // Its Blackboard is its Base's: listed once, under From Base, where values are overridden.
+            if (IsSameFileVariant(_table))
+            {
+                AddBaseSections();
+                return;
+            }
+
             ExposedParametersSO parameters = Find(_table);
             if (parameters == null)
             {
@@ -198,9 +205,11 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                     section.title = $"{FoldArrow(top)} {section.title}";
                 }
 
+                // Folded: no rows, but not empty either, so no "Empty" hint.
                 if (IsCollapsed(top))
                 {
-                    AddSection(section);
+                    Add(section);
+                    _sections.Add(section);
                     continue;
                 }
 
@@ -383,14 +392,28 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
         // Whose Base and Field Overrides the From Base rows show: the file's main table. A sub-state
         // machine's table in the same file shows the same ones, since its machine runs with them
-        // (SubStateMachineAction passes the parent's overrides down).
+        // (SubStateMachineAction passes the parent's overrides down). A Variant of a table in its own file
+        // (Duplicate as Variant) uses itself, so its overrides change only its machine.
         private TransitionTableSO OwnerTable
         {
             get
             {
+                if (IsSameFileVariant(_table))
+                {
+                    return _table;
+                }
+
                 var main = AssetDatabase.LoadMainAssetAtPath(AssetDatabase.GetAssetPath(_table)) as TransitionTableSO;
                 return main != null ? main : _table;
             }
+        }
+
+        // A Variant whose Base is in the same file (Duplicate as Variant): it shares that file's Blackboard
+        // with its Base and keeps its own overrides and removed parameters, apart from the main table's.
+        internal static bool IsSameFileVariant(TransitionTableSO table)
+        {
+            TransitionTableSO baseTable = table != null ? StateMachineGraphView.SafeBaseOf(table) : null;
+            return baseTable != null && AssetDatabase.GetAssetPath(baseTable) == AssetDatabase.GetAssetPath(table);
         }
 
         // A variant table runs its Bases' parameters too (TransitionTableSO.RegisterParameters registers the
@@ -429,7 +452,10 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
                 var section = new BlackboardSection
                 {
-                    title = $"From Base · {baseTable.name} ({shown.Count})" +
+                    // In the same file it's one Blackboard for both: what's added here is the Base's too.
+                    title = (IsSameFileVariant(owner)
+                                ? $"This file's (shared with {baseTable.name}) ({shown.Count})"
+                                : $"From Base · {baseTable.name} ({shown.Count})") +
                             (unusedHere > 0 ? $" · {unusedHere} unused here" : "") +
                             (removedHere.Count > 0 ? $" · {removedHere.Count} removed" : "")
                 };
@@ -619,7 +645,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             var main = AssetDatabase.LoadMainAssetAtPath(AssetDatabase.GetAssetPath(table)) as TransitionTableSO;
             var visited = new HashSet<TransitionTableSO>();
-            for (TransitionTableSO current = main != null ? main : table;
+            for (TransitionTableSO current = main != null && !IsSameFileVariant(table) ? main : table;
                  current != null && visited.Add(current);
                  current = StateMachineGraphView.BaseOf(current))
             {
@@ -742,6 +768,23 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 }
             }
 
+            // Actions / conditions held inside another one (Fallback's Primary, Group, Repeat, Timed ...)
+            // run too: those create theirs through the Resolver, so overrides reach them.
+            var inside = new Stack<StateElementSO>(runs);
+            while (inside.Count > 0)
+            {
+                SerializedProperty property = new SerializedObject(inside.Pop()).GetIterator();
+                while (property.Next(true))
+                {
+                    if (property.propertyType == SerializedPropertyType.ObjectReference &&
+                        property.objectReferenceValue is StateElementSO inner &&
+                        runs.Add(inner))
+                    {
+                        inside.Push(inner);
+                    }
+                }
+            }
+
             return runs;
         }
 
@@ -833,7 +876,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             return FindFieldOverride(serializedTable.FindProperty("_fieldOverrides"), parameter.Bindings[0]);
         }
 
-        private static int FindFieldOverride(SerializedProperty overrides, ExposedBinding binding)
+        internal static int FindFieldOverride(SerializedProperty overrides, ExposedBinding binding)
         {
             for (int i = 0; i < overrides.arraySize; i++)
             {
@@ -846,14 +889,14 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             return -1;
         }
 
-        private static bool IsOverrideOf(SerializedProperty element, ExposedBinding binding)
+        internal static bool IsOverrideOf(SerializedProperty element, ExposedBinding binding)
         {
             return element.FindPropertyRelative("_target").objectReferenceValue == binding.Target &&
                    element.FindPropertyRelative("_fieldPath").stringValue == binding.FieldName;
         }
 
         // Starts at the SO's value, so nothing changes until it's edited.
-        private static void AddFieldOverride(SerializedProperty overrides, ExposedBinding binding)
+        internal static void AddFieldOverride(SerializedProperty overrides, ExposedBinding binding)
         {
             if (binding.Target == null || FindFieldOverride(overrides, binding) >= 0)
             {
@@ -868,7 +911,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         }
 
         // The value slots of OverrideValue (see FieldPathUtility.ConvertValue).
-        private static void CopyValueSlots(SerializedProperty from, SerializedProperty to)
+        internal static void CopyValueSlots(SerializedProperty from, SerializedProperty to)
         {
             to.FindPropertyRelative("_value").floatValue = from.FindPropertyRelative("_value").floatValue;
             to.FindPropertyRelative("_bool").boolValue = from.FindPropertyRelative("_bool").boolValue;
@@ -2328,8 +2371,14 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
         private void Rename(BlackboardField field, string newName)
         {
+            // A row of the Base's (From Base) has no index: it's renamed in the Base, not here.
+            if (field.userData is not int index)
+            {
+                Debug.LogWarning($"\"{field.text}\" is the Base's parameter. Rename it in the Base table.");
+                return;
+            }
+
             ExposedParametersSO parameters = Find(_table);
-            int index = (int)field.userData;
             newName = newName?.Trim();
 
             if (parameters == null ||

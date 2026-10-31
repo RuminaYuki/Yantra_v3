@@ -155,6 +155,16 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // Returns the state to put on the graph.
         public static StateSO CreateSubStateMachine(TransitionTableSO table)
         {
+            return CreateSubStateMachine(table, true, out _);
+        }
+
+        // withStartState false: the child table is left without states, for a caller that fills it and
+        // sets its initial state itself (Move to New Sub State Machine). childTable: the new child table.
+        public static StateSO CreateSubStateMachine(
+            TransitionTableSO table,
+            bool withStartState,
+            out TransitionTableSO childTable)
+        {
             // One free prefix for all four names ("NewSub", "NewSub1", ...), so none of them gets " (1)".
             HashSet<string> takenNames = NamesInFile(table);
             string prefix = "NewSub";
@@ -170,12 +180,55 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             StateSO state = Create<StateSO>(table, prefix + StateSuffix);
             ScriptableObject action = Create(table, typeof(SubStateMachineActionSO), $"{prefix}SubStateMachine_Action");
-            TransitionTableSO childTable = Create<TransitionTableSO>(table, prefix + TableSuffix);
-            StateSO startState = Create<StateSO>(table, $"{prefix}Start{StateSuffix}");
+            childTable = Create<TransitionTableSO>(table, prefix + TableSuffix);
 
             AppendAction(state, action);
             SetReference(action, StateMachineFields.TransitionTable, childTable);
-            SetReference(childTable, StateMachineFields.InitialState, startState);
+
+            if (withStartState)
+            {
+                StateSO startState = Create<StateSO>(table, $"{prefix}Start{StateSuffix}");
+                SetReference(childTable, StateMachineFields.InitialState, startState);
+            }
+
+            AssetDatabase.SaveAssetIfDirty(table);
+            return state;
+        }
+
+        // A second sub-state machine next to an existing one, running a Variant of its child table, all
+        // inside this table's file (e.g. a boss's phase 2 that only changes values):
+        //   Phase1Variant_State -> Phase1VariantSubStateMachine_Action -> Phase1Variant_TransitionTable (_base: the original's)
+        // It starts empty, so it runs everything the original runs, exits included (so the same Exited
+        // conditions work on its arrows), until something is changed in it.
+        // Returns the state to put on the graph.
+        public static StateSO CreateSubStateMachineVariant(
+            TransitionTableSO table,
+            SubStateMachineActionSO sourceAction,
+            TransitionTableSO baseSubTable,
+            string subStatePrefix)
+        {
+            HashSet<string> takenNames = NamesInFile(table);
+            string prefix = subStatePrefix + "Variant";
+            for (int number = 1;
+                takenNames.Contains(prefix + StateSuffix) ||
+                takenNames.Contains($"{prefix}SubStateMachine_Action") ||
+                takenNames.Contains(prefix + TableSuffix);
+                number++)
+            {
+                prefix = $"{subStatePrefix}Variant{number}";
+            }
+
+            StateSO state = Create<StateSO>(table, prefix + StateSuffix);
+            ScriptableObject action = Create(table, typeof(SubStateMachineActionSO), $"{prefix}SubStateMachine_Action");
+            TransitionTableSO subVariant = Create<TransitionTableSO>(table, prefix + TableSuffix);
+
+            AppendAction(state, action);
+            SetReference(action, StateMachineFields.TransitionTable, subVariant);
+            SetReference(subVariant, StateMachineFields.Base, baseSubTable);
+
+            // The variant has the original's states, so its force-exit state is there too.
+            Object forceExitState = new SerializedObject(sourceAction).FindProperty(StateMachineFields.ForceExitState).objectReferenceValue;
+            SetReference(action, StateMachineFields.ForceExitState, forceExitState);
 
             AssetDatabase.SaveAssetIfDirty(table);
             return state;
