@@ -371,21 +371,6 @@ MonoBehaviour:
   - {fileID: 320737576873911788}
   - {fileID: 7998098270537480650}
   - {fileID: 7720627234124688366}
---- !u!114 &8312446701528316417
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f34cf9d8eaac32d428a19d80d2d0e936, type: 3}
-  m_Name: GunTrue_SetGameObjHandeler_Action
-  m_EditorClassIdentifier: Assembly-CSharp::SetGameObjectHandelerActionSO
-  _selfAnchor: {fileID: 11400000, guid: 6dc3f03200b18494388337ab5bf989c2, type: 2}
-  value: 1
-  resetValueOnExit: 0
 --- !u!114 &-6822811314235461948
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1255,6 +1240,8 @@ MonoBehaviour:
         ExpectedResult: 0
       - Condition: {fileID: 208791892035771998}
         ExpectedResult: 1
+      - Condition: {fileID: 11400000, guid: e832c852844ca5640a0f286c42aac313, type: 2}
+        ExpectedResult: 1
     Id: 7fbcefff-3803-49ec-bf1c-624b273b1b57
   _transitions:
   - FromState: {fileID: -5503831819247816735}
@@ -1986,6 +1973,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: 60285662574002145}
+  - {fileID: 11400000, guid: 7b264dea852188348917402f89a86ed6, type: 2}
+  - {fileID: 11400000, guid: 47a98f425e4cf7642b07f363496d9557, type: 2}
 --- !u!114 &5322550019143725024
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2398,6 +2387,21 @@ MonoBehaviour:
   _actions:
   - {fileID: 27748976923796556}
   - {fileID: -989528755165495084}
+--- !u!114 &8312446701528316417
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f34cf9d8eaac32d428a19d80d2d0e936, type: 3}
+  m_Name: GunTrue_SetGameObjHandeler_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SetGameObjectHandelerActionSO
+  _selfAnchor: {fileID: 11400000, guid: 6dc3f03200b18494388337ab5bf989c2, type: 2}
+  value: 1
+  resetValueOnExit: 0
 --- !u!114 &8371651548506033427
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -30,6 +30,21 @@ public class PlayerInventory : MonoBehaviour
 
     public Inventory Inventory { get; private set; }
 
+    // Things that stop the player from opening the inventory (e.g. the spell state).
+    private readonly System.Collections.Generic.HashSet<object> openBlockers = new();
+
+    public bool IsOpenBlocked => openBlockers.Count > 0;
+
+    public void AddOpenBlocker(object blocker)
+    {
+        if (blocker != null) openBlockers.Add(blocker);
+    }
+
+    public void RemoveOpenBlocker(object blocker)
+    {
+        if (blocker != null) openBlockers.Remove(blocker);
+    }
+
     private void Awake()
     {
         Inventory = new Inventory(width, height, startArea);

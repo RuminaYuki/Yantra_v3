@@ -81,6 +81,10 @@ namespace SDFcl.GamePlay.Interactable
             if (rayInteract == null || rootPlayer == null)
                 return;
 
+            // Blocked by a state (e.g. picking or casting a spell): finish or cancel that first
+            if (rayInteract.IsBlocked)
+                return;
+
             if (isHoldingInteraction)
             {
                 if (!activeInteraction.CanInteract(rootPlayer)) return;
@@ -193,6 +197,19 @@ namespace SDFcl.GamePlay.Interactable
 
             if (!isInteractable) ResetInteractionState();
         }
+
+        // Stop the player from starting an interaction until the blocker is removed
+        public void AddInteractBlocker(object blocker)
+        {
+            if (rayInteract != null) rayInteract.AddBlocker(blocker);
+        }
+
+        public void RemoveInteractBlocker(object blocker)
+        {
+            if (rayInteract != null) rayInteract.RemoveBlocker(blocker);
+        }
+
+        public bool IsInteractBlocked => rayInteract != null && rayInteract.IsBlocked;
         #endregion
     }
 
