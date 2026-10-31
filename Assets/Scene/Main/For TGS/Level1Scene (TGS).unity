@@ -2076,6 +2076,13 @@ MonoBehaviour:
   lootTable:
   - itemPrefab: {fileID: 2759364773010167794, guid: 0734cd233c5ad574da9cb40ab81f9056, type: 3}
     weight: 0.3
+    heightOffset: 0
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  rayStartHeight: 2
+  rayDistance: 20
+  groundOffset: 0.02
 --- !u!1 &33306823
 GameObject:
   m_ObjectHideFlags: 0
@@ -46678,7 +46685,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1481224275265059171, guid: 21ebc6606a36ea747a9b5a40a802c088, type: 3}
       propertyPath: m_IsTrigger
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2717987428655144417, guid: 21ebc6606a36ea747a9b5a40a802c088, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
@@ -57909,6 +57916,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PKa(Enemy) (4)
       objectReference: {fileID: 0}
+    - target: {fileID: 1970438460640689224, guid: 777a677026287794c836349a288e0995, type: 3}
+      propertyPath: collapsed
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3368010418134256992, guid: 777a677026287794c836349a288e0995, type: 3}
       propertyPath: id
       value: fa2ea7f51b8a4713940f0f020bb4b312
@@ -58001,8 +58012,16 @@ MonoBehaviour:
   lootTable:
   - itemPrefab: {fileID: 2759364773010167794, guid: 0734cd233c5ad574da9cb40ab81f9056, type: 3}
     weight: 0.2
+    heightOffset: 0
   - itemPrefab: {fileID: 489045088228966569, guid: b8c732780c6260948bb2b7acf2ca77b8, type: 3}
     weight: 0.2
+    heightOffset: 5
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  rayStartHeight: 2
+  rayDistance: 20
+  groundOffset: 0.09
 --- !u!1001 &303733723
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -58711,7 +58730,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2165292184356703596, guid: c958c578a6cb95d4589b31ffd1b4d07c, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 48.999878
+      value: 48.999756
       objectReference: {fileID: 0}
     - target: {fileID: 2190153727008344191, guid: c958c578a6cb95d4589b31ffd1b4d07c, type: 3}
       propertyPath: m_AnchorMax.x
@@ -59992,7 +60011,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5790175027261951531, guid: c958c578a6cb95d4589b31ffd1b4d07c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1159250244}
   m_SourcePrefab: {fileID: 100100000, guid: c958c578a6cb95d4589b31ffd1b4d07c, type: 3}
 --- !u!1001 &316174184
 PrefabInstance:
@@ -60891,6 +60913,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PKa(Enemy) (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 1970438460640689224, guid: 777a677026287794c836349a288e0995, type: 3}
+      propertyPath: collapsed
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3368010418134256992, guid: 777a677026287794c836349a288e0995, type: 3}
       propertyPath: id
       value: cf01cbbc80f64cc29c21bd13b706c975
@@ -61195,7 +61221,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1481224275265059171, guid: 21ebc6606a36ea747a9b5a40a802c088, type: 3}
       propertyPath: m_IsTrigger
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2717987428655144417, guid: 21ebc6606a36ea747a9b5a40a802c088, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
@@ -61781,6 +61807,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PKa(Enemy) (5)
       objectReference: {fileID: 0}
+    - target: {fileID: 1970438460640689224, guid: 777a677026287794c836349a288e0995, type: 3}
+      propertyPath: collapsed
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3368010418134256992, guid: 777a677026287794c836349a288e0995, type: 3}
       propertyPath: id
       value: 2980f0cb8da746179058eb09ccb1f2cc
@@ -61873,8 +61903,16 @@ MonoBehaviour:
   lootTable:
   - itemPrefab: {fileID: 2759364773010167794, guid: 0734cd233c5ad574da9cb40ab81f9056, type: 3}
     weight: 0.2
+    heightOffset: 0
   - itemPrefab: {fileID: 489045088228966569, guid: b8c732780c6260948bb2b7acf2ca77b8, type: 3}
     weight: 0.2
+    heightOffset: 5
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  rayStartHeight: 2
+  rayDistance: 20
+  groundOffset: 0.09
 --- !u!4 &336649272 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7122829839868509252, guid: c86f5053d3063f840a8fa9e75eeb5359, type: 3}
@@ -67635,6 +67673,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PKa(Enemy) (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 1970438460640689224, guid: 777a677026287794c836349a288e0995, type: 3}
+      propertyPath: collapsed
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3368010418134256992, guid: 777a677026287794c836349a288e0995, type: 3}
       propertyPath: id
       value: 4486f90b98884adf948e72914c053387
@@ -68630,6 +68672,10 @@ PrefabInstance:
     - target: {fileID: 806782641122125960, guid: b8c732780c6260948bb2b7acf2ca77b8, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3156507262764399660, guid: b8c732780c6260948bb2b7acf2ca77b8, type: 3}
+      propertyPath: DelayPickup
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 6571170978918722121, guid: b8c732780c6260948bb2b7acf2ca77b8, type: 3}
       propertyPath: m_Enabled
@@ -73006,8 +73052,16 @@ MonoBehaviour:
   lootTable:
   - itemPrefab: {fileID: 2759364773010167794, guid: 0734cd233c5ad574da9cb40ab81f9056, type: 3}
     weight: 0.2
+    heightOffset: 0
   - itemPrefab: {fileID: 489045088228966569, guid: b8c732780c6260948bb2b7acf2ca77b8, type: 3}
     weight: 0.2
+    heightOffset: 5
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  rayStartHeight: 2
+  rayDistance: 20
+  groundOffset: 0.09
 --- !u!4 &507211317 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3440433699471729217, guid: dfebee316dac8204f870823d81ab508a, type: 3}
@@ -74753,7 +74807,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa8a7c4fb7f049349970e7f3467a7941, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SaveId
-  id: 72355b6804214b328c68298c2f450ccf
+  id: e9dff831a9644ca5b4add9c6e0245b04
 --- !u!1 &529867664
 GameObject:
   m_ObjectHideFlags: 0
@@ -79931,6 +79985,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PKa(Enemy) (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 1970438460640689224, guid: 777a677026287794c836349a288e0995, type: 3}
+      propertyPath: collapsed
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3368010418134256992, guid: 777a677026287794c836349a288e0995, type: 3}
       propertyPath: id
       value: 5a43fb67409f4d43ae62afcbb20993e3
@@ -80114,6 +80172,10 @@ PrefabInstance:
     - target: {fileID: 85260874803690308, guid: 777a677026287794c836349a288e0995, type: 3}
       propertyPath: m_Name
       value: PKa(Enemy) (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1970438460640689224, guid: 777a677026287794c836349a288e0995, type: 3}
+      propertyPath: collapsed
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3368010418134256992, guid: 777a677026287794c836349a288e0995, type: 3}
       propertyPath: id
@@ -86998,6 +87060,13 @@ MonoBehaviour:
   lootTable:
   - itemPrefab: {fileID: 2759364773010167794, guid: 0734cd233c5ad574da9cb40ab81f9056, type: 3}
     weight: 0.3
+    heightOffset: 0
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  rayStartHeight: 2
+  rayDistance: 20
+  groundOffset: 0.02
 --- !u!1001 &748216049
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -100809,7 +100878,7 @@ MonoBehaviour:
         m_CallState: 2
       - m_Target: {fileID: 965758296}
         m_TargetAssemblyTypeName: FlagAddition, Assembly-CSharp
-        m_MethodName: HandleInteract
+        m_MethodName: HandleEndInteract
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -107017,7 +107086,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7642503226509863290, guid: cc6745a32f9dcf647a13f2077727e9e2, type: 3}
       propertyPath: holdInteract
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8829315096279206967, guid: cc6745a32f9dcf647a13f2077727e9e2, type: 3}
       propertyPath: m_Name
@@ -107048,6 +107117,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 8829315096279206967, guid: cc6745a32f9dcf647a13f2077727e9e2, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1044002218}
+    - targetCorrespondingSourceObject: {fileID: 8829315096279206967, guid: cc6745a32f9dcf647a13f2077727e9e2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1044002220}
   m_SourcePrefab: {fileID: 100100000, guid: cc6745a32f9dcf647a13f2077727e9e2, type: 3}
 --- !u!1 &1044002209 stripped
 GameObject:
@@ -107224,6 +107296,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TutorialTrigger
   _tutorial: {fileID: 11400000, guid: 6e0f2a3ed64f7fd48aa5cd8b35fbb6aa, type: 2}
+--- !u!114 &1044002220
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1044002209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4be3e19f8e4a7274cb9933aad813d0c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlagActiveSync
+  flag: {fileID: 11400000, guid: a78aef708d7efbd468b529f76518e3c2, type: 2}
+  flagValue: 1
+  stateFlags: {fileID: 1360416119}
+  targets:
+  - obj: {fileID: 1897561147}
+    activeWhenReached: 0
 --- !u!1001 &1046919900
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -108155,8 +108245,16 @@ MonoBehaviour:
   lootTable:
   - itemPrefab: {fileID: 2759364773010167794, guid: 0734cd233c5ad574da9cb40ab81f9056, type: 3}
     weight: 0.2
+    heightOffset: 0
   - itemPrefab: {fileID: 489045088228966569, guid: b8c732780c6260948bb2b7acf2ca77b8, type: 3}
     weight: 0.2
+    heightOffset: 0.6
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  rayStartHeight: 2
+  rayDistance: 20
+  groundOffset: 0.09
 --- !u!1001 &1060324825
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -112973,28 +113071,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 938fdf96ca014ab409db47b70c34363f, type: 3}
---- !u!1 &1142557650 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1362228334903577606, guid: 777a677026287794c836349a288e0995, type: 3}
-  m_PrefabInstance: {fileID: 1811772089}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1142557678
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1142557650}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c8796731234f2bf4a90f388485a9c966, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LootDropper
-  maxLootDrops: 1
-  noDropWeight: 0.7
-  lootTable:
-  - itemPrefab: {fileID: 2759364773010167794, guid: 0734cd233c5ad574da9cb40ab81f9056, type: 3}
-    weight: 0.3
 --- !u!4 &1143658344 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2188736143157731623, guid: ac3fb22f9ca52c442a236f192d500c5a, type: 3}
@@ -113902,6 +113978,23 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7004340739916514264, guid: c74a10e62e7e922499ac820f5da956fb, type: 3}
   m_PrefabInstance: {fileID: 357792229}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1159250238 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5790175027261951531, guid: c958c578a6cb95d4589b31ffd1b4d07c, type: 3}
+  m_PrefabInstance: {fileID: 307958362}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1159250244
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1159250238}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ebfa0df34b964547937d10de904bf7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TutorialSaveable
 --- !u!1001 &1161877517
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -136020,8 +136113,16 @@ MonoBehaviour:
   lootTable:
   - itemPrefab: {fileID: 2759364773010167794, guid: 0734cd233c5ad574da9cb40ab81f9056, type: 3}
     weight: 0.2
+    heightOffset: 0
   - itemPrefab: {fileID: 489045088228966569, guid: b8c732780c6260948bb2b7acf2ca77b8, type: 3}
     weight: 0.2
+    heightOffset: 5
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  rayStartHeight: 2
+  rayDistance: 20
+  groundOffset: 0.09
 --- !u!4 &1503948745 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7122829839868509252, guid: c86f5053d3063f840a8fa9e75eeb5359, type: 3}
@@ -154352,6 +154453,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PKa(Enemy)
       objectReference: {fileID: 0}
+    - target: {fileID: 1970438460640689224, guid: 777a677026287794c836349a288e0995, type: 3}
+      propertyPath: collapsed
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3368010418134256992, guid: 777a677026287794c836349a288e0995, type: 3}
       propertyPath: id
       value: 78921786113542b2b6bf33651a2d391a
@@ -154400,6 +154505,34 @@ PrefabInstance:
       propertyPath: id
       value: db77d05c923040f184a62f4322d709b7
       objectReference: {fileID: 0}
+    - target: {fileID: 8038600200094218983, guid: 777a677026287794c836349a288e0995, type: 3}
+      propertyPath: groundOffset
+      value: 0.02
+      objectReference: {fileID: 0}
+    - target: {fileID: 8038600200094218983, guid: 777a677026287794c836349a288e0995, type: 3}
+      propertyPath: noDropWeight
+      value: 0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 8038600200094218983, guid: 777a677026287794c836349a288e0995, type: 3}
+      propertyPath: lootTable.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8038600200094218983, guid: 777a677026287794c836349a288e0995, type: 3}
+      propertyPath: lootTable.Array.data[0].weight
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8038600200094218983, guid: 777a677026287794c836349a288e0995, type: 3}
+      propertyPath: lootTable.Array.data[1].weight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8038600200094218983, guid: 777a677026287794c836349a288e0995, type: 3}
+      propertyPath: lootTable.Array.data[1].itemPrefab
+      value: 
+      objectReference: {fileID: 489045088228966569, guid: b8c732780c6260948bb2b7acf2ca77b8, type: 3}
+    - target: {fileID: 8038600200094218983, guid: 777a677026287794c836349a288e0995, type: 3}
+      propertyPath: lootTable.Array.data[1].heightOffset
+      value: 0.6
+      objectReference: {fileID: 0}
     - target: {fileID: 8495269386730189109, guid: 777a677026287794c836349a288e0995, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -154407,10 +154540,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 1362228334903577606, guid: 777a677026287794c836349a288e0995, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1142557678}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 777a677026287794c836349a288e0995, type: 3}
 --- !u!4 &1811772090 stripped
 Transform:
@@ -155953,6 +156083,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1434012622}
     m_Modifications:
+    - target: {fileID: 1191077950170775060, guid: 0734cd233c5ad574da9cb40ab81f9056, type: 3}
+      propertyPath: DelayPickup
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 2728011985393071534, guid: 0734cd233c5ad574da9cb40ab81f9056, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -155964,6 +156098,10 @@ PrefabInstance:
     - target: {fileID: 3780835527367764059, guid: 0734cd233c5ad574da9cb40ab81f9056, type: 3}
       propertyPath: stack.quantity
       value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8032532086841973192, guid: 0734cd233c5ad574da9cb40ab81f9056, type: 3}
+      propertyPath: holdInteract
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 9126171707681385772, guid: 0734cd233c5ad574da9cb40ab81f9056, type: 3}
       propertyPath: m_LocalPosition.x
@@ -157755,6 +157893,13 @@ MonoBehaviour:
   lootTable:
   - itemPrefab: {fileID: 2759364773010167794, guid: 0734cd233c5ad574da9cb40ab81f9056, type: 3}
     weight: 0.3
+    heightOffset: 0
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  rayStartHeight: 2
+  rayDistance: 20
+  groundOffset: 0.02
 --- !u!4 &1892751744 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6670894395245052829, guid: d98fefca41fb26646a16d60f1e27edb5, type: 3}
@@ -163522,6 +163667,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PKa(Enemy)
       objectReference: {fileID: 0}
+    - target: {fileID: 1970438460640689224, guid: 777a677026287794c836349a288e0995, type: 3}
+      propertyPath: collapsed
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3368010418134256992, guid: 777a677026287794c836349a288e0995, type: 3}
       propertyPath: id
       value: dbc244e9bcc4420fab6eacd75e1f1529
@@ -164590,8 +164739,16 @@ MonoBehaviour:
   lootTable:
   - itemPrefab: {fileID: 2759364773010167794, guid: 0734cd233c5ad574da9cb40ab81f9056, type: 3}
     weight: 0.2
+    heightOffset: 0
   - itemPrefab: {fileID: 489045088228966569, guid: b8c732780c6260948bb2b7acf2ca77b8, type: 3}
     weight: 0.2
+    heightOffset: 5
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  rayStartHeight: 2
+  rayDistance: 20
+  groundOffset: 0.09
 --- !u!1 &2025845611
 GameObject:
   m_ObjectHideFlags: 0
@@ -164965,6 +165122,13 @@ MonoBehaviour:
   lootTable:
   - itemPrefab: {fileID: 2759364773010167794, guid: 0734cd233c5ad574da9cb40ab81f9056, type: 3}
     weight: 0.3
+    heightOffset: 0
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  rayStartHeight: 2
+  rayDistance: 20
+  groundOffset: 0.02
 --- !u!4 &2032522878 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7122829839868509252, guid: c86f5053d3063f840a8fa9e75eeb5359, type: 3}
