@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using SDFcl.GamePlay.Interactable;
 using UnityEngine;
+using UnityEngine.AI;
 
 public enum PairedActionType
 {
@@ -113,9 +115,16 @@ public class PairedAnimationActor : MonoBehaviour
     [Tooltip("ถ้า Animator ไม่เข้าท่าภายในเวลานี้ (เช่น พิมพ์ชื่อ state ผิด) จะข้ามไปจุดจบ กันตัวค้าง")]
     [SerializeField, Min(0.1f)] private float _stateEnterTimeout = 1f;
 
+    [Tooltip("สคริปต์ที่ขยับท่าทางทับแอนิเมชัน เช่น Look At IK / Foot IK — ปิดไว้ระหว่างเล่นท่า แล้วเปิดคืนให้เองตอนจบ\n" +
+             "ถ้าไม่ปิด หัว/คอ/สะโพกจะเยื้องไม่เหมือนกันทุกรอบ มือเลยจับไม่ตรง")]
+    [SerializeField] private Behaviour[] _disableWhilePlaying = new Behaviour[0];
+
     private enum Phase { Idle, Prepare, Play, Finished }
 
+    private readonly List<Behaviour> _disabledByMe = new List<Behaviour>();
+
     private BaseLocomotion _locomotion;
+    private Animator _rootAnimator;
 
     private PairedRequest _pending;
     private float _pendingTime = -1f;
@@ -128,6 +137,7 @@ public class PairedAnimationActor : MonoBehaviour
     private float _elapsed;
     private float _savedGravity;
     private LocomotionMoveMode _savedMoveMode;
+    private bool _moveByAnimation;
 
     // ท่าที่กำลังเล่นอยู่จริง — ปกติคือท่าของคำขอ แต่หลัง EndLoop จะเป็นท่าจบ (เช่น ท่าดิ้นหลุด)
     private PairedAnimationId _playing;
@@ -138,9 +148,31 @@ public class PairedAnimationActor : MonoBehaviour
     private Vector3 _startPosition;
     private Quaternion _startRotation;
 
+    // ตำแหน่ง/ทิศที่ท่าพาไปจริง — ยึดค่านี้ทุกเฟรม สคริปต์อื่นจะได้หมุนหรือดันตัวทับไม่ได้ระหว่างท่า
+    private Vector3 _posePosition;
+    private Quaternion _poseRotation;
+
+    private NavMeshAgent _agent;
+    private bool _agentPaused;
+    private bool _savedAgentUpdatePosition;
+    private bool _savedAgentUpdateRotation;
+
+    private readonly List<(Collider mine, Collider theirs)> _ignoredPairs = new List<(Collider, Collider)>();
+    private CharacterController _ownController;
+    private CharacterController _partnerController;
+    private bool _savedOwnDetect;
+    private bool _savedPartnerDetect;
+    private bool _ignoringPartner;
+    private bool _restoreWhenApart;
+
     public bool IsBusy => HasAnyPending || _phase != Phase.Idle;
     public bool IsPreparing => _phase == Phase.Prepare;
     public bool IsFinished => _phase == Phase.Finished;
+    public bool IsPlayingAnimation => _phase == Phase.Play;
+
+    // ช่วงดูดตัว / หันเข้าหาเสร็จแล้ว
+    public bool IsSnapDone =>
+        _phase != Phase.Prepare || _current.Animation == null || _elapsed >= _current.Animation.SnapDuration;
 
     // ท่า Loop กำลังวนค้างอยู่ รอใครสักคนสั่ง EndLoop
     public bool IsLooping => _phase == Phase.Play && _playing != null && _playing.Loop && !_loopReleased;
@@ -152,15 +184,45 @@ public class PairedAnimationActor : MonoBehaviour
     private void Awake()
     {
         _locomotion = GetComponent<BaseLocomotion>();
+        _rootAnimator = GetComponent<Animator>();
+        _agent = GetComponentInParent<NavMeshAgent>();
 
         if (_bodyAnimator == null)
-            _bodyAnimator = GetComponent<Animator>();
+            _bodyAnimator = _rootAnimator;
     }
 
     private void OnDisable()
     {
         _pendingTime = -1f;
         Stop();
+        RestorePartnerCollisions();
+    }
+
+    private void Update()
+    {
+        // ท่าจบแล้ว รอให้ตัวแยกออกจากกันก่อนค่อยกลับมาชนกัน ไม่งั้นตัวจะเด้งกระเด็น
+        if (_restoreWhenApart && !IsTouchingPartner())
+            RestorePartnerCollisions();
+    }
+
+    // ระหว่างเล่นท่า ขยับตัวตามแอนิเมชันตรง ๆ ไม่ผ่าน CharacterController
+    // ไม่งั้นตัวจะไปชนรากไม้ / เนิน / ผีตัวอื่นแล้วเยื้อง ทำให้มือจับไม่ตรงคอ
+    private void OnAnimatorMove()
+    {
+        if (_rootAnimator == null)
+            return;
+
+        if (_moveByAnimation && _phase == Phase.Play)
+        {
+            _posePosition += _rootAnimator.deltaPosition;
+            _poseRotation *= _rootAnimator.deltaRotation;
+            transform.SetPositionAndRotation(_posePosition, _poseRotation);
+            return;
+        }
+
+        // ตัวที่ไม่มี BaseLocomotion ให้ Animator ขยับตามปกติเหมือนเดิม
+        if (_locomotion == null && _rootAnimator.applyRootMotion)
+            _rootAnimator.ApplyBuiltinRootMotion();
     }
 
     public bool TryRequest(PairedRequest request)
@@ -195,13 +257,20 @@ public class PairedAnimationActor : MonoBehaviour
         _startPosition = _current.StartPosition;
         _startRotation = FlatRotation(_current.StartRotation * Vector3.forward);
 
-        // ช่วง Prepare (Snap) ปิดแรงโน้มถ่วงและตั้งโหมดเป็น External เพื่อเลื่อนตัวละครเข้าจุดเริ่มด้วยโค้ด
+        // ระหว่างเล่นท่า ตัวเรากับคู่ต้องทะลุกันได้ ไม่งั้น CharacterController จะชนกันจนจับคอไม่ถึง
+        IgnorePartnerCollisions(_current.Partner);
+        PauseAgent();
+        DisableExtras();
+
+        // ปิดแรงโน้มถ่วง ตั้งโหมด External ให้ BaseLocomotion หยุดขยับตัว แล้วสคริปต์นี้คุมเองทั้งหมด
+        // ล็อกไว้ด้วย กัน BaseLocomotion หมุนตัวทับระหว่างท่า
         if (_locomotion != null)
         {
             _savedGravity = _locomotion.GetGravityMultiplier();
             _locomotion.SetGravityMultiplier(0f);
             _savedMoveMode = _locomotion.MoveMode;
             _locomotion.MoveMode = LocomotionMoveMode.External;
+            _locomotion.LockLocomotion(this);
         }
 
         PairedAnimationId animation = _current.Animation;
@@ -209,6 +278,7 @@ public class PairedAnimationActor : MonoBehaviour
 
         _hasTakenControl = true;
         _hasEnteredState = false;
+        _moveByAnimation = false;
         _elapsed = 0f;
         _phase = Phase.Prepare;
 
@@ -218,7 +288,7 @@ public class PairedAnimationActor : MonoBehaviour
         return true;
     }
 
-    // เริ่มเล่นแอนิเมชันด้วย FullRootMotion หลังจากตัวละครและกล้อง Snap เข้าที่แล้ว
+    // เริ่มเล่นแอนิเมชันหลังจากตัวละครและกล้อง Snap เข้าที่แล้ว
     public void StartPlayback()
     {
         if (_phase != Phase.Prepare)
@@ -226,12 +296,9 @@ public class PairedAnimationActor : MonoBehaviour
 
         // ยึดจุดเริ่มต้นให้ตรงเป๊ะก่อนปล่อยให้ Root Motion ทำงาน
         SetPose(_startPosition, _startRotation);
-
-        // สลับเป็น FullRootMotion เพื่อให้ BaseLocomotion.OnAnimatorMove ขยับทั้ง Position และ Rotation ตามคลิป
-        if (_locomotion != null)
-        {
-            _locomotion.MoveMode = LocomotionMoveMode.FullRootMotion;
-        }
+        _posePosition = _startPosition;
+        _poseRotation = _startRotation;
+        _moveByAnimation = true;
 
         _playing = _current.Animation;
         _loopReleased = false;
@@ -242,6 +309,16 @@ public class PairedAnimationActor : MonoBehaviour
         _hasEnteredState = false;
         _elapsed = 0f;
         _phase = Phase.Play;
+    }
+
+    // เลื่อนตัวระหว่างเล่นท่า (เช่น ดึงคอผีเข้าหามือ) — ต้องผ่านตรงนี้ ไม่งั้นเฟรมถัดไปจะโดนยึดกลับ
+    public void Nudge(Vector3 offset)
+    {
+        if (!_moveByAnimation || _phase != Phase.Play)
+            return;
+
+        _posePosition += offset;
+        transform.position = _posePosition;
     }
 
     // ปล่อยท่า Loop — ใส่ท่าจบ (เช่น ดิ้นหลุด) จะเล่นต่อจนจบแล้วค่อย Finished / ว่าง = จบทันที
@@ -295,10 +372,21 @@ public class PairedAnimationActor : MonoBehaviour
             {
                 _locomotion.SetGravityMultiplier(_savedGravity);
                 _locomotion.MoveMode = _savedMoveMode;
+                _locomotion.UnlockLocomotion(this);
             }
+
+            // ให้ CharacterController รู้ตำแหน่งใหม่ที่แอนิเมชันพามา
+            Physics.SyncTransforms();
+            RestoreExtras();
         }
 
+        ResumeAgent();
+
+        if (_ignoringPartner)
+            _restoreWhenApart = true;
+
         _hasTakenControl = false;
+        _moveByAnimation = false;
         _phase = Phase.Idle;
         _current = default;
         _playing = null;
@@ -328,8 +416,6 @@ public class PairedAnimationActor : MonoBehaviour
         if (inState)
             _hasEnteredState = true;
 
-        // ไม่ใช้ UpCurve / ForwardCurve ขยับตัวละครแล้ว ปล่อยให้ FullRootMotion ใน BaseLocomotion ขยับ 100%
-
         // ท่า Loop ไม่จบเอง ต้องรอ EndLoop
         bool holdLoop = animation.Loop && !_loopReleased;
 
@@ -349,6 +435,138 @@ public class PairedAnimationActor : MonoBehaviour
     {
         _phase = Phase.Finished;
     }
+
+    // ---------- ทะลุกันชั่วคราว ----------
+
+    private void IgnorePartnerCollisions(PairedAnimationActor partner)
+    {
+        RestorePartnerCollisions();
+        if (partner == null || partner == this)
+            return;
+
+        _ignoringPartner = true;
+
+        Collider[] theirColliders = partner.GetComponentsInChildren<Collider>();
+        foreach (Collider mine in GetComponentsInChildren<Collider>())
+        {
+            if (!IsSolid(mine))
+                continue;
+
+            foreach (Collider theirs in theirColliders)
+            {
+                if (!IsSolid(theirs) || Physics.GetIgnoreCollision(mine, theirs))
+                    continue;
+
+                Physics.IgnoreCollision(mine, theirs, true);
+                _ignoredPairs.Add((mine, theirs));
+            }
+        }
+
+        // CharacterController สองตัวชนกันเองอีกชั้น ต้องปิดตรงนี้ด้วย
+        _ownController = GetComponent<CharacterController>();
+        _partnerController = partner.GetComponent<CharacterController>();
+
+        if (_ownController != null)
+        {
+            _savedOwnDetect = _ownController.detectCollisions;
+            _ownController.detectCollisions = false;
+        }
+
+        if (_partnerController != null)
+        {
+            _savedPartnerDetect = _partnerController.detectCollisions;
+            _partnerController.detectCollisions = false;
+        }
+    }
+
+    private bool IsTouchingPartner()
+    {
+        foreach ((Collider mine, Collider theirs) in _ignoredPairs)
+        {
+            if (IsSolid(mine) && IsSolid(theirs) && mine.bounds.Intersects(theirs.bounds))
+                return true;
+        }
+        return false;
+    }
+
+    private void RestorePartnerCollisions()
+    {
+        foreach ((Collider mine, Collider theirs) in _ignoredPairs)
+        {
+            if (IsSolid(mine) && IsSolid(theirs))
+                Physics.IgnoreCollision(mine, theirs, false);
+        }
+        _ignoredPairs.Clear();
+
+        if (_ownController != null)
+            _ownController.detectCollisions = _savedOwnDetect;
+        if (_partnerController != null)
+            _partnerController.detectCollisions = _savedPartnerDetect;
+
+        _ownController = null;
+        _partnerController = null;
+        _ignoringPartner = false;
+        _restoreWhenApart = false;
+    }
+
+    private static bool IsSolid(Collider collider) =>
+        collider != null && collider.enabled && collider.gameObject.activeInHierarchy && !collider.isTrigger;
+
+    // ---------- ปิดสคริปต์ IK ชั่วคราว ----------
+
+    private void DisableExtras()
+    {
+        foreach (Behaviour behaviour in _disableWhilePlaying)
+        {
+            if (behaviour == null || !behaviour.enabled)
+                continue;
+            behaviour.enabled = false;
+            _disabledByMe.Add(behaviour);
+        }
+    }
+
+    private void RestoreExtras()
+    {
+        foreach (Behaviour behaviour in _disabledByMe)
+        {
+            if (behaviour != null)
+                behaviour.enabled = true;
+        }
+        _disabledByMe.Clear();
+    }
+
+    // ---------- NavMesh ----------
+
+    // NavMeshAgent ชอบดึงตำแหน่ง / หันตัวกลับ ปิดไว้ระหว่างเล่นท่า
+    private void PauseAgent()
+    {
+        if (_agentPaused || _agent == null || !_agent.enabled)
+            return;
+
+        _agentPaused = true;
+        _savedAgentUpdatePosition = _agent.updatePosition;
+        _savedAgentUpdateRotation = _agent.updateRotation;
+        _agent.updatePosition = false;
+        _agent.updateRotation = false;
+    }
+
+    private void ResumeAgent()
+    {
+        if (!_agentPaused)
+            return;
+        _agentPaused = false;
+
+        if (_agent == null || !_agent.enabled)
+            return;
+
+        if (_agent.isOnNavMesh)
+            _agent.nextPosition = _agent.transform.position;
+
+        _agent.updatePosition = _savedAgentUpdatePosition;
+        _agent.updateRotation = _savedAgentUpdateRotation;
+    }
+
+    // ---------- Helper ----------
 
     private void SetPose(Vector3 position, Quaternion rotation)
     {

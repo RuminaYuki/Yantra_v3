@@ -9,6 +9,9 @@ using UnityEngine.UI;
 /// ถ้าใช้แถบยาว ๆ คนเล่นจะเดาไม่ออกว่าถึงเกณฑ์หรือยัง
 /// เห็นเป็นช่องแล้วนับได้ทันทีว่าเหลืออีกกี่ครั้ง
 ///
+/// ต่อยได้ทีละนิด (เช่น 0.2) ช่องถัดไปจะค่อย ๆ เติมจากซ้ายไปขวา และกะพริบตอนได้ SP
+/// ไม่ต้องตั้งอะไรเพิ่ม — โค้ดสร้างแถบเติมในแต่ละช่องให้เอง
+///
 /// แปะบน GameObject ที่จะเป็นแถวของช่อง (ควรมี Horizontal Layout Group)
 /// </summary>
 public class SkillPointBarUI : MonoBehaviour
@@ -36,6 +39,19 @@ public class SkillPointBarUI : MonoBehaviour
     [Tooltip("สีตอนเต็ม = ปืนพร้อมยิงกระสุนพิเศษ")]
     [SerializeField] private Color _readyColor = new(1f, 0.85f, 0.3f, 1f);
 
+    [Header("Partial Fill")]
+    [Tooltip("ช่องที่ยังเติมไม่เต็ม จางกว่าช่องเต็มเท่าไหร่ (1 = สีเดียวกัน)")]
+    [Range(0f, 1f)][SerializeField] private float _partialAlpha = 0.7f;
+
+    [Tooltip("ความเร็วที่แถบวิ่งตามค่าจริง (ช่องต่อวินาที)")]
+    [SerializeField] private float _fillSpeed = 6f;
+
+    [Header("Gain Flash")]
+    [Tooltip("ช่องที่เพิ่งได้ SP สว่างวาบแป๊บนึง ให้รู้ว่าต่อยแล้วได้")]
+    [SerializeField] private bool _flashOnGain = true;
+    [SerializeField] private Color _flashColor = new(1f, 0.95f, 0.75f, 1f);
+    [SerializeField] private float _flashTime = 0.25f;
+
     [Header("Ready Pulse")]
     [Tooltip("ให้ช่องเต้นเบา ๆ ตอนเต็ม เพื่อบอกว่าพร้อมยิงแล้ว")]
     [SerializeField] private bool _pulseWhenReady = true;
@@ -43,11 +59,17 @@ public class SkillPointBarUI : MonoBehaviour
     [SerializeField] private float _pulseAmount = 0.25f;
 
     private float _retryTimer;
+    private Image[] _fills;
+    private float _shown = -1f;     // หน่วยเป็น "ช่อง" เช่น 3.4 = เต็ม 3 ช่อง ช่องที่ 4 ได้ 40%
+    private float _lastValue = -1f;
+    private float _flashTimer;
+    private int _flashSlot = -1;
 
     private void Update()
     {
         if (!TryGetSource()) return;
         if (_slots == null || _slots.Length == 0) return;
+        EnsureFills();
 
         float current = _skillPoints.CurrentSkillPoints;
 
@@ -57,21 +79,76 @@ public class SkillPointBarUI : MonoBehaviour
         if (max <= 0f) max = _fallbackMaxPoints;
 
         float perSlot = max / Mathf.Max(1, _slotCount);
+        float target = Mathf.Clamp(current / perSlot, 0f, _slots.Length);
         bool isReady = current >= max;
+
+        if (_lastValue >= 0f && current > _lastValue + 0.0001f && _flashOnGain)
+        {
+            _flashSlot = Mathf.Min(_slots.Length - 1, Mathf.FloorToInt(target - 0.0001f));
+            _flashTimer = _flashTime;
+        }
+        _lastValue = current;
+
+        // ลดลง (ใช้ SP) = หายทันที / เพิ่มขึ้น = วิ่งตาม
+        _shown = _shown < 0f || target < _shown ? target : Mathf.MoveTowards(_shown, target, _fillSpeed * Time.unscaledDeltaTime);
+        _flashTimer = Mathf.Max(0f, _flashTimer - Time.unscaledDeltaTime);
 
         for (int i = 0; i < _slots.Length; i++)
         {
             if (_slots[i] == null) continue;
 
-            bool filled = current >= (i + 1) * perSlot;
+            float amount = Mathf.Clamp01(_shown - i);
+            bool full = amount >= 0.999f;
 
-            Color color;
-            if (!filled) color = _emptyColor;
-            else if (isReady) color = ApplyPulse(_readyColor);
-            else color = _filledColor;
+            Color color = isReady ? ApplyPulse(_readyColor) : _filledColor;
+            if (!full) color.a *= _partialAlpha;
 
-            _slots[i].color = color;
+            if (i == _flashSlot && _flashTimer > 0f)
+                color = Color.Lerp(color, _flashColor, _flashTimer / _flashTime);
+
+            _slots[i].color = _emptyColor;   // ตัวช่องเป็นพื้นหลัง
+            _fills[i].fillAmount = amount;
+            _fills[i].color = color;
+            _fills[i].enabled = amount > 0f;
         }
+    }
+
+    // สร้างแถบเติมเป็นลูกของแต่ละช่อง ใช้รูปเดียวกับช่อง
+    private void EnsureFills()
+    {
+        if (_fills != null && _fills.Length == _slots.Length) return;
+
+        _fills = new Image[_slots.Length];
+        for (int i = 0; i < _slots.Length; i++)
+        {
+            Image slot = _slots[i];
+            if (slot == null) continue;
+
+            var go = new GameObject("Fill", typeof(RectTransform), typeof(Image));
+            var rt = (RectTransform)go.transform;
+            rt.SetParent(slot.transform, false);
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            rt.offsetMin = rt.offsetMax = Vector2.zero;
+
+            Image fill = go.GetComponent<Image>();
+            fill.sprite = slot.sprite != null ? slot.sprite : WhiteSprite();   // Filled ต้องมีรูป ไม่งั้นไม่ตัด
+            fill.raycastTarget = false;
+            fill.type = Image.Type.Filled;
+            fill.fillMethod = Image.FillMethod.Horizontal;
+            fill.fillOrigin = (int)Image.OriginHorizontal.Left;
+            fill.fillAmount = 0f;
+            _fills[i] = fill;
+        }
+    }
+
+    private static Sprite _white;
+
+    private static Sprite WhiteSprite()
+    {
+        if (_white == null)
+            _white = Sprite.Create(Texture2D.whiteTexture, new Rect(0, 0, 4, 4), new Vector2(0.5f, 0.5f));
+        return _white;
     }
 
     private Color ApplyPulse(Color baseColor)

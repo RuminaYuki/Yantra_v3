@@ -14,12 +14,15 @@ public class PairedAnimationPlayer : MonoBehaviour
     private PlayerPairedCamera _camera;   // มีเฉพาะผู้เล่น
 
     private PairedRequest _request;
+    private PairedAnimationPlayer _partnerPlayer;   // คู่ที่สั่งให้หันเข้าหารอไว้แล้ว
     private bool _isPlaying;
     private bool _isPreparing;
+    private bool _waitingForLeader;
     private bool _hasFinished;
     private bool _cancelNextFrame;
     private bool _locomotionLocked;
     private bool _interactRayDisabled;
+    private bool _interactLost;
 
     public bool IsPlaying => _isPlaying;
 
@@ -55,7 +58,10 @@ public class PairedAnimationPlayer : MonoBehaviour
     }
 
     // คืน false ถ้าเริ่มท่าไม่ได้ — ถ้ามาจาก Interact จะยกเลิก Interact ให้เองในเฟรมถัดไป
-    public bool Play(PairedRequest request)
+    public bool Play(PairedRequest request) => StartPaired(request, false);
+
+    // waitForLeader = เป็นฝ่ายโดน: หันเข้าหาก่อนแล้วรอให้ฝ่ายทำสั่งเริ่มท่าพร้อมกัน
+    private bool StartPaired(PairedRequest request, bool waitForLeader)
     {
         if (_isPlaying || _actor.IsBusy || !_actor.TryRequest(request))
         {
@@ -63,7 +69,7 @@ public class PairedAnimationPlayer : MonoBehaviour
             return false;
         }
 
-        bool prepareFirst = _camera != null && _camera.Prepare(request);
+        bool prepareFirst = waitForLeader || (_camera != null && _camera.Prepare(request));
         if (!_actor.Begin(prepareFirst))
         {
             if (_camera != null)
@@ -76,7 +82,10 @@ public class PairedAnimationPlayer : MonoBehaviour
         _request = _actor.CurrentRequest;
         _isPlaying = true;
         _isPreparing = prepareFirst;
+        _waitingForLeader = waitForLeader;
         _hasFinished = false;
+        _interactLost = false;
+        _partnerPlayer = null;
 
         if (_locomotion != null)
         {
@@ -92,6 +101,8 @@ public class PairedAnimationPlayer : MonoBehaviour
 
         if (!_isPreparing)
             StartPartner();
+        else if (!waitForLeader)
+            PreparePartner();
 
         return true;
     }
@@ -110,22 +121,30 @@ public class PairedAnimationPlayer : MonoBehaviour
             return;
 
         // เริ่มจาก Interact แต่มีอย่างอื่นปิด Interact ไปแล้ว — เก็บกวาดโดยไม่ยกเลิกซ้ำ
-        if (_request.Source != null && _playerInteract != null && !_playerInteract.GetIsInterctable)
+        // ยกเว้น Glory: กดแล้วต้องเล่นจนจบ ไม่งั้นผีจะค้างอยู่กับที่ไม่ตาย
+        if (!_interactLost && _request.Source != null && _playerInteract != null && !_playerInteract.GetIsInterctable)
         {
-            End(false);
-            return;
+            if (_request.Type != PairedActionType.Glory)
+            {
+                End(false);
+                return;
+            }
+
+            _interactLost = true;
+            Debug.LogWarning("[PairedAnimationPlayer] Interact โดนปิดระหว่าง Glory — เล่นต่อจนจบ", this);
         }
 
         _actor.Tick();
 
         if (_actor.IsFinished)
         {
-            End(true);
+            End(!_interactLost);
             _hasFinished = true;
             return;
         }
 
-        if (_isPreparing && _camera.IsReady())
+        // ฝ่ายโดนไม่ต้องดูกล้อง รอฝ่ายทำสั่งเริ่มอย่างเดียว
+        if (_isPreparing && !_waitingForLeader && _camera.IsReady() && PartnerTurned())
         {
             _actor.StartPlayback();
             _isPreparing = false;
@@ -133,24 +152,57 @@ public class PairedAnimationPlayer : MonoBehaviour
         }
     }
 
+    // กด E แล้วให้คู่เริ่มหันเข้าหาเลยระหว่างรอกล้อง ไม่ต้องวาร์ปหันทีเดียวตอนท่าเริ่ม
+    // ความเร็วหันตั้งที่ Snap Duration ในท่าของฝ่ายโดน (เช่น VictimGlory)
+    private void PreparePartner()
+    {
+        PairedAnimationActor partner = _request.Partner;
+        if (partner == null || !partner.TryGetComponent(out PairedAnimationPlayer partnerPlayer))
+            return;
+
+        if (partnerPlayer.StartPaired(_request.CreatePartnerRequest(), true))
+            _partnerPlayer = partnerPlayer;
+    }
+
+    private bool PartnerTurned() =>
+        _partnerPlayer == null || !_partnerPlayer._waitingForLeader || _partnerPlayer._actor.IsSnapDone;
+
     // ท่าของตัวเองเริ่มจริงแล้ว — สั่งคู่ให้เข้าท่าตาม
     private void StartPartner()
     {
         if (_camera != null)
             _camera.Activate();
 
-        PairedAnimationActor partner = _request.Partner;
-        if (partner != null)
+        if (_partnerPlayer != null && _partnerPlayer._waitingForLeader)
         {
-            // คู่ที่ยังใช้ระบบ State (HasPairedRequest) จะรับต่อเองจาก TryRequest
-            if (partner.TryGetComponent(out PairedAnimationPlayer partnerPlayer))
-                partnerPlayer.Play(_request.CreatePartnerRequest());
-            else
-                partner.TryRequest(_request.CreatePartnerRequest());
+            _partnerPlayer.StartFromLeader();
         }
+        else
+        {
+            PairedAnimationActor partner = _request.Partner;
+            if (partner != null)
+            {
+                // คู่ที่ยังใช้ระบบ State (HasPairedRequest) จะรับต่อเองจาก TryRequest
+                if (partner.TryGetComponent(out PairedAnimationPlayer partnerPlayer))
+                    partnerPlayer.Play(_request.CreatePartnerRequest());
+                else
+                    partner.TryRequest(_request.CreatePartnerRequest());
+            }
+        }
+        _partnerPlayer = null;
 
         if (IsAlive(_request.Source) && _request.Source is IPairedInteractionSource source)
             source.NotifyStarted(_request.RootPlayer);
+    }
+
+    private void StartFromLeader()
+    {
+        if (!_isPlaying || !_waitingForLeader)
+            return;
+
+        _waitingForLeader = false;
+        _isPreparing = false;
+        _actor.StartPlayback();
     }
 
     // cancelSource = true เมื่อท่าจบเอง ให้ CancelInteraction พาผู้เล่นออกจาก PlayerInteract_State
@@ -158,6 +210,11 @@ public class PairedAnimationPlayer : MonoBehaviour
     {
         if (!_isPlaying)
             return;
+
+        // ยกเลิกก่อนท่าเริ่ม — คู่ที่หันรออยู่ต้องเลิกรอด้วย ไม่งั้นค้าง
+        if (_partnerPlayer != null && _partnerPlayer._waitingForLeader)
+            _partnerPlayer.End(false);
+        _partnerPlayer = null;
 
         if (_actor != null)
             _actor.Stop();
@@ -178,9 +235,11 @@ public class PairedAnimationPlayer : MonoBehaviour
             CancelSource();
 
         _isPreparing = false;
+        _waitingForLeader = false;
         _request = default;
         _locomotionLocked = false;
         _interactRayDisabled = false;
+        _interactLost = false;
     }
 
     // ตอนนี้ยังอยู่ใน base.Interact ซึ่งจะ SetIsInterctable(true) ทีหลัง ถ้ายกเลิกตอนนี้จะโดนเขียนทับ

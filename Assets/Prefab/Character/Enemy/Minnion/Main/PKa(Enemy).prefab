@@ -881,6 +881,7 @@ MonoBehaviour:
   _armAnimator: {fileID: 0}
   _requestTimeout: 0.5
   _stateEnterTimeout: 1
+  _disableWhilePlaying: []
 --- !u!114 &5576540633263213476
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -907,7 +908,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ComponentGroupHeader
   groupName: Feedback
   color: {r: 0.22067097, g: 0.3018868, b: 0.16375935, a: 1}
-  collapsed: 1
+  collapsed: 0
 --- !u!114 &5098707057134905944
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -989,6 +990,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GhostRimGlow
   _rimMaterial: {fileID: 2100000, guid: c1c875fd357904e46af62ee358345c21, type: 2}
+  _gloryReadyMaterial: {fileID: 2100000, guid: 4978d821f3e9a5c42a44f13a23177876, type: 2}
   _modelRoot: {fileID: 0}
   _amountProperty: _DissolveAmount
   _fadeFaster: 5
@@ -1139,6 +1141,7 @@ GameObject:
   - component: {fileID: 8449954458309523893}
   - component: {fileID: 5210573628592056479}
   - component: {fileID: 6868712533054142343}
+  - component: {fileID: 4281654095503268925}
   m_Layer: 12
   m_Name: TestButtonInteract
   m_TagString: Untagged
@@ -1236,7 +1239,15 @@ MonoBehaviour:
   _victim: {fileID: 1682672883883980451}
   _playerAnimation: {fileID: 11400000, guid: f0df5507a2c6b8a4ba07fb6cd07eb755, type: 2}
   _victimAnimation: {fileID: 11400000, guid: f3f77b162d6deb8479c0beb4f44eb5ac, type: 2}
-  _distance: 1.1
+  _distance: 1.08
+  _sideOffset: 0
+  _heightOffset: -0.01
+  _aimPoint: {fileID: 4059990734982099099}
+  _handScreenX: 0.5
+  _alignTime: 0.35
+  _alignSpeed: 18
+  _maxAlign: 0.3
+  _logAlign: 0
 --- !u!114 &6868712533054142343
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1259,6 +1270,25 @@ MonoBehaviour:
   _effectLifetime: 15
   _splashScreen: 1
   _logPlay: 0
+--- !u!114 &4281654095503268925
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2702147522898941712}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8d9e830672fa8d47b4d6b5ea15617b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GloryFeedbackAddition
+  _rimGlow: {fileID: 0}
+  _readySound: {fileID: 0}
+  _readySoundCooldown: 2
+  _healPercent: 15
+  _healSound: {fileID: 0}
+  _victimHealth: {fileID: 0}
+  _logSteps: 0
 --- !u!1 &4119834516680558976
 GameObject:
   m_ObjectHideFlags: 0
@@ -1975,6 +2005,11 @@ PrefabInstance:
 --- !u!4 &1641637414839960573 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -734076753103460111, guid: 610e169f9d184014992b9a1382c2eef7, type: 3}
+  m_PrefabInstance: {fileID: 7140542502496611084}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &4059990734982099099 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -2643699280428164201, guid: 610e169f9d184014992b9a1382c2eef7, type: 3}
   m_PrefabInstance: {fileID: 7140542502496611084}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &6958758719593242486 stripped
