@@ -97,6 +97,11 @@ namespace SDFcl.GamePlay.Interactable
                     interactable.ShowHighlight();
                     highlightedInteractors.Add(interactable);
                 }
+                else if (highlightedInteractors.Contains(interactable) && !interactable.CanInteract(playerRoot))
+                {
+                    interactable.HideHighlight();
+                    //highlightedInteractors.Remove(interactable);
+                }
             }
 
             // Remove highlights from interactables that are no longer detected

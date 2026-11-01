@@ -26,12 +26,14 @@ public class CheckItemAddition : MonoBehaviour
         public string Label;
         public ItemRequirement[] Items = Array.Empty<ItemRequirement>();
         [Tooltip("Called with rootPlayer when this group was used to interact.")]
+        public bool OneTimeUse;
         public UnityEvent<GameObject> OnUsed;
     }
 
     [SerializeField] ItemRequirementGroup[] _groups = Array.Empty<ItemRequirementGroup>();
 
     Iinteractor _interactor;
+    bool _isUsed;
 
     private void Awake()
     {
@@ -54,6 +56,8 @@ public class CheckItemAddition : MonoBehaviour
     {
         if (_groups == null || _groups.Length == 0) return true;
 
+        if (_isUsed) return false;
+
         BaseInteractor baseInteractor = _interactor as BaseInteractor;
         baseInteractor.SetCanInteract(FindMetGroup(rootPlayer, out _) >= 0);
 
@@ -74,6 +78,8 @@ public class CheckItemAddition : MonoBehaviour
         }
 
         group.OnUsed?.Invoke(rootPlayer);
+
+        if (group.OneTimeUse) _isUsed = true;
     }
 
     // Returns the index of the first group whose items are all in the inventory, or -1.
@@ -105,4 +111,16 @@ public class CheckItemAddition : MonoBehaviour
         }
         return true;
     }
+
+    #region API
+    public bool IsUsed => _isUsed;
+    public void SetUsed()
+    {
+        _isUsed = true;
+    }
+    public void ResetUsed()
+    {
+        _isUsed = false;
+    }
+    #endregion
 }
