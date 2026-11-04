@@ -20,6 +20,8 @@ public class RadialManuController : MonoBehaviour
     [SerializeField] InputActionReference _strokeInput;
     [Tooltip("Ignore strokes smaller than this (squared length).")]
     [SerializeField] float _minStrokeSqr = 0.01f;
+    [Tooltip("Gamepad only (used when Stroke Input is empty): right stick must be tilted at least this much (squared length) to pick a button.")]
+    [SerializeField] float _stickPickSqr = 0.25f;
 
     [Header("Radial Menu Settings")]
     [SerializeField] float _fillAmountOffeset = 0.001f;
@@ -185,6 +187,15 @@ public class RadialManuController : MonoBehaviour
     {
         if (_strokeInput != null && _strokeInput.action != null)
             return _strokeInput.action.ReadValue<Vector2>();
+
+        // Gamepad: push the right stick toward a button. Small tilts are ignored
+        // so the stick resting near the center does not flick between buttons.
+        if (Gamepad.current != null)
+        {
+            Vector2 stick = Gamepad.current.rightStick.ReadValue();
+            if (stick.sqrMagnitude >= _stickPickSqr)
+                return stick;
+        }
 
         return Mouse.current != null ? Mouse.current.delta.ReadValue() : Vector2.zero;
     }

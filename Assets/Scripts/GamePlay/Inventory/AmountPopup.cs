@@ -1,6 +1,7 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 // Modal popup that asks "how many?" (used by Drop, reusable for other actions).
@@ -66,6 +67,15 @@ public class AmountPopup : MonoBehaviour
     {
         onConfirm = null;
         gameObject.SetActive(false);
+    }
+
+    // Gamepad: select the slider so D-pad left/right changes the amount,
+    // then D-pad down reaches Confirm / Cancel. B closes the popup (handled by InventoryUI).
+    public void SelectDefault()
+    {
+        if (EventSystem.current == null) return;
+        GameObject target = slider != null ? slider.gameObject : confirmButton.gameObject;
+        EventSystem.current.SetSelectedGameObject(target);
     }
 
     private void Confirm()

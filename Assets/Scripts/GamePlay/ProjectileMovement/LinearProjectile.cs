@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class LinearProjectile : BaseProjectileMovement
 {
-    protected override void Update()
+    protected override void FixedUpdate()
     {
-        base.Update();
+        base.FixedUpdate();
         MoveForward();
     }
 

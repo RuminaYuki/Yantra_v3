@@ -74,6 +74,19 @@ public class PlayerCameraInput : MonoBehaviour
         if (cameraController.IsCutsceneMode) return;
         if (cameraController.IsLookLocked) return;
 
+        // Gamepad right stick wins while it is tilted, otherwise use the mouse.
+        // The stick already has the Input System default deadzone applied.
+        Gamepad pad = Gamepad.current;
+        if (pad != null)
+        {
+            Vector2 stick = pad.rightStick.ReadValue();
+            if (stick.sqrMagnitude > 0.0001f)
+            {
+                cameraController.FeedStickLookInput(stick);
+                return;
+            }
+        }
+
         if (Mouse.current != null)
             cameraController.FeedLookInput(Mouse.current.delta.ReadValue());
     }

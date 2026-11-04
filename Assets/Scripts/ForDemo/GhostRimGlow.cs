@@ -10,6 +10,10 @@ public class GhostRimGlow : MonoBehaviour
     [Tooltip("Material ที่สร้างจาก GhostRim.shadergraph")]
     [SerializeField] private Material _rimMaterial;
 
+    [Tooltip("Material ตอนผีพร้อมโดน Glory — ก๊อป Rim Material มาแล้วเปลี่ยนสี / ให้กะพริบแรงขึ้น\n" +
+             "GloryFeedbackAddition เป็นคนสั่งสลับ / เว้นว่าง = ไม่เปลี่ยน")]
+    [SerializeField] private Material _gloryReadyMaterial;
+
     [Tooltip("เว้นว่าง = หา Skinned Mesh Renderer ทุกตัวใต้ object นี้")]
     [SerializeField] private Transform _modelRoot;
 
@@ -39,6 +43,7 @@ public class GhostRimGlow : MonoBehaviour
     private MaterialPropertyBlock _read;
     private MaterialPropertyBlock _write;
     private int _amountId;
+    private bool _gloryReady;
 
     private void Awake()
     {
@@ -65,6 +70,24 @@ public class GhostRimGlow : MonoBehaviour
             Debug.LogWarning("[GhostRim] ไม่เจอ Skinned Mesh Renderer ใต้ตัวนี้", this);
     }
 
+    // เรียกจาก GloryFeedbackAddition — สลับขอบเป็นสี "พร้อมโดน Glory" แล้วสลับกลับ
+    public void SetGloryReady(bool ready)
+    {
+        if (_gloryReady == ready)
+            return;
+        _gloryReady = ready;
+
+        Material material = ready && _gloryReadyMaterial != null ? _gloryReadyMaterial : _rimMaterial;
+        foreach (Pair pair in _pairs)
+        {
+            if (pair.Rim != null)
+                pair.Rim.sharedMaterials = FillMaterials(material, pair.Rim.sharedMesh.subMeshCount);
+        }
+
+        if (_logSteps)
+            Debug.Log($"[GhostRim] {Time.time:0.00}s ขอบเรืองแสง → {(ready ? "สีพร้อม Glory" : "สีปกติ")}", this);
+    }
+
     private SkinnedMeshRenderer CreateRim(SkinnedMeshRenderer source)
     {
         var go = new GameObject(source.name + "_Rim");
@@ -80,12 +103,16 @@ public class GhostRimGlow : MonoBehaviour
         rim.updateWhenOffscreen = source.updateWhenOffscreen;
         rim.shadowCastingMode = ShadowCastingMode.Off;
         rim.receiveShadows = false;
-
-        var materials = new Material[source.sharedMesh.subMeshCount];
-        for (int i = 0; i < materials.Length; i++)
-            materials[i] = _rimMaterial;
-        rim.sharedMaterials = materials;
+        rim.sharedMaterials = FillMaterials(_rimMaterial, source.sharedMesh.subMeshCount);
         return rim;
+    }
+
+    private static Material[] FillMaterials(Material material, int count)
+    {
+        var materials = new Material[count];
+        for (int i = 0; i < materials.Length; i++)
+            materials[i] = material;
+        return materials;
     }
 
     private void LateUpdate()

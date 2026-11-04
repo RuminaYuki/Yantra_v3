@@ -46,9 +46,9 @@ public class HomingMissile : BaseProjectileMovement
         targetLossHandled = false;
     }
 
-    protected override void Update()
+    protected override void FixedUpdate()
     {
-        base.Update();
+        base.FixedUpdate();
 
         if (target == null)
         {

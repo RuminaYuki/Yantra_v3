@@ -883,7 +883,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: -4669643337480278969}
-  - {fileID: -2684913095445780014}
 --- !u!114 &-826374903660021616
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -949,8 +948,6 @@ MonoBehaviour:
         ExpectedResult: 0
       - Condition: {fileID: 2860989851991372328}
         ExpectedResult: 0
-      - Condition: {fileID: 3688329626171703647}
-        ExpectedResult: 0
     - Conditions:
       - Condition: {fileID: -8793195476053065675}
         ExpectedResult: 0
@@ -976,6 +973,8 @@ MonoBehaviour:
         ExpectedResult: 1
       - Condition: {fileID: -7082964100799712683}
         ExpectedResult: 0
+      - Condition: {fileID: -8793195476053065675}
+        ExpectedResult: 1
     Id: fe209344-f2b6-41cd-a156-d8055288dc76
   _transitions:
   - FromState: {fileID: 5521259893469218469}
@@ -1044,8 +1043,8 @@ MonoBehaviour:
     - Conditions:
       - Condition: {fileID: 3688329626171703647}
         ExpectedResult: 0
-    ToState: {fileID: 1350832784552190812}
-    Id: 8bf9967a-2746-43ca-ba19-f59d0c3aac89
+    ToState: {fileID: 5838480089549137350}
+    Id: 077994dc-8294-49c2-ae69-f5af4a8adc32
   _base: {fileID: 0}
   _fieldOverrides: []
   _removedIds: []
@@ -1277,6 +1276,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: 2749241224364309520}
+  - {fileID: -1199960815894179324, guid: a706c8b7a35552b42ac95b90383456f7, type: 2}
 --- !u!114 &1157225378016675846
 MonoBehaviour:
   m_ObjectHideFlags: 0
