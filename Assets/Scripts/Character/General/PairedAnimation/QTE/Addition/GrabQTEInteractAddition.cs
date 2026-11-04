@@ -5,7 +5,7 @@ using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
 // ผีจับผู้เล่น → ผู้เล่นกด E รัวๆ ให้หลุด ระหว่างโดนจับเสียเลือดเรื่อยๆ
-// วางคู่กับ Interactor บนลูกของผี (Hold Interact ปิด) แบบเดียวกับ GloryInteractAddition
+// วางคู่กับ ButtonInteractor บน GameObject แยกใต้ตัวผี (ห้ามวางรวมกับ Interactor ของ Glory) ไม่ต้องมี Collider
 // ผู้เล่นกด E ใส่ผีเพื่อเริ่มเองไม่ได้ — เริ่มได้จาก BeginQTE เท่านั้น (State ของผีเรียกผ่าน StartGrabQTEActionSO)
 [RequireComponent(typeof(Iinteractor), typeof(IbaseInteractor))]
 public class GrabQTEInteractAddition : MonoBehaviour, IPairedInteractionSource
@@ -54,6 +54,9 @@ public class GrabQTEInteractAddition : MonoBehaviour, IPairedInteractionSource
 
     [Tooltip("ไม่ติ๊ก = ตัดเลือดเงียบๆ ไม่ยิง OnHurt / OnHit (กันผู้เล่นโดนกระชากไป Stagger กลางท่า)\nติ๊ก = ใช้ TakeDamage ปกติ")]
     [SerializeField] private bool _useHurtEvents = false;
+
+    [Tooltip("ติ๊ก = ตัดเลือดได้แม้ผู้เล่นเป็นอมตะอยู่ (ระหว่าง Interact อาจเปิดอมตะไว้ให้ท่า Glory)")]
+    [SerializeField] private bool _ignoreInvincible = true;
 
     [Header("ตอนแพ้")]
     [Tooltip("ติ๊ก = ตายทันที / ไม่ติ๊ก = โดนดาเมจก้อนข้างล่างแล้วหลุด")]
@@ -169,8 +172,8 @@ public class GrabQTEInteractAddition : MonoBehaviour, IPairedInteractionSource
     // ผู้เล่นกด E ใส่ผีเพื่อเริ่มเองไม่ได้ ไฟ highlight ก็จะไม่ขึ้น
     private bool CanStart(GameObject rootPlayer) => _allowStart;
 
-    // ระหว่างโดนจับ ยกเลิกเองไม่ได้ — ท่าจบแล้ว PairedAnimationPlayer ยกเลิกด้วย force จึงไม่ติดตัวนี้
-    private bool CanCancel(GameObject rootPlayer) => !_running;
+    // ระหว่างโดนจับ ยกเลิกเองไม่ได้ (ButtonInteractor ยกเลิกทันทีหลังกด) — ท่าจบแล้ว IsPlaying ปิดก่อนยกเลิกจึงผ่าน แบบเดียวกับ Glory
+    private bool CanCancel(GameObject rootPlayer) => _player == null || !_player.IsPlaying;
 
     private void HandleInteract(GameObject rootPlayer)
     {
@@ -341,7 +344,7 @@ public class GrabQTEInteractAddition : MonoBehaviour, IPairedInteractionSource
         }
         else
         {
-            if (_playerHealth.IgnoreDamage)
+            if (_playerHealth.IgnoreDamage && !_ignoreInvincible)
                 return;
 
             // เคารพเลือดขั้นต่ำที่ State Machine ตั้งไว้ (SetHealthFloor) เหมือน TakeDamage

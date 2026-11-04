@@ -718,6 +718,10 @@ PrefabInstance:
       propertyPath: m_hasFontAssetChanged
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 639563021381163097, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: c0a3af61440bc9d46ba9b0258549a31f, type: 2}
     - target: {fileID: 809213569433171308, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: collapsed
       value: 0
@@ -820,7 +824,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6252579542559560056, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: collapsed
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7127932080211323063, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_UpdateWhenOffscreen
@@ -829,6 +833,10 @@ PrefabInstance:
     - target: {fileID: 7491988576090755256, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_hasFontAssetChanged
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7601510604297160759, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: _flashMaxAlpha
+      value: 0.6
       objectReference: {fileID: 0}
     - target: {fileID: 7659962698724850415, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_Enabled
@@ -845,77 +853,8 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 8849103926970512020, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
-      insertIndex: 20
-      addedObject: {fileID: 193239329}
-    - targetCorrespondingSourceObject: {fileID: 8849103926970512020, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
-      insertIndex: 21
-      addedObject: {fileID: 193239328}
-    - targetCorrespondingSourceObject: {fileID: 8849103926970512020, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
-      insertIndex: 22
-      addedObject: {fileID: 193239362}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
---- !u!1 &193239325 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 8849103926970512020, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
-  m_PrefabInstance: {fileID: 193239324}
-  m_PrefabAsset: {fileID: 0}
---- !u!95 &193239326 stripped
-Animator:
-  m_CorrespondingSourceObject: {fileID: 3970455072621369329, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
-  m_PrefabInstance: {fileID: 193239324}
-  m_PrefabAsset: {fileID: 0}
---- !u!95 &193239327 stripped
-Animator:
-  m_CorrespondingSourceObject: {fileID: 639563021381163097, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
-  m_PrefabInstance: {fileID: 193239324}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &193239328
-MonoBehaviour:
-  m_ObjectHideFlags: 2
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 193239325}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4681aae2f75dd804fbf5009cb3483ae6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerPairedAnimationPlayer
---- !u!114 &193239329
-MonoBehaviour:
-  m_ObjectHideFlags: 2
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 193239325}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 52f768a0aa59c1847a23fb707a789940, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PairedAnimationActor
-  _bodyAnimator: {fileID: 193239327}
-  _armAnimator: {fileID: 193239326}
-  _requestTimeout: 0.5
-  _stateEnterTimeout: 1
-  _disableWhilePlaying: []
---- !u!114 &193239362
-MonoBehaviour:
-  m_ObjectHideFlags: 2
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 193239325}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d4aa30a00735391439900c1e5b60f38e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerPairedCamera
-  _lockLook: 1
-  _useGloryCamera: 1
-  _cameraPreparationTimeout: 1
-  _syncGloryViewModelCamera: 1
 --- !u!1001 &211205542
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2949,7 +2888,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2165292184356703596, guid: c958c578a6cb95d4589b31ffd1b4d07c, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 49.000122
+      value: 49.00061
       objectReference: {fileID: 0}
     - target: {fileID: 2190153727008344191, guid: c958c578a6cb95d4589b31ffd1b4d07c, type: 3}
       propertyPath: m_AnchorMax.x
@@ -6940,6 +6879,14 @@ PrefabInstance:
       propertyPath: maxHealth
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1150524656121399684, guid: 777a677026287794c836349a288e0995, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 77358dbb02bd12a4bbec0c8c56531fa2, type: 2}
+    - target: {fileID: 1150524656121399684, guid: 777a677026287794c836349a288e0995, type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1682672883883980451, guid: 777a677026287794c836349a288e0995, type: 3}
       propertyPath: _disableWhilePlaying.Array.size
       value: 2
@@ -6955,6 +6902,10 @@ PrefabInstance:
     - target: {fileID: 3368010418134256992, guid: 777a677026287794c836349a288e0995, type: 3}
       propertyPath: id
       value: ad736fed307246e691d370e604bc4626
+      objectReference: {fileID: 0}
+    - target: {fileID: 3588670109824123795, guid: 777a677026287794c836349a288e0995, type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4038954800132673139, guid: 777a677026287794c836349a288e0995, type: 3}
       propertyPath: m_LocalPosition.x
@@ -7004,13 +6955,20 @@ PrefabInstance:
       propertyPath: _heightOffset
       value: -0.01
       objectReference: {fileID: 0}
+    - target: {fileID: 7404301504982022380, guid: 777a677026287794c836349a288e0995, type: 3}
+      propertyPath: _pools.Array.data[0].Options.Array.data[1].Weight
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8495269386730189109, guid: 777a677026287794c836349a288e0995, type: 3}
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 1955717982505358442, guid: 777a677026287794c836349a288e0995, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1547717673}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 777a677026287794c836349a288e0995, type: 3}
 --- !u!114 &1545017973 stripped
@@ -7035,6 +6993,159 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ef641b642823764f9f37fcc173ac61b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LookAtIKController
+--- !u!114 &1545017975 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1682672883883980451, guid: 777a677026287794c836349a288e0995, type: 3}
+  m_PrefabInstance: {fileID: 1545017972}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52f768a0aa59c1847a23fb707a789940, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PairedAnimationActor
+--- !u!4 &1545017976 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1955717982505358442, guid: 777a677026287794c836349a288e0995, type: 3}
+  m_PrefabInstance: {fileID: 1545017972}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1547717672
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1547717673}
+  - component: {fileID: 1547717675}
+  - component: {fileID: 1547717674}
+  - component: {fileID: 1547717676}
+  - component: {fileID: 1547717677}
+  m_Layer: 7
+  m_Name: GrabQTE
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1547717673
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1547717672}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1545017976}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1547717674
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1547717672}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d57109503518a74fa772e3db128cb52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GrabQTEInteractAddition
+  _ghost: {fileID: 1545017975}
+  _playerLoop: {fileID: 11400000, guid: 73e1a0b1108811b4891a13f314cb61e9, type: 2}
+  _ghostLoop: {fileID: 11400000, guid: e9418bd5da8acbc44829de91b7e37037, type: 2}
+  _playerEscape: {fileID: 0}
+  _ghostEscape: {fileID: 0}
+  _playerFail: {fileID: 0}
+  _ghostFail: {fileID: 0}
+  _distance: 1.08
+  _mashInput: {fileID: 1781555164194001046, guid: 35845fe01580c41289b024647b1d1c53, type: 3}
+  _progressPerPress: 0.08
+  _decayPerSecond: 0.15
+  _timeLimit: 5
+  _damagePerSecond: 0.4
+  _damageInterval: 0.5
+  _useHurtEvents: 0
+  _ignoreInvincible: 1
+  _killOnFail: 0
+  _failDamage: 3
+  OnStarted:
+    m_PersistentCalls:
+      m_Calls: []
+  OnEscaped:
+    m_PersistentCalls:
+      m_Calls: []
+  OnFailed:
+    m_PersistentCalls:
+      m_Calls: []
+  OnMash:
+    m_PersistentCalls:
+      m_Calls: []
+  OnDamageTick:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &1547717675
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1547717672}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67703810c4b097141ba65ef678028ac2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SDFcl.GamePlay.Interactable.ButtonInteractor
+  highlightObject: {fileID: 0}
+  focusObject: {fileID: 0}
+  canInteract: 1
+  hideInteract: 0
+  holdInteract: 0
+--- !u!114 &1547717676
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1547717672}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 074dc5ba51560334493d0f294652e7ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GrabQTETester
+  _key: 21
+  _playerTag: Player
+  _showDebugBar: 0
+--- !u!114 &1547717677
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1547717672}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67140f1d9f6c0f0459a8d657a4da5c4c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GrabQTEFeedback
+  _grabKick: 0.08
+  _grabKickTime: 0.4
+  _grabKickTilt: 4
+  _holdShake: 0.35
+  _mashKick: 0.03
+  _mashKickTime: 0.12
+  _mashKickTilt: 1.5
+  _flashOnDamage: 1
+  _damageFlash: 0.3
+  _damageShake: 0.12
+  _escapeKick: 0.06
+  _escapeKickTime: 0.3
+  _failStrength: 0.8
 --- !u!1001 &1548523121
 PrefabInstance:
   m_ObjectHideFlags: 0
