@@ -185,14 +185,21 @@ public class SaveManager : Singleton<SaveManager>
         if (string.IsNullOrEmpty(point.Id))
             Debug.LogWarning($"[Save] {point.name} has no SaveId. The player will not be placed there after loading.", point);
 
+        DateTimeOffset now = DateTimeOffset.Now;
+
         CaptureSession();
         session.version = GameSaveData.CurrentVersion;
         session.sceneName = point.gameObject.scene.name;
         session.spawnPointId = point.Id;
-        session.savedAt = DateTimeOffset.Now.ToString("o");
+        session.savedAt = now.ToString("o");
         returnSpawnId = null;
 
         if (!SaveFileService.Write(CurrentSlot, session)) return false;
+
+        // The save itself is already safe. If only the meta fails, PeekMeta rebuilds it from the save.
+        LocationData location = point is SavePoint savePoint ? savePoint.Location : null;
+        if (!SaveFileService.WriteMeta(CurrentSlot, BuildMeta(CurrentSlot, session, now, location)))
+            Debug.LogWarning($"[Save] Slot {CurrentSlot}: meta file was not written.", point);
 
         Debug.Log($"[Save] Saved at '{point.name}' in '{session.sceneName}'.", point);
         Saved?.Invoke();
@@ -257,26 +264,43 @@ public class SaveManager : Singleton<SaveManager>
 
     public bool HasSaveInSlot(int slot) => IsValidSlot(slot) && SaveFileService.Exists(slot);
 
-    // Reads a slot's file without loading it, to show savedAt / playTimeSeconds / sceneName in the UI.
-    // Null when the slot has no save. Do not change the returned data: it is not used by the game.
+    // Reads a slot's full file without loading it. Null when the slot has no save.
+    // Do not change the returned data: it is not used by the game.
+    // For the Load Save screen use PeekMeta instead (much smaller file).
     public GameSaveData PeekSave(int slot) => IsValidSlot(slot) ? SaveFileService.Read(slot) : null;
+
+    // Summary of a slot for the Load Save screen (slot, date, play time, locationId).
+    // Null when the slot has no save. Saves without a meta file get one built from the full save
+    // (locationId is empty then, so the screen shows the fallback image).
+    public SaveSlotMeta PeekMeta(int slot)
+    {
+        if (!HasSaveInSlot(slot)) return null;
+
+        SaveSlotMeta meta = SaveFileService.ReadMeta(slot);
+        if (meta != null) return meta;
+
+        GameSaveData data = SaveFileService.Read(slot);
+        if (data == null || string.IsNullOrEmpty(data.sceneName)) return null;
+
+        DateTimeOffset.TryParse(data.savedAt, out DateTimeOffset savedAt);
+        return BuildMeta(slot, data, savedAt, null);
+    }
 
     // The slot saved most recently (for a "Continue" button). False when no slot has a save.
     public bool TryGetLatestSlot(out int slot)
     {
         slot = -1;
-        DateTimeOffset latest = DateTimeOffset.MinValue;
+        long latest = long.MinValue;
 
         for (int i = 0; i < SlotCount; i++)
         {
-            GameSaveData data = PeekSave(i);
-            if (data == null || string.IsNullOrEmpty(data.sceneName)) continue;
+            SaveSlotMeta meta = PeekMeta(i);
+            if (meta == null) continue;
 
-            DateTimeOffset.TryParse(data.savedAt, out DateTimeOffset savedAt);
-            if (slot < 0 || savedAt > latest)
+            if (slot < 0 || meta.savedAtUtcTicks > latest)
             {
                 slot = i;
-                latest = savedAt;
+                latest = meta.savedAtUtcTicks;
             }
         }
         return slot >= 0;
@@ -317,6 +341,18 @@ public class SaveManager : Singleton<SaveManager>
 
         RecordSection(FlagsKey, SaveFlags.Version, Flags.ToJson());
         session.playTimeSeconds = playTime;
+    }
+
+    private static SaveSlotMeta BuildMeta(int slot, GameSaveData data, DateTimeOffset savedAt, LocationData location)
+    {
+        return new SaveSlotMeta
+        {
+            slotIndex = slot,
+            savedAtUtcTicks = savedAt == default ? 0 : savedAt.UtcTicks,
+            playTimeSeconds = data.playTimeSeconds,
+            sceneName = data.sceneName,
+            locationId = location != null ? location.locationId : null,
+        };
     }
 
     private void UseData(GameSaveData data)
@@ -366,4 +402,17 @@ public class SaveManager : Singleton<SaveManager>
 
     [ContextMenu("Debug/Print Save Path")]
     private void DebugPath() => Debug.Log($"[Save] Slot {CurrentSlot}: {SaveFileService.PathOf(CurrentSlot)}");
+
+    [ContextMenu("Debug/Print All Slot Metas")]
+    private void DebugMetas()
+    {
+        for (int i = 0; i < SlotCount; i++)
+        {
+            SaveSlotMeta m = PeekMeta(i);
+            Debug.Log(m == null
+                ? $"[Save] Slot {i}: empty"
+                : $"[Save] Slot {i}: {(m.HasSaveTime ? m.SavedAtLocal.ToString("g") : "-")}, " +
+                  $"play {m.PlayTime:hh\\:mm\\:ss}, scene '{m.sceneName}', location '{m.locationId}'");
+        }
+    }
 }
