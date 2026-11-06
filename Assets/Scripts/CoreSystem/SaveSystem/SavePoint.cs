@@ -7,6 +7,9 @@ using UnityEngine;
 // Interacting saves the game, writes the file and reloads the scene, so normal enemies come back.
 public class SavePoint : SpawnPoint
 {
+    [Tooltip("Place shown on the Load Save screen (name + background image).")]
+    [SerializeField] private LocationData location;
+
     [Header("On save")]
     [SerializeField] private bool restoreHealth = true;
     [SerializeField] private bool restoreAmmo = true;
@@ -16,12 +19,16 @@ public class SavePoint : SpawnPoint
 
     private Iinteractor interactor;
 
+    public LocationData Location => location;
+
     protected override void Awake()
     {
         base.Awake();
         interactor = GetComponent<Iinteractor>();
         if (interactor == null)
             Debug.LogWarning($"[Save] SavePoint on {name} needs an interactor component on the same object.", this);
+        if (location == null)
+            Debug.LogWarning($"[Save] SavePoint on {name} has no LocationData. The Load Save screen will show the fallback image.", this);
     }
 
     private void OnEnable()

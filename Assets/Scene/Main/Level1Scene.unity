@@ -42861,6 +42861,7 @@ MonoBehaviour:
   _driveAwayLoops: 0
   _idleCrossfade: 0.6
   _engineFadeTime: 2
+  _stuckTimeout: 10
 --- !u!4 &104907773 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8006277228346854760, guid: 80d95186fdecaa0439c3cf769e3c5b4f, type: 3}
@@ -58098,7 +58099,7 @@ MonoBehaviour:
     heightOffset: 0
   - itemPrefab: {fileID: 489045088228966569, guid: b8c732780c6260948bb2b7acf2ca77b8, type: 3}
     weight: 0.35
-    heightOffset: 5
+    heightOffset: 0.5
   groundMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -73179,7 +73180,7 @@ MonoBehaviour:
     heightOffset: 0
   - itemPrefab: {fileID: 489045088228966569, guid: b8c732780c6260948bb2b7acf2ca77b8, type: 3}
     weight: 0.35
-    heightOffset: 5
+    heightOffset: 0.5
   groundMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -88037,6 +88038,10 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: 54.703
       objectReference: {fileID: 0}
+    - target: {fileID: 5737923345359272825, guid: 80d95186fdecaa0439c3cf769e3c5b4f, type: 3}
+      propertyPath: location
+      value: 
+      objectReference: {fileID: 11400000, guid: 6ef074e7e293fdc4e9520b6640de0081, type: 2}
     - target: {fileID: 8006277228346854760, guid: 80d95186fdecaa0439c3cf769e3c5b4f, type: 3}
       propertyPath: m_LocalPosition.x
       value: -4.1
@@ -109787,7 +109792,7 @@ MonoBehaviour:
     heightOffset: 0
   - itemPrefab: {fileID: 489045088228966569, guid: b8c732780c6260948bb2b7acf2ca77b8, type: 3}
     weight: 0.35
-    heightOffset: 0.6
+    heightOffset: 0.5
   groundMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -115537,6 +115542,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2ebfa0df34b964547937d10de904bf7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TutorialSaveable
+  fixedKey: 
 --- !u!1001 &1161877517
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -128664,6 +128670,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 998187679989262526, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1360416121}
+    - targetCorrespondingSourceObject: {fileID: 998187679989262526, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1360416125}
     - targetCorrespondingSourceObject: {fileID: 8849103926970512020, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1645072316}
@@ -128758,6 +128767,19 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 134270428320340259, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
   m_PrefabInstance: {fileID: 1360416117}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1360416125
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1360416118}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ebfa0df34b964547937d10de904bf7f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TutorialSaveable
+  fixedKey: Tur
 --- !u!1 &1361022940
 GameObject:
   m_ObjectHideFlags: 0
@@ -137960,7 +137982,7 @@ MonoBehaviour:
     heightOffset: 0
   - itemPrefab: {fileID: 489045088228966569, guid: b8c732780c6260948bb2b7acf2ca77b8, type: 3}
     weight: 0.35
-    heightOffset: 5
+    heightOffset: 0.5
   groundMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -166919,7 +166941,7 @@ MonoBehaviour:
     heightOffset: 0
   - itemPrefab: {fileID: 489045088228966569, guid: b8c732780c6260948bb2b7acf2ca77b8, type: 3}
     weight: 0.35
-    heightOffset: 5
+    heightOffset: 0.5
   groundMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -177435,6 +177457,10 @@ PrefabInstance:
       propertyPath: m_VersionIndex
       value: 5412
       objectReference: {fileID: 0}
+    - target: {fileID: 5737923345359272825, guid: 80d95186fdecaa0439c3cf769e3c5b4f, type: 3}
+      propertyPath: location
+      value: 
+      objectReference: {fileID: 11400000, guid: 6ef074e7e293fdc4e9520b6640de0081, type: 2}
     - target: {fileID: 8006277228346854760, guid: 80d95186fdecaa0439c3cf769e3c5b4f, type: 3}
       propertyPath: m_LocalPosition.x
       value: -23.550194

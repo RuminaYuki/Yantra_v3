@@ -4,7 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
 using Yantra.UI;
-using UnityEngine.SceneManagement;
+using System;
+
 
 
 #if ENABLE_INPUT_SYSTEM
@@ -79,7 +80,9 @@ public class TutorialScreen : UIScreen
     [SerializeField, Range(0f, 1f)] private float _pulseMinAlpha = 0.35f;
 
     // จำไว้ทั้งเกม (รวมตอน Retry / โหลดฉากใหม่) — ปิดเกมเปิดใหม่ถึงจะเห็นอีก
-    private static readonly HashSet<TutorialDataSO> _seen = new();
+    private static readonly HashSet<string> _seen = new();
+    // ใช้ตอน Save/Load — คืนค่าที่เคยเห็น tutorial จาก key list
+    public static IReadOnlyCollection<string> SeenKeys => _seen;
 
     private readonly Queue<TutorialDataSO> _queue = new();
     private TutorialDataSO _current;
@@ -101,15 +104,24 @@ public class TutorialScreen : UIScreen
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void ResetStatics() => _seen.Clear();
 
-    public static bool HasSeen(TutorialDataSO data) => data != null && _seen.Contains(data);
+    public static bool HasSeen(TutorialDataSO data) => data != null && _seen.Contains(data.SaveKey);
 
     /// <summary>ล้างประวัติ — เผื่ออยากให้ New Game เห็น tutorial ใหม่หมด</summary>
     public static void ResetSeen() => _seen.Clear();
 
+    /// <summary>คืนประวัติที่เคยเห็น tutorial จาก key list — ใช้ตอนโหลดเกม</summary>
+    public static void RestoreSeen(IEnumerable<string> keys)
+    {
+        _seen.Clear();
+        if (keys == null) return;
+        foreach (string k in keys)
+            if (!string.IsNullOrEmpty(k)) _seen.Add(k);
+    }
+
     /// <summary>โชว์ tutorial — คืน false ถ้าเคยเห็นแล้วหรือเปิดไม่ได้</summary>
     public static bool TryShow(TutorialDataSO data)
     {
-        if (data == null || data.Pages.Count == 0 || _seen.Contains(data))
+        if (data == null || data.Pages.Count == 0 || _seen.Contains(data.SaveKey))
             return false;
 
         if (!UIManager.TryGet(ScreenId.Tutorial, out TutorialScreen screen) || UIManager.Instance == null)
@@ -118,7 +130,7 @@ public class TutorialScreen : UIScreen
             return false;
         }
 
-        _seen.Add(data);
+        _seen.Add(data.SaveKey);
         screen.Enqueue(data);
         return true;
     }

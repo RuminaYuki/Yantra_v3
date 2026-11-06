@@ -150,6 +150,11 @@ public class TaxiDriveAway : MonoBehaviour
     [Tooltip("เสียงรถค่อยๆ เงียบกี่วินาทีก่อนถึงจุดสุดท้าย")]
     [SerializeField, Min(0.1f)] private float _engineFadeTime = 2f;
 
+    [Header("กันจอดำค้าง")]
+    [Tooltip("จอดำค้างนานเกินกี่วินาที (ไม่นับตอนมีเมนูเปิด / กำลังโหลด) ถึงจะแก้ให้เอง แล้วขึ้น log บอกว่าเจออะไร\n" +
+             "ฉากเปิดปกติดำแค่ราว 4 วิ — 0 = ปิด")]
+    [SerializeField, Min(0f)] private float _stuckTimeout = 10f;
+
     private const int SamplesPerSegment = 16;
     private const int BlackSortingOrder = 32000;
     private const float TaxiFollowSmooth = 0.25f;
@@ -195,6 +200,9 @@ public class TaxiDriveAway : MonoBehaviour
     private IntroPhase _phase = IntroPhase.Black;
     private bool _hurry;
 
+    private float _blackTimer;
+    private int _stuckStage;
+
     private void Start()
     {
         if ((_skipInEditor && Application.isEditor) || (_skipWhenFromSave && IsLoadedFromSave()))
@@ -238,6 +246,8 @@ public class TaxiDriveAway : MonoBehaviour
         // มีเมนูเปิด (Pause / หน้าโหลด) ให้เมนูโผล่ ไม่โดนจอดำทับ
         if (_black != null)
             _black.alpha = IsMenuOpen() ? 0f : _blackAlpha;
+
+        WatchStuckBlack();
 
         if (_allowSkip && _phase != IntroPhase.Done && CanSkipNow() && SkipPressed())
         {
@@ -540,6 +550,48 @@ public class TaxiDriveAway : MonoBehaviour
     }
 
     // ---------- จอดำ ----------
+
+    // จอดำนานผิดปกติ = มีอะไรหยุดฉากเปิดไว้ (ปกติคือเวลาในเกมค้างที่ 0) — แก้ให้เองแล้วบอกใน Console ว่าเจออะไร
+    private void WatchStuckBlack()
+    {
+        if (_stuckTimeout <= 0f || _black == null)
+        {
+            _blackTimer = 0f;
+            _stuckStage = 0;
+            return;
+        }
+
+        bool loading = SceneLoader.Instance != null && SceneLoader.Instance.IsLoading;
+        if (loading || IsMenuOpen())
+            return;
+
+        _blackTimer += Time.unscaledDeltaTime;
+        if (_blackTimer < _stuckTimeout)
+            return;
+        _blackTimer = 0f;
+
+        if (_stuckStage == 0)
+        {
+            _stuckStage = 1;
+            Debug.LogWarning($"[Taxi] จอดำค้างเกิน {_stuckTimeout} วิ — แก้ให้เอง | timeScale = {Time.timeScale} | " +
+                             $"State Machine หยุดอยู่ = {StateMachineController.IsPaused} | ขั้น = {_phase}", this);
+
+            if (Time.timeScale <= 0f)
+            {
+                Time.timeScale = 1f;
+                StateMachineController.IsPaused = false;
+            }
+            _hurry = true;
+            return;
+        }
+
+        // แก้รอบแรกแล้วยังดำ — ฉากเปิดหยุดทำงานไปแล้ว ปิดจอดำแล้วปล่อยผู้เล่นเลย
+        Debug.LogWarning("[Taxi] ยังดำอยู่ — ปิดจอดำแล้วปล่อยให้ผู้เล่นบังคับได้", this);
+        _blackAlpha = 0f;
+        DestroyBlackScreen();
+        _phase = IntroPhase.Done;
+        UnlockPlayer();
+    }
 
     private CanvasGroup CreateBlackScreen()
     {

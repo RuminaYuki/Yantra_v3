@@ -18,7 +18,7 @@ public class VFXHoming : MonoBehaviour
         {
             Debug.LogWarning("Target is not assigned.");
             vfx.Stop();
-            Destroy(gameObject, 2f);
+            Destroy(gameObject);
             return;
         }
         if (vfx == null)
