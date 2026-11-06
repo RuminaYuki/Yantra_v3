@@ -11,10 +11,11 @@ using UnityEngine.InputSystem;
 // Right click = select item + open action menu (Drop, ...)
 // Left drag   = move item (snaps to cells, green/red preview). Rotate key while dragging = turn 90 degrees.
 //               Dropping a stackable item on the same item merges the stacks.
+// Gamepad     = see InventoryUI.Gamepad.cs (cell cursor, A pick up / place, B cancel, X action menu).
 //
 // gridRoot: an empty RectTransform with anchors NOT stretched (its size is set from the board).
 // Layers are created under it at runtime: Bags -> Cells -> Items -> Ghost.
-public class InventoryUI : MonoBehaviour
+public partial class InventoryUI : MonoBehaviour
 {
     [Header("Reference")]
     [SerializeField] private PlayerInventory player;
@@ -73,6 +74,7 @@ public class InventoryUI : MonoBehaviour
         if (rootCanvas != null) rootCanvas = rootCanvas.rootCanvas;
 
         BuildBoard();
+        BuildPadCursor();
         foreach (PlacedItem p in inv.Items) CreateView(p);
 
         inv.ItemAdded += CreateView;
@@ -107,6 +109,8 @@ public class InventoryUI : MonoBehaviour
         Cursor.lockState = open ? CursorLockMode.None : CursorLockMode.Locked;
         Cursor.visible = open;
         if (cameraController != null) cameraController.IsLookLocked = open;
+
+        OnPadOpenChanged(open);
     }
 
     // ---------- Called by actions ----------
@@ -115,6 +119,7 @@ public class InventoryUI : MonoBehaviour
     {
         if (amountPopup == null) { onConfirm?.Invoke(max); return; }
         amountPopup.Open(title, item, max, onConfirm);
+        if (padMode) amountPopup.SelectDefault();
     }
 
     // ---------- Called by ItemViewUI ----------
@@ -134,6 +139,7 @@ public class InventoryUI : MonoBehaviour
         if (!inv.Contains(view.Target)) return;
 
         CloseOverlays();
+        padDragging = false;
         dragging = view.Target;
         dragRotation = dragging.Rotation;
         view.SetDragging(true);
@@ -176,7 +182,8 @@ public class InventoryUI : MonoBehaviour
     {
         if (dragging == null || !dragging.Item.canRotate) return;
         dragRotation = ItemData.WrapRotation(dragRotation + 1);
-        UpdateDrag(lastPointer);
+        if (padDragging) UpdatePadDrag();
+        else UpdateDrag(lastPointer);
     }
 
     private void UpdateDrag(Vector2 screenPos)
@@ -222,6 +229,7 @@ public class InventoryUI : MonoBehaviour
     {
         if (dragging != null && views.TryGetValue(dragging, out ItemViewUI v)) v.SetDragging(false);
         dragging = null;
+        padDragging = false;
         if (ghost != null) ghost.gameObject.SetActive(false);
         ClearHighlight();
     }

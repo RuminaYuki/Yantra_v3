@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
 using Yantra.UI;
+using UnityEngine.SceneManagement;
+
 
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
@@ -131,6 +133,7 @@ public class TutorialScreen : UIScreen
 
         base.Awake();
     }
+
 
     protected override void OnDestroy()
     {

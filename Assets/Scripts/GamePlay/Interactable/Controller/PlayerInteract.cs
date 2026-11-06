@@ -81,6 +81,10 @@ namespace SDFcl.GamePlay.Interactable
             if (rayInteract == null || rootPlayer == null)
                 return;
 
+            // Blocked by a state (e.g. picking or casting a spell): finish or cancel that first
+            if (rayInteract.IsBlocked)
+                return;
+
             if (isHoldingInteraction)
             {
                 if (!activeInteraction.CanInteract(rootPlayer)) return;
@@ -141,18 +145,20 @@ namespace SDFcl.GamePlay.Interactable
             {
                 if (interacsAnimation[i].ID != _ID) continue;
 
-                if (interacsAnimation[i].Animator.GetCurrentAnimatorStateInfo(0).
-                        IsName(interacsAnimation[i].stateName))
+                Animator animator = interacsAnimation[i].Animator;
+                int layer = interacsAnimation[i].indexLayer;
+                string stateName = interacsAnimation[i].stateName;
+
+                // Already playing, or already fading into it: don't restart the crossfade.
+                // Restarting it every frame kept the old state (e.g. the gun clip) blending
+                // and firing its animation events.
+                bool playing = animator.GetCurrentAnimatorStateInfo(layer).IsName(stateName);
+                bool fadingIn = animator.IsInTransition(layer) &&
+                                animator.GetNextAnimatorStateInfo(layer).IsName(stateName);
+                if (playing || fadingIn)
                     return null;
 
-                interacsAnimation[i].Dispat.
-                    GetEvent(interacsAnimation[i].EventID);
-
-                Animator animator = interacsAnimation[i].Animator;
-                animator.CrossFade(
-                    interacsAnimation[i].stateName,
-                    interacsAnimation[i].crossfade,
-                    interacsAnimation[i].indexLayer);
+                animator.CrossFade(stateName, interacsAnimation[i].crossfade, layer);
 
                 return interacsAnimation[i].Dispat.
                     GetEvent(interacsAnimation[i].EventID);
@@ -160,6 +166,26 @@ namespace SDFcl.GamePlay.Interactable
             return null;
         }
 
+        // False when the state for this ID is already playing or fading in
+        public bool CanPlayAnimation(string _ID)
+        {
+            for (int i = 0; i < interacsAnimation.Length; i++)
+            {
+                if (interacsAnimation[i].ID != _ID) continue;
+
+                Animator animator = interacsAnimation[i].Animator;
+                if (animator == null) return false;
+
+                int layer = interacsAnimation[i].indexLayer;
+                string stateName = interacsAnimation[i].stateName;
+
+                bool playing = animator.GetCurrentAnimatorStateInfo(layer).IsName(stateName);
+                bool fadingIn = animator.IsInTransition(layer) &&
+                                animator.GetNextAnimatorStateInfo(layer).IsName(stateName);
+                return !(playing || fadingIn);
+            }
+            return true; // unknown ID: nothing is playing for it
+        }
 
         #endregion
 
@@ -171,6 +197,19 @@ namespace SDFcl.GamePlay.Interactable
 
             if (!isInteractable) ResetInteractionState();
         }
+
+        // Stop the player from starting an interaction until the blocker is removed
+        public void AddInteractBlocker(object blocker)
+        {
+            if (rayInteract != null) rayInteract.AddBlocker(blocker);
+        }
+
+        public void RemoveInteractBlocker(object blocker)
+        {
+            if (rayInteract != null) rayInteract.RemoveBlocker(blocker);
+        }
+
+        public bool IsInteractBlocked => rayInteract != null && rayInteract.IsBlocked;
         #endregion
     }
 

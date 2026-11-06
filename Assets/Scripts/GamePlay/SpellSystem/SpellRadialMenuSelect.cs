@@ -165,7 +165,13 @@ public class SpellRadialMenuSelect : MonoBehaviour
 
     public void HandleStateExit()
     {
-        if (Mouse.current != null && Mouse.current.rightButton.isPressed)
+        // Spell button still held = the state was left for another reason, so cancel.
+        // Gamepad Spell button is LT.
+        bool spellHeld =
+            (Mouse.current != null && Mouse.current.rightButton.isPressed) ||
+            (Gamepad.current != null && Gamepad.current.leftTrigger.isPressed);
+
+        if (spellHeld)
         {
             HandleCancelRadial();
             return;

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 
 public class SpellController : MonoBehaviour
@@ -16,6 +17,14 @@ public class SpellController : MonoBehaviour
     [Tooltip("มุมต่างสูงสุด (องศา) ระหว่างทิศเมาส์กับทิศเส้น ที่ยังนับว่าวาดถูก")]
     [SerializeField] float angleThreshold = 10f;
 
+    [Header("Gamepad Drawing")]
+    [Tooltip("Max angle (degrees) between the right stick and the line that still counts. Sticks are less precise than a mouse, so this is wider.")]
+    [SerializeField] float stickAngleThreshold = 30f;
+    [Tooltip("Right stick must be tilted at least this much (0-1) to draw.")]
+    [SerializeField, Range(0.1f, 1f)] float stickMinTilt = 0.5f;
+    [Tooltip("Seconds (real time) between progress steps while the stick is held. Keeps the speed the same at any frame rate.")]
+    [SerializeField, Min(0f)] float stickStepInterval = 0.02f;
+
     [Header("Fade Settings")]
     [SerializeField] float fadeDuration = 1.0f;
     [SerializeField] float waitTimeDestroy = 0.5f;
@@ -29,6 +38,7 @@ public class SpellController : MonoBehaviour
     private bool _isActive;
     private bool _fadeStarted;
     private Coroutine _finishRoutine;
+    private float _nextStickStepTime;
 
     public bool GetHaveTemplat => splineToLineRenderer != null;
     public void AddProgress() => splineToLineRenderer.AddProgress();
@@ -49,6 +59,8 @@ public class SpellController : MonoBehaviour
 
         // ใส่ซ้ำทุกเฟรม กันโดนคืนเป็น 1 จาก pause menu / hitstop
         if (_isActive) ApplySlowMotion();
+
+        if (_isActive && !_fadeStarted) HandleGamepadStroke();
 
         if (!_fadeStarted && splineToLineRenderer.GetProgress() >= 1f)
         {
@@ -84,18 +96,36 @@ public class SpellController : MonoBehaviour
 
     public void HandleStroke(Vector2 mouseMovement)
     {
-        if (!GetHaveTemplat) return;
-        if (mouseMovement.sqrMagnitude <= 0.01f) return;
+        TryStroke(mouseMovement, angleThreshold);
+    }
+
+    // Gamepad: hold the right stick in the direction of the line.
+    private void HandleGamepadStroke()
+    {
+        Gamepad pad = Gamepad.current;
+        if (pad == null) return;
+
+        Vector2 stick = pad.rightStick.ReadValue();
+        if (stick.sqrMagnitude < stickMinTilt * stickMinTilt) return;
+        if (Time.unscaledTime < _nextStickStepTime) return;
+
+        if (TryStroke(stick, stickAngleThreshold))
+            _nextStickStepTime = Time.unscaledTime + stickStepInterval;
+    }
+
+    private bool TryStroke(Vector2 direction, float maxAngle)
+    {
+        if (!GetHaveTemplat) return false;
+        if (direction.sqrMagnitude <= 0.01f) return false;
 
         Vector2 splineDirection = splineToLineRenderer.GetSplineDirectionScreenSpace(_camera);
-        if (splineDirection.sqrMagnitude < 0.0001f) return;
+        if (splineDirection.sqrMagnitude < 0.0001f) return false;
 
-        float angleDifference = Vector2.Angle(mouseMovement, splineDirection);
+        float angleDifference = Vector2.Angle(direction, splineDirection);
+        if (angleDifference >= maxAngle) return false;
 
-        if (angleDifference < angleThreshold)
-        {
-            splineToLineRenderer.AddProgress();
-        }
+        splineToLineRenderer.AddProgress();
+        return true;
     }
 
     private void StartFinish()

@@ -3,6 +3,8 @@ using System.Collections;
 using UnityEngine;
 using SDFcl.GamePlay.Interactable;
 
+// รันหลังสคริปต์อื่น จะได้ยึดกล้องทับทุกอย่างที่เผลอขยับกล้องในเฟรมนั้น
+[DefaultExecutionOrder(100)]
 public class ExamineCameraFocus : MonoBehaviour
 {
     [SerializeField] private Transform cameraPoint;
@@ -13,7 +15,7 @@ public class ExamineCameraFocus : MonoBehaviour
 
     [Header("Setting")]
     [SerializeField] bool waitForFinish = true;
-    [SerializeField, Range(0,1)] float finishScaleTime = 0.0f;
+    [SerializeField, Range(0, 1)] float finishScaleTime = 0.0f;
 
     private Iinteractor _interactor;
     private PlayerCameraController _cameraController;
@@ -23,6 +25,7 @@ public class ExamineCameraFocus : MonoBehaviour
     private Quaternion _savedRotation;
     private Coroutine _routine;
     private bool _active;
+    private bool _holding;
 
     private void Awake() => _interactor = GetComponent<Iinteractor>();
 
@@ -48,12 +51,20 @@ public class ExamineCameraFocus : MonoBehaviour
         }
     }
 
+    // กล้องอยู่ใต้ตัวผู้เล่น ตอนอ่านระบบกล้องหยุดทำงาน (Cutscene) เลยไม่มีใครยึดกล้องไว้
+    // ถ้าตัวผู้เล่นขยับนิดเดียวทุกเฟรม กล้องจะโดนลากไปด้วยเรื่อยๆ — ยึดไว้ที่จุดอ่านทุกเฟรม
+    private void LateUpdate()
+    {
+        if (_holding && _cameraTransform != null && cameraPoint != null)
+            _cameraTransform.SetPositionAndRotation(cameraPoint.position, cameraPoint.rotation);
+    }
+
     private bool CanInteract(GameObject rootPlayer)
     {
         if (!waitForFinish || !_active) return true;
 
         Vector3 line = cameraPoint.position - _savedPosition;
-        Vector3 currentP = _cameraTransform.position -_savedPosition;
+        Vector3 currentP = _cameraTransform.position - _savedPosition;
 
         float t = Vector3.Dot(currentP, line) / line.sqrMagnitude;
         t = Mathf.Clamp01(t);
@@ -83,12 +94,14 @@ public class ExamineCameraFocus : MonoBehaviour
         _cameraController.IsCutsceneMode = true;
         _active = true;
 
-        MoveTo(cameraPoint.position, cameraPoint.rotation, null);
+        MoveTo(cameraPoint.position, cameraPoint.rotation, () => _holding = true);
     }
 
     private void HandleEndInteract(GameObject rootplayer)
     {
         if (!_active) return;
+
+        _holding = false;
         MoveTo(_savedPosition, _savedRotation, Finish);
     }
 
@@ -147,6 +160,8 @@ public class ExamineCameraFocus : MonoBehaviour
 
     private void Finish()
     {
+        _holding = false;
+
         if (_cameraTransform != null)
             _cameraTransform.SetPositionAndRotation(_savedPosition, _savedRotation);
 

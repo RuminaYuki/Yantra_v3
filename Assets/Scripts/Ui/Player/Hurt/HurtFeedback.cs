@@ -70,11 +70,17 @@ public class HurtFeedback : MonoBehaviour
         if (CameraShaker.Instance != null)
             CameraShaker.Instance.AddTrauma(Mathf.Lerp(_minTrauma, _maxTrauma, normalizedDamage));
 
+        Flash(normalizedDamage);
+    }
+
+    // จอแดงอย่างเดียว ไม่สั่น — ให้ระบบที่คุมการสั่นเอง (เช่น QTE โดนจับ) เรียก
+    public void Flash(float strength = 0.5f)
+    {
         if (!EnsureFlashImage())
             return;
 
         if (_flashRoutine != null) StopCoroutine(_flashRoutine);
-        _flashRoutine = StartCoroutine(FlashRoutine(normalizedDamage));
+        _flashRoutine = StartCoroutine(FlashRoutine(Mathf.Clamp01(strength)));
     }
 
     public void PlayFromDamage(float damage, float maxHealth)

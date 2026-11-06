@@ -8,7 +8,8 @@ using Yantra.UI;
 using UnityEngine.InputSystem;
 #endif
 
-// ใส่ที่ตัวรถแท็กซี่ — จอดำ + เสียงเปิด/ปิดประตู → ค่อยๆ สว่าง → คุยกัน → รถขับออก → ผู้เล่นค่อยบังคับได้
+// ใส่ที่ตัวรถแท็กซี่ — จอดำ + เสียงเปิด/ปิดประตู → ค่อยๆ สว่าง → คุยกัน → รถขับออก → หันกล้องไปทางที่ต้องเดิน
+// → จอดำแป๊บนึงให้ตั้งหลัก → สว่างขึ้นพร้อม UI → ผู้เล่นค่อยบังคับได้
 public class TaxiDriveAway : MonoBehaviour
 {
     [Header("เส้นทาง")]
@@ -74,8 +75,40 @@ public class TaxiDriveAway : MonoBehaviour
     [Tooltip("สคริปต์อื่นที่อยากปิดไว้ตอนคุย เช่น สคริปต์โจมตี — ลากมาใส่ได้เลย จะเปิดคืนให้เองตอนปลดล็อก")]
     [SerializeField] private Behaviour[] _alsoDisable = new Behaviour[0];
 
-    [Tooltip("รถออกตัวไปกี่วินาที ถึงให้ผู้เล่นบังคับได้")]
+    [Tooltip("รถออกตัวไปกี่วินาที ถึงเริ่มหันกล้องไปทางที่ต้องเดิน แล้วให้ผู้เล่นบังคับได้")]
     [SerializeField, Min(0f)] private float _unlockDelay = 1.5f;
+
+    [Header("หลังจบฉาก")]
+    [Tooltip("GameObject เปล่า วางไว้ทางที่ผู้เล่นต้องเดินไปต่อ (ทางเข้า / ประตู / ปากทาง)\n" +
+             "จบฉากแล้วกล้องจะหันไปทางนี้ก่อน แล้วค่อยปล่อยให้บังคับ\n" +
+             "เว้นว่าง = ปล่อยให้บังคับเลย กล้องค้างมองทางรถเหมือนเดิม")]
+    [SerializeField] private Transform _faceAtEnd;
+
+    [Tooltip("กล้องใช้เวลาหันไปทางที่ต้องเดินกี่วินาที — ค่ามาก = หันช้าลง นุ่มขึ้น")]
+    [SerializeField, Min(0.1f)] private float _faceTurnDuration = 1.2f;
+
+    [Header("ตั้งหลักก่อนเล่น")]
+    [Tooltip("หันไปทางที่ต้องเดินเสร็จ → จอดำแป๊บนึง → สว่างขึ้นพร้อม UI แล้วค่อยให้บังคับ")]
+    [SerializeField] private bool _regroupFade = true;
+
+    [Tooltip("จอค่อยๆ มืดลงกี่วินาที")]
+    [SerializeField, Min(0.01f)] private float _regroupFadeOut = 0.6f;
+
+    [Tooltip("ค้างจอดำกี่วินาที")]
+    [SerializeField, Min(0f)] private float _regroupHold = 0.5f;
+
+    [Tooltip("จอค่อยๆ สว่างกี่วินาที")]
+    [SerializeField, Min(0.01f)] private float _regroupFadeIn = 0.9f;
+
+    [Header("ซ่อน UI ระหว่างฉาก")]
+    [Tooltip("ซ่อนหลอดเลือด / Guard / SP / HUD ปืน ระหว่างฉากรถ — โผล่กลับมาตอนจอสว่างรอบสุดท้าย")]
+    [SerializeField] private bool _hideHud = true;
+
+    [Tooltip("ลูกของ HUD ที่ชื่อมีคำพวกนี้จะไม่ถูกซ่อน (ซับไตเติลต้องขึ้นตอนคุยกับคนขับ)")]
+    [SerializeField] private string[] _hudKeepVisible = { "Subtitle" };
+
+    [Tooltip("ห้ามเปิดกระเป๋าระหว่างฉาก ถ้าเปิดค้างอยู่จะปิดให้")]
+    [SerializeField] private bool _blockInventory = true;
 
     [Header("การขับ")]
     [Tooltip("ความเร็วสูงสุด เมตร/วินาที (12 ≈ 43 กม./ชม.)")]
@@ -119,6 +152,7 @@ public class TaxiDriveAway : MonoBehaviour
 
     private const int SamplesPerSegment = 16;
     private const int BlackSortingOrder = 32000;
+    private const float TaxiFollowSmooth = 0.25f;
 
     private readonly List<Vector3> _points = new List<Vector3>();
     private readonly List<float> _distances = new List<float>();
@@ -135,6 +169,27 @@ public class TaxiDriveAway : MonoBehaviour
     private PlayerLocomotion _locomotion;
     private PlayerCameraController _camera;
     private bool _playerLocked;
+    private bool _releasing;
+    private bool _facingGoal;
+
+    private bool _lookReady;
+    private float _lookYaw;
+    private float _lookYawVelocity;
+
+    private sealed class HiddenGroup
+    {
+        public CanvasGroup Group;
+        public bool Added;
+        public float Alpha;
+    }
+
+    private readonly List<HiddenGroup> _hiddenHud = new List<HiddenGroup>();
+    private bool _hudHidden;
+    private bool _hudDone;
+
+    private PlayerInventory _inventory;
+    private InventoryUI _inventoryUI;
+    private bool _inventoryBlocked;
 
     private enum IntroPhase { Black, Dialogue, Done }
     private IntroPhase _phase = IntroPhase.Black;
@@ -197,8 +252,17 @@ public class TaxiDriveAway : MonoBehaviour
 
         TryLockPlayer();
 
-        if (_lookAtTaxi && _camera != null)
-            LookAtTaxi();
+        if (_camera == null || _facingGoal)
+            return;
+
+        if (!_lookReady)
+        {
+            _lookYaw = _camera.CameraRotation.x;
+            _lookReady = true;
+        }
+
+        if (_lookAtTaxi)
+            FollowTaxi();
     }
 
     private IEnumerator IntroRoutine()
@@ -231,7 +295,7 @@ public class TaxiDriveAway : MonoBehaviour
         if (_length <= 0.01f)
         {
             Debug.LogWarning("[Taxi] ยังไม่ได้วางจุด Waypoints — รถจะไม่ขยับ", this);
-            UnlockPlayer();
+            BeginRelease();
             yield break;
         }
 
@@ -323,7 +387,7 @@ public class TaxiDriveAway : MonoBehaviour
 
             driveTime += dt;
             if (driveTime >= _unlockDelay)
-                UnlockPlayer();
+                BeginRelease();
 
             speed = Mathf.Min(_maxSpeed, speed + _acceleration * dt);
             travelled = Mathf.Min(_length, travelled + speed * dt);
@@ -349,12 +413,130 @@ public class TaxiDriveAway : MonoBehaviour
             yield return null;
         }
 
-        UnlockPlayer();
         _idle.Stop();
         _drive.Stop();
 
+        // รอกล้องหันเสร็จก่อนซ่อนรถ ไม่งั้นการหันจะโดนตัดกลางทาง
+        BeginRelease();
+        while (_playerLocked)
+            yield return null;
+
         if (_hideAtEnd)
             gameObject.SetActive(false);
+    }
+
+    // ---------- กล้อง ----------
+
+    private void FollowTaxi()
+    {
+        if (!TryGetYawTo(transform.position, out float target))
+            return;
+
+        // ตอนจอยังดำสนิท หันทันที พอสว่างขึ้นมาจะได้มองรถอยู่แล้ว
+        if (_blackAlpha >= 1f)
+        {
+            _lookYaw = target;
+            _lookYawVelocity = 0f;
+        }
+        else
+        {
+            _lookYaw = Mathf.SmoothDampAngle(_lookYaw, target, ref _lookYawVelocity, TaxiFollowSmooth);
+        }
+
+        _camera.SetLookTargetYaw(_lookYaw, 0f);
+    }
+
+    private void BeginRelease()
+    {
+        if (_releasing)
+            return;
+        _releasing = true;
+        StartCoroutine(FaceGoalThenUnlock());
+    }
+
+    private IEnumerator FaceGoalThenUnlock()
+    {
+        if (_faceAtEnd != null && _lockLook && _camera != null && TryGetYawTo(_faceAtEnd.position, out float goalYaw))
+        {
+            _facingGoal = true;
+
+            float duration = _faceTurnDuration;
+            float startYaw = _camera.CameraRotation.x;
+            float turn = Mathf.DeltaAngle(startYaw, goalYaw);
+
+            // เริ่มหมุนต่อจากความเร็วที่มองตามรถอยู่ แล้วค่อยๆ ช้าลงจนหยุดตรงทางเดิน กล้องจะได้ไม่กระตุก
+            float maxStartSpeed = Mathf.Abs(turn) * 2f / duration;
+            float startSpeed = Mathf.Clamp(_lookYawVelocity, -maxStartSpeed, maxStartSpeed);
+
+            float elapsed = 0f;
+            while (elapsed < duration && _camera != null)
+            {
+                elapsed += Time.deltaTime;
+                float s = Mathf.Clamp01(elapsed / duration);
+                float s2 = s * s;
+                float s3 = s2 * s;
+
+                _lookYaw = startYaw + (s3 - 2f * s2 + s) * duration * startSpeed + (3f * s2 - 2f * s3) * turn;
+                _camera.SetLookTargetYaw(_lookYaw, 0f);
+                yield return null;
+            }
+        }
+
+        if (_regroupFade)
+        {
+            _facingGoal = true;   // ระหว่างจอดำไม่ต้องมองตามรถแล้ว
+            yield return RegroupRoutine();
+        }
+
+        _facingGoal = false;
+        UnlockPlayer();
+    }
+
+    // จอดำแป๊บนึงให้ผู้เล่นตั้งหลัก แล้วสว่างขึ้นพร้อม UI — ระหว่างนี้ผู้เล่นยังโดนล็อกอยู่
+    private IEnumerator RegroupRoutine()
+    {
+        DestroyBlackScreen();
+        _blackAlpha = 0f;
+        _black = CreateBlackScreen();
+        _black.alpha = 0f;   // จอดำที่สร้างใหม่เริ่มทึบ ต้องตั้งเป็นใสก่อน ไม่งั้นจอกะพริบดำ 1 เฟรม
+
+        yield return FadeBlack(0f, 1f, _regroupFadeOut);
+
+        RestoreHud();
+
+        float hold = 0f;
+        while (hold < _regroupHold)
+        {
+            hold += Time.deltaTime;
+            yield return null;
+        }
+
+        yield return FadeBlack(1f, 0f, _regroupFadeIn);
+        DestroyBlackScreen();
+    }
+
+    private IEnumerator FadeBlack(float from, float to, float duration)
+    {
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            _blackAlpha = Mathf.Lerp(from, to, Mathf.SmoothStep(0f, 1f, elapsed / duration));
+            yield return null;
+        }
+        _blackAlpha = to;
+    }
+
+    private bool TryGetYawTo(Vector3 point, out float yaw)
+    {
+        yaw = 0f;
+        Vector3 to = point - _camera.transform.position;
+        to.y = 0f;
+        if (to.sqrMagnitude < 0.01f)
+            return false;
+
+        yaw = Quaternion.LookRotation(to).eulerAngles.y;
+        return true;
     }
 
     // ---------- จอดำ ----------
@@ -408,6 +590,9 @@ public class TaxiDriveAway : MonoBehaviour
     // ตอนโหลดฉากใหม่ ผู้เล่นตัวเก่ายังค้างอยู่อีกไม่กี่เฟรม ถ้าไปล็อกตัวเก่า ตัวจริงจะหันกล้องได้
     private void TryLockPlayer()
     {
+        TryHideHud();
+        TryBlockInventory();
+
         if (_lockMovement && _locomotion == null)
         {
             _locomotion = FindInMyScene<PlayerLocomotion>();
@@ -447,18 +632,94 @@ public class TaxiDriveAway : MonoBehaviour
             _camera.ClearLookTargetYaw();
             _camera.IsLookLocked = false;
         }
+
+        RestoreHud();
+
+        if (_inventoryBlocked && _inventory != null)
+            _inventory.RemoveOpenBlocker(this);
+        _inventoryBlocked = false;
     }
 
-    private void LookAtTaxi()
+    // ---------- UI ----------
+
+    // ซ่อนลูกของ HUD ทีละอัน ไม่ซ่อนทั้งก้อน — ซับไตเติลอยู่ใน HUD ด้วย ต้องยังขึ้นตอนคุย
+    private void TryHideHud()
     {
-        Vector3 toTaxi = transform.position - _camera.transform.position;
-        toTaxi.y = 0f;
-        if (toTaxi.sqrMagnitude < 0.01f)
+        if (!_hideHud || _hudDone)
             return;
 
-        // ตอนจอยังดำสนิท หันทันที พอสว่างขึ้นมาจะได้มองรถอยู่แล้ว
-        float snap = _blackAlpha >= 1f ? 0f : 0.6f;
-        _camera.SetLookTargetYaw(Quaternion.LookRotation(toTaxi).eulerAngles.y, snap);
+        if (!_hudHidden)
+        {
+            HUDVisibility hud = FindAnyObjectByType<HUDVisibility>(FindObjectsInactive.Include);
+            if (hud == null)
+                return;
+
+            _hudHidden = true;
+            foreach (Transform child in hud.transform)
+            {
+                if (KeepVisible(child.name))
+                    continue;
+
+                bool added = !child.TryGetComponent(out CanvasGroup group);
+                if (added)
+                    group = child.gameObject.AddComponent<CanvasGroup>();
+                _hiddenHud.Add(new HiddenGroup { Group = group, Added = added, Alpha = group.alpha });
+            }
+        }
+
+        foreach (HiddenGroup hidden in _hiddenHud)
+        {
+            if (hidden.Group != null)
+                hidden.Group.alpha = 0f;
+        }
+    }
+
+    private bool KeepVisible(string childName)
+    {
+        foreach (string keep in _hudKeepVisible)
+        {
+            if (!string.IsNullOrEmpty(keep) && childName.IndexOf(keep, System.StringComparison.OrdinalIgnoreCase) >= 0)
+                return true;
+        }
+        return false;
+    }
+
+    private void RestoreHud()
+    {
+        _hudDone = true;
+        foreach (HiddenGroup hidden in _hiddenHud)
+        {
+            if (hidden.Group == null)
+                continue;
+            if (hidden.Added)
+                Destroy(hidden.Group);
+            else
+                hidden.Group.alpha = hidden.Alpha;
+        }
+        _hiddenHud.Clear();
+    }
+
+    private void TryBlockInventory()
+    {
+        if (!_blockInventory)
+            return;
+
+        if (!_inventoryBlocked)
+        {
+            _inventory = FindInMyScene<PlayerInventory>();
+            if (_inventory != null)
+            {
+                _inventory.AddOpenBlocker(this);
+                _inventoryBlocked = true;
+            }
+        }
+
+        if (_inventoryUI == null)
+            _inventoryUI = FindInMyScene<InventoryUI>();
+
+        // ปิดกระเป๋าก่อนล็อกกล้อง — SetOpen(false) ปลดล็อกกล้องให้ เดี๋ยวโค้ดข้างล่างล็อกกลับเอง
+        if (_inventoryUI != null && _inventoryUI.IsOpen)
+            _inventoryUI.SetOpen(false);
     }
 
     private T FindInMyScene<T>() where T : Component
@@ -581,6 +842,12 @@ public class TaxiDriveAway : MonoBehaviour
 
     private void OnDrawGizmos()
     {
+        if (_faceAtEnd != null)
+        {
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(_faceAtEnd.position, 0.6f);
+        }
+
         if (_waypoints == null || _waypoints.Length == 0)
             return;
 
