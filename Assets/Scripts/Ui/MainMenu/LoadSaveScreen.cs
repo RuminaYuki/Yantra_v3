@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using Yantra.UI;
 
 public class LoadSaveScreen : UIScreen
@@ -11,6 +14,15 @@ public class LoadSaveScreen : UIScreen
 
     [Header("Database")]
     [SerializeField] LocationDatabase locationDatabase;
+
+    private void OnEnable()
+    {
+        BuildSlot();
+    }
+
+    private void OnDisable()
+    {
+    }
 
     private void OnValidate()
     {
@@ -32,20 +44,62 @@ public class LoadSaveScreen : UIScreen
 
     private void Start()
     {
-        foreach (SaveSlotUI slot in  SaveSlotUIs)
+        BuildSlot();
+    }
+
+    private void BuildSlot()
+    {
+        foreach (SaveSlotUI slot in SaveSlotUIs)
         {
             int i = SaveSlotUIs.IndexOf(slot);
             SaveSlotMeta meta = SaveManager.Instance.PeekMeta(i);
             //if meta is null or the slotIndex does not match, skip to the next iteration
-            if (meta == null || meta.slotIndex != i) continue;
 
-            slot.SetSlotData(
-                meta.slotIndex,
-                meta.SavedAtLocal.ToString("dd/MM/yyyy HH:mm"),
-                meta.playTimeSeconds.ToString(),
-                locationDatabase.GetName(meta.locationId),
-                locationDatabase.GetImage(meta.locationId)
-                );
+            bool isValidMeta = meta != null && meta.slotIndex == i;
+
+            Button button = slot.gameObject.GetComponent<Button>();
+
+            switch (isValidMeta)
+            {
+                case true:
+                    slot.SetSlotData(
+                        meta.slotIndex,
+                        meta.SavedAtLocal.ToString("dd/MM/yyyy HH:mm"),
+                        TimeSpan.FromSeconds(meta.playTimeSeconds).ToString(@"hh\:mm\:ss"),
+                        locationDatabase.GetName(meta.locationId),
+                        locationDatabase.GetImage(meta.locationId)
+                    );
+
+                    if (button != null)
+                    {
+                        button.onClick.RemoveAllListeners();
+                        button.onClick.AddListener(() => SaveManager.Instance.LoadSave(meta.slotIndex));
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[LoadSaveScreen] Slot {i} does not have a Button component.");
+                    }
+                    break;
+                case false:
+                    slot.SetSlotData(
+                        i,
+                        "",
+                        "New Game",
+                        "",
+                        locationDatabase.FallbackImage
+                    );
+
+                    if (button != null)
+                    {
+                        button.onClick.RemoveAllListeners();
+                        button.onClick.AddListener(() => SaveManager.Instance.NewGame(i));
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"[LoadSaveScreen] Slot {i} does not have a Button component.");
+                    }
+                    continue;
+            }
         }
     }
 }
