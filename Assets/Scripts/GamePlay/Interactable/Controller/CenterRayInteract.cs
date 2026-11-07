@@ -44,6 +44,12 @@ namespace SDFcl.GamePlay.Interactable
 
         private bool isInteractableInSight = false;
 
+        // Things that block interaction for a while (e.g. the spell state).
+        // Kept apart from isInteractableInSight so they don't overwrite each other.
+        private readonly HashSet<object> blockers = new();
+
+        public bool IsBlocked => blockers.Count > 0;
+
         void Awake()
         {
             highlightedInteractors.Clear();
@@ -51,7 +57,7 @@ namespace SDFcl.GamePlay.Interactable
 
         private void Update()
         {
-            if(isInteractableInSight)
+            if(isInteractableInSight || IsBlocked)
             {
                 StopHighlightingAll();
                 return;
@@ -96,6 +102,11 @@ namespace SDFcl.GamePlay.Interactable
                 {
                     interactable.ShowHighlight();
                     highlightedInteractors.Add(interactable);
+                }
+                else if (highlightedInteractors.Contains(interactable) && !interactable.CanInteract(playerRoot))
+                {
+                    interactable.HideHighlight();
+                    //highlightedInteractors.Remove(interactable);
                 }
             }
 
@@ -226,6 +237,18 @@ namespace SDFcl.GamePlay.Interactable
                 ClearCurrentInteractable();
                 currentInteractableDebug = null;
             }
+        }
+
+        public void AddBlocker(object blocker)
+        {
+            if (blocker == null || !blockers.Add(blocker)) return;
+            StopHighlightingAll();
+        }
+
+        public void RemoveBlocker(object blocker)
+        {
+            if (blocker == null) return;
+            blockers.Remove(blocker);
         }
 
         public void StopHighlightingAll()

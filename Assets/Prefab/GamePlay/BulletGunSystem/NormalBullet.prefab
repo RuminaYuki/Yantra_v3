@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 3892902141373418527}
   - component: {fileID: -349420363570396321}
   - component: {fileID: 194092411162959561}
+  - component: {fileID: 8385910881548423282}
   m_Layer: 0
   m_Name: NormalBullet
   m_TagString: Untagged
@@ -205,3 +206,53 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DoorHitRelay
   projectileMovement: {fileID: -5174923587579301629}
+--- !u!114 &8385910881548423282
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2573710482556640469}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ba637987a2a82cb4c9c52e19026b5622, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MusketShotFX
+  _material: {fileID: 2100000, guid: e596c5f9614ea1f42954fad97345dc79, type: 2}
+  _smokeStartFromCamera: 1.4
+  _cameraFadeNear: 0.6
+  _cameraFadeFar: 2.2
+  _flash: 1
+  _flashColor: {r: 1, g: 0.7, b: 0.38, a: 1}
+  _flashBrightness: 12
+  _flashSize: 0.22
+  _flashTime: 0.06
+  _flashLight: 3000
+  _flashLightRange: 8
+  _muzzleSmoke: 1
+  _smokeColor: {r: 0.62, g: 0.6, b: 0.56, a: 1}
+  _smokeOpacity: 0.45
+  _smokeBrightness: 0.5
+  _smokePuffs: 9
+  _smokeSpeed: {x: 1.5, y: 4.5}
+  _smokeSize: {x: 0.35, y: 0.7}
+  _smokeGrow: 2.6
+  _smokeLife: {x: 1.6, y: 2.6}
+  _sparks: 1
+  _sparkColor: {r: 1, g: 0.55, b: 0.2, a: 1}
+  _sparkBrightness: 6
+  _sparkCount: 16
+  _sparkSpeed: {x: 5, y: 14}
+  _sparkLife: {x: 0.12, y: 0.4}
+  _trail: 1
+  _trailPerMeter: 1.5
+  _trailMax: 50
+  _trailOpacity: 0.22
+  _trailSize: {x: 0.06, y: 0.14}
+  _trailLife: {x: 0.35, y: 0.7}
+  _impact: 1
+  _dustColor: {r: 0.46, g: 0.41, b: 0.34, a: 1}
+  _dustOpacity: 0.55
+  _dustPuffs: 7
+  _impactSparks: 8
+  _debris: 10

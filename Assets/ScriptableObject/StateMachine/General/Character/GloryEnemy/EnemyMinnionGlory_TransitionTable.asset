@@ -17,6 +17,21 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   _restoreOnExit: 1
+--- !u!114 &-8308434485319102406
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4cd2d1f638dd28541a53d82c93ab4b6e, type: 3}
+  m_Name: SetFalseResetHideInteractor_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SetHideInteractorSO
+  _selfAnchor: {fileID: 11400000, guid: c90374c069c104d43b654c4ec0c510a2, type: 2}
+  value: 0
+  resetValueOnExit: 1
 --- !u!114 &-7697187629325707054
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -169,10 +184,11 @@ MonoBehaviour:
   _stateName: ReadyGlory
   _layerIndex: 0
   _transitionDuration: 0.25
-  _normalizedStartTime: 0
+  _startTimeOffset: 0
+  _waitForStateName: 
   _exitStateName: 
   _exitTransitionDuration: 0.25
-  _exitNormalizedStartTime: 0
+  _exitStartTimeOffset: 0
 --- !u!114 &-3279262121517530095
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -255,30 +271,35 @@ MonoBehaviour:
       - Condition: {fileID: 9098446477136170823}
         ExpectedResult: 0
     ToState: {fileID: 6835993060265228890}
+    Id: 7b9f88d0-4554-4a3f-9e58-61ab63ca658c
   - FromState: {fileID: 7104421076876634507}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: 11400000, guid: 7d89bad5a0e5b044ba0c890f451eee50, type: 2}
         ExpectedResult: 0
     ToState: {fileID: -7697187629325707054}
+    Id: 6da96137-061a-4877-9a66-5be541ce4f6b
   - FromState: {fileID: 5915766744438744071}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: 8686617805095668356}
         ExpectedResult: 0
     ToState: {fileID: 7104421076876634507}
+    Id: 73835193-a495-4385-8ba6-fc92896c3400
   - FromState: {fileID: 7104421076876634507}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: 6012101341605234845}
         ExpectedResult: 0
     ToState: {fileID: 4502117098256472725}
+    Id: e4cbbf51-7ed7-40f7-bf8f-883cb5051215
   - FromState: {fileID: 4502117098256472725}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: -4837618158548908663}
         ExpectedResult: 0
     ToState: {fileID: -1175100846876381625}
+    Id: 928fb5e7-0df5-40c5-8fbb-a8fd3aae029e
   - FromState: {fileID: 5578770796759330943}
     ConditionGroups:
     - Conditions:
@@ -287,6 +308,7 @@ MonoBehaviour:
       - Condition: {fileID: 6618708587281662626}
         ExpectedResult: 0
     ToState: {fileID: -6187443331379349236}
+    Id: 0c16bf90-cbf5-49dc-9ca6-c28145a2ad10
   - FromState: {fileID: 5578770796759330943}
     ConditionGroups:
     - Conditions:
@@ -295,12 +317,22 @@ MonoBehaviour:
       - Condition: {fileID: 3149816570201561003}
         ExpectedResult: 0
     ToState: {fileID: -7205683746137457426}
+    Id: 135fd411-67c8-45f3-8793-da2105fecfbb
   - FromState: {fileID: -7205683746137457426}
     ConditionGroups:
     - Conditions:
       - Condition: {fileID: 6335553505640395995}
         ExpectedResult: 0
     ToState: {fileID: 5653134990403189456}
+    Id: 4e26470c-aed2-4fea-8957-d14dd5ba5bf3
+  _base: {fileID: 0}
+  _fieldOverrides: []
+  _removedIds: []
+  _transitionOverrides: []
+  _conditionReplaces: []
+  _transitionRetargets: []
+  _actionChanges: []
+  _actionOrders: []
   _exposedParameters: {fileID: 0}
   _nodePositions:
   - State: {fileID: 5915766744438744071}
@@ -340,7 +372,7 @@ MonoBehaviour:
     Folder: Other
   - Item: {fileID: -5311765413985277102}
     Folder: Other
-  - Item: {fileID: 11400000, guid: 018e8d68359039e4e803cf119d207d7a, type: 2}
+  - Item: {fileID: -8308434485319102406}
     Folder: Other
   - Item: {fileID: 7639330717782058312}
     Folder: Other
@@ -393,6 +425,8 @@ MonoBehaviour:
     Path: Example
   - Group: Conditions
     Path: ForParant
+  _stateDisplayNames: []
+  _removedParameters: []
 --- !u!114 &3149816570201561003
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -424,10 +458,11 @@ MonoBehaviour:
   _stateName: ExitReadyGlory
   _layerIndex: 0
   _transitionDuration: 0.25
-  _normalizedStartTime: 0
+  _startTimeOffset: 0
+  _waitForStateName: 
   _exitStateName: 
   _exitTransitionDuration: 0.25
-  _exitNormalizedStartTime: 0
+  _exitStartTimeOffset: 0
 --- !u!114 &3380706913005244941
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -611,7 +646,7 @@ MonoBehaviour:
   m_Name: ReadyGlory_State
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
-  - {fileID: 11400000, guid: 018e8d68359039e4e803cf119d207d7a, type: 2}
+  - {fileID: -8308434485319102406}
 --- !u!114 &7639330717782058312
 MonoBehaviour:
   m_ObjectHideFlags: 0

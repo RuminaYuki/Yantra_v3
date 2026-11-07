@@ -32,6 +32,16 @@ public class PlayerCameraController : MonoBehaviour
     [Tooltip("ติ๊กถ้า FeedLookInput รับค่าจากอนาล็อกจอย (ค่าต่อเนื่อง) แทนเมาส์ (ค่า delta)")]
     [SerializeField] private bool _inputIsAnalog = false;
 
+    [Header("Gamepad")]
+    [Tooltip("Yaw speed in degrees per second at full right-stick deflection. Also multiplied by the Settings sensitivity.")]
+    [SerializeField] private float _stickYawSpeed = 200f;
+
+    [Tooltip("Pitch speed in degrees per second at full right-stick deflection. Also multiplied by the Settings sensitivity.")]
+    [SerializeField] private float _stickPitchSpeed = 140f;
+
+    [Tooltip("Response curve for the stick. 1 = linear, 2 = finer control near the center.")]
+    [SerializeField, Range(1f, 3f)] private float _stickCurve = 2f;
+
     [SerializeField] private float _minPitch = -40f;
     [SerializeField] private float _maxPitch = 60f;
 
@@ -60,6 +70,7 @@ public class PlayerCameraController : MonoBehaviour
     private float _pitch = 0f;
     private float _yaw = 0f;
     private Vector2 _currentLookDelta;
+    private bool _currentLookIsStick;
 
     private bool _isGunAiming = false;
     private bool _isYantraAiming = false;
@@ -209,6 +220,14 @@ public class PlayerCameraController : MonoBehaviour
     public void FeedLookInput(Vector2 lookDelta)
     {
         _currentLookDelta = lookDelta;
+        _currentLookIsStick = false;
+    }
+
+    // Gamepad right stick: value is -1..1 per axis, turned into degrees per second.
+    public void FeedStickLookInput(Vector2 stick)
+    {
+        _currentLookDelta = stick;
+        _currentLookIsStick = true;
     }
 
     private void LateUpdate()
@@ -232,6 +251,7 @@ public class PlayerCameraController : MonoBehaviour
         UpdateFOV(dt);
 
         _currentLookDelta = Vector2.zero;
+        _currentLookIsStick = false;
     }
 
     private void RecenterPitchAndYaw(float dt)
@@ -282,14 +302,29 @@ public class PlayerCameraController : MonoBehaviour
         }
         else
         {
-            float sensitivity = _mouseSensitivity * GameSettings.MouseSensitivity;
+            float yawDelta;
+            float pitchDelta;
 
-            if (_inputIsAnalog) sensitivity *= dt * 60f;
+            if (_currentLookIsStick)
+            {
+                Vector2 stick = ApplyStickCurve(_currentLookDelta);
+                float scale = GameSettings.MouseSensitivity * dt;
+                yawDelta = stick.x * _stickYawSpeed * scale;
+                pitchDelta = stick.y * _stickPitchSpeed * scale;
+            }
+            else
+            {
+                float sensitivity = _mouseSensitivity * GameSettings.MouseSensitivity;
 
-            float pitchDelta = _currentLookDelta.y * sensitivity;
+                if (_inputIsAnalog) sensitivity *= dt * 60f;
+
+                yawDelta = _currentLookDelta.x * sensitivity;
+                pitchDelta = _currentLookDelta.y * sensitivity;
+            }
+
             if (GameSettings.InvertY) pitchDelta = -pitchDelta;
 
-            _yaw += _currentLookDelta.x * sensitivity;
+            _yaw += yawDelta;
             _pitch = Mathf.Clamp(_pitch - pitchDelta, _minPitch, _maxPitch);
 
             targetRotation = Quaternion.Euler(_pitch, _yaw, 0f);
@@ -327,6 +362,14 @@ public class PlayerCameraController : MonoBehaviour
     }
 
     // ---------- Helper ----------
+
+    // Keeps the direction, bends the length so small tilts turn slowly.
+    private Vector2 ApplyStickCurve(Vector2 stick)
+    {
+        float length = Mathf.Clamp01(stick.magnitude);
+        if (length < 0.0001f) return Vector2.zero;
+        return stick / stick.magnitude * Mathf.Pow(length, _stickCurve);
+    }
 
     private static float Smooth(float speed, float deltaTime)
     {

@@ -572,6 +572,18 @@ MonoBehaviour:
   - {fileID: 3167863012095809452}
   - {fileID: 1329010051283997018}
   - {fileID: -4075389856202628919}
+--- !u!114 &-6173058641810711417
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6687386e458fac4db6106b19ddf0699, type: 3}
+  m_Name: HasGlory_Flag
+  m_EditorClassIdentifier: Assembly-CSharp::FlagSO
 --- !u!114 &-5741192888198599322
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -677,6 +689,22 @@ MonoBehaviour:
   m_Name: TryClaimAttackTokenAction
   m_EditorClassIdentifier: Assembly-CSharp::TryClaimAttackTokenActionSO
   _selfAnchor: {fileID: 0}
+--- !u!114 &-4141632478199376057
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c807c0fe937f0941bc0ea49af3c0c0a, type: 3}
+  m_Name: SetHasGloryTrue_FlagOnEnter_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SetFlagOnEnterActionSO
+  _selfAnchor: {fileID: 0}
+  flag: {fileID: -6173058641810711417}
+  value: 1
+  changeValueOnExit: 0
 --- !u!114 &-4075389856202628919
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -733,7 +761,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6c807c0fe937f0941bc0ea49af3c0c0a, type: 3}
-  m_Name: SetHasGloryTrueFlagOnEnter_Action
+  m_Name: SetHasRandomGloryTrue_FlagOnEnter_Action
   m_EditorClassIdentifier: Assembly-CSharp::SetFlagOnEnterActionSO
   _selfAnchor: {fileID: 0}
   flag: {fileID: -2570622780656827608}
@@ -749,7 +777,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b6687386e458fac4db6106b19ddf0699, type: 3}
-  m_Name: HasGloryFlag
+  m_Name: HasRandomGlory_Flag
   m_EditorClassIdentifier: Assembly-CSharp::FlagSO
 --- !u!114 &-2422205497665446699
 MonoBehaviour:
@@ -919,9 +947,12 @@ MonoBehaviour:
     - Conditions:
       - Condition: {fileID: -8793195476053065675}
         ExpectedResult: 0
-      - Condition: {fileID: 2860989851991372328}
-        ExpectedResult: 0
       - Condition: {fileID: 3688329626171703647}
+        ExpectedResult: 0
+    - Conditions:
+      - Condition: {fileID: -8793195476053065675}
+        ExpectedResult: 0
+      - Condition: {fileID: 8657432084217818505}
         ExpectedResult: 0
     Id: 27dcddf9-f36b-4c7b-b19a-965dba13ed19
   - ToState: {fileID: 9204605873900580318}
@@ -1012,7 +1043,7 @@ MonoBehaviour:
       - Condition: {fileID: 3688329626171703647}
         ExpectedResult: 0
     ToState: {fileID: 1350832784552190812}
-    Id: 8bf9967a-2746-43ca-ba19-f59d0c3aac89
+    Id: 077994dc-8294-49c2-ae69-f5af4a8adc32
   _base: {fileID: 0}
   _fieldOverrides: []
   _removedIds: []
@@ -1093,6 +1124,8 @@ MonoBehaviour:
   - Item: {fileID: -4669643337480278969}
     Folder: Other
   - Item: {fileID: -2570622780656827608}
+    Folder: Flag
+  - Item: {fileID: -6173058641810711417}
     Folder: Flag
   _contentsFolderPaths:
   - Group: Actions
@@ -1326,6 +1359,7 @@ MonoBehaviour:
   - {fileID: -8949796662600874686}
   - {fileID: -387289859703755849}
   - {fileID: -3267611607820468640}
+  - {fileID: -4141632478199376057}
   - {fileID: 6901939431842232502}
 --- !u!114 &1943822056990883776
 MonoBehaviour:
@@ -1407,7 +1441,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 828323aa1aace154891a3661130da74b, type: 3}
-  m_Name: HasGloryFlag_Condition
+  m_Name: HasRandomGlory_Flag_Condition
   m_EditorClassIdentifier: Assembly-CSharp::FlagConditionSO
   _selfAnchor: {fileID: 0}
   flag: {fileID: -2570622780656827608}
@@ -2114,6 +2148,20 @@ MonoBehaviour:
   _exitStateName: BaseMovement
   _exitTransitionDuration: 0.25
   _exitStartTimeOffset: 0
+--- !u!114 &8657432084217818505
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 828323aa1aace154891a3661130da74b, type: 3}
+  m_Name: HasGlory_Flag_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::FlagConditionSO
+  _selfAnchor: {fileID: 0}
+  flag: {fileID: -6173058641810711417}
 --- !u!114 &8982604528455279916
 MonoBehaviour:
   m_ObjectHideFlags: 0

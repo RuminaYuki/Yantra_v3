@@ -1,0 +1,728 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8116322789261164595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f45f29be3089ac444a6a4db4bae888af, type: 3}
+  m_Name: Pattern_RollRandomPool_Action
+  m_EditorClassIdentifier: Assembly-CSharp::RollRandomPoolActionSO
+  _selfAnchor: {fileID: 0}
+  _pool: {fileID: 1044224205805684910}
+--- !u!114 &-7093558677791528670
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 980dfb7f48049f446a18747273209362, type: 3}
+  m_Name: FanPatternSubSubStateMachine_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SubStateMachineActionSO
+  _selfAnchor: {fileID: 0}
+  _transitionTable: {fileID: 6213315848329380784}
+  _forceExitState: {fileID: 0}
+--- !u!114 &-6865687957510351985
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: FanPatternWarnning_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 4595623396823284868}
+--- !u!114 &-6845242508096882340
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: FanPatternAttack_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 7122529279606771542}
+  - {fileID: 292868082197038553}
+--- !u!114 &-6114389390072750446
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29aaa39665320664388a123863eae513, type: 3}
+  m_Name: VengefulRootsFanPattern_AnchorID
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.AnchorIDSO
+--- !u!114 &-6097361928828968082
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: ArcPatternAttack_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 6114949098902456485}
+  - {fileID: -392129016740459431}
+--- !u!114 &-5540351296587315746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bc33c17855b7944f975cd6048bf5471, type: 3}
+  m_Name: Warnning_TimeInState_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::TimeInStateConditionSO
+  _selfAnchor: {fileID: 0}
+  minDuration: 1
+  maxDuration: 0
+--- !u!114 &-4475501518880025021
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: ArcPatternWarnning_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 6841538397177466397}
+--- !u!114 &-4267400789882262883
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c807c0fe937f0941bc0ea49af3c0c0a, type: 3}
+  m_Name: FinishTrue_SetFlagOnEnter_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SetFlagOnEnterActionSO
+  _selfAnchor: {fileID: 0}
+  flag: {fileID: 5755767814384273710}
+  value: 1
+  changeValueOnExit: 0
+--- !u!114 &-3971556645447430503
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: ArcPatternFinish_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 6661378139701128}
+  - {fileID: -4267400789882262883}
+--- !u!114 &-3781395191691932198
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9942d9bd8f1e0b0459cea61a31bda641, type: 3}
+  m_Name: FanPT_RandomPicked_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::RandomPickedConditionSO
+  _selfAnchor: {fileID: 0}
+  _pool: {fileID: 1044224205805684910}
+  _option: {fileID: 2023165642865779622}
+--- !u!114 &-2709443377127313250
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e20e27464dc08eb44ac14238e4b68ebb, type: 3}
+  m_Name: Exposed_Parameters
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.ExposedParametersSO
+  _parameters:
+  - _name: Warnning.Duration
+    _bindings:
+    - _target: {fileID: -5540351296587315746}
+      _fieldName: minDuration
+    _category: 
+  - _name: HoldThorn.Duration
+    _bindings:
+    - _target: {fileID: 3508341163365210078}
+      _fieldName: minDuration
+    _category: 
+  - _name: DamageAmount
+    _bindings:
+    - _target: {fileID: 292868082197038553}
+      _fieldName: _damageAmount
+    - _target: {fileID: 6114949098902456485}
+      _fieldName: _damageAmount
+    _category: 
+  - _name: ThornHit.Delay
+    _bindings:
+    - _target: {fileID: -896490192867761104}
+      _fieldName: _delay
+    - _target: {fileID: -1912118293485813315}
+      _fieldName: _delay
+    _category: 
+--- !u!114 &-2341882151384279055
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 980dfb7f48049f446a18747273209362, type: 3}
+  m_Name: ArcPatternSubSubStateMachine_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SubStateMachineActionSO
+  _selfAnchor: {fileID: 0}
+  _transitionTable: {fileID: -477127999741035359}
+  _forceExitState: {fileID: 0}
+--- !u!114 &-1912118293485813315
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f1aa939ecac5444ea4f694873236ecc, type: 3}
+  m_Name: FanPT_OnSplineHitDelayed_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::DelayedConditionSO
+  _selfAnchor: {fileID: 0}
+  _innerCondition: {fileID: 4611685612559025265}
+  _innerExpected: 1
+  _delay: 0.35
+  _mode: 0
+--- !u!114 &-896490192867761104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f1aa939ecac5444ea4f694873236ecc, type: 3}
+  m_Name: ArcPT_OnSplineHitDelayed_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::DelayedConditionSO
+  _selfAnchor: {fileID: 0}
+  _innerCondition: {fileID: -238448004096748401}
+  _innerExpected: 1
+  _delay: 0.35
+  _mode: 0
+--- !u!114 &-817601998700856817
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2d7c4dfc85d07b498d74fb3a7a830e3, type: 3}
+  m_Name: ArcPattern_RandomOption
+  m_EditorClassIdentifier: Assembly-CSharp::RandomOptionSO
+--- !u!114 &-568449446191256433
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: Random_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: -8116322789261164595}
+--- !u!114 &-477127999741035359
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5492ed31ba40b643aaf3d94f1de0aa7, type: 3}
+  m_Name: ArcPatternSub_TransitionTable
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
+  _initialState: {fileID: -4475501518880025021}
+  _anyTransitions: []
+  _transitions:
+  - FromState: {fileID: -4475501518880025021}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -5540351296587315746}
+        ExpectedResult: 0
+    ToState: {fileID: -6097361928828968082}
+    Id: 51088a1c-fa55-496b-b708-9905a1175fcd
+  - FromState: {fileID: -6097361928828968082}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -896490192867761104}
+        ExpectedResult: 0
+    - Conditions:
+      - Condition: {fileID: 3508341163365210078}
+        ExpectedResult: 0
+    ToState: {fileID: -3971556645447430503}
+    Id: d0bb8723-9649-43da-aa27-54bf78caf65d
+  _base: {fileID: 0}
+  _fieldOverrides: []
+  _removedIds: []
+  _transitionOverrides: []
+  _conditionReplaces: []
+  _transitionRetargets: []
+  _actionChanges: []
+  _actionOrders: []
+  _exposedParameters: {fileID: -2709443377127313250}
+  _nodePositions:
+  - State: {fileID: -6097361928828968082}
+    Position: {x: 365, y: 0}
+  - State: {fileID: -3971556645447430503}
+    Position: {x: 549, y: 0}
+  - State: {fileID: -4475501518880025021}
+    Position: {x: 169, y: 0}
+  _entryNodePosition: {x: 0, y: 0}
+  _anyStateNodePosition: {x: 0, y: 120}
+  _contentsFolders: []
+  _contentsFolderPaths: []
+  _stateDisplayNames: []
+  _removedParameters: []
+--- !u!114 &-392129016740459431
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b8f52bf0ec10de4dac2d44f38744caf, type: 3}
+  m_Name: ThornArcPT_SwapSplineItem_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SwapSplineItemActionSO
+  _selfAnchor: {fileID: 3710878814073873806}
+  _prefab: {fileID: 3072372581283433816, guid: 4396c30ddc47c3f4d9e0cedbce9ebf94, type: 3}
+--- !u!114 &-238448004096748401
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02aee8e05e8157e4a9f8275f6bb40467, type: 3}
+  m_Name: ArcPT_OnSplineItemsHit_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::OnSplineItemsHitConditionSO
+  _selfAnchor: {fileID: 3710878814073873806}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5492ed31ba40b643aaf3d94f1de0aa7, type: 3}
+  m_Name: VengefulRoots(Tanee)_TransitionTable
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
+  _initialState: {fileID: -568449446191256433}
+  _anyTransitions: []
+  _transitions:
+  - FromState: {fileID: -568449446191256433}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -3781395191691932198}
+        ExpectedResult: 0
+    ToState: {fileID: 1903522506788675489}
+    Id: 3643d763-e0ac-429a-8c6e-51b3865f155b
+  - FromState: {fileID: -568449446191256433}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 4281767882222177571}
+        ExpectedResult: 0
+    ToState: {fileID: 7503265568710022980}
+    Id: 5b32b769-dd72-4db6-adcc-0cb317c077bf
+  _base: {fileID: 0}
+  _fieldOverrides: []
+  _removedIds: []
+  _transitionOverrides: []
+  _conditionReplaces: []
+  _transitionRetargets: []
+  _actionChanges: []
+  _actionOrders: []
+  _exposedParameters: {fileID: -2709443377127313250}
+  _nodePositions:
+  - State: {fileID: -568449446191256433}
+    Position: {x: 127, y: 2}
+  - State: {fileID: 1903522506788675489}
+    Position: {x: 330, y: -2}
+  - State: {fileID: 7503265568710022980}
+    Position: {x: 330, y: 81}
+  _entryNodePosition: {x: -23, y: 3}
+  _anyStateNodePosition: {x: -22, y: 78}
+  _contentsFolders:
+  - Item: {fileID: -1912118293485813315}
+    Folder: OnSplineHit
+  - Item: {fileID: 4611685612559025265}
+    Folder: OnSplineHit
+  - Item: {fileID: 3710878814073873806}
+    Folder: Anchor
+  - Item: {fileID: -6114389390072750446}
+    Folder: Anchor
+  - Item: {fileID: 1044224205805684910}
+    Folder: RandomPicker
+  - Item: {fileID: 2023165642865779622}
+    Folder: RandomPicker
+  - Item: {fileID: -817601998700856817}
+    Folder: RandomPicker
+  _contentsFolderPaths:
+  - Group: Conditions
+    Path: OnSplineHit
+  - Group: Data
+    Path: Anchor
+  - Group: Data
+    Path: RandomPicker
+  _stateDisplayNames: []
+  _removedParameters: []
+--- !u!114 &6661378139701128
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b606bc0a6bd04e4fb451e87caca3c3e, type: 3}
+  m_Name: FinishThornArcPT_PlaySplineItemsAnimState_Action
+  m_EditorClassIdentifier: Assembly-CSharp::PlaySplineItemsAnimatorStateActionSO
+  _selfAnchor: {fileID: 3710878814073873806}
+  _stateName: Tanee_Thorn_Finish
+  _layerIndex: 0
+  _transitionDuration: 0.25
+  _startTimeOffset: 0
+  _waitForStateName: 
+  _exitStateName: 
+  _exitTransitionDuration: 0.25
+  _exitStartTimeOffset: 0
+--- !u!114 &292868082197038553
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a42f350a890dc414d91d2b878b07150e, type: 3}
+  m_Name: FanPattern_SetSplineItemsDamage_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SetSplineItemsDamageActionSO
+  _selfAnchor: {fileID: -6114389390072750446}
+  _damageAmount: 3
+  _damageType: {fileID: 0}
+--- !u!114 &1044224205805684910
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8efa81ee0d5b6b4786029864f2ae53d, type: 3}
+  m_Name: Pattern_RandomPool
+  m_EditorClassIdentifier: Assembly-CSharp::RandomPoolSO
+--- !u!114 &1903522506788675489
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: FanPatternSub_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: -7093558677791528670}
+--- !u!114 &2023165642865779622
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2d7c4dfc85d07b498d74fb3a7a830e3, type: 3}
+  m_Name: FanPattern_RandomOption
+  m_EditorClassIdentifier: Assembly-CSharp::RandomOptionSO
+--- !u!114 &3508341163365210078
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bc33c17855b7944f975cd6048bf5471, type: 3}
+  m_Name: HoldThornTimeInState_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::TimeInStateConditionSO
+  _selfAnchor: {fileID: 0}
+  minDuration: 1.25
+  maxDuration: 0
+--- !u!114 &3710878814073873806
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29aaa39665320664388a123863eae513, type: 3}
+  m_Name: VengefulRootsArcPattern_AnchorID
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.AnchorIDSO
+--- !u!114 &4281767882222177571
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9942d9bd8f1e0b0459cea61a31bda641, type: 3}
+  m_Name: ArcPT_RandomPicked_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::RandomPickedConditionSO
+  _selfAnchor: {fileID: 0}
+  _pool: {fileID: 1044224205805684910}
+  _option: {fileID: -817601998700856817}
+--- !u!114 &4595623396823284868
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b8f52bf0ec10de4dac2d44f38744caf, type: 3}
+  m_Name: DirtErupFanPT_SwapSplineItem_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SwapSplineItemActionSO
+  _selfAnchor: {fileID: -6114389390072750446}
+  _prefab: {fileID: 9073078761891936953, guid: c03971d44b25527498236987c709c90e, type: 3}
+--- !u!114 &4611685612559025265
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02aee8e05e8157e4a9f8275f6bb40467, type: 3}
+  m_Name: FanPT_OnSplineItemsHit_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::OnSplineItemsHitConditionSO
+  _selfAnchor: {fileID: -6114389390072750446}
+--- !u!114 &5458295181485657380
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b606bc0a6bd04e4fb451e87caca3c3e, type: 3}
+  m_Name: FinishThornFanPT_PlaySplineItemsAnimState_Action
+  m_EditorClassIdentifier: Assembly-CSharp::PlaySplineItemsAnimatorStateActionSO
+  _selfAnchor: {fileID: -6114389390072750446}
+  _stateName: Tanee_Thorn_Finish
+  _layerIndex: 0
+  _transitionDuration: 0.25
+  _startTimeOffset: 0
+  _waitForStateName: 
+  _exitStateName: 
+  _exitTransitionDuration: 0.25
+  _exitStartTimeOffset: 0
+--- !u!114 &5474584872326868541
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: FanPatternFinish_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 5458295181485657380}
+  - {fileID: -4267400789882262883}
+--- !u!114 &5755767814384273710
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6687386e458fac4db6106b19ddf0699, type: 3}
+  m_Name: FinishFlag
+  m_EditorClassIdentifier: Assembly-CSharp::FlagSO
+--- !u!114 &6114949098902456485
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a42f350a890dc414d91d2b878b07150e, type: 3}
+  m_Name: ArcPattern_SetSplineItemsDamage_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SetSplineItemsDamageActionSO
+  _selfAnchor: {fileID: 3710878814073873806}
+  _damageAmount: 3
+  _damageType: {fileID: 0}
+--- !u!114 &6213315848329380784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5492ed31ba40b643aaf3d94f1de0aa7, type: 3}
+  m_Name: FanPatternSub_TransitionTable
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
+  _initialState: {fileID: -6865687957510351985}
+  _anyTransitions: []
+  _transitions:
+  - FromState: {fileID: -6865687957510351985}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -5540351296587315746}
+        ExpectedResult: 0
+    ToState: {fileID: -6845242508096882340}
+    Id: 9cec65da-1fac-4fc5-ab51-80bdd2d391dd
+  - FromState: {fileID: -6845242508096882340}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -1912118293485813315}
+        ExpectedResult: 0
+    - Conditions:
+      - Condition: {fileID: 3508341163365210078}
+        ExpectedResult: 0
+    ToState: {fileID: 5474584872326868541}
+    Id: f5aec250-642f-4ee2-99be-8772932c93f5
+  _base: {fileID: 0}
+  _fieldOverrides: []
+  _removedIds: []
+  _transitionOverrides: []
+  _conditionReplaces: []
+  _transitionRetargets: []
+  _actionChanges: []
+  _actionOrders: []
+  _exposedParameters: {fileID: -2709443377127313250}
+  _nodePositions:
+  - State: {fileID: -6865687957510351985}
+    Position: {x: 193, y: 0}
+  - State: {fileID: 5474584872326868541}
+    Position: {x: 573, y: -2}
+  - State: {fileID: -6845242508096882340}
+    Position: {x: 385, y: -2}
+  _entryNodePosition: {x: 0, y: 0}
+  _anyStateNodePosition: {x: 0, y: 120}
+  _contentsFolders: []
+  _contentsFolderPaths: []
+  _stateDisplayNames: []
+  _removedParameters: []
+--- !u!114 &6841538397177466397
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b8f52bf0ec10de4dac2d44f38744caf, type: 3}
+  m_Name: DirtErupArcPT_SwapSplineItem_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SwapSplineItemActionSO
+  _selfAnchor: {fileID: 3710878814073873806}
+  _prefab: {fileID: 9073078761891936953, guid: c03971d44b25527498236987c709c90e, type: 3}
+--- !u!114 &7122529279606771542
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b8f52bf0ec10de4dac2d44f38744caf, type: 3}
+  m_Name: ThornFanPT_SwapSplineItem_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SwapSplineItemActionSO
+  _selfAnchor: {fileID: -6114389390072750446}
+  _prefab: {fileID: 3072372581283433816, guid: 4396c30ddc47c3f4d9e0cedbce9ebf94, type: 3}
+--- !u!114 &7503265568710022980
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: ArcPatternSub_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: -2341882151384279055}

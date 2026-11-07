@@ -410,6 +410,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                     }
 
                     AppendMakeSubVariantMenu(evt.menu, stateNode);
+                    AppendDuplicateAsVariantMenu(evt.menu, stateNode);
                     evt.menu.AppendSeparator();
                 }
 
@@ -418,6 +419,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                     "Set as Initial State",
                     _ => SetInitialState(stateNode.State),
                     isInitial ? DropdownMenuAction.Status.Disabled : DropdownMenuAction.Status.Normal);
+                AppendMoveToSubMenu(evt.menu, stateNode);
                 evt.menu.AppendSeparator();
                 evt.menu.AppendAction("Rename", _ => BeginRename(stateNode));
 

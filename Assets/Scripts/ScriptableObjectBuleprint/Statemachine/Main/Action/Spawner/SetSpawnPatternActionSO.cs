@@ -3,7 +3,7 @@ using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
 // Sets what the PatternSpawner spawns when the state is entered; an Animation Event calling its
-// Execute does the spawning, on the frame the animation needs it.
+// SpawnPattern does the spawning, on the frame the animation needs it. Execute spawns right away instead.
 [UseSelfAnchor]
 [RequiresOwnerComponent(typeof(PatternSpawner))]
 [CreateAssetMenu(
@@ -11,32 +11,40 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Spawner/Set Spawn Pattern")]
 public class SetSpawnPatternActionSO : StateActionSO
 {
-    [Tooltip("What gets spawned at every point.")]
+    [Tooltip("What gets spawned at every point, with Instantiate. Used when Pool Tag is empty.")]
     [SerializeField] private GameObject _prefab;
-    [Tooltip("The pattern prefab with SpawnerData (e.g. SpawnMinnion).")]
+    [Tooltip("What gets spawned at every point, from ObjectPooler. Wins over Prefab when both are set.")]
+    [SerializeField] private string _poolTag;
+    [Tooltip("The pattern prefab with SpawnerData (e.g. SpawnMinnion). Empty = spawn a single one at the Anchor.")]
     [SerializeField] private SpawnerData _pattern;
     [Tooltip("Where the pattern is placed. Empty = the character running this state machine.")]
     [SerializeField] private AnchorIDSO _anchor;
+    [Tooltip("Also spawn right away, after setting. Off = leave the spawning to an Animation Event.")]
+    [SerializeField] private bool _execute;
 
     protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
-        return new SetSpawnPatternAction(_prefab, _pattern, _anchor);
+        return new SetSpawnPatternAction(_prefab, _poolTag, _pattern, _anchor, _execute);
     }
 }
 
 public class SetSpawnPatternAction : StateAction
 {
     private readonly GameObject _prefab;
+    private readonly string _poolTag;
     private readonly SpawnerData _pattern;
     private readonly AnchorIDSO _anchorID;
+    private readonly bool _execute;
     private AnchorReference<PatternSpawner> _spawner;
     private AnchorReference<Transform> _anchor;
 
-    public SetSpawnPatternAction(GameObject prefab, SpawnerData pattern, AnchorIDSO anchorID)
+    public SetSpawnPatternAction(GameObject prefab, string poolTag, SpawnerData pattern, AnchorIDSO anchorID, bool execute)
     {
         _prefab = prefab;
+        _poolTag = poolTag;
         _pattern = pattern;
         _anchorID = anchorID;
+        _execute = execute;
     }
 
     public override void Awake(StateMachine stateMachine)
@@ -50,7 +58,14 @@ public class SetSpawnPatternAction : StateAction
     {
         if (_spawner.TryGet(out PatternSpawner spawner) && _anchor.TryGet(out Transform anchor))
         {
-            spawner.SetParameter(_prefab, _pattern, anchor);
+            // Pool tag first; the prefab is the fallback.
+            if (!string.IsNullOrEmpty(_poolTag))
+                spawner.SetParameter(_poolTag, _pattern, anchor);
+            else
+                spawner.SetParameter(_prefab, _pattern, anchor);
+
+            if (_execute)
+                spawner.SpawnPattern();
         }
     }
 

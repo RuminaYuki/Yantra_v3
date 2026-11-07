@@ -8,7 +8,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 [RequiresOwnerComponent(typeof(StateMachineController))]
 [CreateAssetMenu(
     fileName = "NewSetAnimatorLayerWeightAction",
-    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Animator/Set Layer Weight")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Standard/Animator/Set Layer Weight")]
 public class SetAnimatorLayerWeightActionSO : StateActionSO
 {
     [SerializeField] private string _layerName;

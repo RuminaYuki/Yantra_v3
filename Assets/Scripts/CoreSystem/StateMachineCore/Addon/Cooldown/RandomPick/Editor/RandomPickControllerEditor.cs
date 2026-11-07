@@ -61,6 +61,7 @@ public class RandomPickControllerEditor : Editor
                 : "0%";
 
             EditorGUILayout.LabelField(option != null ? option.name : $"Element {i}", chance);
+            DrawCooldownBar(entry, cooldown, cooldowns);
         }
 
         if (totalWeight <= 0f)
@@ -77,6 +78,29 @@ public class RandomPickControllerEditor : Editor
         }
 
         EditorGUI.indentLevel--;
+    }
+
+    // Play Mode: how much of this option's cooldown is left, as a bar that empties to ready.
+    private static void DrawCooldownBar(SerializedProperty entry, CooldownSO cooldown, CooldownController cooldowns)
+    {
+        if (cooldowns == null || cooldown == null)
+        {
+            return;
+        }
+
+        float duration = entry.FindPropertyRelative("CooldownDuration").floatValue;
+        float remaining = cooldowns.GetRemaining(cooldown);
+        if (duration <= 0f && remaining <= 0f)
+        {
+            return;
+        }
+
+        // A shared cooldown can be started by another option with a longer duration.
+        float total = Mathf.Max(duration, remaining);
+        string text = remaining > 0f ? $"{remaining:0.0}s / {total:0.#}s" : "Ready";
+
+        Rect rect = EditorGUI.IndentedRect(EditorGUILayout.GetControlRect(false, EditorGUIUtility.singleLineHeight * 0.8f));
+        EditorGUI.ProgressBar(rect, total > 0f ? remaining / total : 0f, text);
     }
 
     // Its weight if a roll could pick it right now, else 0.

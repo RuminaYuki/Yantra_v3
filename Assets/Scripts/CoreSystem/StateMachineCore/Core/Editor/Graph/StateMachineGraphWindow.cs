@@ -129,6 +129,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         {
             var toolbar = new Toolbar();
             _breadcrumbs = new ToolbarBreadcrumbs();
+            // Too long a path gets cut off at the right instead of squeezing the items into each other.
+            _breadcrumbs.style.flexShrink = 1;
+            _breadcrumbs.style.overflow = Overflow.Hidden;
             toolbar.Add(_breadcrumbs);
             CreatePlayModeToolbarItems(toolbar);
             rootVisualElement.Add(toolbar);
@@ -281,14 +284,24 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 TransitionTableSO table = _path[i];
                 string tableName = table != null ? table.name : "Missing";
 
-                string label = i == 0 || _pathStates[i] == null
+                bool isCurrent = i == _path.Count - 1;
+                string fullLabel = i == 0 || _pathStates[i] == null
                     ? tableName
                     : $"{_pathStates[i].name} ({tableName})";
 
+                // Upper levels show only the state name (full name on hover), so long paths don't overlap.
+                string label = isCurrent || i == 0 || _pathStates[i] == null
+                    ? fullLabel
+                    : _pathStates[i].name;
+
                 // The current level isn't clickable.
                 int level = i;
-                Action onClick = i < _path.Count - 1 ? () => NavigateTo(level) : null;
+                Action onClick = !isCurrent ? () => NavigateTo(level) : null;
                 _breadcrumbs.PushItem(label, onClick);
+
+                VisualElement item = _breadcrumbs[_breadcrumbs.childCount - 1];
+                item.tooltip = fullLabel;
+                item.style.flexShrink = 0;
             }
         }
 

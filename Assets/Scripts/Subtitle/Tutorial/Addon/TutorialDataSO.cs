@@ -22,10 +22,15 @@ public struct TutorialPage
 [CreateAssetMenu(fileName = "NewTutorial", menuName = "Yantra/Tutorial/Tutorial Data")]
 public class TutorialDataSO : ScriptableObject
 {
+    [Tooltip("Name stored in the save file. Filled from the asset name.\n" +
+         "Keep it the same after release, even if the asset is renamed.")]
+    [SerializeField] private string _saveKey;
+
     [Tooltip("ปุ่มถัดไป/ปิด จะกดไม่ได้กี่วินาทีในแต่ละหน้า — บังคับให้ผู้เล่นได้อ่านก่อน")]
     [SerializeField, Min(0f)] private float _lockSeconds = 2f;
 
     [SerializeField] private TutorialPage[] _pages;
+    public string SaveKey => string.IsNullOrEmpty(_saveKey) ? name : _saveKey;
 
     public float LockSeconds => _lockSeconds;
     public IReadOnlyList<TutorialPage> Pages => _pages ?? Array.Empty<TutorialPage>();
@@ -34,6 +39,7 @@ public class TutorialDataSO : ScriptableObject
     // เตือนตั้งแต่ตอนพิมพ์ ถ้าใส่ {ชื่อ} ที่ไม่มีไอคอน — ไม่ต้องรอกด Play ไปเจอ
     private void OnValidate()
     {
+        if (string.IsNullOrEmpty(_saveKey)) _saveKey = name;
         UnityEditor.EditorApplication.delayCall -= CheckIcons;
         UnityEditor.EditorApplication.delayCall += CheckIcons;
     }

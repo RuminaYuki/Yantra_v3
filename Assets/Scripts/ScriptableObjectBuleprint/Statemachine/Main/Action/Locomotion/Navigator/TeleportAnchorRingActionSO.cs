@@ -16,6 +16,8 @@ public class TeleportAnchorRingActionSO : StateActionSO
     [SerializeField,Exposed] private RingSampleParameters _ringParameters =
         new() { radius = 8f, minDistance = 4f, directionCount = 16 };
     [SerializeField, Min(1)] private int _maxAttempts = 3;
+    [SerializeField,Exposed] private TargetLeadSettings _lead =
+        new() { usePrediction = false, leadTime = 0.5f, maxDistance = 3f };
 
     protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
@@ -23,7 +25,8 @@ public class TeleportAnchorRingActionSO : StateActionSO
             _targetAnchor,
             _faceTarget,
             _ringParameters,
-            _maxAttempts);
+            _maxAttempts,
+            _lead);
     }
 }
 
@@ -36,6 +39,7 @@ public class TeleportAnchorRingAction : StateAction, IFallibleAction
     private readonly bool _faceTarget;
     private readonly RingSampleParameters _ringParameters;
     private readonly int _maxAttempts;
+    private readonly TargetLeadSettings _lead;
 
     private AnchorReference<CharacterTeleporter> _teleporter;
     private AnchorReference<StandablePointValidator> _pointValidator;
@@ -46,12 +50,14 @@ public class TeleportAnchorRingAction : StateAction, IFallibleAction
         AnchorIDSO targetAnchor,
         bool faceTarget,
         RingSampleParameters ringParameters,
-        int maxAttempts)
+        int maxAttempts,
+        TargetLeadSettings lead)
     {
         _targetAnchor = targetAnchor;
         _faceTarget = faceTarget;
         _ringParameters = ringParameters;
         _maxAttempts = Mathf.Max(1, maxAttempts);
+        _lead = lead;
     }
 
     public override void Awake(StateMachine stateMachine)
@@ -72,7 +78,7 @@ public class TeleportAnchorRingAction : StateAction, IFallibleAction
             !_target.TryGet(out Transform target))
             return;
 
-        Vector3 origin = target.position;
+        Vector3 origin = TargetLead.Predict(target, in _lead);
 
         for (int i = 0; i < _maxAttempts; i++)
         {

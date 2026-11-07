@@ -29,8 +29,21 @@ public class BaseProjectileMovement : MonoBehaviour
     [SerializeField] private HitTargetRepeatMode hitTargetRepeatMode = HitTargetRepeatMode.PreventRepeat;
     [SerializeField, Min(0.01f)] private float repeatDamageInterval = 0.2f;
 
+    [Header("Collision")]
+    [Tooltip("Only process projectile hits on these layers.")]
+    [SerializeField] private LayerMask _collisionLayer = ~0;
+    [Tooltip("Ignore physical collision and hit processing for the owner hierarchy.")]
+    [SerializeField] private bool ignoreOwner = true;
+    [Tooltip("Skip hit processing for colliders on the owner's layer.")]
+    [SerializeField] private bool ignoreOwnerLayer = true;
+
     [Header("Movement")]
     [SerializeField] private float _moveSpeed = 10f;
+
+    private GameObject owner;
+    public GameObject Owner => owner;
+    private Collider[] projectileColliders;
+    private Collider[] ignoredOwnerColliders;
 
     public event Action<Collider> _hitRegistered;
     protected void HitRegisteredRaise(Collider go)
@@ -50,10 +63,15 @@ public class BaseProjectileMovement : MonoBehaviour
 
     protected virtual void Awake()
     {
-
+        projectileColliders = GetComponentsInChildren<Collider>(true);
     }
 
-    protected virtual void Update()
+    private void OnEnable()
+    {
+        ApplyOwnerCollisionIgnores();
+    }
+
+    protected virtual void FixedUpdate()
     {
         _lifeTimer += Time.deltaTime;
         if (_lifeTimer > 0f && _lifeTimer >= lifetime)
@@ -85,10 +103,15 @@ public class BaseProjectileMovement : MonoBehaviour
 
     private void ProcessHit(Collider hitCollider)
     {
-        if ((obstacleLayer.value & (1 << hitCollider.gameObject.layer)) != 0)
+        if (hitCollider == null ||
+            (_collisionLayer.value & (1 << hitCollider.gameObject.layer)) == 0 ||
+            IsIgnoredHit(hitCollider))
+            return;
+
+        /*if ((obstacleLayer.value & (1 << hitCollider.gameObject.layer)) != 0)
         {
             Destroy(gameObject);
-        }
+        }*/
 
         IDamageable damageable = FindDamageable(hitCollider);
         if (damageable == null)
@@ -134,10 +157,86 @@ public class BaseProjectileMovement : MonoBehaviour
         return null;
     }
 
+    private bool IsIgnoredHit(Collider hitCollider)
+    {
+        if (owner == null)
+            return false;
+
+        Transform hitTransform = hitCollider.transform;
+        if (ignoreOwner &&
+            (hitTransform == owner.transform || hitTransform.IsChildOf(owner.transform)))
+            return true;
+
+        return ignoreOwnerLayer && hitCollider.gameObject.layer == owner.layer;
+    }
+
     public void NotifyTargetHit()
     {
         Destroy(gameObject, 0.1f);
     }
 
     public void SetMoveSpeed(float speed) => moveSpeed = speed;
+
+    public void SetOwner(GameObject newOwner)
+    {
+        ClearOwnerCollisionIgnores();
+        owner = newOwner;
+        ApplyOwnerCollisionIgnores();
+
+        if (owner != null)
+            Debug.Log($"Projectile owner set to {owner.name}");
+    }
+
+    private void ApplyOwnerCollisionIgnores()
+    {
+        if (!ignoreOwner || owner == null)
+            return;
+
+        if (projectileColliders == null)
+            projectileColliders = GetComponentsInChildren<Collider>(true);
+
+        ignoredOwnerColliders = owner.GetComponentsInChildren<Collider>(true);
+        foreach (Collider projectileCollider in projectileColliders)
+        {
+            if (projectileCollider == null ||
+                !projectileCollider.enabled ||
+                !projectileCollider.gameObject.activeInHierarchy)
+                continue;
+
+            foreach (Collider ownerCollider in ignoredOwnerColliders)
+            {
+                if (ownerCollider == null ||
+                    !ownerCollider.enabled ||
+                    !ownerCollider.gameObject.activeInHierarchy ||
+                    ownerCollider == projectileCollider)
+                    continue;
+
+                Physics.IgnoreCollision(projectileCollider, ownerCollider, true);
+            }
+        }
+    }
+
+    private void ClearOwnerCollisionIgnores()
+    {
+        if (projectileColliders == null || ignoredOwnerColliders == null)
+            return;
+
+        foreach (Collider projectileCollider in projectileColliders)
+        {
+            if (projectileCollider == null ||
+                !projectileCollider.enabled ||
+                !projectileCollider.gameObject.activeInHierarchy)
+                continue;
+
+            foreach (Collider ownerCollider in ignoredOwnerColliders)
+            {
+                if (ownerCollider == null || ownerCollider == projectileCollider)
+                    continue;
+
+                Physics.IgnoreCollision(projectileCollider, ownerCollider, false);
+            }
+        }
+
+        ignoredOwnerColliders = null;
+    }
 }
