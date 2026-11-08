@@ -2,7 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
-[UseSelfAnchor]
+[UseSelfAnchor][MenuGroup("Standard")]
 [RequiresOwnerComponent(typeof(CharacterController))]
 [CreateAssetMenu(
     fileName = "EnableCharacterController_Action",

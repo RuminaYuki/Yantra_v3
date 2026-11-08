@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 // True when the cooldown is over (or was never started). Set the transition's Expected to False
 // for "still on cooldown".
-[UseSelfAnchor]
+[UseSelfAnchor][MenuGroup("Standard")]
 [RequiresOwnerComponent(typeof(CooldownController))]
 [CreateAssetMenu(
     fileName = "NewCooldownReady_Condition",

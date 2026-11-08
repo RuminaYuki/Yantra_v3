@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -20,6 +21,8 @@ public class BaseEffectClass : MonoBehaviour
     [SerializeField] protected string eventKey = string.Empty;
     [SerializeField] protected AnimEventDispatcher animEvent;
 
+    protected Action<List<GameObject>> OnShot;
+
     public virtual void SetEnabled(bool enabled)
     {
         if (enabled)
@@ -40,9 +43,19 @@ public class BaseEffectClass : MonoBehaviour
 
     protected void Shooting()
     {
+        List<GameObject> bullets = new();
         foreach (Spawner spawn in spawners)
         {
-            spawn.spawnObject();
+            GameObject bullet = spawn.spawnObject();
+            if (bullet == null) continue;
+
+            bullets.Add(bullet);
+        }
+
+        if (bullets.Count > 0)
+        {
+            OnShot?.Invoke(bullets);
+            Debug.Log($"[BaseEffectClass] Shooting {bullets.Count} bullets.", this);
         }
     }
 }

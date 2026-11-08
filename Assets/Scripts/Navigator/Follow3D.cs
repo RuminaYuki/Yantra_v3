@@ -4,6 +4,8 @@ public class Follow3D : MonoBehaviour
 {
     [Header("Target")]
     [SerializeField] private Transform _target;
+    [Tooltip("Off = stop following and stay where it is.")]
+    [SerializeField] private bool _isFollowing = true;
 
     [Header("Constraint")]
     [SerializeField] private bool _constrainPosition = true;
@@ -23,6 +25,8 @@ public class Follow3D : MonoBehaviour
     private Vector3 _maintainedPositionOffset;
     private Quaternion _maintainedRotationOffset = Quaternion.identity;
 
+    private Quaternion OffsetSpace => _constrainRotation ? _target.rotation : Quaternion.identity;
+
     private void Start()
     {
         CacheMaintainedOffset();
@@ -30,12 +34,12 @@ public class Follow3D : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (_target == null) return;
+        if (!_isFollowing || _target == null) return;
 
         if (_constrainPosition)
         {
             Vector3 localOffset = _maintainedPositionOffset + _positionOffset;
-            Vector3 targetPosition = _target.position + _target.rotation * localOffset;
+            Vector3 targetPosition = _target.position + OffsetSpace * localOffset;
             float t = LagToLerpT(_positionLerpSpeed);
             transform.position = Vector3.Lerp(transform.position, targetPosition, t);
         }
@@ -62,11 +66,16 @@ public class Follow3D : MonoBehaviour
             return;
         }
 
-        _maintainedPositionOffset = Quaternion.Inverse(_target.rotation) * (transform.position - _target.position);
+        _maintainedPositionOffset = Quaternion.Inverse(OffsetSpace) * (transform.position - _target.position);
         _maintainedRotationOffset = Quaternion.Inverse(_target.rotation) * transform.rotation;
     }
 
     #region API
+    public bool IsFollowing => _isFollowing;
+
+    public void SetFollow(bool follow) => _isFollowing = follow;
+    public void ToggleFollow() => _isFollowing = !_isFollowing;
+
     public void SetTarget(Transform target)
     {
         _target = target;
@@ -80,7 +89,11 @@ public class Follow3D : MonoBehaviour
     }
 
     public void SetConstrainPosition(bool enable) => _constrainPosition = enable;
-    public void SetConstrainRotation(bool enable) => _constrainRotation = enable;
+    public void SetConstrainRotation(bool enable)
+    {
+        _constrainRotation = enable;
+        CacheMaintainedOffset();
+    }
 
     public void SetPositionOffset(Vector3 offset) => _positionOffset = offset;
     public void SetRotationOffset(Vector3 eulerOffset) => _rotationOffset = eulerOffset;

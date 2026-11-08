@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 // Rolls one pool of the character's RandomPickController when the state is entered. The transitions
 // out check the result with Random Picked (RandomPickedConditionSO).
-[UseSelfAnchor]
+[UseSelfAnchor][MenuGroup("Standard")]
 [RequiresOwnerComponent(typeof(RandomPickController))]
 [CreateAssetMenu(
     fileName = "NewRollRandomPool_Action",

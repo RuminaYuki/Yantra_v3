@@ -62,6 +62,18 @@ MonoBehaviour:
   flag: {fileID: -815653257355904210, guid: 4afba263dd48e504d81a0fabc94e8771, type: 2}
   value: 1
   changeValueOnExit: 0
+--- !u!114 &-5417837792806821655
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29aaa39665320664388a123863eae513, type: 3}
+  m_Name: TaneeHomePoint_AnchorID
+  m_EditorClassIdentifier: Assembly-CSharp::GameObjectAnchor
 --- !u!114 &-5042621771395516419
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -151,8 +163,8 @@ MonoBehaviour:
   - FromState: {fileID: 3872022564976640089}
     ConditionGroups:
     - Conditions:
-      - Condition: {fileID: 1480600121332913776}
-        ExpectedResult: 0
+      - Condition: {fileID: 3080643992101452788}
+        ExpectedResult: 1
     ToState: {fileID: 3455943299773967449}
     Id: 3b2d1abc-9ecb-48c1-a557-3f405d26a5df
   - FromState: {fileID: 3455943299773967449}
@@ -194,6 +206,18 @@ MonoBehaviour:
   _contentsFolderPaths: []
   _stateDisplayNames: []
   _removedParameters: []
+--- !u!114 &1209619474501955622
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29aaa39665320664388a123863eae513, type: 3}
+  m_Name: TaneeVFXDissolve_AnchorID
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.AnchorIDSO
 --- !u!114 &1480600121332913776
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -226,6 +250,25 @@ MonoBehaviour:
   _offsetMax: {x: 0, y: 0, z: 0}
   _maxAttempts: 8
   _faceTarget: 0
+  _matchTargetRotation: 0
+  _lead:
+    usePrediction: 0
+    leadTime: 0.5
+    maxDistance: 3
+--- !u!114 &3080643992101452788
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00a2ebe264e7e31478e7c01e7f51d0ba, type: 3}
+  m_Name: GrabQTE_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::GrabQTEConditionSO
+  _selfAnchor: {fileID: 0}
+  _check: 0
 --- !u!114 &3455943299773967449
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -241,6 +284,18 @@ MonoBehaviour:
   _actions:
   - {fileID: -2542901128545444756}
   - {fileID: 2219809163421509448}
+--- !u!114 &3487733036866874053
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29aaa39665320664388a123863eae513, type: 3}
+  m_Name: TaneeGameObject_AnchorID
+  m_EditorClassIdentifier: Assembly-CSharp::GameObjectAnchor
 --- !u!114 &3872022564976640089
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -253,7 +308,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
   m_Name: Excute_State
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
-  _actions: []
+  _actions:
+  - {fileID: 6265909632273667194}
 --- !u!114 &4597949339803982710
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -285,6 +341,11 @@ MonoBehaviour:
   _offsetMax: {x: 2, y: 0, z: 3}
   _maxAttempts: 8
   _faceTarget: 1
+  _matchTargetRotation: 0
+  _lead:
+    usePrediction: 0
+    leadTime: 0.5
+    maxDistance: 3
 --- !u!114 &4976359958184078471
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -302,7 +363,7 @@ MonoBehaviour:
   - {fileID: 4801895335125465723}
   - {fileID: -1655661976764212870}
   - {fileID: -7046636321241546014}
---- !u!114 &3487733036866874053
+--- !u!114 &6265909632273667194
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -311,30 +372,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 29aaa39665320664388a123863eae513, type: 3}
-  m_Name: TaneeGameObject_AnchorID
-  m_EditorClassIdentifier: Assembly-CSharp::GameObjectAnchor
---- !u!114 &-5417837792806821655
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 29aaa39665320664388a123863eae513, type: 3}
-  m_Name: TaneeHomePoint_AnchorID
-  m_EditorClassIdentifier: Assembly-CSharp::GameObjectAnchor
---- !u!114 &1209619474501955622
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 29aaa39665320664388a123863eae513, type: 3}
-  m_Name: TaneeVFXDissolve_AnchorID
-  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.AnchorIDSO
+  m_Script: {fileID: 11500000, guid: afb42a8d0fd1b64449dbf739c05fe05d, type: 3}
+  m_Name: StartGrabQTE_Action
+  m_EditorClassIdentifier: Assembly-CSharp::StartGrabQTEActionSO
+  _selfAnchor: {fileID: 0}
+  _playerTag: Player

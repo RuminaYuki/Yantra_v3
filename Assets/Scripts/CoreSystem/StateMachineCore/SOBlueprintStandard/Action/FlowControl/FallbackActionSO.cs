@@ -12,6 +12,7 @@ public interface IFallibleAction
 
 // Runs Primary on enter; if Primary says it failed (IFallibleAction), runs Fallback in the same frame
 // instead. Updates and exit go to whichever one ran. Fallback can be another Fallback Action, for a chain.
+[MenuGroup("Standard")]
 [CreateAssetMenu(
     fileName = "NewFallback_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Standard/FlowControl/Fallback")]

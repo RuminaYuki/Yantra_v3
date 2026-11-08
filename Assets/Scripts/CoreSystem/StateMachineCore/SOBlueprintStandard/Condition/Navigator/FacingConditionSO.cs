@@ -2,7 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
-[UseSelfAnchor]
+[UseSelfAnchor][MenuGroup("Standard")]
 [CreateAssetMenu(
     fileName = "Facing_Condition",
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/Navigator/Facing")]

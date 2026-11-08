@@ -14,8 +14,8 @@ public class TeleportAnchorOffsetActionSO : StateActionSO
     [SerializeField] private AnchorIDSO _targetAnchor;
 
     [Tooltip("Local to target's facing (yaw only). Z+ = in front, Z- = behind. Min = Max for a fixed offset.")]
-    [SerializeField,Exposed] private Vector3 _offsetMin = new(-2f, 0f, -4f);
-    [SerializeField,Exposed] private Vector3 _offsetMax = new(2f, 0f, -2f);
+    [SerializeField,Exposed] private Vector3 _offsetMin = new(0f, 0f, 0f);
+    [SerializeField,Exposed] private Vector3 _offsetMax = new(0f, 0f, 0f);
     [SerializeField, Min(1)] private int _maxAttempts = 8;
     [SerializeField] private bool _faceTarget = true;
     [Tooltip("Copy the target's facing (yaw only) after teleporting. Overrides Face Target.")]

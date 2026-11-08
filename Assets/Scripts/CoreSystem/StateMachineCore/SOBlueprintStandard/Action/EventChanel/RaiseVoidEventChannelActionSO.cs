@@ -2,10 +2,11 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[MenuGroup("Standard")]
 [CreateAssetMenu(
     fileName = "NewRBEC_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Standard/EventChanel/RaiseVoidEventChannel")]
-public class RaiseEventChannelActionSO : StateActionSO
+public class RaiseVoidEventChannelActionSO : StateActionSO
 {
     [SerializeField] private VoidEventChannelSO _eventChannel;
 

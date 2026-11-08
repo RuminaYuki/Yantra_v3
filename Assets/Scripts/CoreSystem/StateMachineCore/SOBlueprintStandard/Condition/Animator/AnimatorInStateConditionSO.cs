@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 // True while the Animator is in the named state, however far it is. For "has it finished",
 // use Animation Finished (AnimationFinishedConditionSO).
-[UseSelfAnchor]
+[UseSelfAnchor][MenuGroup("Standard")]
 [RequiresOwnerComponent(typeof(Animator))]
 [CreateAssetMenu(
     fileName = "NewAnimatorInState_Condition",

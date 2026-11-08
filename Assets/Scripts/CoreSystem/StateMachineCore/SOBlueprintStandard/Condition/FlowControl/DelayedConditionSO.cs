@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[MenuGroup("Standard")]
 [CreateAssetMenu(
     fileName = "NewDelayed_Condition",
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/FlowControl/Delayed")]

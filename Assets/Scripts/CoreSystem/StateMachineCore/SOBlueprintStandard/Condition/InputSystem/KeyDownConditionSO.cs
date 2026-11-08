@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 using Yuki.Learning.StateMachine;
 
+[MenuGroup("Standard")]
 [CreateAssetMenu(
     fileName = "KeyDown_Condition",
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/InputSystem/Key Down")]

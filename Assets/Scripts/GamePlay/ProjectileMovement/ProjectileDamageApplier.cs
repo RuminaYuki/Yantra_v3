@@ -6,7 +6,7 @@ public class ProjectileDamageApplier : MonoBehaviour
     [SerializeField] private float damageAmount = 10f;
     [Tooltip("Default damage type of this bullet. The gun can override it per mode.")]
     [SerializeField] private DamageTypeID damageType;
-    [SerializeField] protected Transform owner;
+    [SerializeField] protected GameObject owner;
 
     private void OnEnable()
     {
@@ -22,11 +22,14 @@ public class ProjectileDamageApplier : MonoBehaviour
 
     public void SetOwner(Transform newOwner)
     {
-        owner = newOwner;
+        owner = newOwner.gameObject;
     }
 
     public void ApplyDamage(Collider hitCollider)
     {
+        if (projectileMovement == null)
+            return;
+
         if (hitCollider == null || IsOwner(hitCollider.transform))
             return;
 
@@ -42,7 +45,7 @@ public class ProjectileDamageApplier : MonoBehaviour
     private bool IsOwner(Transform hitTransform)
     {
         return owner != null &&
-               (hitTransform == owner || hitTransform.IsChildOf(owner));
+               (hitTransform == owner || hitTransform.IsChildOf(owner.transform));
     }
 
     private IDamageable FindDamageable(Collider hitCollider)
@@ -72,6 +75,6 @@ public class ProjectileDamageApplier : MonoBehaviour
     {
         if (owner == null)
             return null;
-        return owner.root.gameObject;
+        return owner;
     }
 }

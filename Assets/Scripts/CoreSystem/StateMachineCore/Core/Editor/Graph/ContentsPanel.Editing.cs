@@ -17,43 +17,44 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
     {
         // ---------- Create ----------
 
-        // One entry of the Create Action / Create Condition menus.
-        private struct CreatableType
+        // Adds one Create entry per script that passes belongs, grouped by the script's folders.
+        private void AppendCreateEntries(DropdownMenu menu, string menuRoot, string folderPath, Func<Type, bool> belongs)
         {
-            public Type Type;
-            public string MenuPath;   // "Standard/Enable Mesh Renderer"
-            public string BaseName;   // "NewEnableMeshrenderer_Action"
+            foreach (FolderMenu.Entry entry in FolderMenu.Find(belongs))
+            {
+                menu.AppendAction($"{menuRoot}/{entry.MenuPath}", _ => CreateItem(folderPath, entry.Type, entry.BaseName));
+            }
         }
 
-        // Every Action or Condition blueprint that can be created. The menu path and default name come
-        // from the class's [CreateAssetMenu], so the list matches the Project window's Create menu.
-        private static IEnumerable<CreatableType> CreatableTypes(Type baseType, string menuMarker)
+        // The same choice grouped by the class's [CreateAssetMenu]: its menuName after menuMarker
+        // and its fileName. Classes whose menuName doesn't have the marker aren't listed.
+        //   "YUKI Learning State Machine/StateMachineList/Actions/Standard/Trigger" -> "Standard/Trigger"
+        private void AppendAssetMenuEntries(DropdownMenu menu, string menuRoot, string folderPath, Func<Type, bool> belongs, string menuMarker)
         {
-            var types = new List<CreatableType>();
+            IEnumerable<Type> types = TypeCache.GetTypesWithAttribute<CreateAssetMenuAttribute>()
+                .Where(type => !type.IsAbstract && !type.IsGenericType && belongs(type))
+                .OrderBy(type => MenuNameOf(type), StringComparer.OrdinalIgnoreCase);
 
-            foreach (Type type in TypeCache.GetTypesDerivedFrom(baseType))
+            foreach (Type type in types)
             {
-                if (type.IsAbstract || type.IsGenericType)
+                string menuName = MenuNameOf(type);
+                int marker = menuName.IndexOf(menuMarker, StringComparison.Ordinal);
+                if (marker < 0)
                 {
                     continue;
                 }
 
-                var attribute = (CreateAssetMenuAttribute)Attribute.GetCustomAttribute(type, typeof(CreateAssetMenuAttribute));
-
-                // "YUKI Learning State Machine/StateMachineList/Actions/Standard/Enable Mesh Renderer"
-                // -> "Standard/Enable Mesh Renderer"
-                string menuPath = attribute?.menuName ?? $"Other/{type.Name}";
-                int marker = menuPath.IndexOf(menuMarker, StringComparison.Ordinal);
-                if (marker >= 0)
-                {
-                    menuPath = menuPath.Substring(marker + menuMarker.Length);
-                }
-
-                string baseName = string.IsNullOrEmpty(attribute?.fileName) ? type.Name : attribute.fileName;
-                types.Add(new CreatableType { Type = type, MenuPath = menuPath, BaseName = baseName });
+                string fileName = ((CreateAssetMenuAttribute)Attribute.GetCustomAttribute(type, typeof(CreateAssetMenuAttribute))).fileName;
+                string baseName = string.IsNullOrEmpty(fileName) ? type.Name : fileName;
+                string menuPath = menuName.Substring(marker + menuMarker.Length);
+                menu.AppendAction($"{menuRoot}/{menuPath}", _ => CreateItem(folderPath, type, baseName));
             }
+        }
 
-            return types.OrderBy(type => type.MenuPath);
+        private static string MenuNameOf(Type type)
+        {
+            var attribute = (CreateAssetMenuAttribute)Attribute.GetCustomAttribute(type, typeof(CreateAssetMenuAttribute));
+            return attribute.menuName ?? "";
         }
 
         private void CreateItem(string folderPath, Type type, string baseName)
@@ -474,24 +475,18 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                     break;
 
                 case ActionsGroup:
-                    foreach (CreatableType type in CreatableTypes(typeof(StateActionSO), "/Actions/"))
-                    {
-                        evt.menu.AppendAction("Create Action/" + type.MenuPath, _ => CreateItem(folderPath, type.Type, type.BaseName));
-                    }
+                    AppendCreateEntries(evt.menu, "Create Action", folderPath, typeof(StateActionSO).IsAssignableFrom);
+                    AppendAssetMenuEntries(evt.menu, "Create Action (Asset Menu)", folderPath, typeof(StateActionSO).IsAssignableFrom, "/Actions/");
                     break;
 
                 case ConditionsGroup:
-                    foreach (CreatableType type in CreatableTypes(typeof(StateConditionSO), "/Conditions/"))
-                    {
-                        evt.menu.AppendAction("Create Condition/" + type.MenuPath, _ => CreateItem(folderPath, type.Type, type.BaseName));
-                    }
+                    AppendCreateEntries(evt.menu, "Create Condition", folderPath, typeof(StateConditionSO).IsAssignableFrom);
+                    AppendAssetMenuEntries(evt.menu, "Create Condition (Asset Menu)", folderPath, typeof(StateConditionSO).IsAssignableFrom, "/Conditions/");
                     break;
 
                 case DataGroup:
-                    foreach (CreatableType type in DataCreatableTypes())
-                    {
-                        evt.menu.AppendAction("Create/" + type.MenuPath, _ => CreateItem(folderPath, type.Type, type.BaseName));
-                    }
+                    AppendCreateEntries(evt.menu, "Create", folderPath, TableContents.IsDataType);
+                    AppendAssetMenuEntries(evt.menu, "Create (Asset Menu)", folderPath, TableContents.IsDataType, "YUKI Learning State Machine/");
                     break;
             }
 

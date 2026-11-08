@@ -189,7 +189,11 @@ public class GunController : MonoBehaviour
             //To do bullet setting
             BaseProjectileMovement baseProjectile = bullet.GetComponent<BaseProjectileMovement>();
             ProjectileDamageApplier damageApplier = bullet.GetComponent<ProjectileDamageApplier>();
-            if (damageApplier != null) damageApplier.SetOwner(PlayerController.transform);
+            if (PlayerController != null)
+            {
+                if (baseProjectile != null) baseProjectile.SetOwner(PlayerController);
+                if (damageApplier != null) damageApplier.SetOwner(PlayerController.transform);
+            }
             switch (shotMode)
             {
                 case GunMode.Normal:

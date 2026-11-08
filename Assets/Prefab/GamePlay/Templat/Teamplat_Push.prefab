@@ -126,7 +126,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f95b0342ad14ffe42bcb68b418a11d45, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FadeObject
-  _targetRenderer: {fileID: 2101513698655708551}
+  _targetRenderers:
+  - {fileID: 2101513698655708551}
   _fadeDuration: 1
   _animationCurve:
     serializedVersion: 2
@@ -153,6 +154,8 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   _onFinishFade: {fileID: 0}
+  _propertyName: _Alpha
+  _isColor: 0
 --- !u!1 &2810672058488178110
 GameObject:
   m_ObjectHideFlags: 0
