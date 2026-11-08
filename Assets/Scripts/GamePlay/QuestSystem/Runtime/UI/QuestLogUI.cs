@@ -139,6 +139,8 @@ namespace SDFcl.GamePlay.QuestSystem
 
         private void AddEntry(RectTransform list, string title, string body, bool dimmed)
         {
+            if (string.IsNullOrEmpty(body)) return;
+
             var entry = Instantiate(entryPrefab, list);
             entry.Set(title, body, dimmed);
             _entries.Add(entry);
