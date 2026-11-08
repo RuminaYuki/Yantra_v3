@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[MenuGroup("SubStateMachine")]
 [CreateAssetMenu(
     fileName = "NewSubSM_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/SubStateMachine/SubStateMachineAction")]

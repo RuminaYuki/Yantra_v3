@@ -7,7 +7,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 // updated while it's open, and exited when it closes or when the state is left early (so a hitbox
 // can't be left on). Each window opens at most once per pass through the state.
 // Self Anchor is only used in Anim Normalized mode, to find the Animator.
-[UseSelfAnchor]
+[UseSelfAnchor][MenuGroup("Standard")]
 [CreateAssetMenu(
     fileName = "NewTimed_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Standard/FlowControl/Timed")]

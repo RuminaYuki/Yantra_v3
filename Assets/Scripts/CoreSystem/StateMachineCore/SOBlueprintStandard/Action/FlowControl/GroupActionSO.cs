@@ -4,6 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 // A set of actions shared by several states, so it's edited in one place. It runs them exactly as if
 // they were listed in the state itself, in order. Groups don't nest: a Group inside a Group is skipped.
+[MenuGroup("Standard")]
 [CreateAssetMenu(
     fileName = "NewGroup_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Standard/FlowControl/Group")]

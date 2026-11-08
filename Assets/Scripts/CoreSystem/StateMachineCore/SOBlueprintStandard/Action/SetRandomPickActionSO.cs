@@ -6,7 +6,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 // without rolling. Use it to clear an old result that Random Picked conditions would still see.
 // Example: leaving Glory without being executed sets GloryRandomPool to NotGlory, so the
 // "dead" any-transition (which needs NotGlory) can fire later.
-[UseSelfAnchor]
+[UseSelfAnchor][MenuGroup("Standard")]
 [RequiresOwnerComponent(typeof(RandomPickController))]
 [CreateAssetMenu(
     fileName = "NewSetRandomPick_Action",

@@ -6,7 +6,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 // one state, without a pass-through state. Rounds done are written to Counter (0 on entering), so the
 // way out is a Counter Compare on the state's arrow. Count stops the looping by itself if set.
 // Self Anchor is only used to find the CounterController.
-[UseSelfAnchor]
+[UseSelfAnchor][MenuGroup("Standard")]
 [CreateAssetMenu(
     fileName = "NewRepeat_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Standard/FlowControl/Repeat")]

@@ -2,7 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 using Yuki.Learning.StateMachine;
 
-[UseSelfAnchor]
+[UseSelfAnchor][MenuGroup("Standard")]
 [RequiresOwnerComponent(typeof(Animator))]
 [CreateAssetMenu(
     fileName = "SetParametersAnimator_Action", 

@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 // Compares a counter (changed by Change Counter, ChangeCounterActionSO) with a number,
 // e.g. "Shots >= 3" to leave a loop.
-[UseSelfAnchor]
+[UseSelfAnchor][MenuGroup("Standard")]
 [RequiresOwnerComponent(typeof(CounterController))]
 [CreateAssetMenu(
     fileName = "NewCounterCompare_Condition",

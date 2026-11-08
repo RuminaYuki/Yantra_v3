@@ -396,6 +396,14 @@ MonoBehaviour:
   _playerAnimation: {fileID: 11400000, guid: f0df5507a2c6b8a4ba07fb6cd07eb755, type: 2}
   _victimAnimation: {fileID: 11400000, guid: f3f77b162d6deb8479c0beb4f44eb5ac, type: 2}
   _distance: 1.1
+  _sideOffset: 0
+  _heightOffset: 0
+  _aimPoint: {fileID: 0}
+  _handScreenX: 0.5
+  _alignTime: 0.35
+  _alignSpeed: 18
+  _maxAlign: 0.3
+  _logAlign: 0
 --- !u!114 &157619207
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2598,6 +2606,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4025514517257664060, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: allowDeepLearningSuperSampling
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4950217249548081490, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -4161,6 +4173,7 @@ MonoBehaviour:
   _armAnimator: {fileID: 0}
   _requestTimeout: 0.5
   _stateEnterTimeout: 1
+  _disableWhilePlaying: []
 --- !u!114 &1246795893
 MonoBehaviour:
   m_ObjectHideFlags: 0

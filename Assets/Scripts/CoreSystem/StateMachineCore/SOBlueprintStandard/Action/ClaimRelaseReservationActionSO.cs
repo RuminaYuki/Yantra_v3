@@ -3,6 +3,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[MenuGroup("Standard")]
 [CreateAssetMenu(
     fileName = "NewReser_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Standard/Reservation/Claim or Release Reservation")]

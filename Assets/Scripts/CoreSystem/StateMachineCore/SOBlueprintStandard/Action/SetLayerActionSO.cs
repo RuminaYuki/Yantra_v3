@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[MenuGroup("Standard")]
 [CreateAssetMenu(
     fileName = "SetLayer_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Standard/Set Layer")]

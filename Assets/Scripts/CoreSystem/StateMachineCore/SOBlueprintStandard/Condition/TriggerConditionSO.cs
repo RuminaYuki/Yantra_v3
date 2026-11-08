@@ -3,6 +3,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[MenuGroup("Standard")]
 [CreateAssetMenu(
     fileName = "NewTrigger_Condition",
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/Trigger")]

@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 // Sets or adds to a counter when the state is entered (or left). Check it with
 // Counter Compare (CounterConditionSO). For a loop: Set 0 before it, Add 1 in the repeated state.
-[UseSelfAnchor]
+[UseSelfAnchor][MenuGroup("Standard")]
 [RequiresOwnerComponent(typeof(CounterController))]
 [CreateAssetMenu(
     fileName = "NewChangeCounter_Action",
