@@ -85347,13 +85347,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 886761264}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -314.03445, y: 87.548454, z: 143.45908}
+  m_LocalRotation: {x: -0, y: 0.290523, z: -0, w: 0.95686805}
+  m_LocalPosition: {x: -243.03, y: 50, z: 142.32}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 539372608}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 33.779, z: 0}
 --- !u!4 &887052072 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1261637121198179639, guid: cc56f8a9ad782174a93903f8be027410, type: 3}
@@ -100805,7 +100805,33 @@ MonoBehaviour:
   - {fileID: 1513085579}
   - {fileID: 1517124747}
   _smoothPath: 1
+  _allowSkip: 1
+  _skipInEditor: 0
+  _skipWhenFromSave: 1
+  _doorOpenSound: {fileID: 0}
+  _doorCloseSound: {fileID: 0}
+  _blackBeforeDoor: 0.5
+  _doorOpenToClose: 1.2
+  _blackAfterDoor: 0.6
+  _fadeInDuration: 1.5
+  _dialogue: {fileID: 0}
   _startDelay: 2
+  _afterDialogueDelay: 0.8
+  _lockMovement: 1
+  _lockLook: 1
+  _lookAtTaxi: 1
+  _alsoDisable: []
+  _unlockDelay: 1.5
+  _faceAtEnd: {fileID: 0}
+  _faceTurnDuration: 1.2
+  _regroupFade: 1
+  _regroupFadeOut: 0.6
+  _regroupHold: 0.5
+  _regroupFadeIn: 0.9
+  _hideHud: 1
+  _hudKeepVisible:
+  - Subtitle
+  _blockInventory: 1
   _maxSpeed: 12
   _acceleration: 3
   _steering: 5
@@ -100817,10 +100843,10 @@ MonoBehaviour:
   - {fileID: 658228911}
   _wheelRadius: 0.35
   _wheelAxis: {x: 1, y: 0, z: 0}
-  _engine: {fileID: 0}
-  _doorClose: {fileID: 0}
-  _doorToDriveDelay: 0.8
-  _enginePitch: {x: 0.8, y: 1.5}
+  _idleSound: {fileID: 0}
+  _driveAwaySound: {fileID: 0}
+  _driveAwayLoops: 0
+  _idleCrossfade: 0.6
   _engineFadeTime: 2
 --- !u!1001 &1193959427
 PrefabInstance:
@@ -127961,6 +127987,8 @@ MonoBehaviour:
   _renderers: []
   _dissolveMaterial: {fileID: -876546973899608171, guid: e9c708d98a7d1d84898ae36b0e0bd58c, type: 3}
   _amountProperty: _DissolveAmount
+  _logMaterialCopy: 1
+  _logSteps: 1
   _delay: 0.2
   _duration: 1.5
   _visibleAmount: 0
@@ -128093,6 +128121,7 @@ MonoBehaviour:
   - flagSO: {fileID: 11400000, guid: c74e338715f473e40a12992295979ef4, type: 2}
     value: 1
     forceAdd: 0
+    lockWhenReached: 0
 --- !u!114 &1786686857
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -147397,7 +147426,7 @@ Transform:
   m_GameObject: {fileID: 2142320062}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -36.11443, y: 87.548454, z: 249.86906}
+  m_LocalPosition: {x: 38.4, y: 72.4, z: 477.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
