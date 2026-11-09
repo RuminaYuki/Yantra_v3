@@ -1,10 +1,13 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
+
 
 public class FadeObject : MonoBehaviour
 {
     [Header("Fade Settings")]
-    [SerializeField] private Renderer _targetRenderer;
+    [FormerlySerializedAs("_targetRenderer")]
+    [SerializeField] private Renderer[] _targetRenderers;
     [SerializeField] private float _fadeDuration = 1f;
     [SerializeField] AnimationCurve _animationCurve;
 
@@ -14,16 +17,21 @@ public class FadeObject : MonoBehaviour
 
     private MaterialPropertyBlock _propertyBlock;
 
-    private static readonly int FadeID = Shader.PropertyToID("_Alpha");
+    [SerializeField] private string _propertyName = "_Alpha";
+    [SerializeField] private bool _isColor;
+
+    private int _fadeID;
 
     private float _currentFade;
 
     private void Awake()
     {
-        if (_targetRenderer == null)
-            _targetRenderer = GetComponent<Renderer>();
+        if (_targetRenderers == null || _targetRenderers.Length == 0)
+            _targetRenderers = new[] { GetComponent<Renderer>() };
+
 
         _propertyBlock = new MaterialPropertyBlock();
+        _fadeID = Shader.PropertyToID(_propertyName);
     }
 
     public void PlayFade(
@@ -85,8 +93,22 @@ public class FadeObject : MonoBehaviour
     {
         _currentFade = value;
 
-        _targetRenderer.GetPropertyBlock(_propertyBlock);
-        _propertyBlock.SetFloat(FadeID, value);
-        _targetRenderer.SetPropertyBlock(_propertyBlock);
+        foreach (var r in _targetRenderers)
+        {
+            r.GetPropertyBlock(_propertyBlock);
+
+            if (_isColor)
+            {
+                Color c = r.sharedMaterial.GetColor(_fadeID);
+                c.a = value;
+                _propertyBlock.SetColor(_fadeID, c);
+            }
+            else
+            {
+                _propertyBlock.SetFloat(_fadeID, value);
+            }
+
+            r.SetPropertyBlock(_propertyBlock);
+        }
     }
 }

@@ -28,42 +28,6 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             return AssetDatabase.LoadMainAssetAtPath(AssetDatabase.GetAssetPath(table)) as TransitionTableSO ?? table;
         }
 
-        private const string StateMachineMenuRoot = "YUKI Learning State Machine/";
-
-        // Right-click Data > Create: every data type whose [CreateAssetMenu] is under the state machine's
-        // menu but not under StateMachineList (states, actions, conditions):
-        //   "YUKI Learning State Machine/Random Pick/Random Pool" -> "Random Pick/Random Pool"
-        private static IEnumerable<CreatableType> DataCreatableTypes()
-        {
-            var types = new List<CreatableType>();
-
-            foreach (System.Type type in TypeCache.GetTypesWithAttribute<CreateAssetMenuAttribute>())
-            {
-                if (type.IsAbstract || type.IsGenericType || !TableContents.IsDataType(type))
-                {
-                    continue;
-                }
-
-                var attribute = (CreateAssetMenuAttribute)System.Attribute.GetCustomAttribute(type, typeof(CreateAssetMenuAttribute));
-                string menuPath = attribute.menuName ?? "";
-                if (!menuPath.StartsWith(StateMachineMenuRoot, System.StringComparison.Ordinal) ||
-                    menuPath.StartsWith(StateMachineMenuRoot + "StateMachineList/", System.StringComparison.Ordinal))
-                {
-                    continue;
-                }
-
-                string baseName = string.IsNullOrEmpty(attribute.fileName) ? type.Name : attribute.fileName;
-                types.Add(new CreatableType
-                {
-                    Type = type,
-                    MenuPath = menuPath.Substring(StateMachineMenuRoot.Length),
-                    BaseName = baseName
-                });
-            }
-
-            return types.OrderBy(type => type.MenuPath);
-        }
-
         private void RebuildData()
         {
             List<ScriptableObject> items = TableContents.CollectData(_table);

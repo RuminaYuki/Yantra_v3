@@ -2,6 +2,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[MenuGroup("SubStateMachine")]
 [CreateAssetMenu(
     fileName = "NewSubSMExited_Condition",
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/SubStateMachine/Sub State Machine Exited")]

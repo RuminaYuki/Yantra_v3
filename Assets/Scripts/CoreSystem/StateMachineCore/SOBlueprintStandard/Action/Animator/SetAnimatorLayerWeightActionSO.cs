@@ -3,7 +3,7 @@ using UnityEngine;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
-[UseSelfAnchor]
+[UseSelfAnchor][MenuGroup("Standard")]
 [RequiresOwnerComponent(typeof(Animator))]
 [RequiresOwnerComponent(typeof(StateMachineController))]
 [CreateAssetMenu(

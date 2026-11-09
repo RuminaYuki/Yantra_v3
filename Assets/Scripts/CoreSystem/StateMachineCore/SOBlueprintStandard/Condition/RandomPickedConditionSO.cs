@@ -4,7 +4,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 // True when the pool's last roll (Roll Random Pool) picked this option. Leave Option empty for
 // "nothing was ready", the way out when every option is on cooldown.
-[UseSelfAnchor]
+[UseSelfAnchor][MenuGroup("Standard")]
 [RequiresOwnerComponent(typeof(RandomPickController))]
 [CreateAssetMenu(
     fileName = "NewRandomPicked_Condition",

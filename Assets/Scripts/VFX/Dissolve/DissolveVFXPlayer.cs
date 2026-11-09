@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Rendering;
+using UnityEngine.VFX;
 
 // The owning system calls PlayDissolve/ResetDissolve explicitly. No Health or StateMachine dependency.
 [DisallowMultipleComponent]
@@ -68,6 +69,16 @@ public class DissolveVFXPlayer : MonoBehaviour
     [Tooltip("เล่นตอนหายหมดแล้ว")]
     [SerializeField] private EffectSlot _finishEffect = new EffectSlot { FollowPoint = false };
 
+    [Header("ส่งค่าไป VFX Graph ให้ขยายตามการสลาย (ไม่ใส่ก็ได้)")]
+    [Tooltip("ลาก object ที่มี Visual Effect มาใส่")]
+    [SerializeField] private VisualEffect _vfx;
+    [Tooltip("ชื่อค่าใน VFX Graph ต้องพิมพ์ให้ตรงกับในช่อง Properties")]
+    [SerializeField] private string _vfxProperty = "SmokeRadius";
+    [Tooltip("ค่าตอนโมเดลยังอยู่ครบ")]
+    [SerializeField] private float _vfxStartValue = 0f;
+    [Tooltip("ค่าตอนสลายหมด")]
+    [SerializeField] private float _vfxEndValue = 1f;
+
     [Header("Event เพิ่มเติม (ไม่ใส่ก็ได้)")]
     [Tooltip("เรียกเมื่อเริ่มหาย ต่อ ParticleSystem.Play หรือ VisualEffect.Play ของโมเดลตัวนี้ได้")]
     [SerializeField] private UnityEvent _onDissolveStarted = new UnityEvent();
@@ -91,6 +102,7 @@ public class DissolveVFXPlayer : MonoBehaviour
     private bool _finished;
     private int _amountId;
     private int _runVersion;
+    private bool _warnedNoVfxProperty;
 
     public void PlayDissolve()
     {
@@ -552,6 +564,28 @@ public class DissolveVFXPlayer : MonoBehaviour
                 state.Renderer.SetPropertyBlock(state.WorkingBlocks[i], i);
             }
         }
+        SetVfxValue(amount);
+    }
+
+    // แปลงค่าสลาย (0 → 1) เป็นค่าของ VFX (เช่น รัศมีควัน เริ่ม → จบ)
+    private void SetVfxValue(float amount)
+    {
+        if (_vfx == null || string.IsNullOrWhiteSpace(_vfxProperty))
+            return;
+
+        int id = Shader.PropertyToID(_vfxProperty);
+        if (!_vfx.HasFloat(id))
+        {
+            if (!_warnedNoVfxProperty)
+            {
+                _warnedNoVfxProperty = true;
+                Debug.LogWarning($"[Dissolve VFX] VFX '{_vfx.name}' ไม่มีค่าชื่อ {_vfxProperty} (ต้องเป็น Float และติ๊ก Exposed ใน VFX Graph)", this);
+            }
+            return;
+        }
+
+        float t = Mathf.InverseLerp(_visibleAmount, _hiddenAmount, amount);
+        _vfx.SetFloat(id, Mathf.Lerp(_vfxStartValue, _vfxEndValue, t));
     }
 
     private void RestoreMaterials()
@@ -598,6 +632,7 @@ public class DissolveVFXPlayer : MonoBehaviour
 
     private void OnEnable()
     {
+        SetVfxValue(_visibleAmount);
         if (_loop)
             StartCoroutine(LoopRoutine());
     }

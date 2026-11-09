@@ -1,12 +1,26 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-// Temporary: clears the "seen tutorials" list every time a scene loads,
-// so tutorials show again after Retry / loading a save.
-// Works by itself; this component does not need to be placed in a scene.
-// Later this can become a real saveable that stores the seen list in the save file.
-public class TutorialSaveable : MonoBehaviour
+// Saves which tutorials the player has already seen.
+// Put it on the player root (next to PlayerSaveable), NOT on the UI:
+// UIRoot survives scene loads and TutorialScreen starts disabled, so Start / Restore would not run.
+public class TutorialSaveable : SaveableBehaviour<TutorialSaveable.SaveData>
 {
+    [Serializable]
+    public class SaveData { public List<string> seenTutorials = new List<string>(); }
+
+    protected override string DefaultKey => "tutorials";
+
+    protected override SaveData Capture() =>
+        new SaveData { seenTutorials = new List<string>(TutorialScreen.SeenKeys) };
+
+    protected override void Restore(SaveData state, int version) =>
+        TutorialScreen.RestoreSeen(state.seenTutorials);
+
+    // Clear the list on every level load; Restore (in Start) fills it again from the save.
+    // Without this, a New Game in the same run would keep the old list.
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     private static void Init()
     {

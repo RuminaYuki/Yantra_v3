@@ -3,7 +3,7 @@ using UnityEngine.Serialization;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
-[UseSelfAnchor]
+[UseSelfAnchor][MenuGroup("Standard")]
 [RequiresOwnerComponent(typeof(Animator))]
 [CreateAssetMenu(
     fileName = "NewPlayAnimState_Action",

@@ -3,6 +3,7 @@ using UnityEngine.InputSystem;
 using Yuki.Learning.StateMachine;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 
+[MenuGroup("Standard")]
 [CreateAssetMenu(
     fileName = "InputAction_Condition",
     menuName = "YUKI Learning State Machine/StateMachineList/Conditions/Standard/InputSystem/Input Action")]

@@ -5,7 +5,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 // Starts a cooldown when the state is entered (or left). It keeps counting after the state ends;
 // check it with Cooldown Ready (CooldownReadyConditionSO).
-[UseSelfAnchor]
+[UseSelfAnchor][MenuGroup("Standard")]
 [RequiresOwnerComponent(typeof(CooldownController))]
 [CreateAssetMenu(
     fileName = "NewStartCooldown_Action",

@@ -1,10 +1,10 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
 public class HomingMissileEffect : BaseEffectClass, IEffectExecutor
 {
-
     public void Execute(GameObject owner)
     {
         if (owner != null) base.owner = owner;
@@ -40,14 +40,32 @@ public class HomingMissileEffect : BaseEffectClass, IEffectExecutor
     private void OnEnable()
     {
         SetEnabled(true);
+        base.OnShot += SetBullet;
     }
 
     private void OnDisable()
     {
         SetEnabled(false);
+        base.OnShot -= SetBullet;
     }
     private void OnDestroy()
     {
         SetEnabled(false);
+    }
+
+    private void SetBullet(List<GameObject> bullets)
+    {
+        foreach (GameObject bullet in bullets)
+        {
+            if (bullet == null) continue;
+            HomingMissile homingMissile = bullet.GetComponentInChildren<HomingMissile>();
+            if (homingMissile == null)
+            {
+                Debug.LogWarning("Bullet does not have a HomingMissile component.", bullet);
+                continue;
+            }
+            Debug.Log($"[HomingMissileEffect] Setting owner for bullet {bullet.name} to {base.owner.name}.", this);
+            homingMissile.SetOwner(base.owner);
+        }
     }
 }
