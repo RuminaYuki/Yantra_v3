@@ -96,8 +96,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             {
                 StateSO to = ToHere(item.Id, item.ToState);
 
-                // Same as the table's own: broken items and self transitions aren't drawn.
-                if (item.FromState == null || to == null || item.FromState == to)
+                // Same as the table's own: broken items aren't drawn, self transitions are a loop.
+                if (item.FromState == null || to == null)
                 {
                     continue;
                 }

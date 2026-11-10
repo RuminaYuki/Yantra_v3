@@ -1,0 +1,177 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-2347665952833820093
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: InHouse_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 396104585228960844}
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5492ed31ba40b643aaf3d94f1de0aa7, type: 3}
+  m_Name: PretDetect_TransitionTable
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
+  _initialState: {fileID: 5162718902858867089}
+  _anyTransitions: []
+  _transitions:
+  - FromState: {fileID: 5162718902858867089}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 2599173766969618063}
+        ExpectedResult: 0
+    ToState: {fileID: 4466527051420815063}
+    Id: aa7dcddb-af37-4d5a-9c10-399db9dfc96d
+  - FromState: {fileID: 4466527051420815063}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 6046854650316559917}
+        ExpectedResult: 0
+    ToState: {fileID: -2347665952833820093}
+    Id: 126425e2-d988-4bcb-ac19-6d66f583c938
+  - FromState: {fileID: -2347665952833820093}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 6046854650316559917}
+        ExpectedResult: 1
+    ToState: {fileID: 4466527051420815063}
+    Id: db0bdc12-cdf8-4c51-acf2-1c43a6a2b67a
+  _base: {fileID: 0}
+  _fieldOverrides: []
+  _removedIds: []
+  _transitionOverrides: []
+  _conditionReplaces: []
+  _transitionRetargets: []
+  _actionChanges: []
+  _actionOrders: []
+  _exposedParameters: {fileID: 0}
+  _nodePositions:
+  - State: {fileID: -2347665952833820093}
+    Position: {x: 159, y: 122}
+  - State: {fileID: 4466527051420815063}
+    Position: {x: 159, y: 61}
+  - State: {fileID: 5162718902858867089}
+    Position: {x: 159, y: 0}
+  _entryNodePosition: {x: 0, y: 0}
+  _anyStateNodePosition: {x: 0, y: 120}
+  _contentsFolders: []
+  _contentsFolderPaths: []
+  _stateDisplayNames: []
+  _removedParameters: []
+--- !u!114 &396104585228960844
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0a18ba35cba2774da0c3d709896aaab, type: 3}
+  m_Name: Disable_PretDetect_Action (1)
+  m_EditorClassIdentifier: Assembly-CSharp::PretDetectActionSO
+  _selfAnchor: {fileID: 0}
+  _detectingOnEnter: 0
+  _stopDetectingOnExit: 0
+  _emptyOnEnter: 0
+  _overrideRate: 0
+  _ratePerSecond: 10
+--- !u!114 &2599173766969618063
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 828323aa1aace154891a3661130da74b, type: 3}
+  m_Name: Active_Flag_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::FlagConditionSO
+  _selfAnchor: {fileID: 0}
+  flag: {fileID: -7422348710769313687, guid: 510d37b4adaee594792339fddfa0c144, type: 2}
+--- !u!114 &4466527051420815063
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: OutDoor_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 5821805949541729766}
+--- !u!114 &5162718902858867089
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: NotActive_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions: []
+--- !u!114 &5227387273288705870
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6687386e458fac4db6106b19ddf0699, type: 3}
+  m_Name: IsPlayerInHouse_Flag
+  m_EditorClassIdentifier: Assembly-CSharp::FlagSO
+--- !u!114 &5821805949541729766
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0a18ba35cba2774da0c3d709896aaab, type: 3}
+  m_Name: Enable_PretDetect_Action
+  m_EditorClassIdentifier: Assembly-CSharp::PretDetectActionSO
+  _selfAnchor: {fileID: 0}
+  _detectingOnEnter: 1
+  _stopDetectingOnExit: 0
+  _emptyOnEnter: 0
+  _overrideRate: 0
+  _ratePerSecond: 10
+--- !u!114 &6046854650316559917
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 828323aa1aace154891a3661130da74b, type: 3}
+  m_Name: InHouse_Flag_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::FlagConditionSO
+  _selfAnchor: {fileID: 0}
+  flag: {fileID: 5227387273288705870}

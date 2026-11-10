@@ -28,7 +28,7 @@ public class SetFlagWhileInsideTrigger : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if (flag == null || !IsDetected(other)) return;
+        if (flag == null || !IsDetected(other) || !enabled) return;
 
         if (setOn == FlagTarget.Other)
         {
@@ -44,7 +44,7 @@ public class SetFlagWhileInsideTrigger : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (flag == null || !IsDetected(other)) return;
+        if (flag == null || !IsDetected(other) || !enabled) return;
 
         if (setOn == FlagTarget.Other)
         {

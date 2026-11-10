@@ -682,7 +682,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             // Preview ignores picking, so this finds whatever is under the mouse.
             StateNodeView target = panel.Pick(mousePosition)?.GetFirstOfType<StateNodeView>();
 
-            if (target == null || target == source)
+            // Clicking the source itself makes a self transition (A -> A: runs Exit then Enter again),
+            // like Animator. Any State can't be a target, so it never loops.
+            if (target == null)
             {
                 return;
             }

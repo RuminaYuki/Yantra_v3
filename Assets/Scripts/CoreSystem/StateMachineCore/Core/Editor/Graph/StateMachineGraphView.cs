@@ -687,8 +687,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 var from = item.FindPropertyRelative("FromState").objectReferenceValue as StateSO;
                 var to = item.FindPropertyRelative("ToState").objectReferenceValue as StateSO;
 
-                // Skip broken items and self transitions (nothing sensible to draw).
-                if (from == null || to == null || from == to)
+                // Skip broken items. A self transition (from == to) is drawn as a loop on the node.
+                if (from == null || to == null)
                 {
                     continue;
                 }

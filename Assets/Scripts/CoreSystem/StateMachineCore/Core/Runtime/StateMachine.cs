@@ -87,7 +87,7 @@ namespace Yuki.Learning.StateMachine
 
             if (TryGetNextState(out State nextState))
             {
-                ChangeState(nextState);
+                ChangeState(nextState, allowReenter: true);
             }
 
             _currentState?.OnUpdate();
@@ -130,11 +130,11 @@ namespace Yuki.Learning.StateMachine
             NotifyAnyTransitionsStateEnter();
         }
 
-        public void ChangeState(State nextState)
+        public void ChangeState(State nextState, bool allowReenter = false)
         {
             if (_isDisposed ||
                 nextState == null ||
-                ReferenceEquals(_currentState, nextState))
+                (!allowReenter && ReferenceEquals(_currentState, nextState)))
             {
                 return;
             }

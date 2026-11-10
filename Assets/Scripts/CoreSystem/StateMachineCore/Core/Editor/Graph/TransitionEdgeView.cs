@@ -57,6 +57,12 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // Pressing the line and moving this far drags its end to another state; less is a plain click.
         private const float DragThreshold = 6f;
         private const float BoundsPadding = 12f;
+        // Self transition (A -> A): a circle centered on the node's top-right corner. The 3/4 of it
+        // outside the node is drawn, clockwise from the top border round to the right border.
+        private const float LoopRadius = 14f;
+        private const int LoopSegments = 24;
+        private const float LoopStartDegrees = 180f;
+        private const float LoopEndDegrees = 450f;
 
         private static readonly Color NormalColor = new Color(0.85f, 0.85f, 0.85f);
         private static readonly Color SelectedColor = new Color(0.27f, 0.6f, 1f);
@@ -121,9 +127,14 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             ? InheritedTransitions.Count > 0 && !IsRemoved && InheritedTransitions.All(item => !string.IsNullOrEmpty(item.Id))
             : TransitionIndices.Count > 0;
 
+        // A -> A: drawn as a loop on the node instead of a line.
+        public bool IsSelfLoop => From == To;
+
         // Line ends in this element's local space.
         private Vector2 _start;
         private Vector2 _end;
+        // Self loop only: the circle's center (the node's top-right corner) in local space.
+        private Vector2 _loopCenter;
 
         public TransitionEdgeView(
             Node from,
@@ -258,6 +269,12 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 return;
             }
 
+            if (IsSelfLoop)
+            {
+                UpdateLoopGeometry(fromRect);
+                return;
+            }
+
             // Aim between the title bars, not the node centers: nodes are different heights (a sub-state
             // machine has an extra line, a state with parameters has a badge), so two nodes placed in a
             // row would get a slanted line from center to center.
@@ -297,6 +314,36 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             MarkDirtyRepaint();
         }
 
+        private void UpdateLoopGeometry(Rect nodeRect)
+        {
+            Vector2 center = new Vector2(nodeRect.xMax, nodeRect.yMin);
+            float extent = LoopRadius + BoundsPadding;
+            Rect bounds = new Rect(center.x - extent, center.y - extent, extent * 2f, extent * 2f);
+
+            style.left = bounds.x;
+            style.top = bounds.y;
+            style.width = bounds.width;
+            style.height = bounds.height;
+
+            _loopCenter = center - bounds.position;
+            PlaceParameterTags();
+            MarkDirtyRepaint();
+        }
+
+        // A point on the loop circle. Degrees go clockwise on screen (y points down): 270 is straight up.
+        private Vector2 LoopPoint(float degrees)
+        {
+            float radians = degrees * Mathf.Deg2Rad;
+            return _loopCenter + new Vector2(Mathf.Cos(radians), Mathf.Sin(radians)) * LoopRadius;
+        }
+
+        // Which way the loop runs at that point (clockwise).
+        private static Vector2 LoopDirection(float degrees)
+        {
+            float radians = degrees * Mathf.Deg2Rad;
+            return new Vector2(-Mathf.Sin(radians), Mathf.Cos(radians));
+        }
+
         private ParameterTagLabel _parameterTags;
 
         // Exposed parameters set on this arrow's conditions, written beside its middle (see
@@ -320,6 +367,15 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         {
             if (_parameterTags == null)
             {
+                return;
+            }
+
+            // Self loop: centered above the top of the circle.
+            if (IsSelfLoop)
+            {
+                _parameterTags.style.left = _loopCenter.x;
+                _parameterTags.style.top = _loopCenter.y - LoopRadius - BadgeOffset;
+                _parameterTags.style.translate = new Translate(Length.Percent(-50), Length.Percent(-100));
                 return;
             }
 
@@ -385,7 +441,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         private void OnGenerateVisualContent(MeshGenerationContext context)
         {
             Vector2 line = _end - _start;
-            if (line.sqrMagnitude < 1f)
+            if (!IsSelfLoop && line.sqrMagnitude < 1f)
             {
                 return;
             }
@@ -403,6 +459,13 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 : _usesSelection && !selected ? LineWidth + 1f
                 : LineWidth;
             painter.lineCap = LineCap.Round;
+
+            if (IsSelfLoop)
+            {
+                DrawLoop(painter, color);
+                return;
+            }
+
             painter.BeginPath();
             painter.MoveTo(_start);
             painter.LineTo(_end);
@@ -426,6 +489,42 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             }
         }
 
+        // Stroke settings are already set by the caller.
+        private void DrawLoop(Painter2D painter, Color color)
+        {
+            painter.BeginPath();
+            painter.MoveTo(LoopPoint(LoopStartDegrees));
+            for (int i = 1; i <= LoopSegments; i++)
+            {
+                painter.LineTo(LoopPoint(Mathf.Lerp(LoopStartDegrees, LoopEndDegrees, i / (float)LoopSegments)));
+            }
+            painter.Stroke();
+
+            // Arrow at the top-right of the circle, the point furthest from the node.
+            float middle = (LoopStartDegrees + LoopEndDegrees) * 0.5f;
+            DrawArrow(painter, color, LoopPoint(middle), LoopDirection(middle));
+
+            if (TransitionIndices.Count > 1)
+            {
+                // Several transitions A -> A: three arrows along the loop, like the straight line.
+                float step = ArrowLength / LoopRadius * Mathf.Rad2Deg;
+                DrawArrow(painter, color, LoopPoint(middle - step), LoopDirection(middle - step));
+                DrawArrow(painter, color, LoopPoint(middle + step), LoopDirection(middle + step));
+            }
+        }
+
+        // Near the circle's edge, on the part outside the node (the node covers the bottom-left quarter).
+        private bool LoopContainsPoint(Vector2 localPoint)
+        {
+            Vector2 offset = localPoint - _loopCenter;
+            if (offset.x < 0f && offset.y > 0f)
+            {
+                return false;
+            }
+
+            return Mathf.Abs(offset.magnitude - LoopRadius) <= ClickDistance;
+        }
+
         private static void DrawArrow(Painter2D painter, Color color, Vector2 center, Vector2 direction)
         {
             Vector2 side = new Vector2(-direction.y, direction.x) * ArrowHalfWidth;
@@ -444,6 +543,11 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // Only count clicks near the line, not the whole bounding box.
         public override bool ContainsPoint(Vector2 localPoint)
         {
+            if (IsSelfLoop)
+            {
+                return LoopContainsPoint(localPoint);
+            }
+
             Vector2 line = _end - _start;
             float t = line.sqrMagnitude > 0f
                 ? Mathf.Clamp01(Vector2.Dot(localPoint - _start, line) / line.sqrMagnitude)
@@ -457,6 +561,20 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
         // box, which for a diagonal line covers a lot of empty space.
         public override bool Overlaps(Rect rectangle)
         {
+            // Self loop: a point of the drawn arc inside the box is close enough.
+            if (IsSelfLoop)
+            {
+                for (int i = 0; i <= LoopSegments; i++)
+                {
+                    if (rectangle.Contains(LoopPoint(Mathf.Lerp(LoopStartDegrees, LoopEndDegrees, i / (float)LoopSegments))))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
             // Liang-Barsky: clip the line against the rect, overlapping if anything is left.
             Vector2 line = _end - _start;
             float enter = 0f;

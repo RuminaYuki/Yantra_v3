@@ -1,19 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-9019133326035549096
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f45f29be3089ac444a6a4db4bae888af, type: 3}
-  m_Name: Trigger_RollRandomPool_Action
-  m_EditorClassIdentifier: Assembly-CSharp::RollRandomPoolActionSO
-  _selfAnchor: {fileID: 0}
-  _pool: {fileID: 7031970962002417819}
 --- !u!114 &-8864204874983247546
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -35,6 +21,23 @@ MonoBehaviour:
   _action: {fileID: 0}
   _stateName: 
   _layerIndex: 0
+--- !u!114 &-8776548165987663865
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08213a7885bcb1e4f984dccbb0183890, type: 3}
+  m_Name: AnimationFinished_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::AnimationFinishedConditionSO
+  _selfAnchor: {fileID: 0}
+  stateName: 
+  layerIndex: 0
+  finishTime: 1
+  extraSeconds: 0
 --- !u!114 &-8242194717277687297
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -64,6 +67,21 @@ MonoBehaviour:
   m_Name: Player_Kill_Action
   m_EditorClassIdentifier: Assembly-CSharp::KillActionSO
   _selfAnchor: {fileID: 2230029040242140766}
+--- !u!114 &-8185719672267437126
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1de2756a08f8aed47989da3f28578335, type: 3}
+  m_Name: Alert_PretDetect_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::PretDetectConditionSO
+  _selfAnchor: {fileID: 0}
+  _comparison: 3
+  _value: 20
 --- !u!114 &-8170289565474031905
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -104,6 +122,34 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LockMovementActionSO
   _selfAnchor: {fileID: 0}
   _resetMoveAnimation: 1
+--- !u!114 &-7475066050100417114
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c807c0fe937f0941bc0ea49af3c0c0a, type: 3}
+  m_Name: ActiveFlag_SetFlagOnEnter_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SetFlagOnEnterActionSO
+  _selfAnchor: {fileID: 0}
+  flag: {fileID: -7422348710769313687}
+  value: 1
+  changeValueOnExit: 0
+--- !u!114 &-7422348710769313687
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6687386e458fac4db6106b19ddf0699, type: 3}
+  m_Name: IsActive_Flag
+  m_EditorClassIdentifier: Assembly-CSharp::FlagSO
 --- !u!114 &-7201521197881898793
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -118,6 +164,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::StartLookIKActionSO
   _selfAnchor: {fileID: 0}
   _targetAnchor: {fileID: 2230029040242140766}
+--- !u!114 &-7007026283403450387
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77e8ae40d928604408f37497243c6985, type: 3}
+  m_Name: Stare_PlayAnimatorState_Action
+  m_EditorClassIdentifier: Assembly-CSharp::PlayAnimatorStateActionSO
+  _selfAnchor: {fileID: 0}
+  _stateName: Stare
+  _layerIndex: 0
+  _transitionDuration: 2
+  _startTimeOffset: 0
+  _waitForStateName: 
+  _exitStateName: 
+  _exitTransitionDuration: 0.25
+  _exitStartTimeOffset: 0
 --- !u!114 &-5224382328290898766
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -144,21 +211,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29aaa39665320664388a123863eae513, type: 3}
   m_Name: HandIK_AnchorID
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.AnchorIDSO
---- !u!114 &-4421529164085833573
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9942d9bd8f1e0b0459cea61a31bda641, type: 3}
-  m_Name: Trigger_RandomPicked_Condition
-  m_EditorClassIdentifier: Assembly-CSharp::RandomPickedConditionSO
-  _selfAnchor: {fileID: 0}
-  _pool: {fileID: 7031970962002417819}
-  _option: {fileID: 7945250233206326089}
 --- !u!114 &-4412346479051705182
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -172,7 +224,7 @@ MonoBehaviour:
   m_Name: ReachPathNavigatorTarget_Condition
   m_EditorClassIdentifier: Assembly-CSharp::ReachPathNavigatorTargetConditionSO
   _selfAnchor: {fileID: 0}
-  _arrivalDistance: 1
+  _arrivalDistance: 1.5
   _randomArrivalRange: 0
 --- !u!114 &-4088664225925658987
 MonoBehaviour:
@@ -202,6 +254,7 @@ MonoBehaviour:
   - {fileID: -8242194717277687297}
   - {fileID: -8170289565474031905}
   - {fileID: -2901021905662518965}
+  - {fileID: 8994212043909208896}
 --- !u!114 &-2901021905662518965
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -212,7 +265,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e0082a79a32c52d4981bba59ea07f2ce, type: 3}
-  m_Name: PlayFade_Action
+  m_Name: PlayFadeIn_Action
   m_EditorClassIdentifier: Assembly-CSharp::PlayFadeActionSO
   _selfAnchor: {fileID: 0}
   fadeDuration: 2
@@ -220,6 +273,21 @@ MonoBehaviour:
   startFade: 0
   endFade: 1
   onFinishFade: {fileID: 0}
+--- !u!114 &-2492089253910409149
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1de2756a08f8aed47989da3f28578335, type: 3}
+  m_Name: Attack_PretDetect_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::PretDetectConditionSO
+  _selfAnchor: {fileID: 0}
+  _comparison: 3
+  _value: 100
 --- !u!114 &-2302289933325334192
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -232,7 +300,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29aaa39665320664388a123863eae513, type: 3}
   m_Name: HandIKTarget_AnchorID
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.AnchorIDSO
---- !u!114 &-1129221407803673036
+--- !u!114 &-890722752643233645
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -241,12 +309,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9942d9bd8f1e0b0459cea61a31bda641, type: 3}
-  m_Name: Noting_RandomPicked_Condition (1)
-  m_EditorClassIdentifier: Assembly-CSharp::RandomPickedConditionSO
-  _selfAnchor: {fileID: 0}
-  _pool: {fileID: 7031970962002417819}
-  _option: {fileID: 8228385728113327918}
+  m_Script: {fileID: 11500000, guid: 29aaa39665320664388a123863eae513, type: 3}
+  m_Name: BackHomePoint_AnchorID
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.AnchorIDSO
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -260,7 +325,13 @@ MonoBehaviour:
   m_Name: Pret_TransitionTable
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
   _initialState: {fileID: 4051602753645604464}
-  _anyTransitions: []
+  _anyTransitions:
+  - ToState: {fileID: 8569292205905908183}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 7040368623840374376}
+        ExpectedResult: 0
+    Id: 440ea1de-804e-4969-97b0-f4f4d9c64643
   _transitions:
   - FromState: {fileID: -3698309156726073262}
     ConditionGroups:
@@ -272,26 +343,45 @@ MonoBehaviour:
   - FromState: {fileID: 4858673127742840136}
     ConditionGroups:
     - Conditions:
-      - Condition: {fileID: 1539002628947829208}
+      - Condition: {fileID: -8776548165987663865}
         ExpectedResult: 0
-    ToState: {fileID: 1182286990967500170}
+    ToState: {fileID: 6185060203097426108}
     Id: 4c8ac32b-8953-437e-b800-3bd90f5dca37
   - FromState: {fileID: 1182286990967500170}
     ConditionGroups:
     - Conditions:
-      - Condition: {fileID: 1539002628947829208}
+      - Condition: {fileID: -2492089253910409149}
         ExpectedResult: 0
     ToState: {fileID: 2823670914057304664}
     Id: 1130d13a-e351-4997-91f9-0eba57cfade0
   - FromState: {fileID: 4051602753645604464}
     ConditionGroups:
     - Conditions:
-      - Condition: {fileID: -5224382328290898766}
-        ExpectedResult: 0
-      - Condition: {fileID: -4421529164085833573}
+      - Condition: {fileID: 5935763312800290752}
         ExpectedResult: 0
     ToState: {fileID: -3698309156726073262}
     Id: 3aeccf2b-1d71-4fc9-af01-39ac0ac41285
+  - FromState: {fileID: 6185060203097426108}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -8185719672267437126}
+        ExpectedResult: 0
+    ToState: {fileID: 1182286990967500170}
+    Id: 9df8804a-bd8b-4b07-aa4f-fa15fe8f5ffa
+  - FromState: {fileID: 1182286990967500170}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -8185719672267437126}
+        ExpectedResult: 1
+    ToState: {fileID: 6185060203097426108}
+    Id: 1acd0218-6687-4f4f-ab65-1b90bbff838b
+  - FromState: {fileID: 8569292205905908183}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -4412346479051705182}
+        ExpectedResult: 0
+    ToState: {fileID: 3110492273662909892}
+    Id: 077623ec-340a-43bd-9aec-bf154cc1cbab
   _base: {fileID: 0}
   _fieldOverrides: []
   _removedIds: []
@@ -303,17 +393,23 @@ MonoBehaviour:
   _exposedParameters: {fileID: 7829830234337253109}
   _nodePositions:
   - State: {fileID: -3698309156726073262}
-    Position: {x: 158, y: 62}
+    Position: {x: 175, y: 62}
   - State: {fileID: 4858673127742840136}
-    Position: {x: 158, y: 125}
+    Position: {x: 175, y: 125}
   - State: {fileID: 4051602753645604464}
-    Position: {x: 158, y: 0}
+    Position: {x: 175, y: 0}
   - State: {fileID: 1182286990967500170}
-    Position: {x: 158, y: 188}
+    Position: {x: 175, y: 250}
   - State: {fileID: 2823670914057304664}
-    Position: {x: 158, y: 248}
-  _entryNodePosition: {x: 0, y: 0}
-  _anyStateNodePosition: {x: 1, y: 62}
+    Position: {x: 175, y: 310}
+  - State: {fileID: 6185060203097426108}
+    Position: {x: 175, y: 190}
+  - State: {fileID: 8569292205905908183}
+    Position: {x: 1, y: 126}
+  - State: {fileID: 3110492273662909892}
+    Position: {x: 1, y: 190}
+  _entryNodePosition: {x: 20, y: 0}
+  _anyStateNodePosition: {x: 21, y: 62}
   _contentsFolders:
   - Item: {fileID: -8170289565474031905}
     Folder: Navigation
@@ -345,16 +441,20 @@ MonoBehaviour:
     Folder: Anchor
   - Item: {fileID: -4088664225925658987}
     Folder: Anchor
-  - Item: {fileID: 7945250233206326089}
-    Folder: Random
-  - Item: {fileID: 8228385728113327918}
-    Folder: Random
-  - Item: {fileID: 7031970962002417819}
-    Folder: Random
-  - Item: {fileID: -1129221407803673036}
-    Folder: RandomPicked
-  - Item: {fileID: -4421529164085833573}
-    Folder: RandomPicked
+  - Item: {fileID: -7007026283403450387}
+    Folder: Animator
+  - Item: {fileID: -8185719672267437126}
+    Folder: Detect
+  - Item: {fileID: -2492089253910409149}
+    Folder: Detect
+  - Item: {fileID: 1207851011801801735}
+    Folder: Anchor
+  - Item: {fileID: -890722752643233645}
+    Folder: Anchor
+  - Item: {fileID: 525204218687200630}
+    Folder: Navigation
+  - Item: {fileID: 4151749851804201053}
+    Folder: Animator
   _contentsFolderPaths:
   - Group: Actions
     Path: Navigation
@@ -364,12 +464,30 @@ MonoBehaviour:
     Path: HandIK
   - Group: Data
     Path: Anchor
-  - Group: Data
-    Path: Random
   - Group: Conditions
-    Path: RandomPicked
+    Path: FlagGroup
+  - Group: Conditions
+    Path: Detect
   _stateDisplayNames: []
   _removedParameters: []
+--- !u!114 &271830646956946250
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0082a79a32c52d4981bba59ea07f2ce, type: 3}
+  m_Name: PlayFadeOut_Action
+  m_EditorClassIdentifier: Assembly-CSharp::PlayFadeActionSO
+  _selfAnchor: {fileID: 0}
+  fadeDuration: 2
+  useStartFade: 0
+  startFade: 1
+  endFade: 0
+  onFinishFade: {fileID: 0}
 --- !u!114 &454724885052693008
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -380,10 +498,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 77e8ae40d928604408f37497243c6985, type: 3}
-  m_Name: Stare_PlayAnimatorState_Action
+  m_Name: StareTransition_PlayAnimatorState_Action
   m_EditorClassIdentifier: Assembly-CSharp::PlayAnimatorStateActionSO
   _selfAnchor: {fileID: 0}
-  _stateName: Stare
+  _stateName: StareTransition
   _layerIndex: 0
   _transitionDuration: 0
   _startTimeOffset: 0
@@ -391,6 +509,22 @@ MonoBehaviour:
   _exitStateName: 
   _exitTransitionDuration: 0.25
   _exitStartTimeOffset: 0
+--- !u!114 &525204218687200630
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 064477ec6286dbb46971440740c727ae, type: 3}
+  m_Name: BackHomePoint_SetPathNavigatorTargetAction
+  m_EditorClassIdentifier: Assembly-CSharp::SetPathNavigatorTargetActionSO
+  _selfAnchor: {fileID: 0}
+  _targetAnchor: {fileID: -890722752643233645}
+  _offset: {x: 0, y: 0, z: 0}
+  _randomOffsetRange: {x: 0, y: 0, z: 0}
 --- !u!114 &626253143063107120
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -434,7 +568,7 @@ MonoBehaviour:
   _actions:
   - {fileID: 1839331162041890142}
   - {fileID: -7201521197881898793}
---- !u!114 &1539002628947829208
+--- !u!114 &1207851011801801735
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -443,11 +577,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 41ae3ea10d7f5cb45b8cefa64500d98b, type: 3}
-  m_Name: Alpha1_KeyDown_Condition
-  m_EditorClassIdentifier: Assembly-CSharp::KeyDownConditionSO
-  _selfAnchor: {fileID: 0}
-  _keyCode: 49
+  m_Script: {fileID: 11500000, guid: 29aaa39665320664388a123863eae513, type: 3}
+  m_Name: Interact_AnchorID
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.AnchorIDSO
 --- !u!114 &1839331162041890142
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -498,6 +630,21 @@ MonoBehaviour:
   - {fileID: 4981551736367049853}
   - {fileID: 626253143063107120}
   - {fileID: -8864204874983247546}
+--- !u!114 &3110492273662909892
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: Fade_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: -7644064108279904171}
+  - {fileID: 271830646956946250}
 --- !u!114 &3233797620667729015
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -508,7 +655,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 77e8ae40d928604408f37497243c6985, type: 3}
-  m_Name: Attack_PlayAnimatorState_Action (1)
+  m_Name: Attack_PlayAnimatorState_Action
   m_EditorClassIdentifier: Assembly-CSharp::PlayAnimatorStateActionSO
   _selfAnchor: {fileID: 0}
   _stateName: Attack
@@ -531,8 +678,28 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
   m_Name: NotActive_State
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
-  _actions:
-  - {fileID: -9019133326035549096}
+  _actions: []
+--- !u!114 &4151749851804201053
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77e8ae40d928604408f37497243c6985, type: 3}
+  m_Name: BaseMovement_PlayAnimatorState_Action
+  m_EditorClassIdentifier: Assembly-CSharp::PlayAnimatorStateActionSO
+  _selfAnchor: {fileID: 0}
+  _stateName: BaseMovement
+  _layerIndex: 0
+  _transitionDuration: 2
+  _startTimeOffset: 0
+  _waitForStateName: 
+  _exitStateName: 
+  _exitTransitionDuration: 0.25
+  _exitStartTimeOffset: 0
 --- !u!114 &4858673127742840136
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -543,13 +710,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
-  m_Name: Stare_State
+  m_Name: EnterStare_State
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: -7644064108279904171}
   - {fileID: 5871100796952256884}
   - {fileID: 454724885052693008}
-  - {fileID: -7201521197881898793}
+  - {fileID: -7475066050100417114}
 --- !u!114 &4981551736367049853
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -618,6 +785,38 @@ MonoBehaviour:
     usePrediction: 0
     leadTime: 0.5
     maxDistance: 3
+--- !u!114 &5935763312800290752
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f1aa939ecac5444ea4f694873236ecc, type: 3}
+  m_Name: Trigger_Delayed_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::DelayedConditionSO
+  _selfAnchor: {fileID: 0}
+  _innerCondition: {fileID: -5224382328290898766}
+  _innerExpected: 1
+  _delay: 1
+  _mode: 0
+--- !u!114 &6185060203097426108
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: Stare_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: -7007026283403450387}
+  - {fileID: -7201521197881898793}
 --- !u!114 &6472776841596556974
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -632,7 +831,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RaiseEventChannelActionSO
   _selfAnchor: {fileID: 0}
   _eventChannel: {fileID: 0}
---- !u!114 &7031970962002417819
+--- !u!114 &7040368623840374376
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -641,9 +840,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d8efa81ee0d5b6b4786029864f2ae53d, type: 3}
-  m_Name: Trigger_RandomPool
-  m_EditorClassIdentifier: Assembly-CSharp::RandomPoolSO
+  m_Script: {fileID: 11500000, guid: 76eef4277c21c6c4688e2adce49b835c, type: 3}
+  m_Name: TriggerInteractor_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::TriggerInteractorSO
+  _selfAnchor: {fileID: 1207851011801801735}
 --- !u!114 &7829830234337253109
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -664,7 +864,22 @@ MonoBehaviour:
     - _target: {fileID: 626253143063107120}
       _fieldName: _enterDuration
     _category: 
---- !u!114 &7945250233206326089
+  - _name: Trigger_Delayed
+    _bindings:
+    - _target: {fileID: 5935763312800290752}
+      _fieldName: _delay
+    _category: 
+  - _name: AlertDetect_Value
+    _bindings:
+    - _target: {fileID: -8185719672267437126}
+      _fieldName: _value
+    _category: 
+  - _name: AttackDetect_Value
+    _bindings:
+    - _target: {fileID: -2492089253910409149}
+      _fieldName: _value
+    _category: 
+--- !u!114 &8569292205905908183
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -673,10 +888,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d2d7c4dfc85d07b498d74fb3a7a830e3, type: 3}
-  m_Name: Trigger_RandomOption
-  m_EditorClassIdentifier: Assembly-CSharp::RandomOptionSO
---- !u!114 &8228385728113327918
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: BackHome_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 525204218687200630}
+  - {fileID: 4151749851804201053}
+  - {fileID: -8170289565474031905}
+--- !u!114 &8994212043909208896
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -685,6 +904,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d2d7c4dfc85d07b498d74fb3a7a830e3, type: 3}
-  m_Name: Noting_RandomOption
-  m_EditorClassIdentifier: Assembly-CSharp::RandomOptionSO
+  m_Script: {fileID: 11500000, guid: 0523dd8c3773bd74ab2f4c900e513913, type: 3}
+  m_Name: Showup_RaiseVoidEventChannel_Action
+  m_EditorClassIdentifier: Assembly-CSharp::RaiseVoidEventChannelActionSO
+  _selfAnchor: {fileID: 0}
+  _eventChannel: {fileID: 11400000, guid: cda2e76e499eac64e9bb92832f4ac23f, type: 2}
