@@ -1,0 +1,462 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-9079907759075056851
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0963579bde5f68045a78c7bd197ed21d, type: 3}
+  m_Name: Duration_Sequence_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::SequenceConditionSO
+  _selfAnchor: {fileID: 0}
+  _firstCondition: {fileID: -4653060728196727812}
+  _firstExpected: 0
+  _thenCondition: {fileID: 147076867330345088}
+  _thenExpected: 1
+--- !u!114 &-8906182662095325831
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00a2ebe264e7e31478e7c01e7f51d0ba, type: 3}
+  m_Name: Failed_GrabQTE_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::GrabQTEConditionSO
+  _selfAnchor: {fileID: 0}
+  _check: 2
+--- !u!114 &-4653060728196727812
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e735da92d11765a4c84d56b861424d90, type: 3}
+  m_Name: Trigger_Distance_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::DistanceConditionSO
+  _selfAnchor: {fileID: 0}
+  _targetAnchor: {fileID: 3098212187013812954}
+  _distance: 3
+--- !u!114 &-3023520104107730230
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0963579bde5f68045a78c7bd197ed21d, type: 3}
+  m_Name: EWDWhenTime_Sequence_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::SequenceConditionSO
+  _selfAnchor: {fileID: 0}
+  _firstCondition: {fileID: 6767680509252391310}
+  _firstExpected: 1
+  _thenCondition: {fileID: 3712536116073936905}
+  _thenExpected: 1
+--- !u!114 &-2818115556523619333
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77e8ae40d928604408f37497243c6985, type: 3}
+  m_Name: GoBack_PlayAnimatorState_Action
+  m_EditorClassIdentifier: Assembly-CSharp::PlayAnimatorStateActionSO
+  _selfAnchor: {fileID: 0}
+  _stateName: GoBack
+  _layerIndex: 0
+  _transitionDuration: 0.25
+  _startTimeOffset: 0
+  _waitForStateName: 
+  _exitStateName: 
+  _exitTransitionDuration: 0.25
+  _exitStartTimeOffset: 0
+--- !u!114 &-2383884236871855066
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bdb47a0e3087184d91e77ed1996318a, type: 3}
+  m_Name: FadeOut_DecalOpacityFade_Action
+  m_EditorClassIdentifier: Assembly-CSharp::DecalOpacityFadeActionSO
+  _selfAnchor: {fileID: -1406081206348409195}
+  _onEnter: 2
+  _onExit: 0
+  _overrideSettings: 0
+  _delay: 0
+  _duration: 1
+  _visibleValue: 1
+  _hiddenValue: 0
+--- !u!114 &-1829394453756941309
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0963579bde5f68045a78c7bd197ed21d, type: 3}
+  m_Name: FWDWhenTime_Sequence_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::SequenceConditionSO
+  _selfAnchor: {fileID: 0}
+  _firstCondition: {fileID: 4801892192098847423}
+  _firstExpected: 1
+  _thenCondition: {fileID: 3712536116073936905}
+  _thenExpected: 1
+--- !u!114 &-1406081206348409195
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29aaa39665320664388a123863eae513, type: 3}
+  m_Name: HoleDecal_AnchorID
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.AnchorIDSO
+--- !u!114 &-1264748534412683400
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00a2ebe264e7e31478e7c01e7f51d0ba, type: 3}
+  m_Name: Escaped_GrabQTE_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::GrabQTEConditionSO
+  _selfAnchor: {fileID: 0}
+  _check: 1
+--- !u!114 &-826716435119943352
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: afb42a8d0fd1b64449dbf739c05fe05d, type: 3}
+  m_Name: StartGrabQTE_Action
+  m_EditorClassIdentifier: Assembly-CSharp::StartGrabQTEActionSO
+  _selfAnchor: {fileID: 0}
+  _playerTag: Player
+--- !u!114 &-649178719764612604
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e20e27464dc08eb44ac14238e4b68ebb, type: 3}
+  m_Name: Exposed_Parameters
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.ExposedParametersSO
+  _parameters:
+  - _name: Trigger_Distance
+    _bindings:
+    - _target: {fileID: -4653060728196727812}
+      _fieldName: _distance
+    _category: 
+  - _name: ActiveExit_Duration
+    _bindings:
+    - _target: {fileID: 147076867330345088}
+      _fieldName: minDuration
+    _category: 
+  - _name: Excute_Distance
+    _bindings:
+    - _target: {fileID: 7027420836479781187}
+      _fieldName: _distance
+    _category: 
+  - _name: ExcuteExit_Duration
+    _bindings:
+    - _target: {fileID: 3712536116073936905}
+      _fieldName: minDuration
+    _category: 
+--- !u!114 &-393329925208527597
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77e8ae40d928604408f37497243c6985, type: 3}
+  m_Name: Flick_PlayAnimatorState_Action
+  m_EditorClassIdentifier: Assembly-CSharp::PlayAnimatorStateActionSO
+  _selfAnchor: {fileID: 0}
+  _stateName: Flick
+  _layerIndex: 0
+  _transitionDuration: 0.25
+  _startTimeOffset: 0
+  _waitForStateName: 
+  _exitStateName: 
+  _exitTransitionDuration: 0.25
+  _exitStartTimeOffset: 0
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5492ed31ba40b643aaf3d94f1de0aa7, type: 3}
+  m_Name: PNak_TransitionTable
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
+  _initialState: {fileID: 6316323394180978816}
+  _anyTransitions: []
+  _transitions:
+  - FromState: {fileID: 6316323394180978816}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -4653060728196727812}
+        ExpectedResult: 0
+    ToState: {fileID: 8849147312837727596}
+    Id: 23b60b91-6a7b-41c4-a7ed-557a601e0146
+  - FromState: {fileID: 8849147312837727596}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -9079907759075056851}
+        ExpectedResult: 0
+    ToState: {fileID: 6316323394180978816}
+    Id: 17ca53b9-99ac-45a4-9146-76d9b2589cde
+  - FromState: {fileID: 8849147312837727596}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 7027420836479781187}
+        ExpectedResult: 0
+    ToState: {fileID: 7420138637109490489}
+    Id: f55abcd6-b6ca-40fc-a2d7-84970b990d54
+  - FromState: {fileID: 7420138637109490489}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -3023520104107730230}
+        ExpectedResult: 0
+    - Conditions:
+      - Condition: {fileID: -1829394453756941309}
+        ExpectedResult: 0
+    ToState: {fileID: 6316323394180978816}
+    Id: 96b897ed-a6b7-4ecb-a895-324ee45ec1f9
+  _base: {fileID: 0}
+  _fieldOverrides: []
+  _removedIds: []
+  _transitionOverrides: []
+  _conditionReplaces: []
+  _transitionRetargets: []
+  _actionChanges: []
+  _actionOrders: []
+  _exposedParameters: {fileID: -649178719764612604}
+  _nodePositions:
+  - State: {fileID: 6316323394180978816}
+    Position: {x: 170, y: 0}
+  - State: {fileID: 8849147312837727596}
+    Position: {x: 170, y: 68}
+  - State: {fileID: 7420138637109490489}
+    Position: {x: 170, y: 138}
+  _entryNodePosition: {x: 0, y: 0}
+  _anyStateNodePosition: {x: 3, y: 68}
+  _contentsFolders:
+  - Item: {fileID: -393329925208527597}
+    Folder: Animator
+  - Item: {fileID: -2818115556523619333}
+    Folder: Animator
+  - Item: {fileID: -1264748534412683400}
+    Folder: QTECondition
+  - Item: {fileID: -8906182662095325831}
+    Folder: QTECondition
+  - Item: {fileID: 3712536116073936905}
+    Folder: QTECondition
+  - Item: {fileID: 6767680509252391310}
+    Folder: QTECondition
+  - Item: {fileID: 4801892192098847423}
+    Folder: QTECondition
+  - Item: {fileID: -1829394453756941309}
+    Folder: QTECondition
+  - Item: {fileID: -3023520104107730230}
+    Folder: QTECondition
+  _contentsFolderPaths:
+  - Group: Actions
+    Path: Animator
+  - Group: Conditions
+    Path: QTECondition
+  _stateDisplayNames: []
+  _removedParameters: []
+--- !u!114 &147076867330345088
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bc33c17855b7944f975cd6048bf5471, type: 3}
+  m_Name: TriggerDuration_TimeInState_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::TimeInStateConditionSO
+  _selfAnchor: {fileID: 0}
+  minDuration: 2.5
+  maxDuration: 0
+--- !u!114 &3098212187013812954
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29aaa39665320664388a123863eae513, type: 3}
+  m_Name: Player_AnchorID
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.AnchorIDSO
+--- !u!114 &3712536116073936905
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bc33c17855b7944f975cd6048bf5471, type: 3}
+  m_Name: GrabQTE_TimeInState_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::TimeInStateConditionSO
+  _selfAnchor: {fileID: 0}
+  minDuration: 0.5
+  maxDuration: 0
+--- !u!114 &4801892192098847423
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0963579bde5f68045a78c7bd197ed21d, type: 3}
+  m_Name: FailedQTEWhenDistance_Sequence_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::SequenceConditionSO
+  _selfAnchor: {fileID: 0}
+  _firstCondition: {fileID: -8906182662095325831}
+  _firstExpected: 1
+  _thenCondition: {fileID: -4653060728196727812}
+  _thenExpected: 0
+--- !u!114 &6316323394180978816
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: NotActive_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: -2818115556523619333}
+  - {fileID: -2383884236871855066}
+--- !u!114 &6767680509252391310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0963579bde5f68045a78c7bd197ed21d, type: 3}
+  m_Name: EscapedQTEWhenDistance_Sequence_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::SequenceConditionSO
+  _selfAnchor: {fileID: 0}
+  _firstCondition: {fileID: -1264748534412683400}
+  _firstExpected: 1
+  _thenCondition: {fileID: -4653060728196727812}
+  _thenExpected: 0
+--- !u!114 &7027420836479781187
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e735da92d11765a4c84d56b861424d90, type: 3}
+  m_Name: Excute_Distance_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::DistanceConditionSO
+  _selfAnchor: {fileID: 0}
+  _targetAnchor: {fileID: 3098212187013812954}
+  _distance: 2
+--- !u!114 &7226133977757366086
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8bdb47a0e3087184d91e77ed1996318a, type: 3}
+  m_Name: FadeIn_DecalOpacityFade_Action
+  m_EditorClassIdentifier: Assembly-CSharp::DecalOpacityFadeActionSO
+  _selfAnchor: {fileID: -1406081206348409195}
+  _onEnter: 1
+  _onExit: 0
+  _overrideSettings: 0
+  _delay: 0
+  _duration: 1
+  _visibleValue: 1
+  _hiddenValue: 0
+--- !u!114 &7420138637109490489
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: Excute_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: -826716435119943352}
+--- !u!114 &8849147312837727596
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: Trigger_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: -393329925208527597}
+  - {fileID: 7226133977757366086}
