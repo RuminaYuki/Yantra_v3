@@ -4,6 +4,7 @@ using UnityEngine;
 /// สั่นกล้อง มี 2 แบบ
 ///   AddTrauma — Perlin noise ใช้ตอนเราโดนตี
 ///   Kick      — แบบ lead: สุ่มจุดในรัศมีแล้วใช้ sine ดึงกลับกลาง ใช้ตอนเราตีโดน
+/// และรับ offset ของ Head Bob จาก HeadBob.cs มาบวกรวม (SetBob)
 ///
 /// ⚠️ ต้องแปะบน GameObject เปล่าที่คั่นระหว่างตัวหมุนกล้องกับกล้องจริง:
 ///
@@ -58,6 +59,10 @@ public class CameraShaker : MonoBehaviour
     private float _kickStepElapsed;
     private Vector3 _kickTarget;
     private Vector3 _kickTargetTilt;
+
+    // Head Bob — HeadBob.cs เป็นคนคำนวณแล้วฝากค่ามาทางนี้
+    private Vector3 _bobPosition;
+    private Quaternion _bobRotation = Quaternion.identity;
 
     /// <summary>ค่าปัจจุบัน 0..1 เผื่อระบบอื่นอยากรู้</summary>
     public float Trauma => _trauma;
@@ -119,13 +124,23 @@ public class CameraShaker : MonoBehaviour
     {
         _trauma = 0f;
         _kickElapsed = _kickDuration;
-        transform.localPosition = _basePosition;
-        transform.localRotation = _baseRotation;
+        transform.localPosition = _basePosition + _bobPosition;
+        transform.localRotation = _baseRotation * _bobRotation;
     }
 
     public void SetGlobalMultiplier(float value)
     {
         _globalMultiplier = Mathf.Clamp01(value);
+    }
+
+    /// <summary>
+    /// ให้ HeadBob ฝาก offset มาบวกรวมตอน LateUpdate
+    /// ส่ง (Vector3.zero, Quaternion.identity) เพื่อปิด
+    /// </summary>
+    public void SetBob(Vector3 position, Quaternion rotation)
+    {
+        _bobPosition = position;
+        _bobRotation = rotation;
     }
 
     // LateUpdate เพื่อให้ทำงานหลังสคริปต์หมุนกล้องเสร็จแล้ว
@@ -134,9 +149,9 @@ public class CameraShaker : MonoBehaviour
         UpdateTrauma(out Vector3 traumaPos, out Quaternion traumaRot);
         UpdateKick(out Vector3 kickPos, out Quaternion kickRot);
 
-        // สองแบบสั่นพร้อมกันได้ เช่นตีโดนผีจังหวะเดียวกับโดนผีตี
-        transform.localPosition = _basePosition + traumaPos + kickPos;
-        transform.localRotation = _baseRotation * traumaRot * kickRot;
+        // สามแบบซ้อนกันได้ เช่นตีโดนผีจังหวะเดียวกับโดนผีตีตอนกำลังเดิน
+        transform.localPosition = _basePosition + traumaPos + kickPos + _bobPosition;
+        transform.localRotation = _baseRotation * traumaRot * kickRot * _bobRotation;
     }
 
     private void UpdateTrauma(out Vector3 position, out Quaternion rotation)
