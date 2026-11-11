@@ -86,13 +86,27 @@ public class CameraShaker : MonoBehaviour
         if (Instance == this) Instance = null;
     }
 
+    private void Update()
+    {
+        if (_useUnscaledTime) return;
+
+        // ป้องกันเวลาเล่นใน Editor แล้วกด pause — กล้องจะติดค้างสั่นอยู่
+        if (Time.timeScale <= 0f)
+        {
+            _trauma = 0f;
+            _kickElapsed = _kickDuration;
+            transform.localPosition = _basePosition + _bobPosition;
+            transform.localRotation = _baseRotation * _bobRotation;
+        }
+    }
+
     /// <summary>
     /// เติมความสั่น — เรียกตอนโดนตี
     /// 0.2 = โดนเบา, 0.4 = โดนปกติ, 0.7 = โดนหนัก, 1.0 = ระเบิด
     /// </summary>
     public void AddTrauma(float amount)
     {
-        _trauma = Mathf.Clamp01(_trauma + amount * _globalMultiplier);
+        _trauma = Mathf.Clamp01((_trauma + amount) * _globalMultiplier);
     }
 
     /// <summary>
