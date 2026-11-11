@@ -71,8 +71,9 @@ public class BaseLocomotion : MonoBehaviour,ILocomotionLock,ILocomotionMoveMode
 
     protected virtual void FixedUpdate()
     {
-        // Full = คลิปคุมการหมุนแล้ว โค้ดห้ามหมุนทับ
-        if (_moveMode == LocomotionMoveMode.FullRootMotion)
+        // Full = คลิปคุมการหมุนแล้ว / External = ระบบอื่นคุมเอง — โค้ดห้ามหมุนทับ
+        if (_moveMode == LocomotionMoveMode.FullRootMotion
+         || _moveMode == LocomotionMoveMode.External)
             return;
 
         Vector3 direction = IsMovementLocked ? Vector3.zero : _facingDirection;

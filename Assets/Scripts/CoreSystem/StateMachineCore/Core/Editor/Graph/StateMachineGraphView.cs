@@ -92,6 +92,12 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             var selectedActions = new HashSet<ScriptableObject>(Selection.objects.OfType<StateActionSO>());
             var selectedConditions = new HashSet<ScriptableObject>(Selection.objects.OfType<StateConditionSO>());
 
+            // The table asset was deleted / reimported while the graph still shows it: nothing to light up.
+            if (_serializedTable != null && _serializedTable.targetObject == null)
+            {
+                return;
+            }
+
             _serializedTable?.Update();
 
             foreach (GraphElement element in graphElements.ToList())
@@ -277,7 +283,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             AddElement(anyStateNode);
 
             List<StateSO> states = CollectStates(_serializedTable, initialState);
-            foreach (StateSO state in inherited.States)
+            foreach (StateSO state in inherited.States.Concat(inherited.RetargetTargets))
             {
                 if (!states.Contains(state))
                 {
@@ -374,6 +380,12 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
                     names.Add(parameter.Name);
                 }
+            }
+
+            // The table asset was deleted / reimported while the graph still shows it: no tags to refresh.
+            if (_serializedTable != null && _serializedTable.targetObject == null)
+            {
+                return;
             }
 
             _serializedTable?.Update();

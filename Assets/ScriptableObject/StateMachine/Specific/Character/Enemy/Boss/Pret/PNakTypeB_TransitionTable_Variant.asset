@@ -1,0 +1,315 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-5502662737635913559
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4c775efbc2756c4a882276248d9938c, type: 3}
+  m_Name: SetTwoBoneIK_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SetTwoBoneIKActionSO
+  _selfAnchor: {fileID: 4230640190635820086}
+  _enterWeight: 1
+  _enterDuration: 0.2
+  _setWeightOnExit: 1
+  _exitWeight: 0
+  _exitDuration: 0.2
+  _changeTarget: 0
+  _targetAnchor: {fileID: 0}
+  _changeHint: 0
+  _hintAnchor: {fileID: 0}
+  _changeMaintainTargetOffset: 0
+  _maintainTargetOffset: 0
+  _changeSettingWeights: 0
+  _targetPositionWeight: 1
+  _targetRotationWeight: 1
+  _hintWeight: 1
+--- !u!114 &-4813381686660343585
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b20167e0442bedf4b81e2c27e855aa86, type: 3}
+  m_Name: SetRandomPositionNavRadius_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SetRandomPositionNavRadiusActionSO
+  _selfAnchor: {fileID: 0}
+  _ringParameters:
+    radius: 10
+    minDistance: 0
+    directionCount: 16
+  _maxAttempts: 10
+  _requireNavMeshBaked: 0
+--- !u!114 &-4171952969878970766
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: BackSpawnPoint_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions: []
+--- !u!114 &-3533848237192763334
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00a2ebe264e7e31478e7c01e7f51d0ba, type: 3}
+  m_Name: Running_GrabQTE_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::GrabQTEConditionSO
+  _selfAnchor: {fileID: 0}
+  _check: 0
+--- !u!114 &-2706972474091422522
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c807c0fe937f0941bc0ea49af3c0c0a, type: 3}
+  m_Name: PlayerQTEDonReset_SetFlagOnEnter_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SetFlagOnEnterActionSO
+  _selfAnchor: {fileID: 3098212187013812954, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
+  flag: {fileID: 11400000, guid: 55f11384f5bc5bd41a419b2b18f85c1b, type: 2}
+  value: 1
+  changeValueOnExit: 0
+--- !u!114 &-775651415800135073
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0984bd16e16fdcc4caa95f03c3832ec0, type: 3}
+  m_Name: Player_LockMovement_Action
+  m_EditorClassIdentifier: Assembly-CSharp::LockMovementActionSO
+  _selfAnchor: {fileID: 3098212187013812954, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
+  _resetMoveAnimation: 1
+--- !u!114 &-537687942194946298
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41ae3ea10d7f5cb45b8cefa64500d98b, type: 3}
+  m_Name: Alpha1_KeyDown_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::KeyDownConditionSO
+  _selfAnchor: {fileID: 0}
+  _keyCode: 49
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a5492ed31ba40b643aaf3d94f1de0aa7, type: 3}
+  m_Name: PNakTypeB_TransitionTable_Variant
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
+  _initialState: {fileID: 0}
+  _anyTransitions: []
+  _transitions:
+  - FromState: {fileID: 8026634343205636463}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -1264748534412683400, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
+        ExpectedResult: 0
+    - Conditions:
+      - Condition: {fileID: -8906182662095325831, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
+        ExpectedResult: 0
+    - Conditions:
+      - Condition: {fileID: -537687942194946298}
+        ExpectedResult: 0
+    ToState: {fileID: 6316323394180978816, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
+    Id: 6ffd2151-46e2-4e65-8d5f-0eabddec4b28
+  _base: {fileID: 11400000, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
+  _fieldOverrides: []
+  _removedIds: []
+  _transitionOverrides:
+  - _transitionId: 96b897ed-a6b7-4ecb-a895-324ee45ec1f9
+    _conditionGroups:
+    - Conditions:
+      - Condition: {fileID: -3533848237192763334}
+        ExpectedResult: 0
+    - Conditions:
+      - Condition: {fileID: -537687942194946298}
+        ExpectedResult: 0
+  _conditionReplaces: []
+  _transitionRetargets:
+  - _transitionId: 96b897ed-a6b7-4ecb-a895-324ee45ec1f9
+    _toState: {fileID: 8026634343205636463}
+  _actionChanges:
+  - _state: {fileID: 7420138637109490489, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
+    _kind: 2
+    _action: {fileID: 7645616432327122729}
+    _with: {fileID: 0}
+  - _state: {fileID: 7420138637109490489, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
+    _kind: 3
+    _action: {fileID: -2155214059330508088, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
+    _with: {fileID: -2706972474091422522}
+  - _state: {fileID: 7420138637109490489, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
+    _kind: 1
+    _action: {fileID: -826716435119943352, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
+    _with: {fileID: -2706972474091422522}
+  _actionOrders: []
+  _exposedParameters: {fileID: 0}
+  _nodePositions:
+  - State: {fileID: 8026634343205636463}
+    Position: {x: 170, y: 239}
+  - State: {fileID: 7420138637109490489, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
+    Position: {x: 170, y: 142}
+  - State: {fileID: -4171952969878970766}
+    Position: {x: 174, y: 308}
+  _entryNodePosition: {x: 0, y: 0}
+  _anyStateNodePosition: {x: 0, y: 120}
+  _contentsFolders: []
+  _contentsFolderPaths: []
+  _stateDisplayNames: []
+  _removedParameters: []
+--- !u!114 &4230640190635820086
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29aaa39665320664388a123863eae513, type: 3}
+  m_Name: HandIK_AnchorID
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.AnchorIDSO
+--- !u!114 &5686795246892414722
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29aaa39665320664388a123863eae513, type: 3}
+  m_Name: SpawnPoint_AnchorID
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.AnchorIDSO
+--- !u!114 &6220779737320325468
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a99bcdd4bdd53a749a61018a243d8b1f, type: 3}
+  m_Name: FollowPathLocomotion_Action
+  m_EditorClassIdentifier: Assembly-CSharp::FollowPathLocomotionActionSO
+  _selfAnchor: {fileID: 0}
+  _updateFacing: 1
+--- !u!114 &7645616432327122729
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 001236e325df77142a9b7212af93c9f4, type: 3}
+  m_Name: Execute_DebugLog_Action
+  m_EditorClassIdentifier: Assembly-CSharp::DebugLogActionSO
+  _selfAnchor: {fileID: 0}
+  _message: 'Execute
+
+'
+  _logType: 0
+  _onEnter: 1
+  _onUpdate: 0
+  _onExit: 0
+  _prefixOwnerName: 1
+--- !u!114 &7880963110134912745
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57be3bc749a478547a50010db4c4f93b, type: 3}
+  m_Name: Player_SetFollow3D_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SetFollow3DActionSO
+  _selfAnchor: {fileID: 3098212187013812954, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
+  changeFollow: 1
+  followOnEnter: 1
+  changeFollowOnExit: 1
+  followOnExit: 0
+  changeTarget: 1
+  targetAnchor: {fileID: 8580876553332980715}
+  changeConstrainPosition: 1
+  constrainPosition: 1
+  changeConstrainRotation: 1
+  constrainRotation: 1
+  changeMaintainOffset: 0
+  maintainOffset: 0
+  changePositionOffset: 0
+  positionOffset: {x: 0, y: 0, z: 0}
+  changeRotationOffset: 0
+  rotationOffset: {x: 0, y: 0, z: 0}
+  changePositionLerpSpeed: 0
+  positionLerpSpeed: 0
+  changeRotationLerpSpeed: 0
+  rotationLerpSpeed: 0
+--- !u!114 &8026634343205636463
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: Navigator_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: -4813381686660343585}
+  - {fileID: 6220779737320325468}
+  - {fileID: 7880963110134912745}
+  - {fileID: -775651415800135073}
+  - {fileID: -5502662737635913559}
+  - {fileID: -2155214059330508088, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
+--- !u!114 &8580876553332980715
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29aaa39665320664388a123863eae513, type: 3}
+  m_Name: GrabPlayerPoint_AnchorID
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.AnchorIDSO

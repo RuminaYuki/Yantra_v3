@@ -22,6 +22,10 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             public readonly List<(StateSO To, InheritedTransition Item)> AnyTransitions =
                 new List<(StateSO To, InheritedTransition Item)>();
             public readonly HashSet<StateSO> States = new HashSet<StateSO>();
+
+            // Where this table sent a Base's arrows (_transitionRetargets). They need a node, but they
+            // aren't the Base's: usually this table's own state, so it stays editable here.
+            public readonly HashSet<StateSO> RetargetTargets = new HashSet<StateSO>();
         }
 
         private static InheritedParts ReadInherited(SerializedObject serializedTable, TransitionTableSO baseTable)
@@ -92,6 +96,19 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             StateSO ToHere(string id, StateSO baseTo) => retargets.TryGetValue(id, out StateSO to) ? to : baseTo;
 
+            // A retargeted arrow's end goes to RetargetTargets, not States, so it isn't marked From Base.
+            void AddTarget(string id, StateSO to)
+            {
+                if (retargets.ContainsKey(id))
+                {
+                    parts.RetargetTargets.Add(to);
+                }
+                else
+                {
+                    AddState(to);
+                }
+            }
+
             foreach (TransitionTableSO.TransitionItem item in baseTable.EffectiveTransitions)
             {
                 StateSO to = ToHere(item.Id, item.ToState);
@@ -104,7 +121,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
                 parts.Transitions.Add((item.FromState, to, Describe(item.Id, item.ConditionGroups)));
                 AddState(item.FromState);
-                AddState(to);
+                AddTarget(item.Id, to);
             }
 
             foreach (TransitionTableSO.AnyTransitionItem item in baseTable.EffectiveAnyTransitions)
@@ -116,7 +133,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 }
 
                 parts.AnyTransitions.Add((to, Describe(item.Id, item.ConditionGroups)));
-                AddState(to);
+                AddTarget(item.Id, to);
             }
 
             return parts;

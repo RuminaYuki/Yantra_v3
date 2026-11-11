@@ -701,7 +701,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
         // ---------- Change Target ----------
         // Drag the end of an arrow onto another state, or right-click > Change Target and click one.
-        // Its conditions stay. A Base's arrow becomes this table's own (see RetargetInherited).
+        // Its conditions stay. A Base's arrow stays the Base's, only its end changes here (see RetargetInherited).
 
         // Set while an arrow's end is being moved (the preview runs from its From node).
         private TransitionEdgeView _retargetEdge;

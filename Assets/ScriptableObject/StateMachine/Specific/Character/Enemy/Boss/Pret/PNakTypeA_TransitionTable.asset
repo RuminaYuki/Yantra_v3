@@ -104,6 +104,36 @@ MonoBehaviour:
   _duration: 1
   _visibleValue: 1
   _hiddenValue: 0
+--- !u!114 &-2155214059330508088
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c807c0fe937f0941bc0ea49af3c0c0a, type: 3}
+  m_Name: PlayerQTE_SetFlagOnEnter_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SetFlagOnEnterActionSO
+  _selfAnchor: {fileID: 3098212187013812954}
+  flag: {fileID: 11400000, guid: 55f11384f5bc5bd41a419b2b18f85c1b, type: 2}
+  value: 1
+  changeValueOnExit: 1
+--- !u!114 &-1921169557639090625
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 828323aa1aace154891a3661130da74b, type: 3}
+  m_Name: PlayerQTE_Flag_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::FlagConditionSO
+  _selfAnchor: {fileID: 3098212187013812954}
+  flag: {fileID: 11400000, guid: 55f11384f5bc5bd41a419b2b18f85c1b, type: 2}
 --- !u!114 &-1829394453756941309
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -225,7 +255,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a5492ed31ba40b643aaf3d94f1de0aa7, type: 3}
-  m_Name: PNak_TransitionTable
+  m_Name: PNakTypeA_TransitionTable
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
   _initialState: {fileID: 6316323394180978816}
   _anyTransitions: []
@@ -235,6 +265,8 @@ MonoBehaviour:
     - Conditions:
       - Condition: {fileID: -4653060728196727812}
         ExpectedResult: 0
+      - Condition: {fileID: -1921169557639090625}
+        ExpectedResult: 1
     ToState: {fileID: 8849147312837727596}
     Id: 23b60b91-6a7b-41c4-a7ed-557a601e0146
   - FromState: {fileID: 8849147312837727596}
@@ -242,6 +274,8 @@ MonoBehaviour:
     - Conditions:
       - Condition: {fileID: -9079907759075056851}
         ExpectedResult: 0
+      - Condition: {fileID: -4653060728196727812}
+        ExpectedResult: 1
     ToState: {fileID: 6316323394180978816}
     Id: 17ca53b9-99ac-45a4-9146-76d9b2589cde
   - FromState: {fileID: 8849147312837727596}
@@ -445,6 +479,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: -826716435119943352}
+  - {fileID: -2155214059330508088}
 --- !u!114 &8849147312837727596
 MonoBehaviour:
   m_ObjectHideFlags: 0

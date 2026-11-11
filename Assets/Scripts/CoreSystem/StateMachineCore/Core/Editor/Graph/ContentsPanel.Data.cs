@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Yuki.Learning.StateMachine.ScriptableObjects;
 using Object = UnityEngine.Object;
 
@@ -42,9 +43,75 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             else
             {
                 AddGroup(DataGroup, items, all, FolderData.Load(_table), tablePath);
+                AddBaseDataGroup(tablePath);
             }
 
             ShowSelection();
+        }
+
+        // ---------- From Base ----------
+        // A variant table: the Data in its Bases' files (nearest Base first), read-only and in the Base's
+        // folders, like the Contents panel's From Base group. They can still be dragged into a field.
+
+        private const string BaseDataGroupKey = "FromBaseData";
+
+        private void AddBaseDataGroup(string tablePath)
+        {
+            TransitionTableSO baseTable = StateMachineGraphView.SafeBaseOf(_table);
+            if (baseTable == null)
+            {
+                return;
+            }
+
+            var items = new List<ScriptableObject>();
+            var seen = new HashSet<ScriptableObject>();
+            var folders = new FolderData();
+            var visitedFiles = new HashSet<string> { tablePath };
+            var visited = new HashSet<TransitionTableSO>();
+
+            for (TransitionTableSO current = baseTable;
+                 current != null && visited.Add(current);
+                 current = StateMachineGraphView.BaseOf(current))
+            {
+                // Data lives in the file, so read the Base file's main table (once per file).
+                TransitionTableSO main = MainTableOf(current);
+                if (!visitedFiles.Add(AssetDatabase.GetAssetPath(main)))
+                {
+                    continue;
+                }
+
+                foreach (ScriptableObject item in TableContents.CollectData(main))
+                {
+                    if (seen.Add(item))
+                    {
+                        items.Add(item);
+                    }
+                }
+
+                // The nearest Base's folder wins when two files file the same item.
+                foreach (KeyValuePair<Object, string> entry in FolderData.Load(main).ItemFolders)
+                {
+                    if (!folders.ItemFolders.ContainsKey(entry.Key))
+                    {
+                        folders.ItemFolders[entry.Key] = entry.Value;
+                    }
+                }
+            }
+
+            if (items.Count == 0)
+            {
+                return;
+            }
+
+            Foldout group = CreateFoldout($"From Base · {baseTable.name}", BaseDataGroupKey);
+            group.AddToClassList("contents-group--base");
+            MakeGroup(group, items.Count);
+            group.Q<Toggle>().tooltip =
+                $"Data in {baseTable.name}'s file. Change it in the Base. Drag one into a field to use it here.";
+
+            AddParentPart(group, BaseDataGroupKey, DataGroup, items, folders, tablePath, true);
+
+            _list.Add(group);
         }
 
         // Moves the items into the table's file after asking (EmbeddedAssets.MoveInto), and files each

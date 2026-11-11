@@ -8,7 +8,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 [UseSelfAnchor][MenuGroup("Standard")]
 [RequiresOwnerComponent(typeof(StateMachineController))]
 [CreateAssetMenu(
-    fileName = "NewSetTwoBoneIKAction",
+    fileName = "New_SetTwoBoneIK_Action",
     menuName = "YUKI Learning State Machine/StateMachineList/Actions/Standard/Animator/Set Two Bone IK")]
 public class SetTwoBoneIKActionSO : StateActionSO
 {
@@ -147,7 +147,9 @@ public class SetTwoBoneIKActionSO : StateActionSO
                 _weightCoroutine = null;
             }
 
-            if (duration <= 0f)
+            // Inactive or being destroyed (e.g. StateMachine.Dispose on OnDestroy): a coroutine can't
+            // start there, so set the weight right away.
+            if (duration <= 0f || !runner.isActiveAndEnabled)
             {
                 constraint.weight = targetWeight;
                 return;
