@@ -59,7 +59,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
   m_Name: BackSpawnPoint_State
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
-  _actions: []
+  _actions:
+  - {fileID: 2418503059950979458}
+  - {fileID: 6220779737320325468}
+  - {fileID: -2818115556523619333, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
 --- !u!114 &-3533848237192763334
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -90,6 +93,38 @@ MonoBehaviour:
   flag: {fileID: 11400000, guid: 55f11384f5bc5bd41a419b2b18f85c1b, type: 2}
   value: 1
   changeValueOnExit: 0
+--- !u!114 &-2631228047302129901
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a56605c1a1022b40ba51d7190e28d0f, type: 3}
+  m_Name: SpawnPoint_TeleportTransform_Action
+  m_EditorClassIdentifier: Assembly-CSharp::TeleportTransformActionSO
+  _selfAnchor: {fileID: 5686795246892414722}
+  _targetAnchor: {fileID: 6708316029072234448}
+  _positionOffset: {x: 0, y: 0, z: 0}
+  _matchRotation: 0
+  _rotationOffset: {x: 0, y: 0, z: 0}
+--- !u!114 &-1625231481902100166
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9857d4c9abc56a458a25ef29958bfb6, type: 3}
+  m_Name: ReachPathNavigatorTarget_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::ReachPathNavigatorTargetConditionSO
+  _selfAnchor: {fileID: 0}
+  _arrivalDistance: 0.5
+  _randomArrivalRange: 0
 --- !u!114 &-775651415800135073
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -144,10 +179,33 @@ MonoBehaviour:
     - Conditions:
       - Condition: {fileID: -537687942194946298}
         ExpectedResult: 0
-    ToState: {fileID: 6316323394180978816, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
+    ToState: {fileID: -4171952969878970766}
     Id: 6ffd2151-46e2-4e65-8d5f-0eabddec4b28
+  - FromState: {fileID: -4171952969878970766}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -1625231481902100166}
+        ExpectedResult: 0
+    ToState: {fileID: 6316323394180978816, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
+    Id: 0c60812f-bbd8-4617-9364-50dd6b96575a
   _base: {fileID: 11400000, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
-  _fieldOverrides: []
+  _fieldOverrides:
+  - _value: 1.5
+    _bool: 0
+    _string: 
+    _vector: {x: 0, y: 0, z: 0}
+    _color: {r: 0, g: 0, b: 0, a: 0}
+    _object: {fileID: 0}
+    _target: {fileID: -4653060728196727812, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
+    _fieldPath: _distance
+  - _value: 1
+    _bool: 0
+    _string: 
+    _vector: {x: 0, y: 0, z: 0}
+    _color: {r: 0, g: 0, b: 0, a: 0}
+    _object: {fileID: 0}
+    _target: {fileID: 7027420836479781187, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
+    _fieldPath: _distance
   _removedIds: []
   _transitionOverrides:
   - _transitionId: 96b897ed-a6b7-4ecb-a895-324ee45ec1f9
@@ -175,21 +233,43 @@ MonoBehaviour:
     _kind: 1
     _action: {fileID: -826716435119943352, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
     _with: {fileID: -2706972474091422522}
+  - _state: {fileID: 6316323394180978816, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
+    _kind: 2
+    _action: {fileID: -2631228047302129901}
+    _with: {fileID: -2706972474091422522}
   _actionOrders: []
   _exposedParameters: {fileID: 0}
   _nodePositions:
   - State: {fileID: 8026634343205636463}
-    Position: {x: 170, y: 239}
+    Position: {x: 170, y: 231}
   - State: {fileID: 7420138637109490489, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
     Position: {x: 170, y: 142}
   - State: {fileID: -4171952969878970766}
-    Position: {x: 174, y: 308}
+    Position: {x: 170, y: 299}
+  - State: {fileID: 6316323394180978816, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
+    Position: {x: 170, y: 6}
   _entryNodePosition: {x: 0, y: 0}
   _anyStateNodePosition: {x: 0, y: 120}
   _contentsFolders: []
   _contentsFolderPaths: []
   _stateDisplayNames: []
   _removedParameters: []
+--- !u!114 &2418503059950979458
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 064477ec6286dbb46971440740c727ae, type: 3}
+  m_Name: Spawn_SetPathNavigatorTarget_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SetPathNavigatorTargetActionSO
+  _selfAnchor: {fileID: 0}
+  _targetAnchor: {fileID: 5686795246892414722}
+  _offset: {x: 0, y: 0, z: 0}
+  _randomOffsetRange: {x: 0, y: 0, z: 0}
 --- !u!114 &4230640190635820086
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -228,6 +308,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FollowPathLocomotionActionSO
   _selfAnchor: {fileID: 0}
   _updateFacing: 1
+--- !u!114 &6708316029072234448
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29aaa39665320664388a123863eae513, type: 3}
+  m_Name: Owner_AnchorID
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.AnchorIDSO
 --- !u!114 &7645616432327122729
 MonoBehaviour:
   m_ObjectHideFlags: 0

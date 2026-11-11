@@ -75,18 +75,25 @@ namespace Yuki.Learning.StateMachine.Editor
             return entries;
         }
 
-        // What a [MenuGroup] entry keeps of its script's place: the folder it is directly in.
-        //   ".../Action/Animator/PlayAnimatorStateActionSO.cs" -> "Animator/"
-        // "Action" and "Condition" only repeat the menu they're in, so a script right in one adds nothing.
+        // What a [MenuGroup] entry keeps of its script's place: every folder after Action / Condition.
+        //   ".../Action/Animator/PlayAnimatorStateActionSO.cs"     -> "Animator/"
+        //   ".../Action/Addon/EventChanel/RaiseVoid...ActionSO.cs" -> "Addon/EventChanel/"
+        //   ".../Action/DebugLogActionSO.cs"                       -> ""
+        // "Action" and "Condition" only repeat the menu they're in, so they're left out.
+        // A script not under either keeps only the folder it is directly in.
         private static string ScriptFolderPart(string scriptPath)
         {
-            string folder = Path.GetFileName(Path.GetDirectoryName(scriptPath));
-            if (folder == "Action" || folder == "Condition" || folder == Path.GetFileName(ScriptsRoot))
+            string[] folders = Path.GetDirectoryName(scriptPath).Replace('\\', '/').Split('/');
+
+            int start = Array.FindLastIndex(folders, name => name == "Action" || name == "Condition");
+            if (start < 0)
             {
-                return "";
+                string folder = folders[folders.Length - 1];
+                return folder == Path.GetFileName(ScriptsRoot) ? "" : $"{folder}/";
             }
 
-            return $"{folder}/";
+            string rest = string.Join("/", folders.Skip(start + 1));
+            return rest.Length > 0 ? $"{rest}/" : "";
         }
 
         private static Entry NewEntry(Type type, string menuPath)
