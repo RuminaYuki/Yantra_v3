@@ -77,6 +77,12 @@ public class RadialManuController : MonoBehaviour
 
     private void Update()
     {
+        if (Time.timeScale <= 0f)
+        {
+            ForceExit();
+            return;
+        }
+
         if (!GetActive()) return;
 
         Vector2 stroke = ReadStroke();
@@ -179,6 +185,12 @@ public class RadialManuController : MonoBehaviour
 
         _radialMenuButtons.Add(go);
         _radialButtons.Add(go.GetComponent<RadialButton>());
+    }
+
+    private void ForceExit()
+    {
+        ClearHover();
+        SetVisible(false);
     }
 
     #region Input
