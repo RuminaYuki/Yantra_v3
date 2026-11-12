@@ -83,6 +83,14 @@ public class PlayerCameraController : MonoBehaviour
     private float _targetYaw = 0f;
     private float _customYawSpeed = 0f;
 
+    // บังคับหันไปมอง (เช่น ผีโผล่) — แยกจาก Look Lock ของ Glory / ท่าจับ จะได้ไม่ทับกัน
+    private Transform _forcedLookTarget;
+    private Vector3 _forcedLookOffset;
+    private float _forcedLookTimeLeft;
+    private float _forcedLookTurnTime;
+    private float _forcedYawVelocity;
+    private float _forcedPitchVelocity;
+
     #region Public Properties API
 
     public bool IsPaused
@@ -189,6 +197,35 @@ public class PlayerCameraController : MonoBehaviour
     public float MinPitch => _minPitch;
     public float MaxPitch => _maxPitch;
 
+    public bool IsForcedLooking => _forcedLookTarget != null;
+
+    // บังคับกล้องหันไปมองเป้าหมายชั่วคราว ระหว่างนี้เมาส์ใช้ไม่ได้ หมดเวลาแล้วคืนให้ผู้เล่นคุมต่อจากมุมนั้น
+    // turnTime = ใช้เวลาหันกี่วินาที (น้อย = หันพรวด) / ถ้ากำลัง Glory หรือ Pause อยู่จะไม่หัน
+    public bool StartForcedLook(Transform target, Vector3 offset, float duration, float turnTime)
+    {
+        if (target == null || duration <= 0f || _isCutsceneMode || _isPaused)
+            return false;
+
+        _forcedLookTarget = target;
+        _forcedLookOffset = offset;
+        _forcedLookTimeLeft = duration;
+        _forcedLookTurnTime = Mathf.Max(0.01f, turnTime);
+        _forcedYawVelocity = 0f;
+        _forcedPitchVelocity = 0f;
+        _currentLookDelta = Vector2.zero;
+
+        IsGunAiming = false;
+        IsYantraAiming = false;
+        IsFreeLookingInBook = false;
+        return true;
+    }
+
+    public void StopForcedLook()
+    {
+        _forcedLookTarget = null;
+        _currentLookDelta = Vector2.zero;
+    }
+
     public void SetGloryCameraActive(bool active)
     {
         IsCutsceneMode = active;
@@ -240,10 +277,23 @@ public class PlayerCameraController : MonoBehaviour
 
         float dt = Time.deltaTime;
 
+        // นับเวลาตลอด แม้ระบบอื่นล็อกกล้องอยู่ — ไม่งั้นพอปลดล็อกกล้องจะสะบัดไปหาเป้าที่เลยมาแล้ว
+        if (_forcedLookTarget != null)
+        {
+            _forcedLookTimeLeft -= dt;
+            if (_forcedLookTimeLeft <= 0f)
+                StopForcedLook();
+        }
+
         if (_isLookLocked)
         {
             _currentLookDelta = Vector2.zero;
             RecenterPitchAndYaw(dt);
+        }
+        else if (_forcedLookTarget != null)
+        {
+            _currentLookDelta = Vector2.zero;
+            UpdateForcedLook(dt);
         }
 
         UpdateRotation(dt);
@@ -275,6 +325,19 @@ public class PlayerCameraController : MonoBehaviour
 
         float pitchSpeed = _customYawSpeed > 0f ? Mathf.Max(_recenterSpeed, _customYawSpeed) : _recenterSpeed;
         _pitch = Mathf.MoveTowards(_pitch, 0f, pitchSpeed * dt);
+    }
+
+    private void UpdateForcedLook(float dt)
+    {
+        Vector3 direction = _forcedLookTarget.position + _forcedLookOffset - transform.position;
+        if (direction.sqrMagnitude < 0.0001f)
+            return;
+
+        Vector3 euler = Quaternion.LookRotation(direction).eulerAngles;
+        float targetPitch = Mathf.Clamp(NormalizeAngle(euler.x), _minPitch, _maxPitch);
+
+        _yaw = Mathf.SmoothDampAngle(_yaw, euler.y, ref _forcedYawVelocity, _forcedLookTurnTime, Mathf.Infinity, dt);
+        _pitch = Mathf.SmoothDamp(_pitch, targetPitch, ref _forcedPitchVelocity, _forcedLookTurnTime, Mathf.Infinity, dt);
     }
 
     // ---------- Rotation ----------
