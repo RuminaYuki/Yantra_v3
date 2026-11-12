@@ -4,11 +4,11 @@ using UnityEngine;
 // ใส่ให้ทุกตัวที่เล่นท่าคู่ได้ (ผู้เล่น / ผี) บนตัวเดียวกับ PairedAnimationActor
 // Component นี้ไม่รู้ว่าตัวเองเป็นฝ่ายทำหรือฝ่ายโดน — ใครเรียก Play พร้อม Partner คนนั้นคือฝ่ายทำ แล้วจะสั่ง Partner ให้เล่นตามเอง
 // ตัวละครอยู่ใน State เปล่า ๆ ระหว่างเล่นท่า ใช้ PairedAnimationPlayerCondition อ่านว่ากำลังเล่น / จบแล้ว
+// ไม่ล็อกการเดิน — State ของทีม (LockMovement) จัดการเอง
 [RequireComponent(typeof(PairedAnimationActor))]
 public class PairedAnimationPlayer : MonoBehaviour
 {
     private PairedAnimationActor _actor;
-    private BaseLocomotion _locomotion;
     private CenterRayInteract _interactRay;
     private PlayerInteract _playerInteract;
     private PlayerPairedCamera _camera;   // มีเฉพาะผู้เล่น
@@ -20,7 +20,6 @@ public class PairedAnimationPlayer : MonoBehaviour
     private bool _waitingForLeader;
     private bool _hasFinished;
     private bool _cancelNextFrame;
-    private bool _locomotionLocked;
     private bool _interactRayDisabled;
     private bool _interactLost;
 
@@ -44,7 +43,6 @@ public class PairedAnimationPlayer : MonoBehaviour
     private void Awake()
     {
         _actor = GetComponent<PairedAnimationActor>();
-        _locomotion = GetComponent<BaseLocomotion>();
         _interactRay = GetComponentInChildren<CenterRayInteract>();
         _playerInteract = GetComponentInChildren<PlayerInteract>();
         _camera = GetComponent<PlayerPairedCamera>();
@@ -87,12 +85,7 @@ public class PairedAnimationPlayer : MonoBehaviour
         _interactLost = false;
         _partnerPlayer = null;
 
-        if (_locomotion != null)
-        {
-            _locomotion.LockLocomotion(this);
-            _locomotionLocked = true;
-        }
-
+        // ปุ่ม E รัว ๆ ของ QTE คือปุ่ม Interact — ปิด ray ไว้ กันกดไปโดนประตู / ของอื่นระหว่างท่า
         if (_interactRay != null)
         {
             _interactRay.SetInteractEnabled(false);
@@ -121,17 +114,18 @@ public class PairedAnimationPlayer : MonoBehaviour
             return;
 
         // เริ่มจาก Interact แต่มีอย่างอื่นปิด Interact ไปแล้ว — เก็บกวาดโดยไม่ยกเลิกซ้ำ
-        // ยกเว้น Glory: กดแล้วต้องเล่นจนจบ ไม่งั้นผีจะค้างอยู่กับที่ไม่ตาย
+        // ยกเว้น Glory / Grab: กดแล้วต้องเล่นจนจบ
+        // (Glory ไม่งั้นผีค้างไม่ตาย / Grab ระหว่างโดนแขนลาก State ของแขนอาจปิด Interact ไป)
         if (!_interactLost && _request.Source != null && _playerInteract != null && !_playerInteract.GetIsInterctable)
         {
-            if (_request.Type != PairedActionType.Glory)
+            if (_request.Type != PairedActionType.Glory && _request.Type != PairedActionType.Grab)
             {
                 End(false);
                 return;
             }
 
             _interactLost = true;
-            Debug.LogWarning("[PairedAnimationPlayer] Interact โดนปิดระหว่าง Glory — เล่นต่อจนจบ", this);
+            Debug.LogWarning($"[PairedAnimationPlayer] Interact โดนปิดระหว่าง {_request.Type} — เล่นต่อจนจบ", this);
         }
 
         _actor.Tick();
@@ -219,9 +213,6 @@ public class PairedAnimationPlayer : MonoBehaviour
         if (_actor != null)
             _actor.Stop();
 
-        if (_locomotionLocked && _locomotion != null)
-            _locomotion.UnlockLocomotion(this);
-
         if (_interactRayDisabled && _interactRay != null)
             _interactRay.SetInteractEnabled(true);
 
@@ -237,7 +228,6 @@ public class PairedAnimationPlayer : MonoBehaviour
         _isPreparing = false;
         _waitingForLeader = false;
         _request = default;
-        _locomotionLocked = false;
         _interactRayDisabled = false;
         _interactLost = false;
     }

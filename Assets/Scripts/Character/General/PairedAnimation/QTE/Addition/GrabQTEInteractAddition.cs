@@ -167,6 +167,21 @@ public class GrabQTEInteractAddition : MonoBehaviour, IPairedInteractionSource
         return _running;
     }
 
+    // State ของแขนจบไปก่อนรู้ผล (เช่น ลากถึงเปรตแล้ว) — ปิด QTE เงียบ ๆ ไม่มีผล ไม่ตัดเลือดเพิ่ม
+    public void StopQTE()
+    {
+        if (!_running || _resolved)
+            return;
+
+        _resolved = true;
+        UnsubscribeInput();
+
+        if (_player != null)
+            _player.EndLoop(null);
+        if (_ghost != null)
+            _ghost.EndLoop(null);
+    }
+
     // ===== Interactor =====
 
     // ผู้เล่นกด E ใส่ผีเพื่อเริ่มเองไม่ได้ ไฟ highlight ก็จะไม่ขึ้น

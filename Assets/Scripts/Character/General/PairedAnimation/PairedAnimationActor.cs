@@ -132,12 +132,15 @@ public class PairedAnimationActor : MonoBehaviour
     private PairedRequest _current;
     private Phase _phase = Phase.Idle;
     private bool _hasTakenControl;
+    private bool _controlsTransform;
     private bool _hasEnteredState;
     private int _bodyStateHash;
     private float _elapsed;
+    private bool _locomotionChanged;
     private float _savedGravity;
     private LocomotionMoveMode _savedMoveMode;
     private bool _moveByAnimation;
+    private bool _bodyRootMotionDisabled;
 
     // ท่าที่กำลังเล่นอยู่จริง — ปกติคือท่าของคำขอ แต่หลัง EndLoop จะเป็นท่าจบ (เช่น ท่าดิ้นหลุด)
     private PairedAnimationId _playing;
@@ -181,6 +184,11 @@ public class PairedAnimationActor : MonoBehaviour
     private bool HasAnyPending =>
         _pendingTime >= 0f && Time.time - _pendingTime <= _requestTimeout;
 
+    // Grab (แขนนาคจับ): ไม่แตะตำแหน่งตัวเลย ไม่ดูดตัว ไม่ใช้ Root Motion — แค่เล่นท่าสองตัวพร้อมกัน
+    // ตำแหน่งให้ State จัดการเอง (Follow3D ลากผู้เล่น / Navigator ขยับแขน)
+    // Glory / Climb ยังดูดตัว + เดินตาม Root Motion เหมือนเดิม
+    private static bool ControlsTransform(PairedActionType type) => type != PairedActionType.Grab;
+
     private void Awake()
     {
         _locomotion = GetComponent<BaseLocomotion>();
@@ -212,10 +220,18 @@ public class PairedAnimationActor : MonoBehaviour
         if (_rootAnimator == null)
             return;
 
-        if (_moveByAnimation && _phase == Phase.Play)
+        if (_hasTakenControl)
         {
-            _posePosition += _rootAnimator.deltaPosition;
-            _poseRotation *= _rootAnimator.deltaRotation;
+            // Grab: ไม่เอา Root Motion และไม่ยึดตัว ปล่อยให้ State ขยับตัวเอง
+            if (!_controlsTransform)
+                return;
+
+            if (_moveByAnimation && _phase == Phase.Play)
+            {
+                _posePosition += _rootAnimator.deltaPosition;
+                _poseRotation *= _rootAnimator.deltaRotation;
+            }
+
             transform.SetPositionAndRotation(_posePosition, _poseRotation);
             return;
         }
@@ -251,26 +267,37 @@ public class PairedAnimationActor : MonoBehaviour
         _current = _pending;
         _pending = default;
         _pendingTime = -1f;
+        _controlsTransform = ControlsTransform(_current.Type);
 
         _snapFromPosition = transform.position;
         _snapFromRotation = transform.rotation;
+        _posePosition = _snapFromPosition;
+        _poseRotation = _snapFromRotation;
         _startPosition = _current.StartPosition;
         _startRotation = FlatRotation(_current.StartRotation * Vector3.forward);
 
         // ระหว่างเล่นท่า ตัวเรากับคู่ต้องทะลุกันได้ ไม่งั้น CharacterController จะชนกันจนจับคอไม่ถึง
         IgnorePartnerCollisions(_current.Partner);
-        PauseAgent();
         DisableExtras();
 
-        // ปิดแรงโน้มถ่วง ตั้งโหมด External ให้ BaseLocomotion หยุดขยับตัว แล้วสคริปต์นี้คุมเองทั้งหมด
-        // ล็อกไว้ด้วย กัน BaseLocomotion หมุนตัวทับระหว่างท่า
-        if (_locomotion != null)
+        if (_controlsTransform)
         {
-            _savedGravity = _locomotion.GetGravityMultiplier();
-            _locomotion.SetGravityMultiplier(0f);
-            _savedMoveMode = _locomotion.MoveMode;
-            _locomotion.MoveMode = LocomotionMoveMode.External;
-            _locomotion.LockLocomotion(this);
+            PauseAgent();
+
+            // ปิดแรงโน้มถ่วง ตั้งโหมด External ให้ BaseLocomotion หยุดขยับตัว แล้วสคริปต์นี้คุมเองทั้งหมด
+            // ไม่ล็อกอินพุตตรงนี้ — State ของตัวละครเป็นคนจัดการเอง
+            if (_locomotion != null)
+            {
+                _savedGravity = _locomotion.GetGravityMultiplier();
+                _locomotion.SetGravityMultiplier(0f);
+                _savedMoveMode = _locomotion.MoveMode;
+                _locomotion.MoveMode = LocomotionMoveMode.External;
+                _locomotionChanged = true;
+            }
+        }
+        else
+        {
+            DisableBodyRootMotion();
         }
 
         PairedAnimationId animation = _current.Animation;
@@ -295,10 +322,9 @@ public class PairedAnimationActor : MonoBehaviour
             return;
 
         // ยึดจุดเริ่มต้นให้ตรงเป๊ะก่อนปล่อยให้ Root Motion ทำงาน
-        SetPose(_startPosition, _startRotation);
-        _posePosition = _startPosition;
-        _poseRotation = _startRotation;
-        _moveByAnimation = true;
+        if (_controlsTransform)
+            SetPose(_startPosition, _startRotation);
+        _moveByAnimation = _controlsTransform;
 
         _playing = _current.Animation;
         _loopReleased = false;
@@ -368,15 +394,17 @@ public class PairedAnimationActor : MonoBehaviour
                 PlayExit(_armAnimator, animation.Arm, animation.TransitionDuration);
             }
 
-            if (_locomotion != null)
+            if (_locomotionChanged && _locomotion != null)
             {
                 _locomotion.SetGravityMultiplier(_savedGravity);
                 _locomotion.MoveMode = _savedMoveMode;
-                _locomotion.UnlockLocomotion(this);
             }
 
+            RestoreBodyRootMotion();
+
             // ให้ CharacterController รู้ตำแหน่งใหม่ที่แอนิเมชันพามา
-            Physics.SyncTransforms();
+            if (_controlsTransform)
+                Physics.SyncTransforms();
             RestoreExtras();
         }
 
@@ -386,6 +414,8 @@ public class PairedAnimationActor : MonoBehaviour
             _restoreWhenApart = true;
 
         _hasTakenControl = false;
+        _controlsTransform = false;
+        _locomotionChanged = false;
         _moveByAnimation = false;
         _phase = Phase.Idle;
         _current = default;
@@ -397,6 +427,10 @@ public class PairedAnimationActor : MonoBehaviour
     {
         PairedAnimationId animation = _current.Animation;
         _elapsed += Time.deltaTime;
+
+        // Grab ไม่ดูดตัว แค่รอเวลา Snap Duration ให้กล้องหันเสร็จ
+        if (!_controlsTransform)
+            return;
 
         float snap = animation.SnapDuration > 0f
             ? Mathf.SmoothStep(0f, 1f, _elapsed / animation.SnapDuration)
@@ -434,6 +468,25 @@ public class PairedAnimationActor : MonoBehaviour
     private void Finish()
     {
         _phase = Phase.Finished;
+    }
+
+    // ---------- Root Motion ----------
+
+    // Animator ที่อยู่ตัวลูก OnAnimatorMove ของตัวนี้คุมไม่ถึง ต้องปิด Root Motion ตรง ๆ แล้วเปิดคืนตอนจบ
+    private void DisableBodyRootMotion()
+    {
+        if (_bodyAnimator == null || _bodyAnimator == _rootAnimator || !_bodyAnimator.applyRootMotion)
+            return;
+
+        _bodyAnimator.applyRootMotion = false;
+        _bodyRootMotionDisabled = true;
+    }
+
+    private void RestoreBodyRootMotion()
+    {
+        if (_bodyRootMotionDisabled && _bodyAnimator != null)
+            _bodyAnimator.applyRootMotion = true;
+        _bodyRootMotionDisabled = false;
     }
 
     // ---------- ทะลุกันชั่วคราว ----------
@@ -537,7 +590,7 @@ public class PairedAnimationActor : MonoBehaviour
 
     // ---------- NavMesh ----------
 
-    // NavMeshAgent ชอบดึงตำแหน่ง / หันตัวกลับ ปิดไว้ระหว่างเล่นท่า
+    // NavMeshAgent ชอบดึงตำแหน่ง / หันตัวกลับ ปิดไว้ระหว่าง Glory (Grab ไม่แตะ)
     private void PauseAgent()
     {
         if (_agentPaused || _agent == null || !_agent.enabled)
@@ -570,6 +623,8 @@ public class PairedAnimationActor : MonoBehaviour
 
     private void SetPose(Vector3 position, Quaternion rotation)
     {
+        _posePosition = position;
+        _poseRotation = rotation;
         transform.SetPositionAndRotation(position, rotation);
         Physics.SyncTransforms();
     }

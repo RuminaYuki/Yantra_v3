@@ -49,6 +49,13 @@ public class StartGrabQTEAction : StateAction
         _qte.BeginQTE(player.transform.root.gameObject);
     }
 
+    // ออกจาก State ก่อนผู้เล่นดิ้นหลุด / แพ้ (เช่น ลากถึงเปรตแล้ว) — ปิด QTE ทิ้ง ไม่ให้ค้างบนจอ
+    public override void OnStateExit()
+    {
+        if (_qte != null)
+            _qte.StopQTE();
+    }
+
     public override void OnUpdate()
     {
     }
