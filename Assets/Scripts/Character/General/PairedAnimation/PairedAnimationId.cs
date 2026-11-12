@@ -12,6 +12,12 @@ public struct PairedAnimatorState
     public string ExitStateName;
 }
 
+public enum PairedMoveMode
+{
+    RootMotion,
+    None
+}
+
 // ข้อมูลของ "ท่า" หนึ่งท่า (ปีน / glory) — เปลี่ยนท่าหรือจูนการเคลื่อนที่ได้ที่ asset นี้ ไม่ต้องแก้โค้ด
 [CreateAssetMenu(
     fileName = "NewPaired_Animation",
@@ -30,6 +36,10 @@ public class PairedAnimationId : ScriptableObject
     [Tooltip("ติ๊ก = วนค้างไว้จนกว่าจะมีคนสั่ง EndLoop (ใช้กับ QTE) — state ใน Animator ต้องติ๊ก Loop Time ด้วย\nไม่ติ๊ก = จบเองเมื่อเล่นครบ 1 รอบ")]
     [SerializeField] private bool _loop;
 
+    [Tooltip("RootMotion = ดูดตัวเข้าจุดเริ่ม แล้วขยับตามท่า (แบบ Glory)\n" +
+             "None = ไม่แตะตำแหน่งตัวเลย ไม่ใช้ Root Motion ให้ State ขยับเอง (เช่น แขนนาคลากด้วย Follow3D)")]
+    [SerializeField] private PairedMoveMode _moveMode = PairedMoveMode.RootMotion;
+
     [Header("Movement จากจุดเริ่ม → จุดจบ (แกน X = เวลาท่า 0-1)")]
     [Tooltip("เวลาดูดตัวเข้าจุดเริ่ม (วินาที) — ทำไปพร้อมกับท่าเลย")]
     [SerializeField, Min(0f)] private float _snapDuration = 0.2f;
@@ -44,6 +54,7 @@ public class PairedAnimationId : ScriptableObject
     public PairedAnimatorState Arm => _arm;
     public float TransitionDuration => _transitionDuration;
     public bool Loop => _loop;
+    public PairedMoveMode MoveMode => _moveMode;
     public float SnapDuration => _snapDuration;
     public AnimationCurve UpCurve => _upCurve;
     public AnimationCurve ForwardCurve => _forwardCurve;

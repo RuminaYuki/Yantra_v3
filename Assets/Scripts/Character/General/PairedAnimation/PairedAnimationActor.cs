@@ -184,11 +184,6 @@ public class PairedAnimationActor : MonoBehaviour
     private bool HasAnyPending =>
         _pendingTime >= 0f && Time.time - _pendingTime <= _requestTimeout;
 
-    // Grab (แขนนาคจับ): ไม่แตะตำแหน่งตัวเลย ไม่ดูดตัว ไม่ใช้ Root Motion — แค่เล่นท่าสองตัวพร้อมกัน
-    // ตำแหน่งให้ State จัดการเอง (Follow3D ลากผู้เล่น / Navigator ขยับแขน)
-    // Glory / Climb ยังดูดตัว + เดินตาม Root Motion เหมือนเดิม
-    private static bool ControlsTransform(PairedActionType type) => type != PairedActionType.Grab;
-
     private void Awake()
     {
         _locomotion = GetComponent<BaseLocomotion>();
@@ -222,7 +217,7 @@ public class PairedAnimationActor : MonoBehaviour
 
         if (_hasTakenControl)
         {
-            // Grab: ไม่เอา Root Motion และไม่ยึดตัว ปล่อยให้ State ขยับตัวเอง
+            // Move Mode = None: ไม่เอา Root Motion และไม่ยึดตัว ปล่อยให้ State ขยับตัวเอง
             if (!_controlsTransform)
                 return;
 
@@ -267,7 +262,8 @@ public class PairedAnimationActor : MonoBehaviour
         _current = _pending;
         _pending = default;
         _pendingTime = -1f;
-        _controlsTransform = ControlsTransform(_current.Type);
+        // ตั้งที่ Move Mode ในท่า — None = ไม่แตะตำแหน่งตัวเลย ไม่ดูดตัว ไม่ใช้ Root Motion ให้ State ขยับเอง
+        _controlsTransform = _current.Animation.MoveMode == PairedMoveMode.RootMotion;
 
         _snapFromPosition = transform.position;
         _snapFromRotation = transform.rotation;
@@ -428,7 +424,7 @@ public class PairedAnimationActor : MonoBehaviour
         PairedAnimationId animation = _current.Animation;
         _elapsed += Time.deltaTime;
 
-        // Grab ไม่ดูดตัว แค่รอเวลา Snap Duration ให้กล้องหันเสร็จ
+        // Move Mode = None ไม่ดูดตัว แค่รอเวลา Snap Duration ให้กล้องหันเสร็จ
         if (!_controlsTransform)
             return;
 
@@ -590,7 +586,7 @@ public class PairedAnimationActor : MonoBehaviour
 
     // ---------- NavMesh ----------
 
-    // NavMeshAgent ชอบดึงตำแหน่ง / หันตัวกลับ ปิดไว้ระหว่าง Glory (Grab ไม่แตะ)
+    // NavMeshAgent ชอบดึงตำแหน่ง / หันตัวกลับ ปิดไว้ระหว่างท่า (Move Mode = None ไม่แตะ)
     private void PauseAgent()
     {
         if (_agentPaused || _agent == null || !_agent.enabled)
