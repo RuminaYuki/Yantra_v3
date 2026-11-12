@@ -67,15 +67,8 @@ public class WeaponHUD : MonoBehaviour
 
     private void Start()
     {
-        if (_inventory == null) _inventory = FindAnyObjectByType<PlayerInventory>(FindObjectsInactive.Include);
-        if (_gun == null && _inventory != null) _gun = _inventory.transform.root.GetComponentInChildren<GunController>(true);
-        if (_gun == null) _gun = FindAnyObjectByType<GunController>(FindObjectsInactive.Include);
-        if (_heldObject == null && !string.IsNullOrEmpty(_heldObjectName) && _gun != null)
-        {
-            // หาเฉพาะใต้ปืนในมือ — ปืนที่วางบนพื้นก็มี Object ชื่อเดียวกัน
-            foreach (Transform t in _gun.GetComponentsInChildren<Transform>(true))
-                if (t.name == _heldObjectName) { _heldObject = t.gameObject; break; }
-        }
+        SetGunComponents();
+
         if (_heldObject == null)
             Debug.LogWarning($"[WeaponHUD] หา '{_heldObjectName}' ใต้ {(_gun != null ? _gun.name : "ปืน")} ไม่เจอ — HUD จะดูจาก GunController แทน", this);
         if (_weaponIcon != null) _gunIcon = _weaponIcon.sprite;
@@ -166,8 +159,22 @@ public class WeaponHUD : MonoBehaviour
         }
     }
 
+    private void SetGunComponents()
+    {
+        if (_inventory == null) _inventory = FindAnyObjectByType<PlayerInventory>(FindObjectsInactive.Include);
+        if (_gun == null && _inventory != null) _gun = _inventory.transform.root.GetComponentInChildren<GunController>(true);
+        if (_gun == null) _gun = FindAnyObjectByType<GunController>(FindObjectsInactive.Include);
+        if (_heldObject == null && !string.IsNullOrEmpty(_heldObjectName) && _gun != null)
+        {
+            // หาเฉพาะใต้ปืนในมือ — ปืนที่วางบนพื้นก็มี Object ชื่อเดียวกัน
+            foreach (Transform t in _gun.GetComponentsInChildren<Transform>(true))
+                if (t.name == _heldObjectName) { _heldObject = t.gameObject; break; }
+        }
+    }
+
     private bool IsHolding()
     {
+        if (_heldObject == null && _gun == null) SetGunComponents();
         if (_heldObject != null) return _heldObject.activeInHierarchy;
         return _gun != null && _gun.isActiveAndEnabled;
     }

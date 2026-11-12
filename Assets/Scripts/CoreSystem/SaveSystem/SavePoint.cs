@@ -14,6 +14,9 @@ public class SavePoint : SpawnPoint
     [SerializeField] private bool restoreHealth = true;
     [SerializeField] private bool restoreAmmo = true;
 
+    [Tooltip("Allow this SavePoint to save only once per save slot. Requires a non-empty SaveId.")]
+    [SerializeField] private bool oneTimeOnly;
+
     [Tooltip("Reload the scene after saving so normal enemies respawn.")]
     [SerializeField] private bool reloadScene = true;
 
@@ -29,15 +32,28 @@ public class SavePoint : SpawnPoint
     public void HandleSave(GameObject rootPlayer)
     {
         SaveManager manager = SaveManager.Instance;
-        bool saved = false;
+        if (manager == null || !manager.CanSave) return;
 
-        if (manager != null && manager.CanSave)
+        string usedFlagKey = null;
+        if (oneTimeOnly)
         {
-            PlayerSaveable player = rootPlayer != null ? rootPlayer.GetComponentInChildren<PlayerSaveable>() : null;
-            if (player != null) player.Refill(restoreHealth, restoreAmmo);
-            else Debug.LogWarning("[Save] No PlayerSaveable found on the player.", this);
+            if (string.IsNullOrEmpty(Id))
+            {
+                Debug.LogWarning("[Save] One-time SavePoint requires a non-empty SaveId.", this);
+                return;
+            }
 
-            saved = manager.SaveAt(this, reloadScene);
+            usedFlagKey = $"savepoint.used.{Id}";
+            if (manager.Flags.GetBool(usedFlagKey)) return;
         }
+
+        PlayerSaveable player = rootPlayer != null ? rootPlayer.GetComponentInChildren<PlayerSaveable>() : null;
+        if (player != null) player.Refill(restoreHealth, restoreAmmo);
+        else Debug.LogWarning("[Save] No PlayerSaveable found on the player.", this);
+
+        if (oneTimeOnly) manager.Flags.SetBool(usedFlagKey, true);
+
+        bool saved = manager.SaveAt(this, reloadScene);
+        if (!saved && oneTimeOnly) manager.Flags.Remove(usedFlagKey);
     }
 }
