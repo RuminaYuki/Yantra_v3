@@ -12,6 +12,9 @@ public class BlockSystem : MonoBehaviour
     [Header("Block System")]
     [SerializeField] bool _isBlockEnable = false;
     [SerializeField] float _maxGuardPoints = 100f;
+    [SerializeField, Range(0f, 100f)] float _minGuardPercent = 0f;   // 0 = ปิด
+    [Tooltip("พอ guard ลดถึง floor จะหยุดลดต่อวินาทีไว้กี่วินาที (hit ยังลดได้ตามปกติ)")]
+    [SerializeField, Min(0f)] float _floorHoldDuration = 1f;
     [SerializeField] bool _assignValue = false;
     [SerializeField] float _currentGuardPoints = 100f;
     [SerializeField] float _guardDecreasedPerHit = 10f;
@@ -29,6 +32,18 @@ public class BlockSystem : MonoBehaviour
 
     private float _recoveryDelayTimer;
     private bool _isReady = true;
+
+    private float MinGuard => _maxGuardPoints * _minGuardPercent / 100f;
+    public float MinGuardPercent => _minGuardPercent;
+
+    private float _floorHoldTimer;
+    // true ระหว่างค้างที่ floor (หยุดลดต่อวินาที)
+    public bool IsFloorHolding => _floorHoldTimer > 0f;
+
+    public void SetMinGuardPercent(float percent)
+    {
+        _minGuardPercent = Mathf.Clamp(percent, 0f, 100f);
+    }
 
     public float CurrentGuardPoints => _currentGuardPoints;
     // false ตั้งแต่ guard ลงถึง 0 จนกว่าจะฟื้นเต็ม
@@ -76,7 +91,12 @@ public class BlockSystem : MonoBehaviour
         if (_isBlockEnable)
         {
             _recoveryDelayTimer = 0f;
-            SetGuard(_currentGuardPoints - _decreasedGuardPointsPerSecond * Time.deltaTime);
+
+            if (_floorHoldTimer > 0f)
+                _floorHoldTimer -= Time.deltaTime;   // ค้างที่ floor อยู่ ยังไม่ลด
+            else
+                SetGuard(ApplyFloor(_decreasedGuardPointsPerSecond * Time.deltaTime));
+
             if (_currentGuardPoints <= 0)
             {
                 _OnGuardPointDepleted.Raise();
@@ -122,12 +142,27 @@ public class BlockSystem : MonoBehaviour
     private void DecreaseGuard(float amount)
     {
         _recoveryDelayTimer = 0f;
-        SetGuard(_currentGuardPoints - amount);
+
+        SetGuard(ApplyFloor(amount));
         _OnCurrentGuardPointChange.Raise(_currentGuardPoints);
         if (_currentGuardPoints <= 0)
         {
             _OnGuardPointDepleted.Raise();
         }
+    }
+
+    // ยังอยู่เหนือ floor → ลดได้แค่ถึง floor แล้วเริ่มค้าง / ถึง floor แล้ว → ลดตามปกติ (เหมือน Health)
+    private float ApplyFloor(float amount)
+    {
+        float next = _currentGuardPoints - amount;
+
+        if (MinGuard > 0f && _currentGuardPoints > MinGuard && next <= MinGuard)
+        {
+            _floorHoldTimer = _floorHoldDuration;
+            return MinGuard;
+        }
+
+        return next;
     }
 
     // ทุกที่ที่เปลี่ยนค่า guard ต้องผ่านตรงนี้ เพื่อให้ IsReady อัปเดตที่เดียว
