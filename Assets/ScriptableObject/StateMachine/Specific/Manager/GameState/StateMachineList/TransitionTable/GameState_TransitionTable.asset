@@ -28,6 +28,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HasReservationConditionSO
   _selfAnchor: {fileID: 0}
   _reservationSet: {fileID: 11400000, guid: 5cb3d38a7b2e9c34a9c1bb5d187749fe, type: 2}
+--- !u!114 &-4465835348106023674
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d0a7d53c3c15fb4b800d8d16c222d7b, type: 3}
+  m_Name: Player_OnDead_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::OnDeadConditionSO
+  _selfAnchor: {fileID: 8052686612864251516}
 --- !u!114 &-2216454397268771467
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -91,6 +104,8 @@ MonoBehaviour:
     - Conditions:
       - Condition: {fileID: -5079116756411039545}
         ExpectedResult: 0
+      - Condition: {fileID: -4465835348106023674}
+        ExpectedResult: 1
     Id: 5345c1de-1609-4329-be16-83afbcb62ce4
   _transitions:
   - FromState: {fileID: 4153599308173831339}
@@ -98,6 +113,11 @@ MonoBehaviour:
     - Conditions:
       - Condition: {fileID: -5079116756411039545}
         ExpectedResult: 1
+      - Condition: {fileID: -2216454397268771467}
+        ExpectedResult: 0
+    - Conditions:
+      - Condition: {fileID: -4465835348106023674}
+        ExpectedResult: 0
       - Condition: {fileID: -2216454397268771467}
         ExpectedResult: 0
     ToState: {fileID: -695442187381567212}
@@ -133,3 +153,15 @@ MonoBehaviour:
   _actions:
   - {fileID: 0}
   - {fileID: -6814131618136898001}
+--- !u!114 &8052686612864251516
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29aaa39665320664388a123863eae513, type: 3}
+  m_Name: Player_AnchorID
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.AnchorIDSO
