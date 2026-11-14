@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.Video;
 using Yantra.UI;
 using System;
+using SDFcl.GamePlay.Interactable;
 
 
 
@@ -93,11 +94,13 @@ public class TutorialScreen : UIScreen
 
     private bool _frozen;
     private bool _unfreezePending;
+    private bool _interactionBlockRemovalPending;
     private int _closeFrame;
     private float _savedTimeScale = 1f;
     private CursorLockMode _savedCursorLock;
     private bool _savedCursorVisible;
     private PlayerCameraController _camera;
+    private PlayerInteract _playerInteract;
     private RenderTexture _videoTexture;
 
     // ปิด Domain Reload ไว้ — ไม่ล้างเอง กด Play รอบสองจะไม่มี tutorial ขึ้นเลย
@@ -173,9 +176,14 @@ public class TutorialScreen : UIScreen
     protected override void OnOpening()
     {
         _openFrame = Time.frameCount;
+        _interactionBlockRemovalPending = false;
+        _playerInteract = FindAnyObjectByType<PlayerInteract>();
+        if (_playerInteract != null)
+            _playerInteract.AddInteractBlocker(this);
         Freeze();
         PlaySound(_openSound);
         LoadNext();
+        StateMachineController.IsPaused = true; // กันเคสเปิด tutorial ตอนเกมหยุดอยู่แล้ว (เช่น Pause) — ป้องกัน State Machine เดินต่อ
     }
 
     protected override void OnClosing()
@@ -186,12 +194,16 @@ public class TutorialScreen : UIScreen
 
         // คืนเกมเฟรมถัดไป — ปุ่มปิดคือ E ซึ่งเป็นปุ่ม Interact ด้วย
         // ถ้าคืนในเฟรมเดียวกัน ระบบ Interact จะอ่าน E ตัวเดียวกันแล้วไปกดของข้างหน้าต่อ
-        _unfreezePending = true;
+        _interactionBlockRemovalPending = true;
         _closeFrame = Time.frameCount;
+        _unfreezePending = true;
+        Unfreeze();
     }
 
     private void OnDisable()
     {
+        RemoveInteractionBlocker();
+
         // ปิดแบบ instant แล้ว object หายทันที Update ไม่ได้วิ่งต่อ
         if (_unfreezePending)
             Unfreeze();
@@ -199,10 +211,16 @@ public class TutorialScreen : UIScreen
 
     private void Update()
     {
+        if (_interactionBlockRemovalPending && Time.frameCount > _closeFrame)
+            RemoveInteractionBlocker();
+
         if (_unfreezePending)
         {
             if (Time.frameCount > _closeFrame)
-                Unfreeze();
+            {
+
+                StateMachineController.IsPaused = false;  // กันเคสเปิด tutorial ตอนเกมหยุดอยู่แล้ว (เช่น Pause) — ป้องกัน State Machine เดินต่อ
+            }
             return;
         }
 
@@ -224,6 +242,15 @@ public class TutorialScreen : UIScreen
         // กันเคสเปิดจากการกด E (เช่นเก็บของ) แล้วข้ามหน้าแรกทันที
         if (Time.frameCount > _openFrame && ContinuePressed())
             Continue();
+    }
+
+    private void RemoveInteractionBlocker()
+    {
+        if (_playerInteract != null)
+            _playerInteract.RemoveInteractBlocker(this);
+
+        _playerInteract = null;
+        _interactionBlockRemovalPending = false;
     }
 
     private void Continue()
