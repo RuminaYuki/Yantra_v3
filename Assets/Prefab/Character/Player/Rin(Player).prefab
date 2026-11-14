@@ -6675,15 +6675,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f670e712013efb4d89a6944222c2bed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeadBob
-  _character: {fileID: 0}
-  _cameraController: {fileID: 0}
-  _strideLength: 4
+  _character: {fileID: 7434954710618316361}
+  _cameraController: {fileID: 5107126304779472096}
+  _strideLength: 5
   _referenceSpeed: 5
   _minSpeed: 0.3
-  _bounce: 0.02
-  _sway: 0.012
-  _roll: 0
-  _pitch: 0.15
+  _bounce: 0.0225
+  _sway: 0
+  _roll: 0.15
+  _pitch: 0.125
   _speedSmoothTime: 0.15
   _groundedGrace: 0.15
   _blendSpeed: 8
@@ -19031,13 +19031,15 @@ MonoBehaviour:
   _health: {fileID: 0}
   _skillPoints: {fileID: 0}
   _isBlockEnable: 0
-  _maxGuardPoints: 10
+  _maxGuardPoints: 20
+  _minGuardPercent: 5
+  _floorHoldDuration: 1
   _assignValue: 0
-  _currentGuardPoints: 10
+  _currentGuardPoints: 20
   _guardDecreasedPerHit: 7
   _recoveryGuardPointsPerSecond: 1
   _decreasedGuardPointsPerSecond: 2
-  _delayForRecovery: 5
+  _delayForRecovery: 2
   _voidHitEventChannel: {fileID: 11400000, guid: e3452f38e0993a04ea066bb6815c43e6, type: 2}
   _OnGuardPointDepleted: {fileID: 11400000, guid: a2e0752c413868641ae40c58a65a8ff6, type: 2}
   _OnCurrentGuardPointChange: {fileID: 11400000, guid: bf7c02770f3bb9342963539e449a6782, type: 2}
