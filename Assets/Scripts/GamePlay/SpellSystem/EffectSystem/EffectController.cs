@@ -6,6 +6,7 @@ public class EffectController : MonoBehaviour
 {
     [Header("Input")]
     [SerializeField] private InputActionReference effectAction;
+    [SerializeField] private bool useOnSpawn = false;
 
     [Header("Effect")]
     [SerializeField] private EffectActivationMode activationMode;
@@ -67,6 +68,14 @@ public class EffectController : MonoBehaviour
         }
 
         SetEnabled(true);
+    }
+
+    private void Start()
+    {
+        if (useOnSpawn)
+        {
+            InputStarted();
+        }
     }
 
     private void OnDisable()
@@ -137,7 +146,9 @@ public class EffectController : MonoBehaviour
         }
     }
 
-    public void OnInputStarted(InputAction.CallbackContext context)
+    public void OnInputStarted(InputAction.CallbackContext context) => InputStarted();
+
+    private void InputStarted()
     {
         if (!isEnabled)
         {
