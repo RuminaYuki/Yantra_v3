@@ -18,12 +18,6 @@ public class CombatHUDGroup : MonoBehaviour
     [Tooltip("เลือดลด / เพิ่มแล้วโชว์ค้างกี่วินาที — 0 = ไม่โชว์")]
     [SerializeField, Min(0f)] private float _showAfterHealthChange = 3f;
 
-    [Tooltip("เลือดเหลือน้อยกว่านี้โชว์ค้างตลอด (0.3 = 30%) — 0 = ปิด")]
-    [SerializeField, Range(0f, 1f)] private float _lowHealth = 0.3f;
-
-    [Tooltip("ติ๊ก = เลือดไม่เต็มก็โชว์ค้างไว้")]
-    [SerializeField] private bool _showWhenNotFull = false;
-
     [Header("จาง")]
     [Tooltip("ออกจากการต่อสู้แล้วรอกี่วินาทีค่อยจางหาย")]
     [SerializeField, Min(0f)] private float _hideDelay = 2f;
@@ -35,6 +29,8 @@ public class CombatHUDGroup : MonoBehaviour
 
     private CanvasGroup _group;
     private Health _health;
+    private SkillPoints _skillPoints;
+    private BlockSystem _blockSystem;
     private float _retryTimer;
     private bool _inBattle;
     private float _showUntil = -999f;
@@ -70,7 +66,7 @@ public class CombatHUDGroup : MonoBehaviour
 
     private void Update()
     {
-        FindHealth();
+        FindPlayerStats();
 
         float target = ShouldShow() ? 1f : 0f;
         _group.alpha = Mathf.MoveTowards(_group.alpha, target, _fadeSpeed * Time.unscaledDeltaTime);
@@ -81,14 +77,18 @@ public class CombatHUDGroup : MonoBehaviour
         if (_inBattle || Time.time < _showUntil)
             return true;
 
-        if (_health == null || _health.MaxHealth <= 0f || _health.IsDead)
-            return false;
-
-        float ratio = _health.CurrentHP / _health.MaxHealth;
-        if (_showWhenNotFull && ratio < 0.999f)
+        if (_health != null && _health.MaxHealth > 0f &&
+            _health.CurrentHP < _health.MaxHealth)
             return true;
 
-        return _lowHealth > 0f && ratio <= _lowHealth;
+        if (_skillPoints != null && _skillPoints.CurrentSkillPoints > 0f)
+            return true;
+
+        if (_blockSystem != null && _blockSystem.MaxGuardPoints > 0f &&
+            _blockSystem.CurrentGuardPoints < _blockSystem.MaxGuardPoints)
+            return true;
+
+        return false;
     }
 
     private void HandleEnterBattle()
@@ -120,11 +120,13 @@ public class CombatHUDGroup : MonoBehaviour
         _inBattle = false;
         _showUntil = -999f;
         SetHealth(null);
+        _skillPoints = null;
+        _blockSystem = null;
     }
 
-    private void FindHealth()
+    private void FindPlayerStats()
     {
-        if (_health != null)
+        if (_health != null && _skillPoints != null && _blockSystem != null)
             return;
 
         _retryTimer += Time.unscaledDeltaTime;
@@ -132,7 +134,12 @@ public class CombatHUDGroup : MonoBehaviour
             return;
         _retryTimer = 0f;
 
-        SetHealth(PlayerLookup.Find<Health>());
+        if (_health == null)
+            SetHealth(PlayerLookup.Find<Health>());
+        if (_skillPoints == null)
+            _skillPoints = PlayerLookup.Find<SkillPoints>();
+        if (_blockSystem == null)
+            _blockSystem = PlayerLookup.Find<BlockSystem>();
     }
 
     private void SetHealth(Health health)

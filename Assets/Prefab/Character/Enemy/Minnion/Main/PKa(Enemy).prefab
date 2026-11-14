@@ -389,7 +389,6 @@ GameObject:
   - component: {fileID: 1002007669417644985}
   - component: {fileID: 5584625577014986441}
   - component: {fileID: 3947757692435528440}
-  - component: {fileID: 8038600200094218983}
   m_Layer: 7
   m_Name: EnemeyController
   m_TagString: Enemy
@@ -950,6 +949,10 @@ MonoBehaviour:
     FollowPoint: 0
     EmitFromMesh: 0
     Lifetime: 3
+  _vfx: {fileID: 0}
+  _vfxProperty: SmokeRadius
+  _vfxStartValue: 0
+  _vfxEndValue: 1
   _onDissolveStarted:
     m_PersistentCalls:
       m_Calls:
@@ -1027,30 +1030,6 @@ MonoBehaviour:
   _useTimedSounds: 0
   _timedSounds: []
   _logPlay: 0
---- !u!114 &8038600200094218983
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1362228334903577606}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c8796731234f2bf4a90f388485a9c966, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LootDropper
-  maxLootDrops: 1
-  noDropWeight: 0.7
-  lootTable:
-  - itemPrefab: {fileID: 2759364773010167794, guid: 0734cd233c5ad574da9cb40ab81f9056, type: 3}
-    weight: 0.3
-    heightOffset: 0
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  rayStartHeight: 2
-  rayDistance: 20
-  groundOffset: 0.09
 --- !u!1 &1696219248566727934
 GameObject:
   m_ObjectHideFlags: 0
@@ -1220,6 +1199,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Follow3D
   _target: {fileID: 6958758719593242486}
+  _isFollowing: 1
   _constrainPosition: 1
   _constrainRotation: 1
   _maintainOffset: 0
@@ -1288,7 +1268,7 @@ MonoBehaviour:
   _rimGlow: {fileID: 0}
   _readySound: {fileID: 0}
   _readySoundCooldown: 2
-  _healPercent: 15
+  _healPercent: 0
   _healSound: {fileID: 0}
   _victimHealth: {fileID: 0}
   _logSteps: 0
