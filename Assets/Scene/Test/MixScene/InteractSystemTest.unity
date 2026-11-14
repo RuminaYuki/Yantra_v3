@@ -27591,15 +27591,22 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1362228334903577606, guid: 777a677026287794c836349a288e0995, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1479204420}
+    - targetCorrespondingSourceObject: {fileID: 676542624691858096, guid: 777a677026287794c836349a288e0995, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1556920412}
+    - targetCorrespondingSourceObject: {fileID: 676542624691858096, guid: 777a677026287794c836349a288e0995, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1556920411}
+    - targetCorrespondingSourceObject: {fileID: 676542624691858096, guid: 777a677026287794c836349a288e0995, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1556920410}
+    - targetCorrespondingSourceObject: {fileID: 676542624691858096, guid: 777a677026287794c836349a288e0995, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1556920409}
   m_SourcePrefab: {fileID: 100100000, guid: 777a677026287794c836349a288e0995, type: 3}
 --- !u!1 &1479204418 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1362228334903577606, guid: 777a677026287794c836349a288e0995, type: 3}
-  m_PrefabInstance: {fileID: 1479204417}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &1479204419 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2702147522898941712, guid: 777a677026287794c836349a288e0995, type: 3}
   m_PrefabInstance: {fileID: 1479204417}
   m_PrefabAsset: {fileID: 0}
 --- !u!114 &1479204420
@@ -27614,20 +27621,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b842cc5089d625b49a87f1ed6d838c34, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ConditionWatcher
-  conditionType: 0
-  targetObject: {fileID: 1479204419}
-  boolValue: 0
-  floatValue: 0
-  compareMode: 0
-  compareValue: 0
-  invokeOnStart: 0
-  invokeOnlyOnChange: 1
-  onTrue:
-    m_PersistentCalls:
-      m_Calls: []
-  onFalse:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!1 &1494094168
 GameObject:
   m_ObjectHideFlags: 0
@@ -28341,6 +28334,92 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b8c732780c6260948bb2b7acf2ca77b8, type: 3}
+--- !u!1 &1556920405 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 676542624691858096, guid: 777a677026287794c836349a288e0995, type: 3}
+  m_PrefabInstance: {fileID: 1479204417}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1556920409
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1556920405}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ace0aced1fc06194fa13bb2569fa8b3a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TutorialTrigger
+  _tutorial: {fileID: 11400000, guid: af0aa409dd066da4387782bb61bfcf3a, type: 2}
+--- !u!114 &1556920410
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1556920405}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b60e59025daa35746ab9f976b65930a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TriggerZoneEvents
+  onEnter:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1556920409}
+        m_TargetAssemblyTypeName: TutorialTrigger, Assembly-CSharp
+        m_MethodName: OnEnter
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  onExit:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &1556920411
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1556920405}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1c6ad5fef8689d47bbff1fe4436d8d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TriggerZone
+  targetLayers:
+    serializedVersion: 2
+    m_Bits: 64
+  tagFilter: Player
+  triggerOnce: 1
+--- !u!135 &1556920412
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1556920405}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 1
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1564475417
 GameObject:
   m_ObjectHideFlags: 0
