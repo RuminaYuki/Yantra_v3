@@ -50,6 +50,8 @@ MonoBehaviour:
         ExpectedResult: 0
       - Condition: {fileID: 7454662317992231957}
         ExpectedResult: 0
+      - Condition: {fileID: 1677298945742546794}
+        ExpectedResult: 1
     ToState: {fileID: -8533207618834268308}
     Id: 0cddbc8e-539e-40de-97be-8ce9b3afcebc
   - FromState: {fileID: -3973434124353390370}
@@ -66,6 +68,8 @@ MonoBehaviour:
         ExpectedResult: 0
       - Condition: {fileID: 7454662317992231957}
         ExpectedResult: 0
+      - Condition: {fileID: 1677298945742546794}
+        ExpectedResult: 1
     ToState: {fileID: -8533207618834268308}
     Id: fba9b66d-5412-40cb-80f1-e5765da2ea66
   - FromState: {fileID: -8533207618834268308}
@@ -121,6 +125,38 @@ MonoBehaviour:
         ExpectedResult: 1
     ToState: {fileID: 2495449605022614646}
     Id: 2443ecc0-1bcd-48cf-9f97-49dcc690196c
+  - FromState: {fileID: -7103187372157920522}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 1677298945742546794}
+        ExpectedResult: 0
+      - Condition: {fileID: -2514208661779275971}
+        ExpectedResult: 0
+    - Conditions:
+      - Condition: {fileID: 1677298945742546794}
+        ExpectedResult: 0
+      - Condition: {fileID: 275385510025986139}
+        ExpectedResult: 0
+    ToState: {fileID: 8371651548506033427}
+    Id: bb0cf317-abc4-4c01-be20-c98fdf3bd7cf
+  - FromState: {fileID: -8533207618834268308}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 1626161944279584647}
+        ExpectedResult: 0
+      - Condition: {fileID: 7454662317992231957}
+        ExpectedResult: 1
+    ToState: {fileID: 188459491591536152}
+    Id: 932130c6-fcd0-4259-aba0-d72af34b4483
+  - FromState: {fileID: 188459491591536152}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 963984999463191424}
+        ExpectedResult: 0
+      - Condition: {fileID: 7454662317992231957}
+        ExpectedResult: 1
+    ToState: {fileID: 2495449605022614646}
+    Id: b1998fdf-b332-48c7-b167-de909b68ca01
   _base: {fileID: 0}
   _fieldOverrides: []
   _removedIds: []
@@ -142,6 +178,8 @@ MonoBehaviour:
   - State: {fileID: 8371651548506033427}
     Position: {x: 250, y: 107}
   - State: {fileID: 2495449605022614646}
+    Position: {x: 250, y: -106}
+  - State: {fileID: 188459491591536152}
     Position: {x: 470, y: -106}
   _entryNodePosition: {x: 0, y: 0}
   _anyStateNodePosition: {x: 690, y: -106}
@@ -170,6 +208,8 @@ MonoBehaviour:
     Folder: InputSystem
   - Item: {fileID: -4472983466968387897}
     Folder: Animator
+  - Item: {fileID: -3044851564253865135}
+    Folder: Animator
   _contentsFolderPaths:
   - Group: Actions
     Path: Animator
@@ -192,6 +232,7 @@ MonoBehaviour:
   _actions:
   - {fileID: -4413406199643930115}
   - {fileID: 3010347450694884231}
+  - {fileID: -5489848805920438144}
 --- !u!114 &-8503500019032603520
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -645,6 +686,22 @@ MonoBehaviour:
   _actions:
   - {fileID: -6511436339678336874}
   - {fileID: 11400000, guid: 6eae33dd140d454449b194e609f8dcba, type: 2}
+--- !u!114 &-5489848805920438144
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c807c0fe937f0941bc0ea49af3c0c0a, type: 3}
+  m_Name: MushReloadTrue_SetFlagOnEnter_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SetFlagOnEnterActionSO
+  _selfAnchor: {fileID: 0}
+  flag: {fileID: -757505676354162058}
+  value: 1
+  changeValueOnExit: 0
 --- !u!114 &-5209419744961019733
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1108,6 +1165,18 @@ MonoBehaviour:
     - _target: {fileID: 5325564258262602981}
       _fieldName: extraSeconds
     _category: Attack
+--- !u!114 &-757505676354162058
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6687386e458fac4db6106b19ddf0699, type: 3}
+  m_Name: MushReload_Flag
+  m_EditorClassIdentifier: Assembly-CSharp::FlagSO
 --- !u!114 &-564858410961468598
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1434,6 +1503,20 @@ MonoBehaviour:
   _selfAnchor: {fileID: 0}
   _transitionTable: {fileID: 8213937676807212699}
   _forceExitState: {fileID: -6242332528130949996}
+--- !u!114 &188459491591536152
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: BulletRunOff_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 3170753678979809595}
 --- !u!114 &208791892035771998
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1633,6 +1716,20 @@ MonoBehaviour:
   layerIndex: 0
   finishTime: 1
   extraSeconds: 0
+--- !u!114 &1677298945742546794
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 828323aa1aace154891a3661130da74b, type: 3}
+  m_Name: MushReload_Flag_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::FlagConditionSO
+  _selfAnchor: {fileID: 0}
+  flag: {fileID: -757505676354162058}
 --- !u!114 &1787910967964880658
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1757,7 +1854,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
-  m_Name: BulletRunOff_State
+  m_Name: ShotBulletRunOff_State
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: 3012499676030081307}
@@ -1839,6 +1936,22 @@ MonoBehaviour:
   m_Name: SpellRadial_Action
   m_EditorClassIdentifier: Assembly-CSharp::SpellRadialActionSO
   _selfAnchor: {fileID: 0}
+--- !u!114 &3170753678979809595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c807c0fe937f0941bc0ea49af3c0c0a, type: 3}
+  m_Name: MushReloadFalse_SetFlagOnEnter_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SetFlagOnEnterActionSO
+  _selfAnchor: {fileID: 0}
+  flag: {fileID: -757505676354162058}
+  value: 0
+  changeValueOnExit: 0
 --- !u!114 &3213844676342213251
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2416,6 +2529,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: 276006959010495588}
+  - {fileID: 3170753678979809595}
 --- !u!114 &8389726203342929382
 MonoBehaviour:
   m_ObjectHideFlags: 0
