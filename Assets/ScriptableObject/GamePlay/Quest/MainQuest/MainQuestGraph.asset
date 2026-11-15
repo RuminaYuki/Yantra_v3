@@ -65,13 +65,16 @@ MonoBehaviour:
   - rid: 271060794861420641
   - rid: 271060933437554778
   - rid: 271060972403687426
+  - rid: 7053197021426745344
   edges:
   - fromNode: 5e32a41d82384c5ab61b9030621bfcf3
     toNode: 6cd6e9eb46d84aa6b941253fa311bdfe
-  - fromNode: 6cd6e9eb46d84aa6b941253fa311bdfe
-    toNode: dd3ab67149004b47b6d3b965d54af299
   - fromNode: dd3ab67149004b47b6d3b965d54af299
     toNode: e18f4e209cad42fca996e346fad20006
+  - fromNode: 6cd6e9eb46d84aa6b941253fa311bdfe
+    toNode: c2077388f8b94ee98f9d024df80c1beb
+  - fromNode: c2077388f8b94ee98f9d024df80c1beb
+    toNode: dd3ab67149004b47b6d3b965d54af299
   laneSplitY: 0
   references:
     version: 2
@@ -86,7 +89,7 @@ MonoBehaviour:
       type: {class: QuestNode, ns: SDFcl.GamePlay.QuestSystem, asm: Assembly-CSharp}
       data:
         guid: e18f4e209cad42fca996e346fad20006
-        position: {x: 704, y: -202}
+        position: {x: 1005, y: -202}
         quest: {fileID: -5308543602531092420}
     - rid: 271060933437554778
       type: {class: QuestNode, ns: SDFcl.GamePlay.QuestSystem, asm: Assembly-CSharp}
@@ -98,8 +101,14 @@ MonoBehaviour:
       type: {class: QuestNode, ns: SDFcl.GamePlay.QuestSystem, asm: Assembly-CSharp}
       data:
         guid: dd3ab67149004b47b6d3b965d54af299
-        position: {x: 443, y: -202}
+        position: {x: 744, y: -202}
         quest: {fileID: -6511872613168189869}
+    - rid: 7053197021426745344
+      type: {class: QuestNode, ns: SDFcl.GamePlay.QuestSystem, asm: Assembly-CSharp}
+      data:
+        guid: c2077388f8b94ee98f9d024df80c1beb
+        position: {x: 450, y: -202}
+        quest: {fileID: 7542027528197662675}
 --- !u!114 &3837899139992925771
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -144,6 +153,33 @@ MonoBehaviour:
   - id: 'Kill all ghosts '
     description: 'Kill all ghosts in this area '
     requiredCount: 3
+  repeatMode: 0
+  maxCompletions: 0
+  dailyResetHour: 4
+  whenRouteLost: 0
+--- !u!114 &7542027528197662675
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2acb854183d80214fb783df50e5f1185, type: 3}
+  m_Name: Pick-up Gun and Material
+  m_EditorClassIdentifier: Assembly-CSharp::SDFcl.GamePlay.QuestSystem.QuestSO
+  questId: 9b08f4d6378f4d4fad6a494ad228ad8e
+  title: Pick-up Gun and Material
+  description: 
+  track: 0
+  objectives:
+  - id: Pick-up Gun
+    description: 
+    requiredCount: 1
+  - id: Pick-up Heal Material
+    description: 
+    requiredCount: 1
   repeatMode: 0
   maxCompletions: 0
   dailyResetHour: 4
