@@ -233,19 +233,6 @@ MonoBehaviour:
   - {fileID: -4413406199643930115}
   - {fileID: 3010347450694884231}
   - {fileID: -5489848805920438144}
---- !u!114 &-8503500019032603520
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c87c729b1c855a74dbd9df86c8baabb9, type: 3}
-  m_Name: GunReload_Action
-  m_EditorClassIdentifier: Assembly-CSharp::ReloadActionSO
-  _selfAnchor: {fileID: 11400000, guid: 7604516d935ffbe43b174fac67b9bbf1, type: 2}
 --- !u!114 &-8502349441164562886
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -783,21 +770,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: 3815383740611936837}
---- !u!114 &-3517771076736875507
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c93ef58ce9ec37d40ad7673b3728821c, type: 3}
-  m_Name: SetWalkSpeedDontResetAction
-  m_EditorClassIdentifier: Assembly-CSharp::SetCurrentSpeedActionSO
-  _selfAnchor: {fileID: 0}
-  _speed: 3
-  _resetOnStateExit: 0
 --- !u!114 &-3203814133111262979
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1112,11 +1084,6 @@ MonoBehaviour:
     - _target: {fileID: -5209419744961019733}
       _fieldName: minDuration
     _category: Block
-  - _name: WalkSpeed
-    _bindings:
-    - _target: {fileID: -3517771076736875507}
-      _fieldName: _speed
-    _category: Movement
   - _name: 1-3DamageAmount
     _bindings:
     - _target: {fileID: -2688183219991940725}
@@ -1161,6 +1128,11 @@ MonoBehaviour:
     _bindings:
     - _target: {fileID: 5325564258262602981}
       _fieldName: extraSeconds
+    _category: Attack
+  - _name: SprintInputDelayed
+    _bindings:
+    - _target: {fileID: 3432433301749894776}
+      _fieldName: _delay
     _category: Attack
 --- !u!114 &-757505676354162058
 MonoBehaviour:
@@ -1741,24 +1713,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SubStateMachineExitedConditionSO
   _selfAnchor: {fileID: 0}
   _exitId: PlayerGunState
---- !u!114 &1942262165438113421
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a6926aff6b829141bed65b0f1660f00, type: 3}
-  m_Name: AnyKey_Condition
-  m_EditorClassIdentifier: Assembly-CSharp::AnyKeyConditionSO
-  _selfAnchor: {fileID: 0}
-  _checkType: 0
-  _excludedActions:
-  - {fileID: -1680190386980627800, guid: 35845fe01580c41289b024647b1d1c53, type: 3}
-  - {fileID: 1781555164194001046, guid: 35845fe01580c41289b024647b1d1c53, type: 3}
-  - {fileID: 2706282352127273476, guid: 35845fe01580c41289b024647b1d1c53, type: 3}
 --- !u!114 &1950018504536407758
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2290,21 +2244,6 @@ MonoBehaviour:
   _actions:
   - {fileID: -3044851564253865135}
   - {fileID: 7998098270537480650}
---- !u!114 &7053663744821153521
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c93ef58ce9ec37d40ad7673b3728821c, type: 3}
-  m_Name: SetSlowSpeedDontResetAction
-  m_EditorClassIdentifier: Assembly-CSharp::SetCurrentSpeedActionSO
-  _selfAnchor: {fileID: 0}
-  _speed: 1
-  _resetOnStateExit: 0
 --- !u!114 &7230110051865968839
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2737,8 +2676,6 @@ MonoBehaviour:
   - Item: {fileID: -6145865688711788712}
     Folder: InputSystem
   - Item: {fileID: 11400000, guid: 6eae33dd140d454449b194e609f8dcba, type: 2}
-    Folder: Locomotion
-  - Item: {fileID: -3517771076736875507}
     Folder: Locomotion
   _contentsFolderPaths:
   - Group: Actions
