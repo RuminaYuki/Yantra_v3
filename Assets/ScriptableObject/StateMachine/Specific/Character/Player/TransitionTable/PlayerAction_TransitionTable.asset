@@ -50,6 +50,8 @@ MonoBehaviour:
         ExpectedResult: 0
       - Condition: {fileID: 7454662317992231957}
         ExpectedResult: 0
+      - Condition: {fileID: 1677298945742546794}
+        ExpectedResult: 1
     ToState: {fileID: -8533207618834268308}
     Id: 0cddbc8e-539e-40de-97be-8ce9b3afcebc
   - FromState: {fileID: -3973434124353390370}
@@ -66,6 +68,8 @@ MonoBehaviour:
         ExpectedResult: 0
       - Condition: {fileID: 7454662317992231957}
         ExpectedResult: 0
+      - Condition: {fileID: 1677298945742546794}
+        ExpectedResult: 1
     ToState: {fileID: -8533207618834268308}
     Id: fba9b66d-5412-40cb-80f1-e5765da2ea66
   - FromState: {fileID: -8533207618834268308}
@@ -121,6 +125,38 @@ MonoBehaviour:
         ExpectedResult: 1
     ToState: {fileID: 2495449605022614646}
     Id: 2443ecc0-1bcd-48cf-9f97-49dcc690196c
+  - FromState: {fileID: -7103187372157920522}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 1677298945742546794}
+        ExpectedResult: 0
+      - Condition: {fileID: -2514208661779275971}
+        ExpectedResult: 0
+    - Conditions:
+      - Condition: {fileID: 1677298945742546794}
+        ExpectedResult: 0
+      - Condition: {fileID: 275385510025986139}
+        ExpectedResult: 0
+    ToState: {fileID: 8371651548506033427}
+    Id: bb0cf317-abc4-4c01-be20-c98fdf3bd7cf
+  - FromState: {fileID: -8533207618834268308}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 1626161944279584647}
+        ExpectedResult: 0
+      - Condition: {fileID: 7454662317992231957}
+        ExpectedResult: 1
+    ToState: {fileID: 188459491591536152}
+    Id: 932130c6-fcd0-4259-aba0-d72af34b4483
+  - FromState: {fileID: 188459491591536152}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: 963984999463191424}
+        ExpectedResult: 0
+      - Condition: {fileID: 7454662317992231957}
+        ExpectedResult: 1
+    ToState: {fileID: 2495449605022614646}
+    Id: b1998fdf-b332-48c7-b167-de909b68ca01
   _base: {fileID: 0}
   _fieldOverrides: []
   _removedIds: []
@@ -142,6 +178,8 @@ MonoBehaviour:
   - State: {fileID: 8371651548506033427}
     Position: {x: 250, y: 107}
   - State: {fileID: 2495449605022614646}
+    Position: {x: 250, y: -106}
+  - State: {fileID: 188459491591536152}
     Position: {x: 470, y: -106}
   _entryNodePosition: {x: 0, y: 0}
   _anyStateNodePosition: {x: 690, y: -106}
@@ -170,6 +208,8 @@ MonoBehaviour:
     Folder: InputSystem
   - Item: {fileID: -4472983466968387897}
     Folder: Animator
+  - Item: {fileID: -3044851564253865135}
+    Folder: Animator
   _contentsFolderPaths:
   - Group: Actions
     Path: Animator
@@ -192,19 +232,7 @@ MonoBehaviour:
   _actions:
   - {fileID: -4413406199643930115}
   - {fileID: 3010347450694884231}
---- !u!114 &-8503500019032603520
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c87c729b1c855a74dbd9df86c8baabb9, type: 3}
-  m_Name: GunReload_Action
-  m_EditorClassIdentifier: Assembly-CSharp::ReloadActionSO
-  _selfAnchor: {fileID: 11400000, guid: 7604516d935ffbe43b174fac67b9bbf1, type: 2}
+  - {fileID: -5489848805920438144}
 --- !u!114 &-8502349441164562886
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -402,7 +430,6 @@ MonoBehaviour:
   _actions:
   - {fileID: 11400000, guid: 6eae33dd140d454449b194e609f8dcba, type: 2}
   - {fileID: -3044851564253865135}
-  - {fileID: -3517771076736875507}
 --- !u!114 &-6511436339678336874
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -507,7 +534,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6eae33dd140d454449b194e609f8dcba, type: 2}
   - {fileID: -3044851564253865135}
   - {fileID: -7103210771783147224}
-  - {fileID: -3517771076736875507}
 --- !u!114 &-5708123363941132723
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -645,6 +671,22 @@ MonoBehaviour:
   _actions:
   - {fileID: -6511436339678336874}
   - {fileID: 11400000, guid: 6eae33dd140d454449b194e609f8dcba, type: 2}
+--- !u!114 &-5489848805920438144
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c807c0fe937f0941bc0ea49af3c0c0a, type: 3}
+  m_Name: MushReloadTrue_SetFlagOnEnter_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SetFlagOnEnterActionSO
+  _selfAnchor: {fileID: 0}
+  flag: {fileID: -757505676354162058}
+  value: 1
+  changeValueOnExit: 0
 --- !u!114 &-5209419744961019733
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -728,21 +770,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: 3815383740611936837}
---- !u!114 &-3517771076736875507
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c93ef58ce9ec37d40ad7673b3728821c, type: 3}
-  m_Name: SetWalkSpeedDontResetAction
-  m_EditorClassIdentifier: Assembly-CSharp::SetCurrentSpeedActionSO
-  _selfAnchor: {fileID: 0}
-  _speed: 3
-  _resetOnStateExit: 0
 --- !u!114 &-3203814133111262979
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -839,7 +866,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6eae33dd140d454449b194e609f8dcba, type: 2}
   - {fileID: -3044851564253865135}
   - {fileID: -2680126851520885937}
-  - {fileID: -3517771076736875507}
 --- !u!114 &-2688183219991940725
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1058,11 +1084,6 @@ MonoBehaviour:
     - _target: {fileID: -5209419744961019733}
       _fieldName: minDuration
     _category: Block
-  - _name: WalkSpeed
-    _bindings:
-    - _target: {fileID: -3517771076736875507}
-      _fieldName: _speed
-    _category: Movement
   - _name: 1-3DamageAmount
     _bindings:
     - _target: {fileID: -2688183219991940725}
@@ -1108,6 +1129,23 @@ MonoBehaviour:
     - _target: {fileID: 5325564258262602981}
       _fieldName: extraSeconds
     _category: Attack
+  - _name: SprintInputDelayed
+    _bindings:
+    - _target: {fileID: 3432433301749894776}
+      _fieldName: _delay
+    _category: Attack
+--- !u!114 &-757505676354162058
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6687386e458fac4db6106b19ddf0699, type: 3}
+  m_Name: MushReload_Flag
+  m_EditorClassIdentifier: Assembly-CSharp::FlagSO
 --- !u!114 &-564858410961468598
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1434,6 +1472,20 @@ MonoBehaviour:
   _selfAnchor: {fileID: 0}
   _transitionTable: {fileID: 8213937676807212699}
   _forceExitState: {fileID: -6242332528130949996}
+--- !u!114 &188459491591536152
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: BulletRunOff_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: 3170753678979809595}
 --- !u!114 &208791892035771998
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1633,6 +1685,20 @@ MonoBehaviour:
   layerIndex: 0
   finishTime: 1
   extraSeconds: 0
+--- !u!114 &1677298945742546794
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 828323aa1aace154891a3661130da74b, type: 3}
+  m_Name: MushReload_Flag_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::FlagConditionSO
+  _selfAnchor: {fileID: 0}
+  flag: {fileID: -757505676354162058}
 --- !u!114 &1787910967964880658
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1647,24 +1713,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SubStateMachineExitedConditionSO
   _selfAnchor: {fileID: 0}
   _exitId: PlayerGunState
---- !u!114 &1942262165438113421
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a6926aff6b829141bed65b0f1660f00, type: 3}
-  m_Name: AnyKey_Condition
-  m_EditorClassIdentifier: Assembly-CSharp::AnyKeyConditionSO
-  _selfAnchor: {fileID: 0}
-  _checkType: 0
-  _excludedActions:
-  - {fileID: -1680190386980627800, guid: 35845fe01580c41289b024647b1d1c53, type: 3}
-  - {fileID: 1781555164194001046, guid: 35845fe01580c41289b024647b1d1c53, type: 3}
-  - {fileID: 2706282352127273476, guid: 35845fe01580c41289b024647b1d1c53, type: 3}
 --- !u!114 &1950018504536407758
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1757,7 +1805,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
-  m_Name: BulletRunOff_State
+  m_Name: ShotBulletRunOff_State
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: 3012499676030081307}
@@ -1839,6 +1887,22 @@ MonoBehaviour:
   m_Name: SpellRadial_Action
   m_EditorClassIdentifier: Assembly-CSharp::SpellRadialActionSO
   _selfAnchor: {fileID: 0}
+--- !u!114 &3170753678979809595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c807c0fe937f0941bc0ea49af3c0c0a, type: 3}
+  m_Name: MushReloadFalse_SetFlagOnEnter_Action
+  m_EditorClassIdentifier: Assembly-CSharp::SetFlagOnEnterActionSO
+  _selfAnchor: {fileID: 0}
+  flag: {fileID: -757505676354162058}
+  value: 0
+  changeValueOnExit: 0
 --- !u!114 &3213844676342213251
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1852,7 +1916,6 @@ MonoBehaviour:
   m_Name: NormalAttack_State
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
-  - {fileID: 7053663744821153521}
   - {fileID: -1826977383973032809}
   - {fileID: 11400000, guid: 506e821dddb1c204eb6606accc36777c, type: 2}
 --- !u!114 &3353935609262086759
@@ -1869,6 +1932,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExitSubStateMachineActionSO
   _selfAnchor: {fileID: 0}
   _exitId: PlayerIdleState
+--- !u!114 &3432433301749894776
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f1aa939ecac5444ea4f694873236ecc, type: 3}
+  m_Name: Sprint_Delayed_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::DelayedConditionSO
+  _selfAnchor: {fileID: 0}
+  _innerCondition: {fileID: -6145865688711788712}
+  _innerExpected: 1
+  _delay: 0.5
+  _mode: 0
 --- !u!114 &3750093177355205704
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2116,7 +2196,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6eae33dd140d454449b194e609f8dcba, type: 2}
   - {fileID: -3044851564253865135}
   - {fileID: -3203814133111262979}
-  - {fileID: -3517771076736875507}
 --- !u!114 &6672756542367253335
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2165,21 +2244,6 @@ MonoBehaviour:
   _actions:
   - {fileID: -3044851564253865135}
   - {fileID: 7998098270537480650}
---- !u!114 &7053663744821153521
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c93ef58ce9ec37d40ad7673b3728821c, type: 3}
-  m_Name: SetSlowSpeedDontResetAction
-  m_EditorClassIdentifier: Assembly-CSharp::SetCurrentSpeedActionSO
-  _selfAnchor: {fileID: 0}
-  _speed: 1
-  _resetOnStateExit: 0
 --- !u!114 &7230110051865968839
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2416,6 +2480,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: 276006959010495588}
+  - {fileID: 3170753678979809595}
 --- !u!114 &8389726203342929382
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2466,7 +2531,7 @@ MonoBehaviour:
       - Condition: {fileID: 5325564258262602981}
         ExpectedResult: 0
     - Conditions:
-      - Condition: {fileID: -6145865688711788712}
+      - Condition: {fileID: 3432433301749894776}
         ExpectedResult: 0
     Id: 17fe54b9-44c3-4a72-b204-cddeb62126af
   - ToState: {fileID: -2789887014011031364}
@@ -2552,15 +2617,23 @@ MonoBehaviour:
   - State: {fileID: -6746553666062666502}
     Position: {x: 220, y: 66}
   - State: {fileID: 8969437880881959208}
-    Position: {x: 470, y: 66}
+    Position: {x: 405, y: 66}
   - State: {fileID: 6670265286702352496}
     Position: {x: 220, y: 182}
   - State: {fileID: -2789887014011031364}
     Position: {x: 220, y: 127}
   - State: {fileID: -6130488365527246910}
     Position: {x: 220, y: 237}
-  _entryNodePosition: {x: 0, y: 0}
-  _anyStateNodePosition: {x: 0, y: 120}
+  - State: {fileID: 6642027004876008706}
+    Position: {x: 220, y: 0}
+  - State: {fileID: -6822811314235461948}
+    Position: {x: 405, y: 1}
+  - State: {fileID: 1950018504536407758}
+    Position: {x: 589, y: 1}
+  - State: {fileID: 755222159238324096}
+    Position: {x: 778, y: 0}
+  _entryNodePosition: {x: 60, y: 0}
+  _anyStateNodePosition: {x: 60, y: 65}
   _contentsFolders:
   - Item: {fileID: -8200212754630124856}
     Folder: Animator
@@ -2603,8 +2676,6 @@ MonoBehaviour:
   - Item: {fileID: -6145865688711788712}
     Folder: InputSystem
   - Item: {fileID: 11400000, guid: 6eae33dd140d454449b194e609f8dcba, type: 2}
-    Folder: Locomotion
-  - Item: {fileID: -3517771076736875507}
     Folder: Locomotion
   _contentsFolderPaths:
   - Group: Actions

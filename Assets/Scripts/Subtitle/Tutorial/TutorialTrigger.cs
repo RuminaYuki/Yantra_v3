@@ -1,7 +1,5 @@
 using UnityEngine;
 
-// กล่องเดินชนแล้วขึ้น tutorial — เห็นครั้งเดียวต่อการเปิดเกม (Retry แล้วไม่ขึ้นซ้ำ)
-[RequireComponent(typeof(Collider))]
 public class TutorialTrigger : MonoBehaviour
 {
     [SerializeField] private TutorialDataSO _tutorial;
