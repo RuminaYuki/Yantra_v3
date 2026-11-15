@@ -160,6 +160,20 @@ public class PlayerCameraController : MonoBehaviour
     /// <summary>เวอร์ชันเมธอด เผื่อใช้กับ UnityEvent ใน Inspector</summary>
     public void SetLookLocked(bool locked) => IsLookLocked = locked;
 
+    public void SetLookRotation(Quaternion rotation)
+    {
+        Vector3 euler = rotation.eulerAngles;
+        _yaw = euler.y;
+        _pitch = Mathf.Clamp(NormalizeAngle(euler.x), _minPitch, _maxPitch);
+        _currentLookDelta = Vector2.zero;
+        _customYawSpeed = 0f;
+
+        if (_hasTargetYaw)
+            _targetYaw = _yaw;
+
+        transform.rotation = Quaternion.Euler(_pitch, _yaw, 0f);
+    }
+
     /// <summary>สั่งให้กล้องหมุนแกนซ้าย-ขวา (Yaw) ไปยังทิศเป้าหมายระหว่างที่ล็อกกล้อง</summary>
     public void SetLookTargetYaw(float targetYaw, float snapDuration = 0f)
     {
