@@ -8405,7 +8405,6 @@ MonoBehaviour:
   _bulletItem: {fileID: 11400000, guid: 2192083227f477749b9ba795a2bdfc2a, type: 2}
   _heldObject: {fileID: 0}
   _heldObjectName: R_GUN
-  _capacity: 20
   _lowAmmo: 3
   _group: {fileID: 2292608585521559926}
   _ammoRing: {fileID: 2447178606552615867}
@@ -12025,6 +12024,104 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &4496691078479033590
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5483445829982908205}
+  - component: {fileID: 936019163651449749}
+  - component: {fileID: 6637666051050235314}
+  - component: {fileID: 6036794372165413890}
+  m_Layer: 5
+  m_Name: SPReadyIcon
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &5483445829982908205
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4496691078479033590}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3591212137795834673}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 580.5, y: 54.4}
+  m_SizeDelta: {x: 26, y: 26}
+  m_Pivot: {x: 0, y: 0}
+--- !u!222 &936019163651449749
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4496691078479033590}
+  m_CullTransparentMesh: 1
+--- !u!114 &6637666051050235314
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4496691078479033590}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: -130677970389461065, guid: db67eedba8e811246b1a5afd51f9847c, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 1
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &6036794372165413890
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4496691078479033590}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
+  m_IgnoreLayout: 1
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: -1
+  m_PreferredHeight: -1
+  m_FlexibleWidth: -1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
+  m_MaxWidth: -1
+  m_MaxHeight: -1
 --- !u!1 &4520202144638079334
 GameObject:
   m_ObjectHideFlags: 0
@@ -17691,6 +17788,25 @@ MonoBehaviour:
   _pulseWhenReady: 1
   _pulseSpeed: 3
   _pulseAmount: 0.25
+  _popOnReady: 1
+  _popThickness: 1.7
+  _popDuration: 0.35
+  _popFlashTime: 0.25
+  _echoDuration: 0.55
+  _echoSpread: {x: 10, y: 3.5}
+  _echoThickness: 1.5
+  _echoColor: {r: 1, g: 0.93, b: 0.67, a: 0.85}
+  _readyIcon: {fileID: 6637666051050235314}
+  _iconPopScale: 1.15
+  _iconFadeOut: 0.3
+  _iconPulseScale: 0.04
+  _calloutIcon: {fileID: 0}
+  _calloutHold: 0.7
+  _calloutFade: 0.4
+  _calloutPopScale: 1.4
+  _calloutRise: 14
+  _readySound: {fileID: 0}
+  _logPop: 1
 --- !u!114 &267681106981346845
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -26157,6 +26273,7 @@ RectTransform:
   - {fileID: 5456647896384702838}
   - {fileID: 5287026047766307295}
   - {fileID: 60088600802190867}
+  - {fileID: 5483445829982908205}
   m_Father: {fileID: 8546982697828568908}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
