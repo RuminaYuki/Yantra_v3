@@ -18,6 +18,13 @@ public struct TutorialPage
     public string Body;
 }
 
+public enum TutorialKey
+{
+    E,
+    Tab,
+    F
+}
+
 // tutorial 1 ชุด — กด + ที่ Pages เพื่อเพิ่มหน้า
 [CreateAssetMenu(fileName = "NewTutorial", menuName = "Yantra/Tutorial/Tutorial Data")]
 public class TutorialDataSO : ScriptableObject
@@ -30,10 +37,24 @@ public class TutorialDataSO : ScriptableObject
     [SerializeField, Min(0f)] private float _lockSeconds = 2f;
 
     [SerializeField] private TutorialPage[] _pages;
+
+    [Header("บังคับกดปุ่ม (หน้าสุดท้าย)")]
+    [Tooltip("ปุ่มที่ต้องกดเพื่อปิดหน้าสุดท้าย — บังคับให้ผู้เล่นลองกดปุ่มนั้นจริง\nหน้าก่อนหน้ายังกด E ไปต่อตามปกติ")]
+    [SerializeField] private TutorialKey _closeKey = TutorialKey.E;
+
+    [Tooltip("ข้อความปุ่มหน้าสุดท้าย เช่น {Tab} Open Inventory\nเว้นว่าง = ใช้ข้อความปกติ แต่เปลี่ยนไอคอนเป็นปุ่มที่บังคับ")]
+    [SerializeField] private string _closeLabel;
+
+    [Tooltip("ยิงตอนผู้เล่นกดปุ่มปิดหน้าสุดท้าย — ไว้ต่อกับระบบอื่น เช่น สั่งเปิดกระเป๋า (เว้นว่างได้)")]
+    [SerializeField] private VoidEventChannelSO _onClosed;
+
     public string SaveKey => string.IsNullOrEmpty(_saveKey) ? name : _saveKey;
 
     public float LockSeconds => _lockSeconds;
     public IReadOnlyList<TutorialPage> Pages => _pages ?? Array.Empty<TutorialPage>();
+    public TutorialKey CloseKey => _closeKey;
+    public string CloseLabel => _closeLabel;
+    public VoidEventChannelSO OnClosed => _onClosed;
 
 #if UNITY_EDITOR
     // เตือนตั้งแต่ตอนพิมพ์ ถ้าใส่ {ชื่อ} ที่ไม่มีไอคอน — ไม่ต้องรอกด Play ไปเจอ
@@ -53,7 +74,10 @@ public class TutorialDataSO : ScriptableObject
 
         for (int i = 0; i < _pages.Length; i++)
         {
-            var missing = InputIconText.FindMissing(_pages[i].Title + " " + _pages[i].Body, asset);
+            string text = _pages[i].Title + " " + _pages[i].Body;
+            if (i == _pages.Length - 1) text += " " + _closeLabel;
+
+            var missing = InputIconText.FindMissing(text, asset);
             if (missing.Count == 0)
                 continue;
 
