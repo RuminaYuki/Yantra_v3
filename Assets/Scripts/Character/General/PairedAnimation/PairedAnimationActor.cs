@@ -281,13 +281,15 @@ public class PairedAnimationActor : MonoBehaviour
             PauseAgent();
 
             // ปิดแรงโน้มถ่วง ตั้งโหมด External ให้ BaseLocomotion หยุดขยับตัว แล้วสคริปต์นี้คุมเองทั้งหมด
-            // ไม่ล็อกอินพุตตรงนี้ — State ของตัวละครเป็นคนจัดการเอง
+            // ล็อกไว้ด้วย กันระบบหันตัวตามกล้องสั่งหมุนตัวทับ Root Motion (กล้อง Glory ติดหัวเลยสะบัด)
+            // Move Mode = None (เช่นโดนแขนลาก) ไม่ล็อก ให้ State จัดการเอง
             if (_locomotion != null)
             {
                 _savedGravity = _locomotion.GetGravityMultiplier();
                 _locomotion.SetGravityMultiplier(0f);
                 _savedMoveMode = _locomotion.MoveMode;
                 _locomotion.MoveMode = LocomotionMoveMode.External;
+                _locomotion.LockLocomotion(this);
                 _locomotionChanged = true;
             }
         }
@@ -394,6 +396,7 @@ public class PairedAnimationActor : MonoBehaviour
             {
                 _locomotion.SetGravityMultiplier(_savedGravity);
                 _locomotion.MoveMode = _savedMoveMode;
+                _locomotion.UnlockLocomotion(this);
             }
 
             RestoreBodyRootMotion();

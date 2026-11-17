@@ -2,7 +2,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-// HUD ปืนแบบ RE4 — วงกระสุน, เลขกระสุน, วงบรรจุใหม่หลังยิง
+// HUD ปืนแบบ RE4 — กระสุนในปืน / กระสุนทั้งหมดในกระเป๋า, วงบรรจุหลังยิง
+// ปืนใส่ได้ทีละนัด: เลขซ้าย 1 = บรรจุแล้วยิงได้ / 0 = กำลังบรรจุหรือกระสุนหมด
 // เก็บปืน = สลับเป็นรูปหมัดแป๊บนึงแล้วจางหาย
 public class WeaponHUD : MonoBehaviour
 {
@@ -15,19 +16,19 @@ public class WeaponHUD : MonoBehaviour
     [SerializeField] private GameObject _heldObject;
     [Tooltip("ถ้าลากใส่ช่องบนไม่ได้ (อยู่คนละ Prefab) ใส่ชื่อแทน โค้ดจะหาใต้ GunController ให้ตอนเริ่มเกม")]
     [SerializeField] private string _heldObjectName = "R_GUN";
-    [Tooltip("วงเต็มเมื่อมีกระสุนเท่านี้")]
-    [SerializeField, Min(1)] private int _capacity = 20;
-    [Tooltip("เหลือเท่านี้หรือน้อยกว่า = สีเตือน")]
+    [Tooltip("กระสุนในกระเป๋าเหลือเท่านี้หรือน้อยกว่า = สีเตือน")]
     [SerializeField, Min(0)] private int _lowAmmo = 3;
 
     [Header("UI")]
     [SerializeField] private CanvasGroup _group;
-    [Tooltip("Image แบบ Filled / Radial 360 — วงกระสุน")]
+    [Tooltip("Image แบบ Filled / Radial 360 — เต็มวง = มีกระสุนในปืน / ว่าง = ยังไม่ได้บรรจุ")]
     [SerializeField] private Image _ammoRing;
-    [Tooltip("Image แบบ Filled / Radial 360 — วงเล็กที่วิ่งเติมหลังยิง (ใส่หรือไม่ใส่ก็ได้)")]
+    [Tooltip("Image แบบ Filled / Radial 360 — วงที่วิ่งเติมตอนบรรจุหลังยิง (ใส่หรือไม่ใส่ก็ได้)")]
     [SerializeField] private Image _readyRing;
     [SerializeField] private Image _weaponIcon;
+    [Tooltip("เลขซ้าย — กระสุนในปืน (0 หรือ 1)")]
     [SerializeField] private TMP_Text _ammoText;
+    [Tooltip("เลขขวา — กระสุนทั้งหมดในกระเป๋า ขึ้นเป็น /12")]
     [SerializeField] private TMP_Text _capacityText;
     [Tooltip("ขึ้นคำว่า SPECIAL ตอนเปลี่ยนโหมดปืน (ใส่หรือไม่ใส่ก็ได้)")]
     [SerializeField] private TMP_Text _modeText;
@@ -46,15 +47,16 @@ public class WeaponHUD : MonoBehaviour
     [SerializeField] private Color _textColor = Color.white;
 
     [Header("จังหวะ")]
-    [Tooltip("เวลาวงเล็กวิ่งเติมหลังยิง — ใส่ให้เท่า Delay Time ของปืน")]
-    [SerializeField, Min(0.01f)] private float _readyTime = 1f;
+    [Tooltip("เวลาบรรจุหลังยิง — ใส่ให้เท่า Delay Time ของปืน (ดูใน GunController)\nระหว่างนี้เลขซ้ายเป็น 0 และวงเล็กวิ่งเติม")]
+    [SerializeField, Min(0.01f)] private float _readyTime = 0.5f;
     [Tooltip("0 = โชว์ตลอดที่ถือปืน / มากกว่า 0 = ไม่ได้ยิงนานเท่านี้วินาทีแล้วค่อยๆ จางไป")]
     [SerializeField, Min(0f)] private float _hideAfterIdle = 0f;
     [SerializeField, Min(0.1f)] private float _fadeSpeed = 4f;
     [SerializeField, Min(1f)] private float _punchScale = 1.3f;
     [SerializeField, Min(0.01f)] private float _punchTime = 0.18f;
 
-    private int _count = -1;
+    private int _loaded = -1;
+    private int _reserve = -1;
     private float _shownFill;
     private float _readyTimer;
     private float _punchTimer;
@@ -72,11 +74,7 @@ public class WeaponHUD : MonoBehaviour
         if (_heldObject == null)
             Debug.LogWarning($"[WeaponHUD] หา '{_heldObjectName}' ใต้ {(_gun != null ? _gun.name : "ปืน")} ไม่เจอ — HUD จะดูจาก GunController แทน", this);
         if (_weaponIcon != null) _gunIcon = _weaponIcon.sprite;
-        if (_capacityText != null)
-        {
-            _capacityText.text = "/" + _capacity;
-            _capacityColor = _capacityText.color;
-        }
+        if (_capacityText != null) _capacityColor = _capacityText.color;
         if (_group != null) _group.alpha = 0f;
         _wasHolding = IsHolding();
     }
@@ -85,18 +83,35 @@ public class WeaponHUD : MonoBehaviour
     {
         float dt = Time.unscaledDeltaTime;   // ยังขยับตอน HitStop
         float now = Time.unscaledTime;
-        int count = ReadCount();
 
-        if (count != _count)
+        int reserve = ReadCount();
+
+        // ปืนไม่ได้บอกว่าบรรจุอยู่ไหม — กระสุนในกระเป๋าลด = เพิ่งยิง แล้วนับเวลาบรรจุเอง
+        if (reserve != _reserve)
         {
-            if (_count >= 0)
+            if (_reserve >= 0)
             {
-                if (count < _count) _readyTimer = _readyTime;   // จำนวนลด = เพิ่งยิง
+                if (reserve < _reserve) _readyTimer = _readyTime;
+                _lastActivity = now;
+            }
+            _reserve = reserve;
+            if (_capacityText != null) _capacityText.text = "/" + reserve;
+        }
+
+        // นับตามเวลาเกมแบบเดียวกับ Delay ของปืน — ตอน HitStop / Pause จะได้ช้าลงพร้อมกัน
+        _readyTimer = Mathf.Max(0f, _readyTimer - Time.deltaTime);
+        bool reloading = _readyTimer > 0f;
+        int loaded = !reloading && reserve > 0 ? 1 : 0;
+
+        if (loaded != _loaded)
+        {
+            if (_loaded >= 0)
+            {
                 _punchTimer = _punchTime;
                 _lastActivity = now;
             }
-            _count = count;
-            if (_ammoText != null) _ammoText.text = count.ToString();
+            _loaded = loaded;
+            if (_ammoText != null) _ammoText.text = loaded.ToString();
         }
 
         bool holding = IsHolding();
@@ -120,29 +135,28 @@ public class WeaponHUD : MonoBehaviour
         {
             bool fist = !holding && _fistIcon != null;
             _weaponIcon.sprite = fist ? _fistIcon : _gunIcon;
-            _weaponIcon.color = !fist && count <= 0 ? new Color(1f, 1f, 1f, 0.45f) : Color.white;
+            _weaponIcon.color = !fist && reserve <= 0 ? new Color(1f, 1f, 1f, 0.45f) : Color.white;
         }
 
         bool special = _gun != null && _gun.GetGunMode() == GunController.GunMode.Special;
-        Color ringColor = special ? _specialColor : count <= 0 ? _emptyColor : count <= _lowAmmo ? _lowColor : _normalColor;
+        Color ringColor = special ? _specialColor : reserve <= 0 ? _emptyColor : reserve <= _lowAmmo ? _lowColor : _normalColor;
 
-        _shownFill = Mathf.MoveTowards(_shownFill, Mathf.Clamp01((float)count / _capacity), 2f * dt);
+        _shownFill = Mathf.MoveTowards(_shownFill, loaded, 4f * dt);
         if (_ammoRing != null)
         {
             _ammoRing.fillAmount = _shownFill;
             _ammoRing.color = WithAlpha(ringColor, _ammoAlpha);
         }
 
-        _readyTimer = Mathf.Max(0f, _readyTimer - dt);
         if (_readyRing != null)
         {
-            _readyRing.fillAmount = 1f - _readyTimer / _readyTime;
-            _readyRing.color = WithAlpha(ringColor, (_readyTimer > 0f ? 0.9f : 0.35f) * _ammoAlpha);
+            _readyRing.fillAmount = reserve > 0 ? 1f - _readyTimer / _readyTime : 0f;
+            _readyRing.color = WithAlpha(ringColor, (reloading ? 0.9f : 0.35f) * _ammoAlpha);
         }
 
         if (_ammoText != null)
         {
-            Color textColor = count <= 0 ? _emptyColor : count <= _lowAmmo ? _lowColor : _textColor;
+            Color textColor = loaded > 0 ? _textColor : _emptyColor;
             _ammoText.color = WithAlpha(textColor, _ammoAlpha);
             _punchTimer = Mathf.Max(0f, _punchTimer - dt);
             float t = _punchTimer / _punchTime;
@@ -150,7 +164,10 @@ public class WeaponHUD : MonoBehaviour
         }
 
         if (_capacityText != null)
-            _capacityText.color = WithAlpha(_capacityColor, _capacityColor.a * _ammoAlpha);
+        {
+            Color reserveColor = reserve <= 0 ? _emptyColor : reserve <= _lowAmmo ? _lowColor : _capacityColor;
+            _capacityText.color = WithAlpha(reserveColor, _capacityColor.a * _ammoAlpha);
+        }
 
         if (_modeText != null)
         {

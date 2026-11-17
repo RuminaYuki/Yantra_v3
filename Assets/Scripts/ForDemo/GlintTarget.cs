@@ -5,4 +5,14 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class GlintTarget : MonoBehaviour
 {
+    private GameObject _glintOverlay;
+
+    public void SetActiveGlint(bool value)
+    {
+        _glintOverlay.SetActive(value);
+    }
+    public void SetOverlay(GameObject overlay)
+    {
+        _glintOverlay = overlay;
+    }
 }

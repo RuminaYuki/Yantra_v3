@@ -16,6 +16,10 @@ public class PlayerPairedCamera : MonoBehaviour
     [Tooltip("ให้กล้องแขน FPS ตามมุมกล้อง Glory แล้วคืนค่าเดิมหลังกล้องกลับเข้าเกมเพลย์")]
     [SerializeField] private bool _syncGloryViewModelCamera = true;
 
+    [Tooltip("ตอนจบ Glory ให้กล้อง Glory เลิกตามหัว ค้างมุมสุดท้ายไว้แล้วค่อย blend กลับ\n" +
+             "ถ้าไม่ค้าง: กดเดินค้างไว้ ตัวหันตามกล้อง → หัวหัน → กล้อง Glory หันตาม วนกันจนกล้องสะบัด")]
+    [SerializeField] private bool _freezeGloryCameraOnExit = true;
+
     private PairedAnimationActor _actor;
     private PlayerCameraController _camera;
 
@@ -29,6 +33,11 @@ public class PlayerPairedCamera : MonoBehaviour
     private PrioritySettings _previousGloryPriority;
     private PairedAnimationViewModelCameraSync _viewModelSync;
 
+    private Transform _freezePoint;
+    private Transform _gloryHead;
+    private CinemachineCamera _frozenCamera;
+    private Vector3 _freezeOffset;
+
     private void Awake()
     {
         _actor = GetComponent<PairedAnimationActor>();
@@ -36,6 +45,25 @@ public class PlayerPairedCamera : MonoBehaviour
         PlayerCameraInput cameraInput = GetComponentInChildren<PlayerCameraInput>();
         if (cameraInput != null)
             _camera = cameraInput.cameraController;
+    }
+
+    private void LateUpdate()
+    {
+        // ตามตำแหน่งตัวไปด้วย แต่ไม่หมุนตาม — ตัวจะหันยังไงกล้องก็ไม่โดนดึง
+        if (_frozenCamera != null && _freezePoint != null)
+            _freezePoint.position = transform.position + _freezeOffset;
+    }
+
+    private void OnDisable()
+    {
+        UnfreezeGloryCamera();
+    }
+
+    private void OnDestroy()
+    {
+        UnfreezeGloryCamera();
+        if (_freezePoint != null)
+            Destroy(_freezePoint.gameObject);
     }
 
     // เรียกตอนเริ่มท่า — คืน true ถ้าต้องรอกล้องและตัวละคร Snap เข้าจุดเริ่มก่อนเริ่มคลิป
@@ -129,6 +157,7 @@ public class PlayerPairedCamera : MonoBehaviour
         if (_request.Type != PairedActionType.Glory || !_useGloryCamera || _gloryCamera == null)
             return;
 
+        UnfreezeGloryCamera();
         _gloryCameraChanged = true;
         _camera.SetGloryCameraActive(true);
         _camera.IsCutsceneMode = _cutsceneWasActive;
@@ -139,6 +168,9 @@ public class PlayerPairedCamera : MonoBehaviour
     {
         if (_gloryCameraChanged)
         {
+            if (_freezeGloryCameraOnExit && _gloryCamera != null)
+                FreezeGloryCamera(_gloryCamera);
+
             if (_gloryCamera != null)
                 _gloryCamera.Priority = _previousGloryPriority;
 
@@ -163,6 +195,31 @@ public class PlayerPairedCamera : MonoBehaviour
         _lookStateSaved = false;
         _gloryCameraChanged = false;
         _gloryCamera = null;
+    }
+
+    private void FreezeGloryCamera(CinemachineCamera gloryCamera)
+    {
+        Transform head = _frozenCamera == gloryCamera ? _gloryHead : gloryCamera.Follow;
+        if (head == null)
+            return;
+
+        if (_freezePoint == null)
+            _freezePoint = new GameObject("GloryCameraFreezePoint").transform;
+
+        _freezePoint.SetPositionAndRotation(head.position, head.rotation);
+        _freezeOffset = head.position - transform.position;
+        _gloryHead = head;
+        _frozenCamera = gloryCamera;
+        gloryCamera.Follow = _freezePoint;
+    }
+
+    private void UnfreezeGloryCamera()
+    {
+        if (_frozenCamera != null && _gloryHead != null)
+            _frozenCamera.Follow = _gloryHead;
+
+        _frozenCamera = null;
+        _gloryHead = null;
     }
 
     private void StartViewModelCameraSync()

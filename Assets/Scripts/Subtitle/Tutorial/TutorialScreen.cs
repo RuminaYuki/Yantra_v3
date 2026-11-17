@@ -44,6 +44,10 @@ public class TutorialScreen : UIScreen
     [Tooltip("พิมพ์ {E} เพื่อใส่ไอคอนปุ่ม เช่น {E} Close")]
     [SerializeField] private string _closeLabel = "Close [E]";
 
+    [Tooltip("ชื่อไอคอนใน Sprite Asset ของปุ่มที่บังคับกด — ใช้แทน {E} ในข้อความปุ่ม ตอน tutorial บังคับปุ่มอื่น")]
+    [SerializeField] private string _tabIconName = "Tab";
+    [SerializeField] private string _fIconName = "F";
+
     [Tooltip("โชว์ตัวเลขนับถอยหลังบนปุ่มตอนยังล็อก — ปิดแล้วปุ่มยังล็อกอยู่ แค่ไม่มีเลขให้เห็น (จางไว้แทน)")]
     [SerializeField] private bool _showCountdown = true;
 
@@ -268,12 +272,20 @@ public class TutorialScreen : UIScreen
         if (_queue.Count > 0)
         {
             PlaySound(_nextSound);
+            VoidEventChannelSO finished = _current.OnClosed;
             LoadNext();
+            if (finished != null)
+                finished.Raise();
             return;
         }
 
         PlaySound(_closeSound);
+        VoidEventChannelSO onClosed = _current.OnClosed;
         UIManager.Instance?.Close(ScreenId.Tutorial);
+
+        // ยิงหลังปิดแล้ว ระบบที่รับ (เช่น เปิดกระเป๋า) จะได้ไม่ซ้อนกับหน้า tutorial
+        if (onClosed != null)
+            onClosed.Raise();
     }
 
     // ผ่าน SoundManager แบบเดียวกับ UISoundBank — ได้ mixer + ปรับเสียงใน Settings ได้
@@ -431,6 +443,15 @@ public class TutorialScreen : UIScreen
         bool isLast = _current != null && _pageIndex >= _current.Pages.Count - 1 && _queue.Count == 0;
         string label = isLast ? _closeLabel : _nextLabel;
 
+        // หน้าสุดท้ายที่บังคับปุ่มอื่น — ใช้ข้อความของ tutorial นั้น หรือเปลี่ยนไอคอน {E} เป็นปุ่มที่บังคับ
+        TutorialKey key = RequiredKey();
+        if (key != TutorialKey.E)
+        {
+            label = !string.IsNullOrWhiteSpace(_current.CloseLabel)
+                ? _current.CloseLabel
+                : label.Replace("{E}", "{" + IconName(key) + "}").Replace("[E]", "[" + key + "]");
+        }
+
         // ปิดเมาส์ = ปุ่มรับคลิก/Enter ไม่ได้เลย ใช้ E อย่างเดียว
         if (_continueButton != null)
             _continueButton.interactable = _allowMouseClick && !locked;
@@ -496,12 +517,42 @@ public class TutorialScreen : UIScreen
         if (_camera != null) _camera.IsPaused = false;
     }
 
-    private static bool ContinuePressed()
+    // หน้าสุดท้ายของ tutorial ชุดนี้ใช้ปุ่มที่บังคับ หน้าอื่นกด E ตามปกติ
+    private TutorialKey RequiredKey()
+    {
+        if (_current == null || _pageIndex < _current.Pages.Count - 1)
+            return TutorialKey.E;
+        return _current.CloseKey;
+    }
+
+    private string IconName(TutorialKey key) => key switch
+    {
+        TutorialKey.Tab => _tabIconName,
+        TutorialKey.F => _fIconName,
+        _ => "E",
+    };
+
+    private bool ContinuePressed() => KeyPressed(RequiredKey());
+
+    private static bool KeyPressed(TutorialKey key)
     {
 #if ENABLE_INPUT_SYSTEM
-        return Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame;
+        Keyboard keyboard = Keyboard.current;
+        if (keyboard == null) return false;
+
+        return key switch
+        {
+            TutorialKey.Tab => keyboard.tabKey.wasPressedThisFrame,
+            TutorialKey.F => keyboard.fKey.wasPressedThisFrame,
+            _ => keyboard.eKey.wasPressedThisFrame,
+        };
 #else
-        return Input.GetKeyDown(KeyCode.E);
+        return key switch
+        {
+            TutorialKey.Tab => Input.GetKeyDown(KeyCode.Tab),
+            TutorialKey.F => Input.GetKeyDown(KeyCode.F),
+            _ => Input.GetKeyDown(KeyCode.E),
+        };
 #endif
     }
 }

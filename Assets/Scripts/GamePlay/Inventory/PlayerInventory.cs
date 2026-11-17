@@ -97,6 +97,7 @@ public class PlayerInventory : MonoBehaviour
         if (s.IsEmpty) return false;
 
         int left = Inventory.TryAdd(s.item, s.quantity);
+        PickUpLogUI.Instance.ShowPickUpLog(worldItem.Stack.item.icon, worldItem.Stack.item.name, worldItem.Stack.quantity - left);
         worldItem.SetQuantity(left);
         return left < s.quantity;
     }
