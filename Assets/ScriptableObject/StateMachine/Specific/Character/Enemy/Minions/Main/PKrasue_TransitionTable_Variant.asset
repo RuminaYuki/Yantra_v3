@@ -19,12 +19,26 @@ MonoBehaviour:
   _fieldOverrides: []
   _removedIds:
   - 1c39568c-b35c-4a78-90b5-a99691a51778
-  _transitionOverrides: []
-  _conditionReplaces:
+  _transitionOverrides:
   - _transitionId: 6af50fa5-0383-4afe-950e-4b3665c2dda8
-    _from: {fileID: 7954348948201577819, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
-    _to: {fileID: -2166989886472301640}
-    _remove: 0
+    _conditionGroups:
+    - Conditions:
+      - Condition: {fileID: -6849317834920623677, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+        ExpectedResult: 0
+      - Condition: {fileID: -8044308087306137834, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+        ExpectedResult: 0
+      - Condition: {fileID: -2166989886472301640}
+        ExpectedResult: 0
+    - Conditions:
+      - Condition: {fileID: 6808632090553105096}
+        ExpectedResult: 0
+      - Condition: {fileID: -2166989886472301640}
+        ExpectedResult: 1
+      - Condition: {fileID: -8044308087306137834, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+        ExpectedResult: 0
+      - Condition: {fileID: -6849317834920623677, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+        ExpectedResult: 0
+  _conditionReplaces: []
   _transitionRetargets:
   - _transitionId: 6af50fa5-0383-4afe-950e-4b3665c2dda8
     _toState: {fileID: 3843580741982143811, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
@@ -149,9 +163,11 @@ MonoBehaviour:
   - State: {fileID: 0}
     Position: {x: 198, y: 156}
   - State: {fileID: 5838480089549137350, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
-    Position: {x: 198, y: 249}
+    Position: {x: 198, y: 266}
   - State: {fileID: -6437948323864379113, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
-    Position: {x: 198, y: 159}
+    Position: {x: 397, y: 177}
+  - State: {fileID: -1199315090856683543, guid: 41fdcdb874c8444438a2c4187bf6cc21, type: 2}
+    Position: {x: 198, y: 177}
   _entryNodePosition: {x: -1, y: 0}
   _anyStateNodePosition: {x: -1, y: 97}
   _contentsFolders: []
@@ -185,6 +201,11 @@ MonoBehaviour:
     - _target: {fileID: 4916025918269346807}
       _fieldName: _config.damage
     _category: Attack
+  - _name: CantReachPointTime
+    _bindings:
+    - _target: {fileID: 0}
+      _fieldName: minDuration
+    _category: Attack
 --- !u!114 &457257371227455009
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -198,6 +219,22 @@ MonoBehaviour:
   m_Name: OnHurt_Condition
   m_EditorClassIdentifier: Assembly-CSharp::OnHurtConditionSO
   _selfAnchor: {fileID: 0}
+--- !u!114 &1230166621854187358
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74c3ef779d40e464d88a9ae3b1ce5239, type: 3}
+  m_Name: IsMoving_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::IsMovingConditionSO
+  _selfAnchor: {fileID: 0}
+  _minMoveSpeed: 0.1
+  _ignoreY: 1
+  _smoothing: 15
 --- !u!114 &4916025918269346807
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -228,3 +265,20 @@ MonoBehaviour:
   _fallbackPrefab: {fileID: 0}
   _targetAnchor: {fileID: 11400000, guid: ded8b5ee8f0dd57488cc9fa0e5c0d061, type: 2}
   _targetOffset: {x: 0, y: 1, z: 0}
+--- !u!114 &6808632090553105096
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2f1aa939ecac5444ea4f694873236ecc, type: 3}
+  m_Name: IsMoving_Delayed_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::DelayedConditionSO
+  _selfAnchor: {fileID: 0}
+  _innerCondition: {fileID: 1230166621854187358}
+  _innerExpected: 0
+  _delay: 1
+  _mode: 0

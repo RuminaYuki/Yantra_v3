@@ -38,6 +38,7 @@ public class PickUpAddition : MonoBehaviour
         // TryAdd returns the leftover amount that did NOT fit.
         // Allow pickup if at least one item fits.
         int left = inventory.Inventory.TryAdd(worldItem.Stack.item, worldItem.Stack.quantity, true);
+
         return left < worldItem.Stack.quantity;
     }
 

@@ -1,23 +1,30 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
+using NUnit.Framework;
 using UnityEngine;
 
 public class ShootableDoor : MonoBehaviour
 {
-    [SerializeField] GameObject doorObject;
+    [Serializable]
+    public class RendererMaterialPair
+    {
+        public Coroutine dissolveCoroutine;
+        public MeshRenderer renderer;
+        public Material material;
+    }
+
+    [Header("Door Settings")]
     [SerializeField] FlagSO doorFlag;
 
+    [Header("Dissolve Settings")]
+    [SerializeField] private MeshRenderer[] meshRenderers;
     [SerializeField] private string opacityProperty = "_DissolveAmount";
-    [SerializeField] private MeshRenderer meshRenderer;
 
     [SerializeField] bool smoothDissolve = true;
     [SerializeField] float dissolveSpeed = 1f;
 
-    private Coroutine dissolveCoroutine;
-
-    private void Awake()
-    {
-
-    }
+    private List<RendererMaterialPair> rendererMaterialPairs = new List<RendererMaterialPair>();
 
     public void OnShot()
     {
@@ -26,6 +33,27 @@ public class ShootableDoor : MonoBehaviour
         if (doorCollider != null)
         {
             doorCollider.enabled = false;
+        }
+
+        foreach (MeshRenderer meshRenderer in meshRenderers)
+        {
+            if (meshRenderer.TryGetComponent<Renderer>(out Renderer renderer))
+            {
+                List<Material> materials = new List<Material>();
+                materials.AddRange(renderer.materials);
+                foreach (Material material in materials)
+                {
+                    if (material.HasProperty(opacityProperty))
+                    {
+                        RendererMaterialPair pair = new RendererMaterialPair
+                        {
+                            renderer = meshRenderer,
+                            material = material
+                        };
+                        rendererMaterialPairs.Add(pair);
+                    }
+                }
+            }
         }
 
         ChangeDissolve();
@@ -38,44 +66,35 @@ public class ShootableDoor : MonoBehaviour
 
     private void ChangeDissolve()
     {
-        if (dissolveCoroutine != null)
+        foreach (RendererMaterialPair pair in rendererMaterialPairs)
         {
-            StopCoroutine(dissolveCoroutine);
-        }
-
-        if (smoothDissolve)
-        {    
-            dissolveCoroutine = StartCoroutine(DissolveCoroutine());
+            if (pair.dissolveCoroutine != null)
+            {
+                StopCoroutine(pair.dissolveCoroutine);
+            }
+            if (smoothDissolve)
+            {
+                pair.dissolveCoroutine = StartCoroutine(DissolveCoroutine(pair));
+            }
         }
     }
 
-    private float GetDissolveValue()
-    {
-        if (meshRenderer.TryGetComponent<Renderer>(out Renderer renderer))
-        {
-            return renderer.material.GetFloat(opacityProperty);
-        }
-        return 0f;
-    }
-
-    private void SetDissolveValue(float value)
-    {
-        if (meshRenderer.TryGetComponent<Renderer>(out Renderer renderer))
-        {
-            renderer.material.SetFloat(opacityProperty, value);
-        }
-    }
-
-    IEnumerator DissolveCoroutine()
+    private IEnumerator DissolveCoroutine(RendererMaterialPair pair)
     {
         float targetValue = 1f;
-        float currentValue = GetDissolveValue();
+        float currentValue = pair.material.GetFloat(opacityProperty);
         while (Mathf.Abs(currentValue - targetValue) > 0.01f)
         {
             currentValue = Mathf.Lerp(currentValue, targetValue, dissolveSpeed * Time.deltaTime);
-            SetDissolveValue(currentValue);
+            pair.material.SetFloat(opacityProperty, currentValue);
             yield return null;
         }
-        SetDissolveValue(targetValue);
+        pair.material.SetFloat(opacityProperty, targetValue);
+    }
+
+    [ContextMenu("Dissolve Door")]
+    private void DissolveDoor()
+    {
+        OnShot();
     }
 }

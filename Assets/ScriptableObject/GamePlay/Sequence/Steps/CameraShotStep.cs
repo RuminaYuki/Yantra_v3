@@ -9,6 +9,7 @@ public class CameraShotStep : SequenceStep
     [SerializeField] float moveDuration = 1.5f;
     [SerializeField] float holdDuration = 2f;
     [SerializeField] AnimationCurve ease = AnimationCurve.EaseInOut(0, 0, 1, 1);
+    [SerializeField] bool setCutsceneMode = true;
 
     public override IEnumerator Run()
     {
@@ -31,7 +32,8 @@ public class CameraShotStep : SequenceStep
             ? Quaternion.LookRotation(lookDirection)
             : cameraPoint.rotation;
         bool wasCutsceneMode = cameraController.IsCutsceneMode;
-        cameraController.IsCutsceneMode = true;
+        if (setCutsceneMode)
+            cameraController.IsCutsceneMode = true;
 
         try
         {
@@ -54,7 +56,8 @@ public class CameraShotStep : SequenceStep
         }
         finally
         {
-            cameraController.IsCutsceneMode = wasCutsceneMode;
+            if (setCutsceneMode)
+                cameraController.IsCutsceneMode = wasCutsceneMode;
         }
 
     }

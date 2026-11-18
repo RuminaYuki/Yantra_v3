@@ -124,6 +124,12 @@ public class ItemGlintManager : MonoBehaviour
             overlay.reflectionProbeUsage = ReflectionProbeUsage.Off;
 
             overlay.enabled = false;
+
+            if (item is GlintTarget)
+            {
+                ((GlintTarget)item).SetOverlay(overlay.gameObject);
+            }
+
             entry.Overlays.Add(overlay);
         }
         return entry;

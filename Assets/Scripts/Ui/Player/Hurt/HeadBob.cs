@@ -23,6 +23,9 @@ public class HeadBob : CinemachineExtension
     [Tooltip("เว้นว่างได้ จะหาจาก GameObject นี้ให้เอง — ใช้ปิด bob ตอน cutscene/pause และลดตอนเล็ง")]
     [SerializeField] private PlayerCameraController _cameraController;
 
+    [Tooltip("เว้นว่างได้ จะหาจากตัวผู้เล่นให้เอง — ปิด bob ระหว่างเล่นท่าคู่ (Glory / โดนจับ)")]
+    [SerializeField] private PairedAnimationPlayer _pairedPlayer;
+
     [Header("จังหวะ")]
     [Tooltip("เดินกี่เมตรถึงครบ 1 รอบ (ซ้าย+ขวา = 2 ก้าว)\nน้อย = ถี่ / มาก = ช้า\n" +
              "รอบต่อวินาที = ความเร็ว ÷ ค่านี้ (ก้าวต่อวินาที = x2)\n" +
@@ -58,6 +61,9 @@ public class HeadBob : CinemachineExtension
     [Tooltip("ความเร็วที่ bob ค่อย ๆ เข้า/ออก")]
     [SerializeField] private float _blendSpeed = 8f;
 
+    [Tooltip("หลัง Glory จบและกล้องสลับกลับมาเสร็จแล้ว รอกี่วินาทีค่อยเริ่ม bob ใหม่")]
+    [SerializeField] private float _resumeDelay = 0.3f;
+
     [Header("ตัวคูณ")]
     [Tooltip("ตอนเล็งปืน/ยันต์ ภาพควรนิ่งขึ้น")]
     [SerializeField, Range(0f, 1f)] private float _aimMultiplier = 0.25f;
@@ -72,6 +78,8 @@ public class HeadBob : CinemachineExtension
     private float _weight;
     private float _nextSearchTime;
     private bool _warned;
+    private float _resumeTime;
+    private bool _suppressed;
 
     private Vector3 _positionOffset;
     private Quaternion _rotationOffset = Quaternion.identity;
@@ -105,6 +113,14 @@ public class HeadBob : CinemachineExtension
             }
         }
 
+        // Glory ปิดโหมด cutscene กลับเอง (ให้กล้องเกมเพลย์หมุนกลับตรงอยู่ข้างหลัง) เลยต้องเช็คท่าคู่ตรง ๆ
+        if (_pairedPlayer == null && _character != null)
+        {
+            _pairedPlayer = _character.GetComponent<PairedAnimationPlayer>();
+            if (_pairedPlayer == null)
+                _pairedPlayer = _character.transform.root.GetComponentInChildren<PairedAnimationPlayer>(true);
+        }
+
         if (_cameraController == null) _cameraController = GetComponent<PlayerCameraController>();
         if (_cameraController == null) _cameraController = GetComponentInParent<PlayerCameraController>();
         if (_cameraController == null) _cameraController = FindFirstObjectByType<PlayerCameraController>();
@@ -130,6 +146,25 @@ public class HeadBob : CinemachineExtension
                 }
                 return;
             }
+        }
+
+        // ปิดสนิทตั้งแต่ Glory เริ่ม จนกล้อง Glory สลับกลับเสร็จ — ไม่แตะกล้องเลยเหมือนปิดคอมโพเนนต์
+        // เช็คกล้อง Glory ด้วย เผื่อหา PairedAnimationPlayer ไม่เจอ
+        bool paired = _pairedPlayer != null && _pairedPlayer.IsPlaying;
+        bool gloryLive = _cameraController != null && _cameraController.vcamGlory != null
+                         && _cameraController.vcamGlory.IsLive;
+        if (paired || gloryLive)
+            _resumeTime = Time.time + _resumeDelay;
+
+        _suppressed = Time.time < _resumeTime;
+        if (_suppressed)
+        {
+            _speed = 0f;
+            _speedVelocity = 0f;
+            _weight = 0f;
+            _positionOffset = Vector3.zero;
+            _rotationOffset = Quaternion.identity;
+            return;
         }
 
         float dt = Time.deltaTime;
@@ -178,7 +213,7 @@ public class HeadBob : CinemachineExtension
         ref CameraState state,
         float deltaTime)
     {
-        if (stage != CinemachineCore.Stage.Finalize) return;
+        if (stage != CinemachineCore.Stage.Finalize || _suppressed) return;
 
         // offset อยู่ในแกนของกล้อง (ขึ้น/ขวาของจอ) แปลงเป็นโลกก่อนบวก
         state.PositionCorrection += state.GetCorrectedOrientation() * _positionOffset;

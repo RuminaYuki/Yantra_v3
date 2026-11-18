@@ -1,14 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.Video;
 using Yantra.UI;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
 
-// ใส่ที่ตัวรถแท็กซี่ — จอดำ + เสียงเปิด/ปิดประตู → ค่อยๆ สว่าง → คุยกัน → รถขับออก → หันกล้องไปทางที่ต้องเดิน
+// ใส่ที่ตัวรถแท็กซี่ — จอดำ + เสียงเปิด/ปิดประตู → ค่อยๆ สว่าง → วิดีโอ/บทพูด → รถขับออก → หันกล้องไปทางที่ต้องเดิน
 // → จอดำแป๊บนึงให้ตั้งหลัก → สว่างขึ้นพร้อม UI → ผู้เล่นค่อยบังคับได้
 public class TaxiDriveAway : MonoBehaviour
 {
@@ -40,7 +42,7 @@ public class TaxiDriveAway : MonoBehaviour
     [Tooltip("เสียงปิดประตู")]
     [SerializeField] private SoundID _doorCloseSound;
 
-    [Tooltip("จอดำเงียบๆ กี่วินาทีก่อนเสียงเปิดประตู")]
+    [Tooltip("วิดีโอจบแล้ว จอดำเงียบๆ กี่วินาทีก่อนเสียงเปิดประตู (ไม่มีวิดีโอ = นับตั้งแต่เริ่มฉาก)")]
     [SerializeField, Min(0f)] private float _blackBeforeDoor = 0.5f;
 
     [Tooltip("เปิดประตูแล้วกี่วินาทีถึงปิด (เวลาที่รินก้าวลงจากรถ)")]
@@ -53,6 +55,21 @@ public class TaxiDriveAway : MonoBehaviour
     [SerializeField, Min(0.01f)] private float _fadeInDuration = 1.5f;
 
     [Header("บทพูด")]
+    [Tooltip("วิดีโอเล่นเป็นอย่างแรกทับจอดำ จบแล้วค่อยเสียงเปิด/ปิดประตู แล้วเฟดเข้าฉาก — เว้นว่าง = ไม่เล่น")]
+    [SerializeField] private VideoClip _preTaxiVideo;
+
+    [Tooltip("วิดีโอค่อยๆ ชัดขึ้นจากจอดำกี่วินาที — 0 = ขึ้นทันที")]
+    [SerializeField, Min(0f)] private float _videoFadeIn = 0.8f;
+
+    [Tooltip("เสียงวิดีโอออกทาง AudioMixerGroup ไหน (เช่น SFX / Cutscene) — เว้นว่าง = ไม่ผ่าน Mixer")]
+    [SerializeField] private AudioMixerGroup _videoMixerGroup;
+
+    [Tooltip("ความดังเสียงวิดีโอ")]
+    [SerializeField, Range(0f, 1f)] private float _videoVolume = 1f;
+
+    [Tooltip("ความดังเสียงเครื่องรถตอนวิดีโอเล่น — 0 = เงียบ จบวิดีโอแล้วกลับมาดังปกติ")]
+    [SerializeField, Range(0f, 1f)] private float _idleVolumeDuringVideo = 0f;
+
     [Tooltip("ไฟล์บทพูด (Subtitle Data) — เว้นว่าง = ไม่คุย รถออกเลย")]
     [SerializeField] private SubtitleDataSO _dialogue;
 
@@ -166,6 +183,17 @@ public class TaxiDriveAway : MonoBehaviour
 
     private CanvasGroup _black;
     private float _blackAlpha = 1f;
+    private GameObject _videoRoot;
+    private VideoPlayer _videoPlayer;
+    private RawImage _videoImage;
+    private RenderTexture _videoTexture;
+    private AspectRatioFitter _videoAspect;
+    private bool _skipVideo;
+    private bool _videoFinished;
+    private bool _videoReady;
+    private CanvasGroup _videoGroup;
+    private AudioSource _videoAudio;
+    private string _videoError;
 
     private SFXHandle _idle;
     private SFXHandle _drive;
@@ -196,7 +224,7 @@ public class TaxiDriveAway : MonoBehaviour
     private InventoryUI _inventoryUI;
     private bool _inventoryBlocked;
 
-    private enum IntroPhase { Black, Dialogue, Done }
+    private enum IntroPhase { Black, Video, Dialogue, Done }
     private IntroPhase _phase = IntroPhase.Black;
     private bool _hurry;
 
@@ -237,6 +265,7 @@ public class TaxiDriveAway : MonoBehaviour
     {
         _idle.Stop();
         _drive.Stop();
+        DestroyVideoScreen();
         UnlockPlayer();
         DestroyBlackScreen();
     }
@@ -253,6 +282,12 @@ public class TaxiDriveAway : MonoBehaviour
         {
             if (_phase == IntroPhase.Black)
                 _hurry = true;
+            else if (_phase == IntroPhase.Video)
+            {
+                _skipVideo = true;
+                if (_videoPlayer != null)
+                    _videoPlayer.Stop();
+            }
             else if (SubtitleSystem.Instance != null)
                 SubtitleSystem.Instance.SkipLine();
         }
@@ -280,6 +315,20 @@ public class TaxiDriveAway : MonoBehaviour
         while (SceneLoader.Instance != null && SceneLoader.Instance.IsLoading)
             yield return null;
 
+        // วิดีโอเล่นเป็นอย่างแรก ทับจอดำ (canvas วิดีโออยู่เหนือจอดำ) — ยังไม่มีเสียงประตู
+        if (_preTaxiVideo != null)
+        {
+            _idle.SetVolumeMultiplier(_idleVolumeDuringVideo);
+            StartCoroutine(PrepareVideoRoutine());
+
+            _phase = IntroPhase.Video;
+            yield return PlayPreTaxiVideo();
+            _phase = IntroPhase.Black;   // หลังวิดีโอกดข้ามจอดำได้เหมือนเดิม
+
+            _idle.SetVolumeMultiplier(1f);
+        }
+
+        // จบวิดีโอแล้วค่อยเสียงเปิด/ปิดประตู
         yield return WaitOrHurry(_blackBeforeDoor);
 
         if (_doorOpenSound != null && !_hurry)
@@ -292,6 +341,7 @@ public class TaxiDriveAway : MonoBehaviour
             PlayOneShot(_doorCloseSound);
 
         yield return WaitOrHurry(_blackAfterDoor);
+
         yield return FadeInRoutine();
         yield return WaitOrHurry(_startDelay);
 
@@ -310,6 +360,159 @@ public class TaxiDriveAway : MonoBehaviour
         }
 
         yield return DriveRoutine();
+    }
+
+    // เตรียมวิดีโอล่วงหน้าตอนจอดำ — canvas ซ่อนไว้ก่อน จนกว่าจะถึงเวลาเล่น
+    private IEnumerator PrepareVideoRoutine()
+    {
+        _videoReady = false;
+        _videoFinished = false;
+        _videoError = null;
+
+        CreateVideoScreen();
+        _videoRoot.GetComponent<Canvas>().enabled = false;
+
+        _videoPlayer.errorReceived += OnVideoError;
+        _videoPlayer.loopPointReached += OnVideoFinished;
+        _videoPlayer.clip = _preTaxiVideo;
+
+        int width = Mathf.Max(16, (int)_preTaxiVideo.width);
+        int height = Mathf.Max(16, (int)_preTaxiVideo.height);
+        _videoTexture = new RenderTexture(width, height, 0) { name = "TaxiIntroVideo" };
+        _videoTexture.Create();
+        _videoPlayer.targetTexture = _videoTexture;
+        _videoImage.texture = _videoTexture;
+        _videoAspect.aspectRatio = width / (float)height;
+
+        _videoPlayer.Prepare();
+        while (_videoPlayer != null && !_videoPlayer.isPrepared && string.IsNullOrEmpty(_videoError))
+            yield return null;
+
+        _videoReady = _videoPlayer != null && string.IsNullOrEmpty(_videoError);
+    }
+
+    private IEnumerator PlayPreTaxiVideo()
+    {
+        _skipVideo = false;
+
+        // ปกติเตรียมเสร็จไปแล้วตอนจอดำ เลยไม่ต้องรอ
+        while (!_videoReady && !_skipVideo && string.IsNullOrEmpty(_videoError))
+            yield return null;
+
+        if (_videoReady && !_skipVideo && _videoPlayer != null)
+        {
+            _videoGroup.alpha = 0f;
+            _videoRoot.GetComponent<Canvas>().enabled = true;
+            _videoPlayer.Play();
+
+            float fade = 0f;
+            while (!_videoFinished && !_skipVideo && string.IsNullOrEmpty(_videoError))
+            {
+                if (_videoGroup != null)
+                {
+                    fade += Time.deltaTime;
+                    _videoGroup.alpha = _videoFadeIn > 0f ? Mathf.SmoothStep(0f, 1f, fade / _videoFadeIn) : 1f;
+                }
+                yield return null;
+            }
+        }
+
+        if (!string.IsNullOrEmpty(_videoError))
+            Debug.LogError($"[Taxi] เล่นวิดีโอฉากเปิดไม่สำเร็จ: {_videoError}", this);
+
+        DestroyVideoScreen();
+        _videoReady = false;
+    }
+
+    private void OnVideoError(VideoPlayer source, string message)
+    {
+        _videoError = message;
+    }
+
+    private void OnVideoFinished(VideoPlayer source)
+    {
+        _videoFinished = true;
+    }
+
+    private void CreateVideoScreen()
+    {
+        _videoRoot = new GameObject("TaxiIntro_Video", typeof(RectTransform));
+        SceneManager.MoveGameObjectToScene(_videoRoot, gameObject.scene);
+
+        Canvas canvas = _videoRoot.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = BlackSortingOrder + 1;
+
+        _videoGroup = _videoRoot.AddComponent<CanvasGroup>();
+        _videoGroup.alpha = 0f;
+        _videoGroup.interactable = false;
+        _videoGroup.blocksRaycasts = false;
+
+        var background = new GameObject("Background", typeof(RectTransform), typeof(Image));
+        background.transform.SetParent(_videoRoot.transform, false);
+        RectTransform backgroundRect = (RectTransform)background.transform;
+        backgroundRect.anchorMin = Vector2.zero;
+        backgroundRect.anchorMax = Vector2.one;
+        backgroundRect.offsetMin = Vector2.zero;
+        backgroundRect.offsetMax = Vector2.zero;
+        background.GetComponent<Image>().color = Color.black;
+
+        var video = new GameObject("Video", typeof(RectTransform), typeof(RawImage), typeof(AspectRatioFitter));
+        video.transform.SetParent(_videoRoot.transform, false);
+        RectTransform videoRect = (RectTransform)video.transform;
+        videoRect.anchorMin = new Vector2(0.5f, 0.5f);
+        videoRect.anchorMax = new Vector2(0.5f, 0.5f);
+        videoRect.anchoredPosition = Vector2.zero;
+        _videoImage = video.GetComponent<RawImage>();
+        _videoImage.raycastTarget = false;
+        _videoAspect = video.GetComponent<AspectRatioFitter>();
+        _videoAspect.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
+
+        _videoPlayer = _videoRoot.AddComponent<VideoPlayer>();
+        _videoPlayer.playOnAwake = false;
+        _videoPlayer.isLooping = false;
+        _videoPlayer.renderMode = VideoRenderMode.RenderTexture;
+
+        // เสียงวิดีโอออกทาง AudioSource จะได้ผ่าน AudioMixer / AudioListener.pause ตามระบบเสียงของเกม
+        _videoAudio = _videoRoot.AddComponent<AudioSource>();
+        _videoAudio.playOnAwake = false;
+        _videoAudio.spatialBlend = 0f;
+        _videoAudio.volume = _videoVolume;
+        _videoAudio.outputAudioMixerGroup = _videoMixerGroup;
+
+        _videoPlayer.audioOutputMode = VideoAudioOutputMode.AudioSource;
+        _videoPlayer.controlledAudioTrackCount = 1;
+        _videoPlayer.EnableAudioTrack(0, true);
+        _videoPlayer.SetTargetAudioSource(0, _videoAudio);
+        _videoPlayer.skipOnDrop = true;
+        _videoPlayer.timeUpdateMode = VideoTimeUpdateMode.GameTime;
+    }
+
+    private void DestroyVideoScreen()
+    {
+        if (_videoPlayer != null)
+        {
+            _videoPlayer.errorReceived -= OnVideoError;
+            _videoPlayer.loopPointReached -= OnVideoFinished;
+            _videoPlayer.Stop();
+        }
+
+        if (_videoTexture != null)
+        {
+            _videoTexture.Release();
+            Destroy(_videoTexture);
+        }
+
+        if (_videoRoot != null)
+            Destroy(_videoRoot);
+
+        _videoRoot = null;
+        _videoPlayer = null;
+        _videoImage = null;
+        _videoTexture = null;
+        _videoAspect = null;
+        _videoGroup = null;
+        _videoAudio = null;
     }
 
     // กดข้ามตอนจอดำ = ตัดเวลารอที่เหลือทิ้งหมด
@@ -564,6 +767,13 @@ public class TaxiDriveAway : MonoBehaviour
         bool loading = SceneLoader.Instance != null && SceneLoader.Instance.IsLoading;
         if (loading || IsMenuOpen())
             return;
+
+        // ช่วงวิดีโอเล่นทับจอดำ ไม่ถือว่าจอดำค้าง
+        if (_phase == IntroPhase.Video)
+        {
+            _blackTimer = 0f;
+            return;
+        }
 
         _blackTimer += Time.unscaledDeltaTime;
         if (_blackTimer < _stuckTimeout)

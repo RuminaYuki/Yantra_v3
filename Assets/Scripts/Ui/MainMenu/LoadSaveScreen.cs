@@ -78,6 +78,20 @@ public class LoadSaveScreen : UIScreen
             button.onClick.RemoveAllListeners();
             if (hasSave) button.onClick.AddListener(() => SaveManager.Instance.LoadSave(slotIndex));
             else button.onClick.AddListener(() => SaveManager.Instance.NewGame(slotIndex));
+
+            Button buttonDelete = slot.ButtonDelete;
+            if (buttonDelete == null)
+            {
+                Debug.LogWarning($"[LoadSaveScreen] Slot {slotIndex} has no Delete Button.", slot);
+                continue;
+            }
+            buttonDelete.onClick.RemoveAllListeners();
+            if (hasSave)
+            {
+                buttonDelete.onClick.AddListener(() => SaveManager.Instance.DeleteSave(slotIndex));
+                buttonDelete.onClick.AddListener(() => BuildSlots());
+            }
+            else buttonDelete.onClick.AddListener(() => Debug.Log($"[LoadSaveScreen] Slot {slotIndex} has no save to delete.", slot));
         }
     }
 
