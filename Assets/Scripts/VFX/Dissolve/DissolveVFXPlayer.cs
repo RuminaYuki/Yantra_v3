@@ -44,7 +44,7 @@ public class DissolveVFXPlayer : MonoBehaviour
         [Tooltip("ให้ Particle ตัวหลักพ่นออกมาจากผิวโมเดล — ใช้ได้กับ Particle System เท่านั้น")]
         public bool EmitFromMesh;
 
-        [Tooltip("ลบเอฟเฟกต์ทิ้งหลังกี่วินาที — 0 = ไม่ลบเอง (ลบตอน Reset)")]
+        [Tooltip("ตัดเอฟเฟกต์ทิ้งหลังกี่วินาที — 0 = เล่นจนจบเอง (หรือจนกว่าจะ Reset)")]
         [Min(0f)] public float Lifetime = 3f;
     }
 
@@ -97,7 +97,7 @@ public class DissolveVFXPlayer : MonoBehaviour
     }
 
     private readonly List<RendererState> _states = new List<RendererState>();
-    private readonly List<GameObject> _attachedEffects = new List<GameObject>();
+    private readonly List<VFXHandle> _attachedEffects = new List<VFXHandle>();
     private bool _played;
     private bool _finished;
     private int _amountId;
@@ -458,32 +458,26 @@ public class DissolveVFXPlayer : MonoBehaviour
         if (slot == null || slot.Effect == null)
             return;
 
+        VFXPooler pooler = VFXPooler.GetOrCreate();
+        if (pooler == null)
+            return;
+
         Transform point = slot.Point != null ? slot.Point : (_visualRoot != null ? _visualRoot : transform);
-        GameObject instance = slot.FollowPoint
-            ? Instantiate(slot.Effect, point.position, point.rotation, point)
-            : Instantiate(slot.Effect, point.position, point.rotation);
 
+        // Lifetime > 0 = ตัดทิ้งเมื่อครบเวลา (เหมือน Destroy เดิม) / 0 = เล่นจนจบเอง
+        var options = new VFXPlayOptions { Duration = slot.Lifetime, Speed = 1f, FadeOut = 0f };
+
+        // ตัวจากพูลอาจเคยผูกกับโมเดลตัวอื่น ต้องผูกใหม่ทุกครั้งก่อนเล่น
+        System.Action<VFXPlayer> bind = null;
         if (slot.EmitFromMesh)
-            BindToMesh(instance);
+            bind = p => BindToMesh(p.gameObject);
 
-        instance.SetActive(true);
-        PlayParticles(instance);
+        VFXHandle handle = pooler.Play(slot.Effect, point.position, point.rotation,
+            slot.FollowPoint ? point : null, options, bind);
 
         // เอฟเฟกต์ที่ไม่ติดตัวและมีเวลาหมดอายุ ปล่อยให้เล่นจนจบเอง แม้โมเดลจะถูกปิดไปแล้ว
         if (slot.FollowPoint || slot.Lifetime <= 0f)
-            _attachedEffects.Add(instance);
-        if (slot.Lifetime > 0f)
-            Destroy(instance, slot.Lifetime);
-    }
-
-    // Particle ที่ไม่ได้ติ๊ก Play On Awake จะไม่เล่นเอง — สั่งเฉพาะตัวบนสุด ตัวลูกเล่นตาม
-    private static void PlayParticles(GameObject instance)
-    {
-        foreach (ParticleSystem ps in instance.GetComponentsInChildren<ParticleSystem>(true))
-        {
-            if (IsTopParticle(ps, instance.transform) && !ps.isPlaying)
-                ps.Play(true);
-        }
+            _attachedEffects.Add(handle);
     }
 
     private static bool IsTopParticle(ParticleSystem ps, Transform root)
@@ -542,9 +536,8 @@ public class DissolveVFXPlayer : MonoBehaviour
 
     private void ClearEffects()
     {
-        foreach (GameObject effect in _attachedEffects)
-            if (effect != null)
-                Destroy(effect);
+        foreach (VFXHandle effect in _attachedEffects)
+            effect.StopImmediate();
         _attachedEffects.Clear();
     }
 
