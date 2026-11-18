@@ -24,30 +24,6 @@ MonoBehaviour:
   maxCompletions: 0
   dailyResetHour: 4
   whenRouteLost: 0
---- !u!114 &-5308543602531092420
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2acb854183d80214fb783df50e5f1185, type: 3}
-  m_Name: group of ghosts 2
-  m_EditorClassIdentifier: Assembly-CSharp::SDFcl.GamePlay.QuestSystem.QuestSO
-  questId: c212624ff1d14e7db86f60aca9f0337d
-  title: group of ghosts 2
-  description: 
-  track: 0
-  objectives:
-  - id: 'Kill all ghosts '
-    description: 'Kill all ghosts in this area '
-    requiredCount: 5
-  repeatMode: 0
-  maxCompletions: 0
-  dailyResetHour: 4
-  whenRouteLost: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -61,48 +37,14 @@ MonoBehaviour:
   m_Name: MainQuestGraph
   m_EditorClassIdentifier: Assembly-CSharp::SDFcl.GamePlay.QuestSystem.QuestGraphSO
   nodes:
-  - rid: 271060794861420639
-  - rid: 271060794861420641
-  - rid: 271060933437554778
-  - rid: 271060972403687426
   - rid: 7053197021426745344
   edges:
-  - fromNode: 5e32a41d82384c5ab61b9030621bfcf3
-    toNode: 6cd6e9eb46d84aa6b941253fa311bdfe
-  - fromNode: dd3ab67149004b47b6d3b965d54af299
-    toNode: e18f4e209cad42fca996e346fad20006
-  - fromNode: 6cd6e9eb46d84aa6b941253fa311bdfe
-    toNode: c2077388f8b94ee98f9d024df80c1beb
   - fromNode: c2077388f8b94ee98f9d024df80c1beb
     toNode: dd3ab67149004b47b6d3b965d54af299
   laneSplitY: 0
   references:
     version: 2
     RefIds:
-    - rid: 271060794861420639
-      type: {class: QuestNode, ns: SDFcl.GamePlay.QuestSystem, asm: Assembly-CSharp}
-      data:
-        guid: 6cd6e9eb46d84aa6b941253fa311bdfe
-        position: {x: 199, y: -202}
-        quest: {fileID: 4537645471852854472}
-    - rid: 271060794861420641
-      type: {class: QuestNode, ns: SDFcl.GamePlay.QuestSystem, asm: Assembly-CSharp}
-      data:
-        guid: e18f4e209cad42fca996e346fad20006
-        position: {x: 1005, y: -202}
-        quest: {fileID: -5308543602531092420}
-    - rid: 271060933437554778
-      type: {class: QuestNode, ns: SDFcl.GamePlay.QuestSystem, asm: Assembly-CSharp}
-      data:
-        guid: 5e32a41d82384c5ab61b9030621bfcf3
-        position: {x: -1, y: -202}
-        quest: {fileID: 3837899139992925771}
-    - rid: 271060972403687426
-      type: {class: QuestNode, ns: SDFcl.GamePlay.QuestSystem, asm: Assembly-CSharp}
-      data:
-        guid: dd3ab67149004b47b6d3b965d54af299
-        position: {x: 744, y: -202}
-        quest: {fileID: -6511872613168189869}
     - rid: 7053197021426745344
       type: {class: QuestNode, ns: SDFcl.GamePlay.QuestSystem, asm: Assembly-CSharp}
       data:
@@ -129,30 +71,6 @@ MonoBehaviour:
   - id: enter trigger
     description: 
     requiredCount: 1
-  repeatMode: 0
-  maxCompletions: 0
-  dailyResetHour: 4
-  whenRouteLost: 0
---- !u!114 &4537645471852854472
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2acb854183d80214fb783df50e5f1185, type: 3}
-  m_Name: The first group of ghosts.
-  m_EditorClassIdentifier: Assembly-CSharp::SDFcl.GamePlay.QuestSystem.QuestSO
-  questId: 5e69c697186147499f0c1678c7dc6f66
-  title: The first group of ghosts.
-  description: 
-  track: 0
-  objectives:
-  - id: 'Kill all ghosts '
-    description: 'Kill all ghosts in this area '
-    requiredCount: 3
   repeatMode: 0
   maxCompletions: 0
   dailyResetHour: 4
