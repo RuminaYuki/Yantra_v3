@@ -54,6 +54,10 @@ public class SoundManager : Singleton<SoundManager>
     [Range(-80f, 20f)][SerializeField] private float voiceBaseDb = 0f;
     [Range(-80f, 20f)][SerializeField] private float uiBaseDb = 0f;
 
+    [Header("Pause")]
+    [Tooltip("ติ๊ก = กด Pause แล้วเพลงยังเล่นต่อ (เสียงในเกมหยุดหมด)\nไม่ติ๊ก = เพลงหยุดไปด้วย")]
+    [SerializeField] private bool bgmPlaysDuringPause = true;
+
     [Header("Debug")]
     [Tooltip("เตือนใน Console เมื่อฉากนี้ไม่มี SoundPooler แล้วต้องสร้างให้เอง")]
     [SerializeField] private bool warnOnAutoCreatePooler = true;
@@ -86,6 +90,11 @@ public class SoundManager : Singleton<SoundManager>
 
         if (bgmSource == null)
             Debug.LogWarning("[SoundManager] BGM source is missing!");
+        else
+            bgmSource.ignoreListenerPause = bgmPlaysDuringPause;
+
+        if (bgmSourceB != null)
+            bgmSourceB.ignoreListenerPause = bgmPlaysDuringPause;
 
         if (voiceSource == null)
             Debug.LogWarning("[SoundManager] Voice source is missing!");
@@ -237,15 +246,33 @@ public class SoundManager : Singleton<SoundManager>
         return cachedPooler;
     }
 
-    private SFXPlayer SpawnPlayer(SoundID id, Vector3 position, out SoundData data)
+    // ignorePause = true เฉพาะเสียง UI — ลำโพงในพูลใช้วนกัน ต้องตั้งค่าใหม่ทุกครั้ง
+    // ไม่งั้นลำโพงที่เคยเล่นเสียงปุ่ม พอไปเล่นเสียงผีทีหลังจะไม่หยุดตอน Pause
+    private SFXPlayer SpawnPlayer(SoundID id, Vector3 position, out SoundData data, bool ignorePause = false)
     {
         if (!TryGetData(id, out data)) return null;
 
         SoundPooler pooler = GetPooler();
-        return pooler != null ? pooler.Get(position) : null;
+        SFXPlayer player = pooler != null ? pooler.Get(position) : null;
+
+        if (player != null && player.TryGetComponent(out AudioSource source))
+            source.ignoreListenerPause = ignorePause;
+
+        return player;
     }
 
     public void PlayEventSFX(SoundID id) => PlaySFX(id, GetListenerPosition());
+
+    /// <summary>
+    /// เสียงปุ่ม / เมนู — ดังได้แม้เกมกำลัง Pause อยู่
+    /// เสียงอื่นทั้งหมดหยุดตาม AudioListener.pause ที่ PauseController สั่ง
+    /// </summary>
+    public float PlayUISFX(SoundID id)
+    {
+        SFXPlayer player = SpawnPlayer(id, GetListenerPosition(), out SoundData data, ignorePause: true);
+        if (player == null) return 0f;
+        return player.Play(data);
+    }
 
     private Vector3 GetListenerPosition()
     {
@@ -515,6 +542,7 @@ public class SoundManager : Singleton<SoundManager>
         source.volume = 0f;
         source.priority = template.priority;
         source.outputAudioMixerGroup = template.outputAudioMixerGroup;
+        source.ignoreListenerPause = bgmPlaysDuringPause;
 
         return source;
     }
