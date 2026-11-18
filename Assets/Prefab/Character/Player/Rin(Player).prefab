@@ -126,7 +126,7 @@ Transform:
   m_GameObject: {fileID: 430012691504989364}
   serializedVersion: 2
   m_LocalRotation: {x: 0.000000059604645, y: -0.000000031786513, z: -8.881784e-15, w: -1}
-  m_LocalPosition: {x: -1.9435326e-17, y: 1.6106886, z: -0.000000029802322}
+  m_LocalPosition: {x: -1.9435326e-17, y: -0.014311388, z: -0.000000029802322}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6583,7 +6583,7 @@ Transform:
   m_GameObject: {fileID: 3767964958464883512}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.625, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -6677,6 +6677,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeadBob
   _character: {fileID: 7434954710618316361}
   _cameraController: {fileID: 5107126304779472096}
+  _pairedPlayer: {fileID: 0}
   _strideLength: 5
   _referenceSpeed: 5
   _minSpeed: 0.3
@@ -6687,6 +6688,7 @@ MonoBehaviour:
   _speedSmoothTime: 0.15
   _groundedGrace: 0.15
   _blendSpeed: 8
+  _resumeDelay: 0.3
   _aimMultiplier: 0.25
   _globalMultiplier: 1
 --- !u!114 &5107126304779472096
@@ -6814,8 +6816,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3970923857070277191}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.86545706, z: 0, w: 0.50098324}
-  m_LocalPosition: {x: -3.83, y: 9.492, z: 137.55}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -6863,7 +6865,7 @@ Camera:
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 10231
+    m_Bits: 9207
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -18938,6 +18940,9 @@ MonoBehaviour:
   - Flag: {fileID: -757505676354162058, guid: 381c4937039a8bf45833bc015622b3db, type: 2}
     InitialValue: 0
     runtimeValue: 0
+  - Flag: {fileID: 11400000, guid: 3ab9483831d9a7d448043e36dc6e1734, type: 2}
+    InitialValue: 0
+    runtimeValue: 0
 --- !u!114 &6252579542559560056
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19040,8 +19045,8 @@ MonoBehaviour:
   _assignValue: 0
   _currentGuardPoints: 20
   _guardDecreasedPerHit: 7
-  _recoveryGuardPointsPerSecond: 1
-  _decreasedGuardPointsPerSecond: 2
+  _recoveryGuardPointsPerSecond: 2
+  _decreasedGuardPointsPerSecond: 3
   _delayForRecovery: 2
   _voidHitEventChannel: {fileID: 11400000, guid: e3452f38e0993a04ea066bb6815c43e6, type: 2}
   _OnGuardPointDepleted: {fileID: 11400000, guid: a2e0752c413868641ae40c58a65a8ff6, type: 2}
@@ -19242,6 +19247,7 @@ MonoBehaviour:
   _useGloryCamera: 1
   _cameraPreparationTimeout: 1
   _syncGloryViewModelCamera: 1
+  _freezeGloryCameraOnExit: 1
 --- !u!114 &4368828265564020728
 MonoBehaviour:
   m_ObjectHideFlags: 0

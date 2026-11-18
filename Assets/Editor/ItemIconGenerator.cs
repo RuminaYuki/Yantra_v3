@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
@@ -7,6 +8,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.HighDefinition;
 using UnityEngine.SceneManagement;
+using UnityEngine.VFX;
 using Object = UnityEngine.Object;
 
 // สร้างไอคอนกระเป๋าจากโมเดลของ ItemData — ขนาดรูปตามจำนวนช่อง, ซูมพอดีช่อง, แสงล็อกไม่โดนฉากกวน
@@ -36,7 +38,12 @@ public class ItemIconGenerator : EditorWindow
     private Texture2D preview;
     private ItemData previewItem;
     private string previewNote = "";
-    private bool previewQueued;
+
+    // งานเรนเดอร์ทำทีละเฟรม เพราะ VFX Graph ต้องรอ Unity อัปเดตก่อนถึงจะมีอนุภาค
+    private readonly Stack<IEnumerator> tasks = new Stack<IEnumerator>();
+    private IEnumerator pendingGenerate;
+    private bool previewWanted;
+    private bool generating;
 
     [MenuItem("Tools/Item Icon Generator (HDRP)")]
     private static void Open() => GetWindow<ItemIconGenerator>("Item Icons");
@@ -53,6 +60,7 @@ public class ItemIconGenerator : EditorWindow
     private void OnDisable()
     {
         Undo.undoRedoPerformed -= QueuePreview;
+        StopTasks();
         stage?.Dispose();
         stage = null;
         if (preview != null) DestroyImmediate(preview);
@@ -352,7 +360,7 @@ public class ItemIconGenerator : EditorWindow
 
     private void DrawGenerateButtons()
     {
-        using (new EditorGUI.DisabledScope(current == null))
+        using (new EditorGUI.DisabledScope(current == null || generating))
         {
             if (GUILayout.Button("สร้างไอคอนอันนี้", GUILayout.Height(30f)))
             {
@@ -361,12 +369,12 @@ public class ItemIconGenerator : EditorWindow
             }
         }
 
-        using (new EditorGUI.DisabledScope(ticked.Count == 0))
+        using (new EditorGUI.DisabledScope(ticked.Count == 0 || generating))
         {
             if (GUILayout.Button($"สร้างที่ติ๊กไว้ ({ticked.Count} ชิ้น)", GUILayout.Height(30f)))
             {
                 var list = new List<ItemData>(ticked);
-                EditorApplication.delayCall += () => Generate(list, false);
+                EditorApplication.delayCall += () => StartGenerate(list, false);
             }
         }
     }
@@ -437,7 +445,7 @@ public class ItemIconGenerator : EditorWindow
         EditorGUI.indentLevel--;
     }
 
-    // ---------- Preview ----------
+    // ---------- Tasks ----------
 
     private IconStage Stage()
     {
@@ -449,34 +457,99 @@ public class ItemIconGenerator : EditorWindow
         return stage;
     }
 
-    private void QueuePreview()
+    private void EnsureTicking()
     {
-        if (previewQueued) return;
-        previewQueued = true;
-        EditorApplication.delayCall += RenderPreview;
+        EditorApplication.update -= Tick;
+        EditorApplication.update += Tick;
     }
 
-    private void RenderPreview()
+    private void Tick()
     {
-        previewQueued = false;
-        if (this == null || profile == null || current == null) return;
-
-        try
+        if (tasks.Count == 0)
         {
-            ItemIconProfile.ItemSettings s = SettingsFor(current);
-            Texture2D tex = Stage().Render(current, s, profile, PreviewPixelsPerCell, 2, out float roll, out string error);
-
-            if (preview != null) DestroyImmediate(preview);
-            preview = tex;
-            previewItem = current;
-            previewNote = tex == null ? error : s.autoRoll ? $"เครื่องมือเอียงให้ {roll:0}°" : "";
+            if (pendingGenerate != null)
+            {
+                tasks.Push(pendingGenerate);
+                pendingGenerate = null;
+            }
+            else if (previewWanted)
+            {
+                previewWanted = false;
+                tasks.Push(PreviewRoutine());
+            }
+            else
+            {
+                EditorApplication.update -= Tick;
+                return;
+            }
         }
-        catch (Exception e)
+
+        while (tasks.Count > 0)
         {
-            previewNote = "เรนเดอร์ไม่สำเร็จ: " + e.Message;
-            Debug.LogException(e);
-        }
+            IEnumerator top = tasks.Peek();
+            bool more;
+            try
+            {
+                more = top.MoveNext();
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+                tasks.Pop();
+                StopTasks();
+                previewNote = "เรนเดอร์ไม่สำเร็จ: " + e.Message;
+                Repaint();
+                return;
+            }
 
+            if (!more) tasks.Pop();
+            else if (top.Current is IEnumerator child) tasks.Push(child);
+            else return;
+        }
+    }
+
+    private void StopTasks()
+    {
+        EditorApplication.update -= Tick;
+        while (tasks.Count > 0)
+            if (tasks.Pop() is IDisposable d) d.Dispose();
+
+        (pendingGenerate as IDisposable)?.Dispose();
+        pendingGenerate = null;
+        previewWanted = false;
+        generating = false;
+        EditorUtility.ClearProgressBar();
+    }
+
+    // ---------- Preview ----------
+
+    private void QueuePreview()
+    {
+        previewWanted = true;
+        EnsureTicking();
+    }
+
+    private IEnumerator PreviewRoutine()
+    {
+        if (profile == null || current == null) yield break;
+
+        ItemData item = current;
+        ItemIconProfile.ItemSettings s = SettingsFor(item);
+        var shot = new IconShot();
+        yield return Stage().Render(item, s, profile, PreviewPixelsPerCell, 2, shot);
+
+        if (preview != null) DestroyImmediate(preview);
+        preview = shot.texture;
+        previewItem = item;
+        if (shot.texture == null)
+        {
+            previewNote = shot.error;
+        }
+        else
+        {
+            string rollNote = s.autoRoll ? $"เครื่องมือเอียงให้ {shot.roll:0}°" : "";
+            previewNote = string.IsNullOrEmpty(shot.info) ? rollNote : $"{rollNote}  ({shot.info})".Trim();
+        }
         Repaint();
     }
 
@@ -484,7 +557,7 @@ public class ItemIconGenerator : EditorWindow
 
     private void GenerateSingle(ItemData item)
     {
-        if (item == null || profile == null) return;
+        if (this == null || item == null || profile == null) return;
 
         bool force = false;
         if (IsHandmade(item))
@@ -495,7 +568,7 @@ public class ItemIconGenerator : EditorWindow
             force = true;
         }
 
-        Generate(new List<ItemData> { item }, force);
+        StartGenerate(new List<ItemData> { item }, force);
     }
 
     private string SkipReason(ItemData item, bool force)
@@ -507,9 +580,9 @@ public class ItemIconGenerator : EditorWindow
         return null;
     }
 
-    private void Generate(List<ItemData> items, bool force)
+    private void StartGenerate(List<ItemData> items, bool force)
     {
-        if (profile == null) return;
+        if (this == null || profile == null || generating) return;
 
         string folder = profile.outputFolder.Replace('\\', '/').TrimEnd('/');
         if (!folder.StartsWith("Assets"))
@@ -519,9 +592,16 @@ public class ItemIconGenerator : EditorWindow
         }
         Directory.CreateDirectory(folder);
 
+        generating = true;
+        pendingGenerate = GenerateRoutine(items, force, folder);
+        EnsureTicking();
+        Repaint();
+    }
+
+    private IEnumerator GenerateRoutine(List<ItemData> items, bool force, string folder)
+    {
         var written = new List<KeyValuePair<ItemData, string>>();
         var skipped = new List<string>();
-        IconStage st = Stage();
 
         try
         {
@@ -541,24 +621,31 @@ public class ItemIconGenerator : EditorWindow
                     continue;
                 }
 
-                Texture2D tex = st.Render(item, SettingsFor(item), profile, profile.pixelsPerCell, profile.supersample, out _, out string error);
-                if (tex == null)
+                var shot = new IconShot();
+                yield return Stage().Render(item, SettingsFor(item), profile, profile.pixelsPerCell, profile.supersample, shot);
+                if (shot.texture == null)
                 {
-                    skipped.Add($"{Label(item)}: {error}");
+                    skipped.Add($"{Label(item)}: {shot.error}");
                     continue;
                 }
 
                 string path = $"{folder}/{FileName(item)}_Icon.png";
-                File.WriteAllBytes(path, tex.EncodeToPNG());
-                DestroyImmediate(tex);
+                File.WriteAllBytes(path, shot.texture.EncodeToPNG());
+                DestroyImmediate(shot.texture);
                 written.Add(new KeyValuePair<ItemData, string>(item, path));
             }
         }
         finally
         {
             EditorUtility.ClearProgressBar();
+            generating = false;
         }
 
+        FinishGenerate(written, skipped, folder);
+    }
+
+    private void FinishGenerate(List<KeyValuePair<ItemData, string>> written, List<string> skipped, string folder)
+    {
         AssetDatabase.Refresh();
         AssetDatabase.StartAssetEditing();
         try
@@ -623,11 +710,32 @@ public class ItemIconGenerator : EditorWindow
     }
 }
 
+internal sealed class IconShot
+{
+    public Texture2D texture;
+    public float roll;
+    public string error;
+    public string info;
+}
+
 // ฉากแยกสำหรับถ่ายไอคอน — มีกล้อง ไฟ 3 ดวง และ Volume ของตัวเอง ฉากเกมกับ Volume ในฉากไม่มีผล
 internal sealed class IconStage : IDisposable
 {
-    private static readonly Vector3 Origin = new Vector3(0f, -10000f, 0f);
+    // ฉากนี้แยกจากฉากเกมอยู่แล้ว วางไว้จุดศูนย์กลางโลกเลย VFX บางตัวคิดกรอบจากจุดนี้
+    private static readonly Vector3 Origin = Vector3.zero;
     private const int ProbeSize = 256;
+
+    // เวลาที่ปล่อยให้เอฟเฟกต์เล่นก่อนถ่าย
+    private const float EffectSeconds = 2f;
+    private const float EffectStep = 1f / 60f;
+    private const uint EffectSteps = 120;
+    private const int EffectMinFrames = 8;
+    private const double EffectMinWait = 0.5;
+    private const double EffectMaxWait = 2.0;
+    private const float PerspectiveStretch = 40f;
+
+    private static readonly string[] ModeNames = { "กล้องปกติ", "กล้องแบบพรีวิว", "กล้องมีมุมมอง", "กล้องพรีวิวแบบมีมุมมอง" };
+    private int mode;
 
     private Scene scene;
     private readonly GameObject holder;
@@ -658,6 +766,7 @@ internal sealed class IconStage : IDisposable
         cam.scene = scene;
         cam.orthographic = true;
         cam.cullingMask = ~0;
+        cam.clearFlags = CameraClearFlags.SolidColor;
 
         hd.clearColorMode = HDAdditionalCameraData.ClearColorMode.Color;
         hd.antialiasing = HDAdditionalCameraData.AntialiasingMode.None;
@@ -719,17 +828,14 @@ internal sealed class IconStage : IDisposable
         }
     }
 
-    public Texture2D Render(ItemData item, ItemIconProfile.ItemSettings s, ItemIconProfile p,
-                            int pixelsPerCell, int supersample, out float roll, out string error)
+    public IEnumerator Render(ItemData item, ItemIconProfile.ItemSettings s, ItemIconProfile p,
+                              int pixelsPerCell, int supersample, IconShot shot)
     {
-        roll = 0f;
-        error = null;
-
         GameObject source = item.PreviewSource;
         if (source == null)
         {
-            error = "ไม่มีโมเดล";
-            return null;
+            shot.error = "ไม่มีโมเดล";
+            yield break;
         }
 
         holder.SetActive(false);
@@ -743,103 +849,202 @@ internal sealed class IconStage : IDisposable
             holder.SetActive(true);
             foreach (LODGroup lod in model.GetComponentsInChildren<LODGroup>()) lod.ForceLOD(0);
 
-            if (!TryGetBounds(model, out Bounds bounds))
+            VisualEffect[] vfx = model.GetComponentsInChildren<VisualEffect>();
+            ParticleSystem[] particles = model.GetComponentsInChildren<ParticleSystem>();
+            int hiddenVfx = model.GetComponentsInChildren<VisualEffect>(true).Length - vfx.Length;
+
+            // VFX Graph จำลองอนุภาคตอน Unity อัปเดตเฟรม เลยต้องรอให้อนุภาคโผล่ก่อนถ่าย
+            if (vfx.Length > 0)
             {
-                error = "โมเดลไม่มี Mesh ให้ถ่าย";
-                return null;
-            }
+                foreach (VisualEffect v in vfx)
+                    if (string.IsNullOrEmpty(v.initialEventName)) v.Play();
 
-            float radius = Mathf.Max(bounds.extents.magnitude, 0.001f);
-            float distance = radius * 4f;
-            ApplyLook(p, radius);
-
-            // 1) ถ่ายเล็กๆ ก่อน เพื่อดูว่าโมเดลกินพื้นที่บนจอตรงไหนจริงๆ
-            Quaternion baseRotation = Quaternion.Euler(p.cameraElevation, 0f, 0f);
-            float probeHalf = radius * 1.1f;
-            Place(baseRotation, bounds.center, probeHalf, distance, radius, 1f);
-            if (!RenderPair(ProbeSize, ProbeSize, true, out Color[] probeBlack, out Color[] probeWhite) ||
-                !Matte(probeBlack, probeWhite, ProbeSize, ProbeSize, out float[] probeAlpha, out _))
-            {
-                error = "สีพื้นหลังไม่เปลี่ยน — HDRP ไม่ได้เรนเดอร์กล้องนี้";
-                return null;
-            }
-
-            List<Vector3> outline = Outline(probeAlpha, baseRotation, probeHalf);
-            if (outline.Count == 0)
-            {
-                error = "กล้องมองไม่เห็นโมเดล";
-                return null;
-            }
-
-            // 2) หามุมเอียงที่ทำให้ของใหญ่ที่สุดในช่อง
-            Vector2Int size = item.GetSize(0);
-            float pad = p.padding;
-            if (p.dropShadow)
-                pad += Mathf.Max(Mathf.Abs(p.shadowOffset.x), Mathf.Abs(p.shadowOffset.y)) + p.shadowBlur;
-            float availW = Mathf.Max(0.1f, size.x - pad * 2f);
-            float availH = Mathf.Max(0.1f, size.y - pad * 2f);
-            float margin = probeHalf * 2f / ProbeSize;
-
-            float bestScore = float.MaxValue, bestK = 1f, bestRoll = 0f;
-            Vector2 bestCenter = Vector2.zero;
-            float from = s.autoRoll ? -90f : s.roll;
-            float to = s.autoRoll ? 90f : s.roll;
-
-            for (float r = from; r <= to + 0.001f; r += 3f)
-            {
-                Quaternion rot = baseRotation * Quaternion.Euler(0f, 0f, r);
-                Vector3 right = rot * Vector3.right, up = rot * Vector3.up;
-
-                float minX = float.MaxValue, maxX = float.MinValue, minY = float.MaxValue, maxY = float.MinValue;
-                foreach (Vector3 d in outline)
+                Quaternion view = Quaternion.Euler(p.cameraElevation, 0f, 0f);
+                double start = EditorApplication.timeSinceStartup;
+                for (int frame = 0; ; frame++)
                 {
-                    float x = Vector3.Dot(d, right), y = Vector3.Dot(d, up);
-                    if (x < minX) minX = x;
-                    if (x > maxX) maxX = x;
-                    if (y < minY) minY = y;
-                    if (y > maxY) maxY = y;
-                }
+                    WarmUp(model, view);
+                    if (frame == 1)
+                        foreach (VisualEffect v in vfx) v.Simulate(EffectStep, EffectSteps);
 
-                float k = Mathf.Max((maxX - minX + margin * 2f) / availW, (maxY - minY + margin * 2f) / availH);
-                float score = k * (1f + 0.03f * Mathf.Abs(r) / 90f);   // ใกล้เคียงกัน = เอาแบบตั้งตรง
-                if (score < bestScore)
-                {
-                    bestScore = score;
-                    bestK = k;
-                    bestRoll = r;
-                    bestCenter = new Vector2((minX + maxX) * 0.5f, (minY + maxY) * 0.5f);
+                    EditorApplication.QueuePlayerLoopUpdate();
+                    yield return null;
+
+                    if (!IsValid || model == null)
+                    {
+                        shot.error = "ฉากถ่ายรูปถูกปิดไปก่อน";
+                        yield break;
+                    }
+
+                    double waited = EditorApplication.timeSinceStartup - start;
+                    if (frame < EffectMinFrames || waited < EffectMinWait) continue;
+                    if (AliveParticles(vfx) > 0 || waited >= EffectMaxWait) break;
                 }
-                if (!s.autoRoll) break;
             }
-            roll = bestRoll;
 
-            // 3) ถ่ายจริงขนาดเท่าช่อง
-            float unitsPerCell = bestK / Mathf.Max(0.05f, s.zoom);
-            Quaternion finalRotation = baseRotation * Quaternion.Euler(0f, 0f, bestRoll);
-            Vector3 center = bounds.center
-                             + finalRotation * Vector3.right * (bestCenter.x - s.offset.x * size.x * unitsPerCell)
-                             + finalRotation * Vector3.up * (bestCenter.y + s.offset.y * size.y * unitsPerCell);
-
-            int w = size.x * pixelsPerCell, h = size.y * pixelsPerCell;
-            int ss = Mathf.Clamp(supersample, 1, 4);
-            Place(finalRotation, center, size.y * unitsPerCell * 0.5f, distance, radius, (float)w / h);
-
-            if (!RenderPair(w * ss, h * ss, true, out Color[] black, out Color[] white) ||
-                !Matte(black, white, w * ss, h * ss, out float[] alpha, out Color background))
+            foreach (ParticleSystem ps in particles)
             {
-                error = "สีพื้นหลังไม่เปลี่ยน — HDRP ไม่ได้เรนเดอร์กล้องนี้";
-                return null;
+                Transform parent = ps.transform.parent;
+                if (parent == null || parent.GetComponentInParent<ParticleSystem>() == null)
+                    ps.Simulate(EffectSeconds, true, true, true);
             }
 
-            Color[] image = Downsample(black, alpha, background, w, h, ss);
-            if (p.dropShadow && p.shadowOpacity > 0f) AddDropShadow(image, w, h, p, pixelsPerCell);
-            return ToTexture(image, w, h);
+            // หยุดเอฟเฟกต์ไว้ ภาพพื้นดำกับพื้นขาวจะได้ตรงกันเป๊ะ
+            foreach (VisualEffect v in vfx) v.pause = true;
+
+            bool glow = vfx.Length > 0 || particles.Length > 0;
+            yield return Shoot(item, s, p, model, glow, vfx.Length > 0, pixelsPerCell, supersample, shot);
+
+            if (shot.texture == null)
+            {
+                if (vfx.Length > 0)
+                    shot.error += $" (VFX {vfx.Length} ตัว, อนุภาค {AliveParticles(vfx)}, {(AnyCulled(vfx) ? "VFX บอกว่ากล้องมองไม่เห็น" : "กล้องเห็น")})";
+                else if (hiddenVfx > 0)
+                    shot.error += $" (มี VFX {hiddenVfx} ตัว แต่ GameObject ถูกปิดอยู่ในพรีแฟบ)";
+            }
         }
         finally
         {
-            Object.DestroyImmediate(model);
-            holder.SetActive(false);
+            if (model != null) Object.DestroyImmediate(model);
+            if (holder != null) holder.SetActive(false);
         }
+    }
+
+    private IEnumerator Shoot(ItemData item, ItemIconProfile.ItemSettings s, ItemIconProfile p, GameObject model, bool glow,
+                              bool framePerRender, int pixelsPerCell, int supersample, IconShot shot)
+    {
+        shot.texture = null;
+        shot.roll = 0f;
+        shot.error = null;
+        shot.info = null;
+        SetMode(0);
+
+        if (!TryGetBounds(model, out Bounds bounds))
+        {
+            shot.error = "โมเดลไม่มี Mesh หรือเอฟเฟกต์ให้ถ่าย";
+            yield break;
+        }
+
+        float baseRadius = Mathf.Max(bounds.extents.magnitude, 0.001f);
+        float radius = baseRadius;
+        float distance = radius * 4f;
+        float probeHalf = radius * 1.1f;
+        ApplyLook(p, radius);
+
+        // 1) ถ่ายเล็กๆ ก่อน เพื่อดูว่าโมเดลกินพื้นที่บนจอตรงไหนจริงๆ — ถ้าล้นขอบภาพก็ขยายวงแล้วถ่ายใหม่
+        //    ไอเทมที่มี VFX ถ้ากล้องปกติมองไม่เห็นเลย จะลองเปลี่ยนชนิดกล้องไล่ไปทีละแบบ
+        Quaternion baseRotation = Quaternion.Euler(p.cameraElevation, 0f, 0f);
+        List<Vector3> outline = null;
+        float peak = 0f;
+        var cap = new Capture();
+        int modes = framePerRender ? ModeNames.Length : 1;
+
+        for (int m = 0; m < modes && (outline == null || outline.Count == 0); m++)
+        {
+            SetMode(m);
+            radius = baseRadius;
+            distance = radius * 4f;
+            probeHalf = radius * 1.1f;
+
+            for (int attempt = 0; attempt < 4; attempt++)
+            {
+                Place(baseRotation, bounds.center, probeHalf, distance, radius, 1f);
+                yield return RenderPair(ProbeSize, ProbeSize, framePerRender, cap);
+                if (!Matte(cap.black, cap.white, ProbeSize, ProbeSize, out float[] probeAlpha, out Color probeBackground))
+                {
+                    if (m + 1 < modes) break;
+                    SetMode(0);
+                    shot.error = "สีพื้นหลังไม่เปลี่ยน — HDRP ไม่ได้เรนเดอร์กล้องนี้";
+                    yield break;
+                }
+                peak = Mathf.Max(peak, Peak(cap.black, probeBackground));
+                if (glow) AddGlow(probeAlpha, cap.black, probeBackground);
+
+                outline = Outline(probeAlpha, baseRotation, probeHalf, out bool clipped);
+                bool lookWider = clipped || (glow && outline.Count == 0);
+                if (!lookWider) break;
+
+                probeHalf *= 2f;
+                radius *= 2f;
+                distance = radius * 4f;
+            }
+        }
+
+        if (outline == null || outline.Count == 0)
+        {
+            SetMode(0);
+            shot.error = glow
+                ? $"เอฟเฟกต์ยังไม่ขึ้นตอนถ่าย ลองกล้อง {modes} แบบแล้ว สว่างสุดในภาพ {peak:0.#####}"
+                : "กล้องมองไม่เห็นโมเดล";
+            yield break;
+        }
+        if (mode != 0) shot.info = "ใช้" + ModeNames[mode];
+
+        // 2) หามุมเอียงที่ทำให้ของใหญ่ที่สุดในช่อง
+        Vector2Int size = item.GetSize(0);
+        float pad = p.padding;
+        if (p.dropShadow)
+            pad += Mathf.Max(Mathf.Abs(p.shadowOffset.x), Mathf.Abs(p.shadowOffset.y)) + p.shadowBlur;
+        float availW = Mathf.Max(0.1f, size.x - pad * 2f);
+        float availH = Mathf.Max(0.1f, size.y - pad * 2f);
+        float margin = probeHalf * 2f / ProbeSize;
+
+        float bestScore = float.MaxValue, bestK = 1f, bestRoll = 0f;
+        Vector2 bestCenter = Vector2.zero;
+        float from = s.autoRoll ? -90f : s.roll;
+        float to = s.autoRoll ? 90f : s.roll;
+
+        for (float r = from; r <= to + 0.001f; r += 3f)
+        {
+            Quaternion rot = baseRotation * Quaternion.Euler(0f, 0f, r);
+            Vector3 right = rot * Vector3.right, up = rot * Vector3.up;
+
+            float minX = float.MaxValue, maxX = float.MinValue, minY = float.MaxValue, maxY = float.MinValue;
+            foreach (Vector3 d in outline)
+            {
+                float x = Vector3.Dot(d, right), y = Vector3.Dot(d, up);
+                if (x < minX) minX = x;
+                if (x > maxX) maxX = x;
+                if (y < minY) minY = y;
+                if (y > maxY) maxY = y;
+            }
+
+            float k = Mathf.Max((maxX - minX + margin * 2f) / availW, (maxY - minY + margin * 2f) / availH);
+            float score = k * (1f + 0.03f * Mathf.Abs(r) / 90f);   // ใกล้เคียงกัน = เอาแบบตั้งตรง
+            if (score < bestScore)
+            {
+                bestScore = score;
+                bestK = k;
+                bestRoll = r;
+                bestCenter = new Vector2((minX + maxX) * 0.5f, (minY + maxY) * 0.5f);
+            }
+            if (!s.autoRoll) break;
+        }
+        shot.roll = bestRoll;
+
+        // 3) ถ่ายจริงขนาดเท่าช่อง
+        float unitsPerCell = bestK / Mathf.Max(0.05f, s.zoom);
+        Quaternion finalRotation = baseRotation * Quaternion.Euler(0f, 0f, bestRoll);
+        Vector3 center = bounds.center
+                         + finalRotation * Vector3.right * (bestCenter.x - s.offset.x * size.x * unitsPerCell)
+                         + finalRotation * Vector3.up * (bestCenter.y + s.offset.y * size.y * unitsPerCell);
+
+        int w = size.x * pixelsPerCell, h = size.y * pixelsPerCell;
+        int ss = Mathf.Clamp(supersample, 1, 4);
+        Place(finalRotation, center, size.y * unitsPerCell * 0.5f, distance, radius, (float)w / h);
+
+        yield return RenderPair(w * ss, h * ss, framePerRender, cap);
+        SetMode(0);
+        if (!Matte(cap.black, cap.white, w * ss, h * ss, out float[] alpha, out Color background))
+        {
+            shot.error = "สีพื้นหลังไม่เปลี่ยน — HDRP ไม่ได้เรนเดอร์กล้องนี้";
+            yield break;
+        }
+        if (glow) AddGlow(alpha, cap.black, background);
+
+        Color[] image = Downsample(cap.black, alpha, background, w, h, ss);
+        if (p.dropShadow && p.shadowOpacity > 0f) AddDropShadow(image, w, h, p, pixelsPerCell);
+        shot.texture = ToTexture(image, w, h);
     }
 
     // ---------- Setup ----------
@@ -896,6 +1101,25 @@ internal sealed class IconStage : IDisposable
         light.transform.rotation = rotation;
     }
 
+    private static bool IsEffect(Renderer r) => r is VFXRenderer || r is ParticleSystemRenderer;
+
+    private static bool IsVisual(Renderer r) => r is MeshRenderer || r is SkinnedMeshRenderer || IsEffect(r);
+
+    private static int AliveParticles(VisualEffect[] vfx)
+    {
+        int total = 0;
+        foreach (VisualEffect v in vfx)
+            if (v != null) total += v.aliveParticleCount;
+        return total;
+    }
+
+    private static bool AnyCulled(VisualEffect[] vfx)
+    {
+        foreach (VisualEffect v in vfx)
+            if (v != null && v.culled) return true;
+        return false;
+    }
+
     private static void KeepVisualsOnly(GameObject model)
     {
         // ปิดไว้ก่อนเปิดใช้งาน สคริปต์เกมจะได้ไม่ทำงานในฉากถ่ายรูป
@@ -903,9 +1127,10 @@ internal sealed class IconStage : IDisposable
         for (int i = scripts.Length - 1; i >= 0; i--)
             if (scripts[i] != null) Object.DestroyImmediate(scripts[i]);
 
-        foreach (Behaviour b in model.GetComponentsInChildren<Behaviour>(true)) b.enabled = false;
+        foreach (Behaviour b in model.GetComponentsInChildren<Behaviour>(true))
+            if (!(b is VisualEffect)) b.enabled = false;
         foreach (Renderer r in model.GetComponentsInChildren<Renderer>(true))
-            r.enabled = r is MeshRenderer || r is SkinnedMeshRenderer;
+            r.enabled = IsVisual(r);
     }
 
     private static bool TryGetBounds(GameObject model, out Bounds bounds)
@@ -914,56 +1139,128 @@ internal sealed class IconStage : IDisposable
         bool any = false;
         foreach (Renderer r in model.GetComponentsInChildren<Renderer>())
         {
-            if (!r.enabled || !(r is MeshRenderer || r is SkinnedMeshRenderer)) continue;
-            if (!any) { bounds = r.bounds; any = true; }
-            else bounds.Encapsulate(r.bounds);
+            if (!r.enabled || !IsVisual(r)) continue;
+
+            Bounds b = r.bounds;
+            // กรอบของเอฟเฟกต์มักเป็น 0 หรือไปอยู่ผิดที่ก่อนอนุภาคเกิด — ใช้ตำแหน่งตัวเอฟเฟกต์แทน แล้วให้ขั้นถ่ายเล็กขยายวงหาเอง
+            if (IsEffect(r))
+            {
+                Vector3 at = r.transform.position;
+                float size = Mathf.Clamp(b.size.magnitude, 0.5f, 4f);
+                Vector3 center = b.size.sqrMagnitude > 1e-6f && (b.center - at).magnitude < size ? b.center : at;
+                b = new Bounds(center, Vector3.one * size);
+            }
+
+            if (!any) { bounds = b; any = true; }
+            else bounds.Encapsulate(b);
         }
         return any;
     }
 
+    // 0 = กล้องปกติ, 1 = กล้องแบบพรีวิว (แบบที่หน้าพรีวิว VFX ของ Unity ใช้), 2-3 = กล้องมีมุมมองแต่แคบมากจากไกลๆ
+    private void SetMode(int m)
+    {
+        mode = m;
+        cam.cameraType = (m & 1) != 0 ? CameraType.Preview : CameraType.Game;
+        cam.orthographic = (m & 2) == 0;
+    }
+
     private void Place(Quaternion rotation, Vector3 center, float orthoHalfHeight, float distance, float radius, float aspect)
     {
+        if (!cam.orthographic) distance *= PerspectiveStretch;
+
         cam.transform.SetPositionAndRotation(center - rotation * Vector3.forward * distance, rotation);
         cam.orthographicSize = orthoHalfHeight;
+        cam.fieldOfView = 2f * Mathf.Atan(orthoHalfHeight / distance) * Mathf.Rad2Deg;
         cam.nearClipPlane = Mathf.Max(0.001f, distance - radius * 2f);
         cam.farClipPlane = distance + radius * 2f;
         cam.aspect = aspect;
     }
 
-    // ---------- Render ----------
-
-    // ถ่าย 2 รอบ พื้นดำกับพื้นขาว แล้วเทียบกันเพื่อหาความโปร่งใส — ไม่ต้องพึ่งการตั้งค่า Alpha ของ HDRP
-    private bool RenderPair(int w, int h, bool warmUp, out Color[] black, out Color[] white)
+    // ถ่ายภาพเล็กๆ ระหว่างรอ ให้ VFX รู้ว่ามีกล้องมองอยู่ จะได้ยอมจำลองอนุภาค
+    private void WarmUp(GameObject model, Quaternion view)
     {
-        black = white = null;
-        var desc = new RenderTextureDescriptor(w, h, RenderTextureFormat.ARGBHalf, 24) { sRGB = false, msaaSamples = 1 };
-        RenderTexture rt = RenderTexture.GetTemporary(desc);
+        SetMode(0);
+        Bounds b = TryGetBounds(model, out Bounds found) ? found : new Bounds(model.transform.position, Vector3.one);
+        float radius = Mathf.Max(b.extents.magnitude, 0.5f);
+        Place(view, b.center, radius * 1.1f, radius * 4f, radius, 1f);
 
+        RenderTexture rt = RenderTexture.GetTemporary(64, 64, 24, RenderTextureFormat.ARGBHalf);
         try
         {
             cam.targetTexture = rt;
-            cam.aspect = (float)w / h;
-
-            if (warmUp)
-            {
-                hd.backgroundColorHDR = Color.black;
-                cam.Render();
-            }
-
-            hd.backgroundColorHDR = Color.black;
             cam.Render();
-            black = Read(rt);
-
-            hd.backgroundColorHDR = Color.white;
-            cam.Render();
-            white = Read(rt);
         }
         finally
         {
             cam.targetTexture = null;
             RenderTexture.ReleaseTemporary(rt);
         }
-        return black != null && white != null;
+    }
+
+    // ---------- Render ----------
+
+    private sealed class Capture
+    {
+        public Color[] black;
+        public Color[] white;
+    }
+
+    // ถ่าย 2 รอบ พื้นดำกับพื้นขาว แล้วเทียบกันเพื่อหาความโปร่งใส — ไม่ต้องพึ่งการตั้งค่า Alpha ของ HDRP
+    // VFX Graph วาดอนุภาคให้กล้องตัวเดียวแค่ครั้งเดียวต่อเฟรม เลยต้องแยกแต่ละรูปไปคนละเฟรม
+    private IEnumerator RenderPair(int w, int h, bool framePerRender, Capture cap)
+    {
+        cap.black = cap.white = null;
+        var desc = new RenderTextureDescriptor(w, h, RenderTextureFormat.ARGBHalf, 24) { sRGB = false, msaaSamples = 1 };
+        RenderTexture rt = RenderTexture.GetTemporary(desc);
+
+        try
+        {
+            cam.aspect = (float)w / h;
+
+            Draw(rt, Color.black);
+            if (framePerRender) yield return NextFrame();
+
+            Draw(rt, Color.black);
+            cap.black = Read(rt);
+            if (framePerRender) yield return NextFrame();
+
+            Draw(rt, Color.white);
+            cap.white = Read(rt);
+        }
+        finally
+        {
+            cam.targetTexture = null;
+            RenderTexture.ReleaseTemporary(rt);
+        }
+    }
+
+    private void Draw(RenderTexture rt, Color background)
+    {
+        hd.backgroundColorHDR = background;
+        cam.backgroundColor = background;
+        cam.targetTexture = rt;
+        cam.Render();
+        cam.targetTexture = null;
+    }
+
+    private static IEnumerator NextFrame()
+    {
+        int frame = Time.frameCount;
+        for (int i = 0; i < 5; i++)
+        {
+            EditorApplication.QueuePlayerLoopUpdate();
+            yield return null;
+            if (Time.frameCount != frame) yield break;
+        }
+    }
+
+    private static float Peak(Color[] black, Color background)
+    {
+        float peak = 0f;
+        foreach (Color k in black)
+            peak = Mathf.Max(peak, Mathf.Max(k.r - background.r, Mathf.Max(k.g - background.g, k.b - background.b)));
+        return peak;
     }
 
     private static Color[] Read(RenderTexture rt)
@@ -1011,23 +1308,39 @@ internal sealed class IconStage : IDisposable
         return true;
     }
 
+    // แสงเรืองของเอฟเฟกต์ (แบบ Additive) ไม่บังพื้นหลัง วิธีเทียบดำ-ขาวเลยมองว่ามันใส — แปลงความสว่างเป็นความทึบให้
+    private static void AddGlow(float[] alpha, Color[] black, Color background)
+    {
+        for (int i = 0; i < alpha.Length; i++)
+        {
+            float a = alpha[i];
+            Color k = black[i];
+            float light = Mathf.Max(k.r - (1f - a) * background.r,
+                          Mathf.Max(k.g - (1f - a) * background.g, k.b - (1f - a) * background.b));
+            if (light > a) alpha[i] = Mathf.Min(1f, light);
+        }
+    }
+
     private static float Inverse(float v) => v > 1e-4f ? 1f / v : 0f;
 
     private static float Luminance(Color c) => c.r * 0.2126f + c.g * 0.7152f + c.b * 0.0722f;
 
     // จุดขอบของโมเดลบนรูปเล็ก แปลงเป็นระยะจริงบนระนาบกล้อง
-    private static List<Vector3> Outline(float[] alpha, Quaternion rotation, float half)
+    private static List<Vector3> Outline(float[] alpha, Quaternion rotation, float half, out bool clipped)
     {
         var points = new List<Vector3>();
         Vector3 right = rotation * Vector3.right, up = rotation * Vector3.up;
         const float solid = 0.05f;
+        clipped = false;
 
         for (int y = 0; y < ProbeSize; y++)
             for (int x = 0; x < ProbeSize; x++)
             {
                 if (alpha[y * ProbeSize + x] < solid) continue;
 
-                bool edge = x == 0 || y == 0 || x == ProbeSize - 1 || y == ProbeSize - 1 ||
+                bool border = x == 0 || y == 0 || x == ProbeSize - 1 || y == ProbeSize - 1;
+                clipped |= border;
+                bool edge = border ||
                             alpha[y * ProbeSize + x - 1] < solid || alpha[y * ProbeSize + x + 1] < solid ||
                             alpha[(y - 1) * ProbeSize + x] < solid || alpha[(y + 1) * ProbeSize + x] < solid;
                 if (!edge) continue;

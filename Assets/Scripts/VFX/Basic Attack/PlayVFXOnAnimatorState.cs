@@ -150,8 +150,7 @@ public class PlayVFXOnAnimatorState : StateMachineBehaviour
     // ตัวแปรข้างในจึงเป็นของใครของมัน ผีหลายตัวไม่กวนกัน
     private bool _hasPlayed;
     private int _lastLoopIndex = -1;
-    private GameObject _heldInstance;
-    private VFXKeepAlive _heldKeepAlive;
+    private VFXHandle _held;
 
     // การไล่หากระดูกทั้งต้นไม้แพงเกินกว่าจะทำทุกครั้ง เลยจำไว้ใช้ซ้ำ
     private Transform _cachedOrigin;
@@ -165,21 +164,20 @@ public class PlayVFXOnAnimatorState : StateMachineBehaviour
         // ⚠️ ห้ามลบของที่ค้างอยู่ตรงนี้
         // ระบบบล็อกสั่งเข้า state เดิมซ้ำทุกเฟรม OnStateEnter จึงถูกเรียกรัวๆ
         // ถ้าลบตรงนี้ โล่จะถูกลบแล้วสร้างใหม่ทุกเฟรม = ภาพกระพริบและเอฟเฟกต์ไม่ทันเล่น
-        // การเก็บกวาดเป็นหน้าที่ของ VFXKeepAlive บนตัว prefab แทน
+        // พอไม่มีใคร Ping ตัวในพูลจะหยุดพ่นแล้วคืนพูลเอง
     }
 
     public override void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         if (_effekseerEffect == null && _vfxPrefab == null) return;
 
-        // ยังอยู่ใน state และตัวดูแลยังทำงานอยู่ = ต่ออายุให้มัน ไม่ต้องสร้างใหม่
+        // ยังอยู่ใน state และโล่ยังเล่นอยู่ = ต่ออายุให้มัน ไม่ต้องสร้างใหม่
         //
-        // เช็คจาก _heldKeepAlive ไม่ใช่ _heldInstance เพราะตอนเอฟเฟกต์กำลังจางหาย
-        // GameObject ยังอยู่แต่ตัวดูแลถูกลบไปแล้ว ถ้าเช็คจาก GameObject
-        // แล้วผู้เล่นกางโล่ใหม่ตอนนั้นพอดี มันจะไม่สร้างใหม่ให้ = โล่ไม่ขึ้น
-        if (_playMode == PlayMode.HoldWhileInState && _heldKeepAlive != null)
+        // ใช้ IsPlaying ไม่ใช่ IsValid เพราะตอนโล่กำลังจางหาย ถ้าผู้เล่นกางใหม่พอดี
+        // ต้องสร้างอันใหม่ให้ ไม่งั้นโล่ไม่ขึ้นทั้งที่กดอยู่
+        if (_playMode == PlayMode.HoldWhileInState && _held.IsPlaying)
         {
-            _heldKeepAlive.Ping();
+            _held.Ping();
             return;
         }
 
@@ -202,17 +200,14 @@ public class PlayVFXOnAnimatorState : StateMachineBehaviour
 
     /// <summary>
     /// ไม่ลบอะไรตรงนี้เช่นกัน — ดูเหตุผลใน OnStateEnter
-    /// พอออกจาก state จริงๆ ก็ไม่มีใคร Ping แล้ว VFXKeepAlive จะลบตัวเองเอง
+    /// พอออกจาก state จริงๆ ก็ไม่มีใคร Ping แล้ว โล่จะหยุดพ่นและคืนพูลเอง
     /// </summary>
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         // ตั้งใจว่างไว้
         //
-        // ห้ามเซ็ต _heldInstance = null ตรงนี้ด้วย ไม่งั้นพอเข้า state ใหม่อีกเฟรมถัดมา
+        // ห้ามล้าง _held ตรงนี้ด้วย ไม่งั้นพอเข้า state ใหม่อีกเฟรมถัดมา
         // มันจะมองว่ายังไม่มีโล่แล้วสร้างเพิ่มอีกตัว กลายเป็นโล่ซ้อนกันเรื่อยๆ
-        //
-        // พอ VFXKeepAlive ลบ GameObject ทิ้งจริงๆ ตัวแปรนี้จะกลายเป็น null
-        // ตามกลไกของ Unity เอง รอบหน้าถึงจะสร้างใหม่ ซึ่งถูกต้องแล้ว
     }
 
     private void Play(Animator animator)
@@ -294,26 +289,15 @@ public class PlayVFXOnAnimatorState : StateMachineBehaviour
     {
         if (_vfxPrefab == null) return;
 
-        GameObject spawned = parent != null
-            ? Object.Instantiate(_vfxPrefab, position, rotation, parent)
-            : Object.Instantiate(_vfxPrefab, position, rotation);
-
         if (_playMode == PlayMode.HoldWhileInState)
         {
-            // ไม่ตั้งเวลาทำลายตายตัว — ให้ VFXKeepAlive เป็นคนดูแลอายุแทน
-            // ตราบที่ยังอยู่ใน state เราจะ Ping ให้มันทุกเฟรม พอหยุด Ping มันลบตัวเอง
-            _heldInstance = spawned;
-
-            _heldKeepAlive = spawned.GetComponent<VFXKeepAlive>();
-            if (_heldKeepAlive == null)
-                _heldKeepAlive = spawned.AddComponent<VFXKeepAlive>();
-
-            _heldKeepAlive.Configure(_holdGraceSeconds, _holdTailSeconds);
-            VFXPlayback.SetSpeed(spawned, _speed);
+            // ไม่ตั้งเวลาจบตายตัว — ตราบที่ยังอยู่ใน state เรา Ping ให้ทุกเฟรม พอหยุด Ping มันหยุดเอง
+            _held = VFXPlayback.PlayHeld(_vfxPrefab, parent, position, rotation,
+                _speed, _holdGraceSeconds, _holdTailSeconds);
             return;
         }
 
-        VFXPlayback.Manage(spawned, _duration, _speed, _fadeOut);
+        VFXPlayback.Play(_vfxPrefab, parent, position, rotation, _duration, _speed, _fadeOut);
     }
 
     /// <summary>

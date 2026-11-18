@@ -103,11 +103,8 @@ public class PlayVFXOnSpawn : MonoBehaviour
     {
         if (_vfxPrefab == null) return;
 
-        GameObject spawned = _followObject
-            ? Instantiate(_vfxPrefab, position, rotation, origin)
-            : Instantiate(_vfxPrefab, position, rotation);
-
-        VFXPlayback.Manage(spawned, _duration, _speed, _fadeOut);
+        Transform parent = _followObject ? origin : null;
+        VFXPlayback.Play(_vfxPrefab, parent, position, rotation, _duration, _speed, _fadeOut);
     }
 
     private Quaternion BuildRotation(Transform origin)

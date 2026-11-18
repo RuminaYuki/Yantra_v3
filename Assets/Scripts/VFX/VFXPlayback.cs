@@ -22,32 +22,67 @@ public class VFXPlayback : MonoBehaviour
     private float _fadeOut;
     private bool _stopping;
 
-    // Effekseer ต้องมี GameObject ให้เกาะ ถึงจะคุมเวลา ความเร็ว และวิ่งตามได้
-    // parent = null → ค้างอยู่ที่เดิมในโลก
-    public static GameObject PlayEffekseer(EffekseerEffectAsset asset, Transform parent,
+    // ---------- เล่นผ่าน VFXPooler (ใช้กลุ่มนี้) ----------
+
+    // Effekseer Effect Asset — ใช้ตัวพาจากพูล ไม่สร้าง GameObject ใหม่ทุกครั้ง
+    // parent = null → ค้างอยู่ที่เดิมในโลก / ใส่ = ตามไปเหมือนเป็นลูก
+    public static VFXHandle PlayEffekseer(EffekseerEffectAsset asset, Transform parent,
         Vector3 position, Quaternion rotation, float duration, float speed, float fadeOut)
     {
-        if (asset == null) return null;
+        if (asset == null) return default;
 
-        var carrier = new GameObject($"[VFX] {asset.name}");
-        carrier.transform.SetPositionAndRotation(position, rotation);
+        VFXPooler pooler = VFXPooler.GetOrCreate();
+        if (pooler == null) return default;
 
-        if (parent != null)
-        {
-            carrier.transform.SetParent(parent, true);
-
-            // กระดูกบางตัว scale ไม่ใช่ 1 → Unity ชดเชย localScale ให้ แล้ว Emitter เอาไปคูณขนาดเอฟเฟกต์
-            carrier.transform.localScale = Vector3.one;
-        }
-
-        var emitter = carrier.AddComponent<EffekseerEmitter>();
-        emitter.effectAsset = asset;
-        emitter.speed = SafeSpeed(speed);
-        emitter.Play();
-
-        Manage(carrier, duration, speed, fadeOut);
-        return carrier;
+        return pooler.PlayEffekseer(asset, position, rotation, parent, MakeOptions(duration, speed, fadeOut));
     }
+
+    // Prefab (Particle System / VFX Graph / Effekseer Emitter) — แทน Instantiate + Manage
+    public static VFXHandle Play(GameObject prefab, Transform parent,
+        Vector3 position, Quaternion rotation, float duration, float speed, float fadeOut)
+    {
+        if (prefab == null) return default;
+
+        VFXPooler pooler = VFXPooler.GetOrCreate();
+        if (pooler == null) return default;
+
+        return pooler.Play(prefab, position, rotation, parent, MakeOptions(duration, speed, fadeOut));
+    }
+
+    // โหมดค้าง (โล่) — ต้องเรียก handle.Ping() ทุกเฟรมที่ยังต้องการ
+    // ขาด Ping เกิน graceSeconds → หยุดพ่น รอจางไม่เกิน tailSeconds แล้วคืนพูล
+    public static VFXHandle PlayHeld(GameObject prefab, Transform parent,
+        Vector3 position, Quaternion rotation, float speed, float graceSeconds, float tailSeconds)
+    {
+        if (prefab == null) return default;
+
+        VFXPooler pooler = VFXPooler.GetOrCreate();
+        if (pooler == null) return default;
+
+        var options = new VFXPlayOptions
+        {
+            Speed = SafeSpeed(speed),
+            FadeOut = Mathf.Max(0f, tailSeconds),
+            HoldGrace = Mathf.Max(0.02f, graceSeconds)
+        };
+
+        return pooler.Play(prefab, position, rotation, parent, options);
+    }
+
+    // ค่าเหมือนของเดิม: Duration 0 = เล่นจนจบเอง แต่มีเพดาน SafetyLifetime กันค้าง
+    private static VFXPlayOptions MakeOptions(float duration, float speed, float fadeOut)
+    {
+        float safeSpeed = SafeSpeed(speed);
+
+        return new VFXPlayOptions
+        {
+            Duration = duration > 0f ? duration : SafetyLifetime / safeSpeed,
+            Speed = safeSpeed,
+            FadeOut = Mathf.Max(0f, fadeOut)
+        };
+    }
+
+    // ---------- แบบเก่า (ไม่ผ่านพูล) — เก็บไว้เผื่อสคริปต์อื่นยังเรียกอยู่ ----------
 
     // ใช้กับ Prefab ที่ Instantiate มาแล้ว
     public static void Manage(GameObject instance, float duration, float speed, float fadeOut)
