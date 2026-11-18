@@ -68,7 +68,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e55499af33b2bb5438052edeba5233d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitscanShooter
-  _lifeTime: 0.1
+  _lifeTime: 5
   maxPenetrations: 2
   destroyAfterPenetrationLimit: 0
   obstacleLayer:
@@ -76,6 +76,11 @@ MonoBehaviour:
     m_Bits: 512
   hitTargetRepeatMode: 0
   repeatDamageInterval: 0.2
+  _collisionLayer:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  ignoreOwner: 1
+  ignoreOwnerLayer: 1
   _moveSpeed: 0
   muzzle: {fileID: 0}
   range: 100
