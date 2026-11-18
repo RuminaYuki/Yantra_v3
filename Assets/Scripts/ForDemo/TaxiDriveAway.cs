@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.Video;
@@ -41,7 +42,7 @@ public class TaxiDriveAway : MonoBehaviour
     [Tooltip("เสียงปิดประตู")]
     [SerializeField] private SoundID _doorCloseSound;
 
-    [Tooltip("จอดำเงียบๆ กี่วินาทีก่อนเสียงเปิดประตู")]
+    [Tooltip("วิดีโอจบแล้ว จอดำเงียบๆ กี่วินาทีก่อนเสียงเปิดประตู (ไม่มีวิดีโอ = นับตั้งแต่เริ่มฉาก)")]
     [SerializeField, Min(0f)] private float _blackBeforeDoor = 0.5f;
 
     [Tooltip("เปิดประตูแล้วกี่วินาทีถึงปิด (เวลาที่รินก้าวลงจากรถ)")]
@@ -54,11 +55,20 @@ public class TaxiDriveAway : MonoBehaviour
     [SerializeField, Min(0.01f)] private float _fadeInDuration = 1.5f;
 
     [Header("บทพูด")]
-    [Tooltip("วิดีโอเล่นหลังจอสว่างและก่อนบทพูด/รถออก — เว้นว่าง = ไม่เล่น")]
+    [Tooltip("วิดีโอเล่นเป็นอย่างแรกทับจอดำ จบแล้วค่อยเสียงเปิด/ปิดประตู แล้วเฟดเข้าฉาก — เว้นว่าง = ไม่เล่น")]
     [SerializeField] private VideoClip _preTaxiVideo;
 
     [Tooltip("วิดีโอค่อยๆ ชัดขึ้นจากจอดำกี่วินาที — 0 = ขึ้นทันที")]
     [SerializeField, Min(0f)] private float _videoFadeIn = 0.8f;
+
+    [Tooltip("เสียงวิดีโอออกทาง AudioMixerGroup ไหน (เช่น SFX / Cutscene) — เว้นว่าง = ไม่ผ่าน Mixer")]
+    [SerializeField] private AudioMixerGroup _videoMixerGroup;
+
+    [Tooltip("ความดังเสียงวิดีโอ")]
+    [SerializeField, Range(0f, 1f)] private float _videoVolume = 1f;
+
+    [Tooltip("ความดังเสียงเครื่องรถตอนวิดีโอเล่น — 0 = เงียบ จบวิดีโอแล้วกลับมาดังปกติ")]
+    [SerializeField, Range(0f, 1f)] private float _idleVolumeDuringVideo = 0f;
 
     [Tooltip("ไฟล์บทพูด (Subtitle Data) — เว้นว่าง = ไม่คุย รถออกเลย")]
     [SerializeField] private SubtitleDataSO _dialogue;
@@ -182,6 +192,7 @@ public class TaxiDriveAway : MonoBehaviour
     private bool _videoFinished;
     private bool _videoReady;
     private CanvasGroup _videoGroup;
+    private AudioSource _videoAudio;
     private string _videoError;
 
     private SFXHandle _idle;
@@ -304,10 +315,20 @@ public class TaxiDriveAway : MonoBehaviour
         while (SceneLoader.Instance != null && SceneLoader.Instance.IsLoading)
             yield return null;
 
-        // โหลดวิดีโอไว้ล่วงหน้าตอนจอยังดำ จะได้เล่นได้ทันทีโดยไม่เห็นฉากคั่น
+        // วิดีโอเล่นเป็นอย่างแรก ทับจอดำ (canvas วิดีโออยู่เหนือจอดำ) — ยังไม่มีเสียงประตู
         if (_preTaxiVideo != null)
+        {
+            _idle.SetVolumeMultiplier(_idleVolumeDuringVideo);
             StartCoroutine(PrepareVideoRoutine());
 
+            _phase = IntroPhase.Video;
+            yield return PlayPreTaxiVideo();
+            _phase = IntroPhase.Black;   // หลังวิดีโอกดข้ามจอดำได้เหมือนเดิม
+
+            _idle.SetVolumeMultiplier(1f);
+        }
+
+        // จบวิดีโอแล้วค่อยเสียงเปิด/ปิดประตู
         yield return WaitOrHurry(_blackBeforeDoor);
 
         if (_doorOpenSound != null && !_hurry)
@@ -320,14 +341,6 @@ public class TaxiDriveAway : MonoBehaviour
             PlayOneShot(_doorCloseSound);
 
         yield return WaitOrHurry(_blackAfterDoor);
-
-        // วิดีโอเล่นทับจอดำ (canvas วิดีโออยู่เหนือจอดำ) จบแล้วค่อยเฟดเข้าฉาก
-        if (_preTaxiVideo != null)
-        {
-            _phase = IntroPhase.Video;
-            yield return PlayPreTaxiVideo();
-            _phase = IntroPhase.Black;   // ช่วงเฟดยังกดข้ามได้เหมือนเดิม
-        }
 
         yield return FadeInRoutine();
         yield return WaitOrHurry(_startDelay);
@@ -459,7 +472,18 @@ public class TaxiDriveAway : MonoBehaviour
         _videoPlayer.playOnAwake = false;
         _videoPlayer.isLooping = false;
         _videoPlayer.renderMode = VideoRenderMode.RenderTexture;
-        _videoPlayer.audioOutputMode = VideoAudioOutputMode.Direct;
+
+        // เสียงวิดีโอออกทาง AudioSource จะได้ผ่าน AudioMixer / AudioListener.pause ตามระบบเสียงของเกม
+        _videoAudio = _videoRoot.AddComponent<AudioSource>();
+        _videoAudio.playOnAwake = false;
+        _videoAudio.spatialBlend = 0f;
+        _videoAudio.volume = _videoVolume;
+        _videoAudio.outputAudioMixerGroup = _videoMixerGroup;
+
+        _videoPlayer.audioOutputMode = VideoAudioOutputMode.AudioSource;
+        _videoPlayer.controlledAudioTrackCount = 1;
+        _videoPlayer.EnableAudioTrack(0, true);
+        _videoPlayer.SetTargetAudioSource(0, _videoAudio);
         _videoPlayer.skipOnDrop = true;
         _videoPlayer.timeUpdateMode = VideoTimeUpdateMode.GameTime;
     }
@@ -488,6 +512,7 @@ public class TaxiDriveAway : MonoBehaviour
         _videoTexture = null;
         _videoAspect = null;
         _videoGroup = null;
+        _videoAudio = null;
     }
 
     // กดข้ามตอนจอดำ = ตัดเวลารอที่เหลือทิ้งหมด

@@ -11,10 +11,12 @@ public class SaveSlotUI : MonoBehaviour
     [SerializeField] TextMeshProUGUI textPlayTime;
     [SerializeField] TextMeshProUGUI textLocation;
 
-    [Tooltip("Leave empty to use the Button on this object.")]
+    [Header("Buttons")]
     [SerializeField] Button button;
+    [SerializeField] Button buttonDelete;
 
-    public Button Button => button != null ? button : (button = GetComponent<Button>());
+    public Button Button => button;
+    public Button ButtonDelete => buttonDelete;
 
     // Sets the slot number, save time, play time, location name and background image.
     public void SetSlotData(int slotIndex, string saveTime, string playTime, string location, Sprite locationImage)
