@@ -1,5 +1,6 @@
 using SDFcl.GamePlay.Interactable;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Events;
 
 // ร่ายคาถา Seal/Unseal ผ่านการ interact กับวัตถุ
@@ -84,6 +85,9 @@ public class SealSpellInteractAddition : MonoBehaviour
 
     private void Update()
     {
+        if (_drawing && _spellController != null && Mouse.current != null)
+            _spellController.HandleStroke(Mouse.current.delta.ReadValue());
+
         if (!_rejectPending) return;
 
         _rejectPending = false;

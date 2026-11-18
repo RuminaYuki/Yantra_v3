@@ -145,7 +145,7 @@ public class ExamineCameraFocus : MonoBehaviour
 
         while (elapsed < duration)
         {
-            elapsed += Time.deltaTime;
+            elapsed += Time.unscaledDeltaTime;
             float t = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / duration));
             _cameraTransform.SetPositionAndRotation(
                 Vector3.Lerp(startPos, endPos, t),
