@@ -18764,6 +18764,7 @@ GameObject:
   - component: {fileID: 5335832071207356501}
   - component: {fileID: 974330278294251587}
   - component: {fileID: 1771771908178447720}
+  - component: {fileID: 9084010799441176823}
   m_Layer: 6
   m_Name: PlayerController
   m_TagString: Player
@@ -19247,6 +19248,7 @@ MonoBehaviour:
   _useGloryCamera: 1
   _cameraPreparationTimeout: 1
   _syncGloryViewModelCamera: 1
+  _activateGloryCameraOnPrepare: 0
   _freezeGloryCameraOnExit: 1
 --- !u!114 &4368828265564020728
 MonoBehaviour:
@@ -19569,6 +19571,32 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SDFcl.Inventory.TestStateMachine.InventoryStateMachineDebug
   controller: {fileID: 8773688531908745627}
+--- !u!114 &9084010799441176823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8849103926970512020}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36da7ee165c07364ea1510bee75c9ecc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DryFireSound
+  _clickSound: {fileID: 11400000, guid: 844969f0a81bcf040a11e795500590b9, type: 2}
+  _origin: {fileID: 0}
+  _minInterval: 0.12
+  _fireAction: {fileID: 0}
+  _gun: {fileID: 0}
+  _inventory: {fileID: 0}
+  _bulletItem: {fileID: 11400000, guid: 2192083227f477749b9ba795a2bdfc2a, type: 2}
+  _heldObjectName: R_GUN
+  _clickWhenNotLoaded: 0
+  _reloadFlag: {fileID: 0}
+  _flagTrueMeansLoaded: 1
+  _stateFlags: {fileID: 0}
+  _onlyWhenCursorLocked: 1
+  _logClick: 0
 --- !u!1 &9126798675211712603
 GameObject:
   m_ObjectHideFlags: 0

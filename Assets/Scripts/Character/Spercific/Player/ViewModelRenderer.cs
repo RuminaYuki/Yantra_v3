@@ -47,6 +47,8 @@ public class ViewModelRenderer : MonoBehaviour
 
     private Camera _camera;
     private RenderTexture _renderTexture;
+    private bool _overlayHidden;
+    private float _savedOverlayAlpha = 1f;
     private int _lastWidth;
     private int _lastHeight;
 
@@ -61,6 +63,26 @@ public class ViewModelRenderer : MonoBehaviour
             _fieldOfView = Mathf.Clamp(value, 20f, 90f);
             if (_camera != null) _camera.fieldOfView = _fieldOfView;
         }
+    }
+
+    /// <summary>
+    /// ซ่อน/คืนภาพแขนที่แปะทับจอ — ใช้ตอนให้กล้องหลักวาดแขนลงในฉากแทน (เช่นท่า Glory)
+    /// ภาพแปะทับจออยู่หน้าทุกอย่างเสมอ ของในฉากบังแขนไม่ได้ ท่าที่มือต้องอ้อมไปหลังหัวผีเลยดูเหมือนมือทะลุ
+    /// กล้องแขนยังวาดต่อ (ระบบ Glory ใช้กล้องนี้เช็คว่ายังทำงานอยู่) แค่ไม่เอาภาพมาแสดง
+    /// </summary>
+    public void SetOverlayVisible(bool visible)
+    {
+        if (visible != _overlayHidden)
+            return;   // อยู่สถานะนั้นแล้ว
+        _overlayHidden = !visible;
+
+        if (_viewModeRenderercanvasGroup != null)
+        {
+            if (!visible) _savedOverlayAlpha = _viewModeRenderercanvasGroup.alpha;
+            _viewModeRenderercanvasGroup.alpha = visible ? _savedOverlayAlpha : 0f;
+        }
+
+        if (_output != null) _output.enabled = visible;
     }
 
     private void Awake()
