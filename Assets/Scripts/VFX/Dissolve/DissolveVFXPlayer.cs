@@ -27,6 +27,9 @@ public class DissolveVFXPlayer : MonoBehaviour
     [SerializeField, Min(0.01f)] private float _duration = 1.5f;
     [SerializeField] private float _visibleAmount = 0f;
     [SerializeField] private float _hiddenAmount = 1f;
+    [Header("เริ่มต้น")]
+    [Tooltip("ติ๊กเพื่อให้โมเดลเริ่มต้นในสถานะสลายแล้ว และใช้ Play Fade In เพื่อให้ค่อยๆ ปรากฏ")]
+    [SerializeField] private bool _startDissolved;
 
     [System.Serializable]
     private class EffectSlot
@@ -104,6 +107,7 @@ public class DissolveVFXPlayer : MonoBehaviour
     private int _runVersion;
     private bool _warnedNoVfxProperty;
 
+    [ContextMenu("Play Dissolve")]
     public void PlayDissolve()
     {
         LogStep($"PlayDissolve ถูกเรียก (เล่นไปแล้ว: {_played})");
@@ -114,6 +118,19 @@ public class DissolveVFXPlayer : MonoBehaviour
         _finished = false;
         _runVersion++;
         StartCoroutine(DissolveRoutine(_runVersion));
+    }
+
+    [ContextMenu("Play Fade In")]
+    public void PlayFadeIn()
+    {
+        if (!isActiveAndEnabled)
+        {
+            Debug.LogWarning("[Dissolve VFX] เปิดใช้งาน Component ก่อนเล่น Fade In", this);
+            return;
+        }
+
+        ResetDissolve();
+        StartCoroutine(AppearRoutine());
     }
 
     private bool PrepareMaterials()
@@ -450,7 +467,22 @@ public class DissolveVFXPlayer : MonoBehaviour
         }
 
         ApplyAmount(_visibleAmount);
+        PreserveVisibleAmount();
         ResetState();
+    }
+
+    private void PreserveVisibleAmount()
+    {
+        foreach (RendererState state in _states)
+        {
+            for (int i = 0; i < state.OriginalMaterials.Length; i++)
+            {
+                if (state.OriginalMaterials[i] != null &&
+                    state.OriginalBlocks[i] != null &&
+                    SupportsAmount(state.OriginalMaterials[i]))
+                    state.OriginalBlocks[i].SetFloat(_amountId, _visibleAmount);
+            }
+        }
     }
 
     private void PlayEffect(EffectSlot slot)
@@ -601,6 +633,7 @@ public class DissolveVFXPlayer : MonoBehaviour
         }
     }
 
+    [ContextMenu("Reset Dissolve")]
     public void ResetDissolve()
     {
         if (_states.Count > 0)
@@ -626,8 +659,28 @@ public class DissolveVFXPlayer : MonoBehaviour
     private void OnEnable()
     {
         SetVfxValue(_visibleAmount);
+        if (_startDissolved)
+            StartDissolvedImmediately();
         if (_loop)
             StartCoroutine(LoopRoutine());
+    }
+
+    private void StartDissolvedImmediately()
+    {
+        if (!PrepareMaterials())
+            return;
+
+        foreach (RendererState state in _states)
+        {
+            if (state.Renderer == null)
+                continue;
+            state.Renderer.sharedMaterials = state.RuntimeMaterials;
+            state.MaterialsApplied = true;
+        }
+        ApplyAmount(_hiddenAmount);
+        _played = true;
+        _finished = true;
+        LogStep("เริ่มต้นในสถานะสลายแล้ว");
     }
 
     private void OnDisable()
