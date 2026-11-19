@@ -18,6 +18,12 @@ public class GloryInteractAddition : MonoBehaviour, IPairedInteractionSource
     [Tooltip("เลื่อนผู้เล่นขึ้น-ลง (เมตร) — มือจับต่ำกว่าคอ ใส่ค่าบวก / สูงกว่าคอ ใส่ค่าลบ")]
     [SerializeField] private float _heightOffset = 0f;
 
+    [Header("พื้นต่างระดับ")]
+    [Tooltip("ผู้เล่นกับผียืนสูงต่างกันเกินเท่านี้ (เมตร) = กด Glory ไม่ได้ ขอบผีก็ไม่เรือง\n" +
+             "ตอนเล่นท่า ผู้เล่นถูกวางให้สูงเท่าผีเสมอ ต่างกันมากไปเท้าจะจมดิน/ลอย และศพผีตอนล้มจะลอยหรือจมพื้น\n" +
+             "0 = ไม่เช็ค")]
+    [SerializeField, Min(0f)] private float _maxHeightDifference = 0.4f;
+
     [Header("ดึงคอผีเข้าหามืออัตโนมัติ")]
     [Tooltip("กระดูกคอของผี — ลากจาก Hierarchy ของผีมาใส่\nเว้นว่าง = ใช้กระดูกคอของ Animator แบบ Humanoid (ถ้ามี)")]
     [SerializeField] private Transform _aimPoint;
@@ -40,6 +46,8 @@ public class GloryInteractAddition : MonoBehaviour, IPairedInteractionSource
     private Iinteractor _interactor;
     private IbaseInteractor _baseInteractor;
     private PairedAnimationPlayer _activePlayer;   // ผู้เล่นที่กำลังเล่นท่าจาก Interactor ตัวนี้
+    private GameObject _checkedRoot;               // จำผู้เล่นไว้ — CanInteract ถูกถามทุกเฟรม ไม่อยากหา component ซ้ำ
+    private Transform _checkedBody;
 
     private Transform _aimTransform;
     private bool _aligning;
@@ -57,6 +65,7 @@ public class GloryInteractAddition : MonoBehaviour, IPairedInteractionSource
         // รับคำสั่งตอนผู้เล่นกด E
         _interactor.OnInteract += HandleInteract;
         _interactor.AddCanInteractModifier(IsNotPlaying);
+        _interactor.AddCanInteractModifier(IsLevelEnough);
         _interactor.AddCanCancelInteractModifier(IsNotPlaying);
     }
 
@@ -64,6 +73,7 @@ public class GloryInteractAddition : MonoBehaviour, IPairedInteractionSource
     {
         _interactor.OnInteract -= HandleInteract;
         _interactor.RemoveCanInteractModifier(IsNotPlaying);
+        _interactor.RemoveCanInteractModifier(IsLevelEnough);
         _interactor.RemoveCanCancelInteractModifier(IsNotPlaying);
         _aligning = false;
     }
@@ -74,6 +84,25 @@ public class GloryInteractAddition : MonoBehaviour, IPairedInteractionSource
     private bool IsNotPlaying(GameObject rootPlayer)
     {
         return _activePlayer == null || !_activePlayer.IsPlaying;
+    }
+
+    // บนเนิน: ยืนสูงต่างจากผีมากไป ห้ามกด — ระหว่างเล่นท่าผู้เล่นถูกวางระดับเดียวกับผีแล้ว เช็คนี้จึงผ่านเอง
+    private bool IsLevelEnough(GameObject rootPlayer)
+    {
+        if (_maxHeightDifference <= 0f || _victim == null || rootPlayer == null)
+            return true;
+
+        if (_checkedRoot != rootPlayer || _checkedBody == null)
+        {
+            PairedAnimationPlayer body = rootPlayer.GetComponentInChildren<PairedAnimationPlayer>();
+            _checkedRoot = rootPlayer;
+            _checkedBody = body != null ? body.transform : null;
+        }
+
+        if (_checkedBody == null)
+            return true;
+
+        return Mathf.Abs(_checkedBody.position.y - _victim.transform.position.y) <= _maxHeightDifference;
     }
 
     private void HandleInteract(GameObject rootplayer)

@@ -6,6 +6,11 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class PairedAnimationViewModelCameraSync : MonoBehaviour
 {
+    [Tooltip("ระหว่าง Glory ให้กล้องหลักวาดแขนลงในฉาก แทนภาพที่แปะทับจอ\n" +
+             "หัวผีจะบังนิ้วที่อ้อมไปด้านหลังได้ ไม่ดูเหมือนมือทะลุหน้า\n" +
+             "ปิด = แบบเดิม (แขนอยู่หน้าทุกอย่างเสมอ)")]
+    public bool renderArmsInWorld = true;
+
     private PairedAnimationActor _actor;
     private CinemachineBrain _brain;
     private CinemachineCore.BrainEvent _cameraEvent;
@@ -15,8 +20,10 @@ public class PairedAnimationViewModelCameraSync : MonoBehaviour
     private Vector3 _savedLocalPosition;
     private Quaternion _savedLocalRotation;
     private float _savedFieldOfView;
-    private int _savedOutputMask;
     private bool _outputMaskChanged;
+    private int _viewModelBit;
+    private bool _armsInWorld;            // true = เพิ่มเลเยอร์แขนให้กล้องหลัก / false = เอาออก (แบบเดิม)
+    private ViewModelRenderer _viewModelRenderer;
     private bool _active;
     private bool _returning;
     private bool _entering;
@@ -41,6 +48,10 @@ public class PairedAnimationViewModelCameraSync : MonoBehaviour
                 _returning = false;
                 _entering = true;
                 _entryFieldOfView = viewCamera.fieldOfView;
+
+                // ตอนกล้องเริ่มกลับ แขนถูกคืนไปแปะทับจอแล้ว — เข้า Glory ใหม่ต้องย้ายมาวาดในฉากอีกรอบ
+                if (!_outputMaskChanged && !_armsInWorld)
+                    ApplyArmMode(output, viewCamera);
                 return true;
             }
             RestoreNow();
@@ -54,22 +65,12 @@ public class PairedAnimationViewModelCameraSync : MonoBehaviour
         _savedLocalPosition = viewCamera.transform.localPosition;
         _savedLocalRotation = viewCamera.transform.localRotation;
         _savedFieldOfView = viewCamera.fieldOfView;
-        _savedOutputMask = output.cullingMask;
         _entryFieldOfView = viewCamera.fieldOfView;
         _entering = true;
         _returning = false;
         _active = true;
 
-        // Prevent the same arms from being drawn by both cameras during Glory.
-        // Only touch the named ViewModel layer, and only if the arm camera renders it.
-        int viewModelLayer = LayerMask.NameToLayer("ViewModel");
-        if (viewModelLayer >= 0)
-        {
-            int viewModelBit = 1 << viewModelLayer;
-            _outputMaskChanged = (viewCamera.cullingMask & output.cullingMask & viewModelBit) != 0;
-            if (_outputMaskChanged)
-                output.cullingMask &= ~viewModelBit;
-        }
+        ApplyArmMode(output, viewCamera);
 
         _cameraEvent = CinemachineCore.CameraUpdatedEvent;
         _cameraEvent.AddListener(HandleCameraUpdated);
@@ -84,6 +85,56 @@ public class PairedAnimationViewModelCameraSync : MonoBehaviour
 
         _returning = true;
         _returnFieldOfView = _viewCamera != null ? _viewCamera.fieldOfView : _savedFieldOfView;
+
+        // ท่าจบแล้ว คืนแขนไปแปะทับจอเลย ไม่รอกล้องเลื่อนกลับ
+        // ระหว่างเลื่อนกลับ เลนส์กล้องหลักจะค่อยๆ กลับเป็นของเกมเพลย์ (near clip ไกลขึ้น) แขนในฉากอาจโดนตัดหาย
+        if (_armsInWorld)
+            RestoreArms();
+    }
+
+    // เลือกว่าระหว่าง Glory แขนจะถูกวาดแบบไหน แล้วตั้งเลเยอร์ของกล้องหลักให้ตรง
+    private void ApplyArmMode(Camera output, Camera viewCamera)
+    {
+        int viewModelLayer = LayerMask.NameToLayer("ViewModel");
+        if (viewModelLayer >= 0)
+        {
+            _viewModelBit = 1 << viewModelLayer;
+            _viewModelRenderer = viewCamera.GetComponent<ViewModelRenderer>();
+
+            if (renderArmsInWorld && _viewModelRenderer != null)
+            {
+                // วาดแขนในฉากด้วยกล้องหลัก แล้วซ่อนภาพที่แปะทับจอ — หัวผีจะบังนิ้วได้ตามจริง
+                // ช่วงนี้กล้องแขนตามตำแหน่งและ FOV ของกล้องหลักอยู่แล้ว (HandleCameraUpdated) ภาพแขนเลยไม่กระโดด
+                _armsInWorld = true;
+                _outputMaskChanged = (output.cullingMask & _viewModelBit) == 0;
+                if (_outputMaskChanged)
+                    output.cullingMask |= _viewModelBit;
+                _viewModelRenderer.SetOverlayVisible(false);
+            }
+            else
+            {
+                // Prevent the same arms from being drawn by both cameras during Glory.
+                // Only touch the named ViewModel layer, and only if the arm camera renders it.
+                _armsInWorld = false;
+                _outputMaskChanged = (viewCamera.cullingMask & output.cullingMask & _viewModelBit) != 0;
+                if (_outputMaskChanged)
+                    output.cullingMask &= ~_viewModelBit;
+            }
+        }
+    }
+
+    private void RestoreArms()
+    {
+        if (_outputMaskChanged && _outputCamera != null)
+        {
+            if (_armsInWorld) _outputCamera.cullingMask &= ~_viewModelBit;
+            else _outputCamera.cullingMask |= _viewModelBit;
+        }
+        _outputMaskChanged = false;
+
+        if (_armsInWorld && _viewModelRenderer != null)
+            _viewModelRenderer.SetOverlayVisible(true);
+        _armsInWorld = false;
     }
 
     private void HandleCameraUpdated(CinemachineBrain brain)
@@ -163,14 +214,15 @@ public class PairedAnimationViewModelCameraSync : MonoBehaviour
                 }
                 _viewCamera.fieldOfView = _savedFieldOfView;
             }
-            if (_outputMaskChanged && _outputCamera != null)
-                _outputCamera.cullingMask = _savedOutputMask;
+            RestoreArms();
         }
 
         _active = false;
         _returning = false;
         _entering = false;
         _outputMaskChanged = false;
+        _armsInWorld = false;
+        _viewModelRenderer = null;
         _actor = null;
         _brain = null;
         _viewCamera = null;
