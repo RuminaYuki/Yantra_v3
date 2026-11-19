@@ -32,7 +32,7 @@ public class PlayerLockStep : SequenceStep
         yield break;
     }
 
-    public override void OnSequenceEnd()
+    /*public override void OnSequenceEnd()
     {
         if (_ownsLocomotionLock)
         {
@@ -42,6 +42,23 @@ public class PlayerLockStep : SequenceStep
         }
 
         SetActionsLocked(false);
+    }*/
+
+    public void RunNormal()
+    {
+        object owner = lockSource != null ? lockSource : this;
+        if (isLocked)
+        {
+            playerLocomotion.LockLocomotion(owner);
+            _ownsLocomotionLock = true;
+            SetActionsLocked(true);
+        }
+        else
+        {
+            playerLocomotion.UnlockLocomotion(owner);
+            _ownsLocomotionLock = false;
+            SetActionsLocked(false);
+        }
     }
 
     private void SetActionsLocked(bool locked)
