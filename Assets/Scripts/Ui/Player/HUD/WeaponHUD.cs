@@ -3,7 +3,8 @@ using UnityEngine;
 using UnityEngine.UI;
 
 // HUD ปืนแบบ RE4 — กระสุนในปืน / กระสุนทั้งหมดในกระเป๋า, วงบรรจุหลังยิง
-// ปืนใส่ได้ทีละนัด: เลขซ้าย 1 = บรรจุแล้วยิงได้ / 0 = กำลังบรรจุหรือกระสุนหมด
+// ปืนใส่ได้ทีละนัด: เลขซ้าย 1 = บรรจุแล้วยิงได้ / 0 = ยิงแล้วยังไม่รีโหลด หรือกระสุนหมด
+// สถานะรีโหลดอ่านจาก Flag ของ state machine (เช่น MushReload_Flag) — HUD ไม่ได้นับเอง
 // เก็บปืน = สลับเป็นรูปหมัดแป๊บนึงแล้วจางหาย
 public class WeaponHUD : MonoBehaviour
 {
@@ -18,6 +19,14 @@ public class WeaponHUD : MonoBehaviour
     [SerializeField] private string _heldObjectName = "R_GUN";
     [Tooltip("กระสุนในกระเป๋าเหลือเท่านี้หรือน้อยกว่า = สีเตือน")]
     [SerializeField, Min(0)] private int _lowAmmo = 3;
+
+    [Header("รีโหลด (Flag จาก State Machine)")]
+    [Tooltip("Flag ที่ state machine ใช้เรื่องรีโหลด เช่น MushReload_Flag\nเว้นว่าง = เลขซ้ายเป็น 1 ตลอดที่มีกระสุน")]
+    [SerializeField] private FlagSO _reloadFlag;
+    [Tooltip("ติ๊ก = Flag เป็น true แปลว่าบรรจุแล้ว ยิงได้\nไม่ติ๊ก = Flag เป็น true แปลว่ายิงไปแล้ว ต้องรีโหลด\nยิงแล้วเลขซ้ายไม่เป็น 0 → สลับช่องนี้")]
+    [SerializeField] private bool _flagTrueMeansLoaded = true;
+    [Tooltip("StateFlags ที่มี Flag นี้ (ตัวผู้เล่น) — เว้นว่าง = หาให้เอง")]
+    [SerializeField] private StateFlagsAccess _stateFlags;
 
     [Header("UI")]
     [SerializeField] private CanvasGroup _group;
@@ -47,8 +56,6 @@ public class WeaponHUD : MonoBehaviour
     [SerializeField] private Color _textColor = Color.white;
 
     [Header("จังหวะ")]
-    [Tooltip("เวลาบรรจุหลังยิง — ใส่ให้เท่า Delay Time ของปืน (ดูใน GunController)\nระหว่างนี้เลขซ้ายเป็น 0 และวงเล็กวิ่งเติม")]
-    [SerializeField, Min(0.01f)] private float _readyTime = 0.5f;
     [Tooltip("0 = โชว์ตลอดที่ถือปืน / มากกว่า 0 = ไม่ได้ยิงนานเท่านี้วินาทีแล้วค่อยๆ จางไป")]
     [SerializeField, Min(0f)] private float _hideAfterIdle = 0f;
     [SerializeField, Min(0.1f)] private float _fadeSpeed = 4f;
@@ -58,7 +65,6 @@ public class WeaponHUD : MonoBehaviour
     private int _loaded = -1;
     private int _reserve = -1;
     private float _shownFill;
-    private float _readyTimer;
     private float _punchTimer;
     private float _lastActivity = -999f;
     private float _holsterTime = -999f;
@@ -73,6 +79,8 @@ public class WeaponHUD : MonoBehaviour
 
         if (_heldObject == null)
             Debug.LogWarning($"[WeaponHUD] หา '{_heldObjectName}' ใต้ {(_gun != null ? _gun.name : "ปืน")} ไม่เจอ — HUD จะดูจาก GunController แทน", this);
+        if (_reloadFlag != null && _stateFlags == null)
+            Debug.LogWarning($"[WeaponHUD] หา StateFlags ที่มี '{_reloadFlag.name}' ไม่เจอ — ลากตัวผู้เล่นใส่ช่อง State Flags เอง", this);
         if (_weaponIcon != null) _gunIcon = _weaponIcon.sprite;
         if (_capacityText != null) _capacityColor = _capacityText.color;
         if (_group != null) _group.alpha = 0f;
@@ -86,22 +94,15 @@ public class WeaponHUD : MonoBehaviour
 
         int reserve = ReadCount();
 
-        // ปืนไม่ได้บอกว่าบรรจุอยู่ไหม — กระสุนในกระเป๋าลด = เพิ่งยิง แล้วนับเวลาบรรจุเอง
         if (reserve != _reserve)
         {
-            if (_reserve >= 0)
-            {
-                if (reserve < _reserve) _readyTimer = _readyTime;
-                _lastActivity = now;
-            }
+            if (_reserve >= 0) _lastActivity = now;
             _reserve = reserve;
             if (_capacityText != null) _capacityText.text = "/" + reserve;
         }
 
-        // นับตามเวลาเกมแบบเดียวกับ Delay ของปืน — ตอน HitStop / Pause จะได้ช้าลงพร้อมกัน
-        _readyTimer = Mathf.Max(0f, _readyTimer - Time.deltaTime);
-        bool reloading = _readyTimer > 0f;
-        int loaded = !reloading && reserve > 0 ? 1 : 0;
+        // ยิงแล้วเป็น 0 ค้างจนกว่า state machine จะตั้ง Flag ว่ารีโหลดแล้ว
+        int loaded = reserve > 0 && IsChambered() ? 1 : 0;
 
         if (loaded != _loaded)
         {
@@ -150,8 +151,8 @@ public class WeaponHUD : MonoBehaviour
 
         if (_readyRing != null)
         {
-            _readyRing.fillAmount = reserve > 0 ? 1f - _readyTimer / _readyTime : 0f;
-            _readyRing.color = WithAlpha(ringColor, (reloading ? 0.9f : 0.35f) * _ammoAlpha);
+            _readyRing.fillAmount = _shownFill;
+            _readyRing.color = WithAlpha(ringColor, 0.35f * _ammoAlpha);
         }
 
         if (_ammoText != null)
@@ -187,6 +188,28 @@ public class WeaponHUD : MonoBehaviour
             foreach (Transform t in _gun.GetComponentsInChildren<Transform>(true))
                 if (t.name == _heldObjectName) { _heldObject = t.gameObject; break; }
         }
+        if (_stateFlags == null && _reloadFlag != null) _stateFlags = FindFlagsWith(_reloadFlag);
+    }
+
+    // หา StateFlags ที่ลงทะเบียน Flag นี้ไว้ — ดูที่ตัวผู้เล่นก่อน ไม่เจอค่อยหาทั้งฉาก
+    private StateFlags FindFlagsWith(FlagSO flag)
+    {
+        Transform root = _inventory != null ? _inventory.transform.root : _gun != null ? _gun.transform.root : null;
+        if (root != null)
+            foreach (StateFlags f in root.GetComponentsInChildren<StateFlags>(true))
+                if (f.Contains(flag)) return f;
+
+        foreach (StateFlags f in FindObjectsByType<StateFlags>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            if (f.Contains(flag)) return f;
+
+        return null;
+    }
+
+    private bool IsChambered()
+    {
+        if (_reloadFlag == null || _stateFlags == null) return true;
+        bool value = _stateFlags.Get(_reloadFlag);
+        return _flagTrueMeansLoaded ? value : !value;
     }
 
     private bool IsHolding()

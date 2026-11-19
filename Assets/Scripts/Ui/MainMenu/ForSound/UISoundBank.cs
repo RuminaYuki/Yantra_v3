@@ -99,7 +99,8 @@ public class UISoundBank : MonoBehaviour
         var sm = SoundManager.Instance;
         if (sm == null) return;
 
-        sm.PlayEventSFX(id);
+        // เสียงปุ่มต้องดังได้ตอน Pause — เสียงอื่นในเกมหยุดหมด
+        sm.PlayUISFX(id);
     }
 }
 

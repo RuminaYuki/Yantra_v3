@@ -784,6 +784,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: 3815383740611936837}
+--- !u!114 &-3969127110964891003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 828323aa1aace154891a3661130da74b, type: 3}
+  m_Name: RequestInventoryFlag_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::FlagConditionSO
+  _selfAnchor: {fileID: 0}
+  flag: {fileID: 11400000, guid: 3ab9483831d9a7d448043e36dc6e1734, type: 2}
 --- !u!114 &-3203814133111262979
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1294,6 +1308,13 @@ MonoBehaviour:
         ExpectedResult: 1
       - Condition: {fileID: 11400000, guid: e832c852844ca5640a0f286c42aac313, type: 2}
         ExpectedResult: 1
+    - Conditions:
+      - Condition: {fileID: -3969127110964891003}
+        ExpectedResult: 0
+      - Condition: {fileID: 208791892035771998}
+        ExpectedResult: 1
+      - Condition: {fileID: 11400000, guid: e832c852844ca5640a0f286c42aac313, type: 2}
+        ExpectedResult: 1
     Id: 7fbcefff-3803-49ec-bf1c-624b273b1b57
   _transitions:
   - FromState: {fileID: -5503831819247816735}
@@ -1450,6 +1471,8 @@ MonoBehaviour:
   - Item: {fileID: -8212887844243775315}
     Folder: EnableFlagCondition
   - Item: {fileID: 5322550019143725024}
+    Folder: EnableFlagCondition
+  - Item: {fileID: -3969127110964891003}
     Folder: EnableFlagCondition
   _contentsFolderPaths:
   - Group: Conditions

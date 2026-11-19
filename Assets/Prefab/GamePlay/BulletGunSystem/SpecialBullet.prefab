@@ -68,7 +68,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e55499af33b2bb5438052edeba5233d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitscanShooter
-  _lifeTime: 0.1
+  _lifeTime: 5
   maxPenetrations: 2
   destroyAfterPenetrationLimit: 0
   obstacleLayer:
@@ -76,6 +76,11 @@ MonoBehaviour:
     m_Bits: 512
   hitTargetRepeatMode: 0
   repeatDamageInterval: 0.2
+  _collisionLayer:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  ignoreOwner: 1
+  ignoreOwnerLayer: 1
   _moveSpeed: 0
   muzzle: {fileID: 0}
   range: 100
@@ -135,7 +140,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayVFXOnSpawn
   _effekseerEffect: {fileID: 0}
-  _vfxPrefab: {fileID: 6004837126259340543, guid: ba4dde8d4359d604788c764a77527ed9, type: 3}
+  _vfxPrefab: {fileID: 1994717252862501887, guid: 588f3dfc43e87dc40875f3ac896dca23, type: 3}
   _followObject: 1
   _duration: 10
   _speed: 4

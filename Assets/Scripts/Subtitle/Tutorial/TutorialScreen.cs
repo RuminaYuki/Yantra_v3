@@ -231,6 +231,11 @@ public class TutorialScreen : UIScreen
         if (!IsOpen || _current == null)
             return;
 
+        // มีหน้า Pause ทับอยู่ — หยุดนับถอยหลัง และไม่รับปุ่ม E (ไม่งั้นกด E ในเมนูแล้ว tutorial ข้างล่างเลื่อนหน้า)
+        var ui = UIManager.Instance;
+        if (ui != null && ui.Current != ScreenId.Tutorial)
+            return;
+
         UpdateLabelAlpha();
 
         if (_lockTimer > 0f)

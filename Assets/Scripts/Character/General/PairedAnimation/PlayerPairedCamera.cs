@@ -16,6 +16,12 @@ public class PlayerPairedCamera : MonoBehaviour
     [Tooltip("ให้กล้องแขน FPS ตามมุมกล้อง Glory แล้วคืนค่าเดิมหลังกล้องกลับเข้าเกมเพลย์")]
     [SerializeField] private bool _syncGloryViewModelCamera = true;
 
+    [Tooltip("เปิดกล้อง Glory ตั้งแต่ตอนกด E (ช่วงดูดตัวเข้าที่) ไม่รอให้ท่าเริ่ม\n" +
+             "กล้อง blend เสร็จก่อนท่าเริ่ม → มือถึงหัวผีในเฟรมแรกๆ ได้ตรงตามที่คนทำแอนิเมชันวาง และไม่ต้องใช้ Cut\n" +
+             "ปิด = เปิดกล้องตอนท่าเริ่มแบบเดิม (ต้องตั้ง blend เข้า vcamGlory เป็น Cut ไม่งั้นมือไม่ตรง)\n" +
+             "ใช้ได้เฉพาะเมื่อกระดูก Head.x นอกท่า Glory อยู่ระดับตาและมองตรง — ไม่งั้นกล้องจะหันแปลกๆ ก่อนท่าเริ่ม")]
+    [SerializeField] private bool _activateGloryCameraOnPrepare = false;
+
     [Tooltip("ตอนจบ Glory ให้กล้อง Glory เลิกตามหัว ค้างมุมสุดท้ายไว้แล้วค่อย blend กลับ\n" +
              "ถ้าไม่ค้าง: กดเดินค้างไว้ ตัวหันตามกล้อง → หัวหัน → กล้อง Glory หันตาม วนกันจนกล้องสะบัด")]
     [SerializeField] private bool _freezeGloryCameraOnExit = true;
@@ -32,6 +38,7 @@ public class PlayerPairedCamera : MonoBehaviour
     private CinemachineCamera _gloryCamera;
     private PrioritySettings _previousGloryPriority;
     private PairedAnimationViewModelCameraSync _viewModelSync;
+    private CinemachineBrain _brain;
 
     private Transform _freezePoint;
     private Transform _gloryHead;
@@ -45,6 +52,11 @@ public class PlayerPairedCamera : MonoBehaviour
         PlayerCameraInput cameraInput = GetComponentInChildren<PlayerCameraInput>();
         if (cameraInput != null)
             _camera = cameraInput.cameraController;
+
+        // สร้างไว้ตั้งแต่ต้น ไม่สร้างตอนจบท่า — ถ้าท่าจบเพราะกด Stop / เปลี่ยนฉาก (OnDisable)
+        // การสร้าง GameObject ตอนนั้น Unity จะฟ้อง "Some objects were not cleaned up when closing the scene"
+        // ไม่ผูกเป็นลูกของตัวผู้เล่น เพราะต้องตามตำแหน่งอย่างเดียว ไม่หมุนตาม
+        _freezePoint = new GameObject("GloryCameraFreezePoint").transform;
     }
 
     private void LateUpdate()
@@ -112,6 +124,10 @@ public class PlayerPairedCamera : MonoBehaviour
         _previousGloryPriority = _gloryCamera.Priority;
         _cutsceneWasActive = _camera.IsCutsceneMode;
 
+        // เปิดกล้อง Glory เลยตอนนี้ ให้มัน blend ไปพร้อมกับช่วงดูดตัว — ท่าเริ่มเมื่อไหร่ กล้องกับแขนอยู่ที่ Head.x แล้ว
+        if (prepareFirst && _activateGloryCameraOnPrepare)
+            ActivateGloryCamera();
+
         return prepareFirst;
     }
 
@@ -135,6 +151,14 @@ public class PlayerPairedCamera : MonoBehaviour
 
         float timeout = Mathf.Max(_cameraPreparationTimeout, minimumTime);
 
+        // กล้อง Glory เปิดตั้งแต่ตอนเตรียมแล้ว — รอแค่ดูดตัวเสร็จกับกล้อง blend เสร็จ
+        // ไม่ต้องรอกล้องเกมเพลย์หันตรง (มันหันกลับเองอยู่ข้างหลังระหว่างเล่นท่า)
+        if (_gloryCameraChanged)
+        {
+            bool blendDone = _brain == null || !_brain.IsBlending;
+            return (blendDone && _preparationElapsed >= minimumTime) || _preparationElapsed >= timeout;
+        }
+
         return (pitchCentered && yawCentered && _preparationElapsed >= minimumTime) ||
             _preparationElapsed >= timeout;
     }
@@ -157,10 +181,19 @@ public class PlayerPairedCamera : MonoBehaviour
         if (_request.Type != PairedActionType.Glory || !_useGloryCamera || _gloryCamera == null)
             return;
 
+        ActivateGloryCamera();   // เปิดไปแล้วตอนเตรียม = ข้าม
+    }
+
+    private void ActivateGloryCamera()
+    {
+        if (_gloryCameraChanged || _camera == null || _gloryCamera == null)
+            return;
+
         UnfreezeGloryCamera();
         _gloryCameraChanged = true;
         _camera.SetGloryCameraActive(true);
         _camera.IsCutsceneMode = _cutsceneWasActive;
+        _brain = FindBrain(null);
         StartViewModelCameraSync();
     }
 
@@ -195,6 +228,7 @@ public class PlayerPairedCamera : MonoBehaviour
         _lookStateSaved = false;
         _gloryCameraChanged = false;
         _gloryCamera = null;
+        _brain = null;
     }
 
     private void FreezeGloryCamera(CinemachineCamera gloryCamera)
@@ -204,7 +238,7 @@ public class PlayerPairedCamera : MonoBehaviour
             return;
 
         if (_freezePoint == null)
-            _freezePoint = new GameObject("GloryCameraFreezePoint").transform;
+            return;   // ถูกทำลายไปแล้ว (กำลังปิดฉาก) — ห้ามสร้างใหม่ตอนนี้
 
         _freezePoint.SetPositionAndRotation(head.position, head.rotation);
         _freezeOffset = head.position - transform.position;
@@ -220,6 +254,30 @@ public class PlayerPairedCamera : MonoBehaviour
 
         _frozenCamera = null;
         _gloryHead = null;
+    }
+
+    // กล้องหลักของผู้เล่นคนนี้ (ตัวที่วาดลงจอ ไม่ใช่กล้องแขน) — เจอหลายตัว = ไม่เดา คืน null
+    private CinemachineBrain FindBrain(Camera viewCamera)
+    {
+        if (_camera == null)
+            return null;
+
+        CinemachineBrain brain = null;
+        foreach (CinemachineBrain candidate in _camera.GetComponentsInChildren<CinemachineBrain>(true))
+        {
+            Camera output = candidate.OutputCamera;
+            if (!candidate.isActiveAndEnabled || output == null || !output.isActiveAndEnabled ||
+                output == viewCamera || output.targetTexture != null)
+                continue;
+
+            if (brain != null)
+            {
+                Debug.LogWarning("[PairedAnimation] พบกล้องหลักหลายตัว — ข้ามการตามกล้อง Glory", _camera);
+                return null;
+            }
+            brain = candidate;
+        }
+        return brain;
     }
 
     private void StartViewModelCameraSync()
@@ -245,22 +303,7 @@ public class PlayerPairedCamera : MonoBehaviour
         if (viewCamera == null)
             return;
 
-        CinemachineBrain brain = null;
-        foreach (CinemachineBrain candidate in _camera.GetComponentsInChildren<CinemachineBrain>(true))
-        {
-            Camera output = candidate.OutputCamera;
-            if (!candidate.isActiveAndEnabled || output == null || !output.isActiveAndEnabled ||
-                output == viewCamera || output.targetTexture != null)
-                continue;
-
-            if (brain != null)
-            {
-                Debug.LogWarning("[PairedAnimation] พบกล้องหลักหลายตัว — ข้ามการตามกล้อง Glory", _camera);
-                return;
-            }
-            brain = candidate;
-        }
-
+        CinemachineBrain brain = FindBrain(viewCamera);
         if (brain == null)
             return;
 

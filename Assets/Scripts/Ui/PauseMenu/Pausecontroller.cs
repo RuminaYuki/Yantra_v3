@@ -24,7 +24,15 @@ public class PauseController : MonoBehaviour
     [Tooltip("Health ของผู้เล่น — เว้นว่างได้ จะหาให้เอง")]
     [SerializeField] private Health _playerHealth;
 
+    [Tooltip("หน้าที่กด ESC แล้วเปิด Pause ทับได้ — ปิด Pause แล้วกลับไปหน้านั้นต่อ\nหน้าอื่น (เช่น Game Over, Loading) ยังกด Pause ไม่ได้เหมือนเดิม")]
+    [SerializeField] private ScreenId[] _canPauseOver = { ScreenId.Tutorial };
+
     public bool IsPaused { get; private set; }
+
+    // Pause ทับหน้าอื่นอยู่ (เช่น tutorial) — หน้านั้นคุมเวลา/เมาส์ของมันเอง ปิด Pause แล้วต้องคืนให้มัน
+    private bool _pausedOverScreen;
+    private CursorLockMode _savedCursorLock;
+    private bool _savedCursorVisible;
 
     /// <summary>ให้ระบบอื่นฟังได้ เช่น audio, ghost AI</summary>
     public event Action<bool> PauseChanged;
@@ -58,7 +66,15 @@ public class PauseController : MonoBehaviour
         {
             Time.timeScale = 1f;
             StateMachineController.IsPaused = false;
+            AudioListener.pause = false;
         }
+    }
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetAudioPause()
+    {
+        // โปรเจกต์ปิด Domain Reload — กด Stop ตอน Pause ค้างไว้ รอบหน้าเสียงจะเงียบทั้งเกม
+        AudioListener.pause = false;
     }
 
     /// <summary>ตอนนี้กด pause ได้ไหม — ที่เดียวที่ตัดสินใจ</summary>
@@ -79,11 +95,19 @@ public class PauseController : MonoBehaviour
                 return false;
         }
 
-        // มีหน้าจออื่นเปิดอยู่ (Game Over, Loading) ไม่ต้อง pause ซ้อน
+        // มีหน้าจออื่นเปิดอยู่ (Game Over, Loading) ไม่ต้อง pause ซ้อน — ยกเว้นหน้าที่อนุญาตไว้ (Tutorial)
         var ui = UIManager.Instance;
-        if (ui != null && ui.HasAnyOpen) return false;
+        if (ui != null && ui.HasAnyOpen && !CanPauseOver(ui.Current)) return false;
 
         return true;
+    }
+
+    private bool CanPauseOver(ScreenId id)
+    {
+        if (_canPauseOver == null) return false;
+        foreach (ScreenId allowed in _canPauseOver)
+            if (allowed == id) return true;
+        return false;
     }
 
     public void TogglePause()
@@ -96,6 +120,11 @@ public class PauseController : MonoBehaviour
     {
         if (!CanPause()) return;
 
+        var ui = UIManager.Instance;
+        _pausedOverScreen = ui != null && ui.HasAnyOpen;
+        _savedCursorLock = Cursor.lockState;
+        _savedCursorVisible = Cursor.visible;
+
         IsPaused = true;
         Time.timeScale = 0f;
 
@@ -104,6 +133,18 @@ public class PauseController : MonoBehaviour
         StateMachineController.IsPaused = true;
 
         if (_cameraController != null) _cameraController.IsPaused = true;
+
+        // หน้าข้างล่าง (tutorial) ล็อกเมาส์ไว้ และกล้องหยุดอยู่ก่อนแล้วเลยไม่ปลดให้ — ปลดเองให้กดเมนูได้
+        if (_pausedOverScreen)
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+
+        // AudioSource ไม่สนใจ timeScale — ต้องหยุดเสียงเอง
+        // หยุดทุกเสียงในเกม ยกเว้นเพลงกับเสียงปุ่ม (ตั้ง ignoreListenerPause ไว้ใน SoundManager)
+        AudioListener.pause = true;
+        if (SoundManager.Instance != null) SoundManager.Instance.PauseVoice();
 
         UIManager.Instance?.Open(ScreenId.Pause);
         PauseChanged?.Invoke(true);
@@ -114,21 +155,55 @@ public class PauseController : MonoBehaviour
         if (!IsPaused) return;
 
         IsPaused = false;
+
+        if (_pausedOverScreen)
+        {
+            _pausedOverScreen = false;
+            var ui = UIManager.Instance;
+            ClosePauseScreens(ui);
+
+            // หน้าข้างล่างยังเปิดอยู่ — มันยังหยุดเกมอยู่ แค่คืนเมาส์กับเสียงให้เหมือนก่อนกด Pause
+            if (ui != null && ui.HasAnyOpen)
+            {
+                Cursor.lockState = _savedCursorLock;
+                Cursor.visible = _savedCursorVisible;
+                AudioListener.pause = false;
+                if (SoundManager.Instance != null) SoundManager.Instance.ResumeVoice();
+                PauseChanged?.Invoke(false);
+                return;
+            }
+        }
+
         Time.timeScale = 1f;
         StateMachineController.IsPaused = false;
 
         if (_cameraController != null) _cameraController.IsPaused = false;
 
+        AudioListener.pause = false;
+        if (SoundManager.Instance != null) SoundManager.Instance.ResumeVoice();
+
         UIManager.Instance?.CloseAll(instant: false);
         PauseChanged?.Invoke(false);
+    }
+
+    // ปิดเฉพาะ Pause กับหน้าที่ซ้อนอยู่บนมัน (เช่น Settings) — หน้าข้างล่างยังอยู่
+    private static void ClosePauseScreens(UIManager ui)
+    {
+        if (ui == null) return;
+
+        int guard = 0;
+        while (ui.IsOpen(ScreenId.Pause) && ui.Current != ScreenId.None && guard++ < 16)
+            ui.Close(ui.Current, instant: false);
     }
 
     /// <summary>คืนเวลาโดยไม่สนใจสถานะ — ใช้ก่อนโหลด scene</summary>
     public void ForceResumeTime()
     {
+        _pausedOverScreen = false;
         IsPaused = false;
         Time.timeScale = 1f;
         StateMachineController.IsPaused = false;
+        AudioListener.pause = false;
     }
 
     private void Update()

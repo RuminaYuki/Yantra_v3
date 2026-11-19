@@ -126,7 +126,7 @@ Transform:
   m_GameObject: {fileID: 430012691504989364}
   serializedVersion: 2
   m_LocalRotation: {x: 0.000000059604645, y: -0.000000031786513, z: -8.881784e-15, w: -1}
-  m_LocalPosition: {x: -1.9435326e-17, y: 1.6106886, z: -0.000000029802322}
+  m_LocalPosition: {x: -1.9435326e-17, y: -0.014311388, z: -0.000000029802322}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6583,7 +6583,7 @@ Transform:
   m_GameObject: {fileID: 3767964958464883512}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.625, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -6677,6 +6677,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeadBob
   _character: {fileID: 7434954710618316361}
   _cameraController: {fileID: 5107126304779472096}
+  _pairedPlayer: {fileID: 0}
   _strideLength: 5
   _referenceSpeed: 5
   _minSpeed: 0.3
@@ -6687,6 +6688,7 @@ MonoBehaviour:
   _speedSmoothTime: 0.15
   _groundedGrace: 0.15
   _blendSpeed: 8
+  _resumeDelay: 0.3
   _aimMultiplier: 0.25
   _globalMultiplier: 1
 --- !u!114 &5107126304779472096
@@ -6814,8 +6816,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3970923857070277191}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.86545706, z: 0, w: 0.50098324}
-  m_LocalPosition: {x: -3.83, y: 9.492, z: 137.55}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -6863,7 +6865,7 @@ Camera:
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 10231
+    m_Bits: 9207
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -18762,6 +18764,7 @@ GameObject:
   - component: {fileID: 5335832071207356501}
   - component: {fileID: 974330278294251587}
   - component: {fileID: 1771771908178447720}
+  - component: {fileID: 9084010799441176823}
   m_Layer: 6
   m_Name: PlayerController
   m_TagString: Player
@@ -18938,6 +18941,9 @@ MonoBehaviour:
   - Flag: {fileID: -757505676354162058, guid: 381c4937039a8bf45833bc015622b3db, type: 2}
     InitialValue: 0
     runtimeValue: 0
+  - Flag: {fileID: 11400000, guid: 3ab9483831d9a7d448043e36dc6e1734, type: 2}
+    InitialValue: 0
+    runtimeValue: 0
 --- !u!114 &6252579542559560056
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19040,8 +19046,8 @@ MonoBehaviour:
   _assignValue: 0
   _currentGuardPoints: 20
   _guardDecreasedPerHit: 7
-  _recoveryGuardPointsPerSecond: 1
-  _decreasedGuardPointsPerSecond: 2
+  _recoveryGuardPointsPerSecond: 2
+  _decreasedGuardPointsPerSecond: 3
   _delayForRecovery: 2
   _voidHitEventChannel: {fileID: 11400000, guid: e3452f38e0993a04ea066bb6815c43e6, type: 2}
   _OnGuardPointDepleted: {fileID: 11400000, guid: a2e0752c413868641ae40c58a65a8ff6, type: 2}
@@ -19242,6 +19248,8 @@ MonoBehaviour:
   _useGloryCamera: 1
   _cameraPreparationTimeout: 1
   _syncGloryViewModelCamera: 1
+  _activateGloryCameraOnPrepare: 0
+  _freezeGloryCameraOnExit: 1
 --- !u!114 &4368828265564020728
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19563,6 +19571,32 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SDFcl.Inventory.TestStateMachine.InventoryStateMachineDebug
   controller: {fileID: 8773688531908745627}
+--- !u!114 &9084010799441176823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8849103926970512020}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36da7ee165c07364ea1510bee75c9ecc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DryFireSound
+  _clickSound: {fileID: 11400000, guid: 844969f0a81bcf040a11e795500590b9, type: 2}
+  _origin: {fileID: 0}
+  _minInterval: 0.12
+  _fireAction: {fileID: 0}
+  _gun: {fileID: 0}
+  _inventory: {fileID: 0}
+  _bulletItem: {fileID: 11400000, guid: 2192083227f477749b9ba795a2bdfc2a, type: 2}
+  _heldObjectName: R_GUN
+  _clickWhenNotLoaded: 0
+  _reloadFlag: {fileID: 0}
+  _flagTrueMeansLoaded: 1
+  _stateFlags: {fileID: 0}
+  _onlyWhenCursorLocked: 1
+  _logClick: 0
 --- !u!1 &9126798675211712603
 GameObject:
   m_ObjectHideFlags: 0
