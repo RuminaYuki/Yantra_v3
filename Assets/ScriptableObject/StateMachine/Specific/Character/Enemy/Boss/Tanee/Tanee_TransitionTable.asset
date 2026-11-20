@@ -1043,7 +1043,7 @@ MonoBehaviour:
   - FromState: {fileID: -250177761744804098}
     ConditionGroups:
     - Conditions:
-      - Condition: {fileID: 6037934602718916035}
+      - Condition: {fileID: -271846247945593196}
         ExpectedResult: 0
     ToState: {fileID: -5386280242133745992}
     Id: c6055b60-c388-4c03-a797-1ba0d856bcfc
@@ -1899,6 +1899,20 @@ MonoBehaviour:
     attackRange: 2
     attackRadius: 2
   _damageType: {fileID: 0}
+--- !u!114 &-271846247945593196
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 828323aa1aace154891a3661130da74b, type: 3}
+  m_Name: OnTrigger_Flag_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::FlagConditionSO
+  _selfAnchor: {fileID: 0}
+  flag: {fileID: 0}
 --- !u!114 &-250177761744804098
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2166,6 +2180,8 @@ MonoBehaviour:
     Folder: Anchor
   - Item: {fileID: -4681942629760074664}
     Folder: Counter
+  - Item: {fileID: 8858860218392231533}
+    Folder: Flag
   _contentsFolderPaths:
   - Group: Actions
     Path: Animator
@@ -3827,6 +3843,18 @@ MonoBehaviour:
   _actions:
   - {fileID: 2619414572063913780}
   - {fileID: 651750329511366051}
+--- !u!114 &8858860218392231533
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6687386e458fac4db6106b19ddf0699, type: 3}
+  m_Name: OnTrigger_Flag
+  m_EditorClassIdentifier: Assembly-CSharp::FlagSO
 --- !u!114 &9032502992824110892
 MonoBehaviour:
   m_ObjectHideFlags: 0

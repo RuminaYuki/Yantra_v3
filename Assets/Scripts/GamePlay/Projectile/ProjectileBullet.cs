@@ -47,6 +47,10 @@ public class ProjectileBullet : MonoBehaviour
     [Header("Homing")]
     [SerializeField] private HomingSettings _homing = new HomingSettings { turnSpeed = 120f, duration = 1.5f, maxAngle = 70f };
 
+    [Header("Collision")]
+    [Tooltip("Layers this bullet can hit. Anything else (e.g. trigger zones) is flown through.")]
+    [SerializeField] private LayerMask _hitLayers = ~0;
+
     [HideInInspector] public string myPoolTag;
 
     private Rigidbody _rb;
@@ -208,6 +212,9 @@ public class ProjectileBullet : MonoBehaviour
 
     private void ProcessHit(Collider other)
     {
+        if ((_hitLayers.value & (1 << other.gameObject.layer)) == 0)
+            return;
+
         if (IsOwner(other))
             return;
 
