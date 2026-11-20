@@ -9,6 +9,8 @@ public class PlayerLockStep : SequenceStep
     [SerializeField] PlayerLocomotion playerLocomotion;
     [SerializeField] bool isLocked = true;
     [SerializeField] InputActionReference[] actionsToLock;
+    [Tooltip("Also lock every action in each action map referenced above.")]
+    [SerializeField] bool lockAllActionsInReferencedMaps = true;
 
     private readonly Dictionary<InputAction, bool> _actionEnabledStates = new();
     private bool _actionsLocked;
@@ -32,7 +34,7 @@ public class PlayerLockStep : SequenceStep
         yield break;
     }
 
-    /*public override void OnSequenceEnd()
+    public override void OnSequenceEnd()
     {
         if (_ownsLocomotionLock)
         {
@@ -42,7 +44,7 @@ public class PlayerLockStep : SequenceStep
         }
 
         SetActionsLocked(false);
-    }*/
+    }
 
     public void RunNormal()
     {
@@ -69,19 +71,30 @@ public class PlayerLockStep : SequenceStep
         if (locked)
         {
             _actionEnabledStates.Clear();
+            HashSet<InputAction> actions = new();
             if (actionsToLock != null)
             {
                 foreach (InputActionReference actionReference in actionsToLock)
                 {
                     InputAction action = actionReference != null ? actionReference.action : null;
-                    if (action == null || _actionEnabledStates.ContainsKey(action))
+                    if (action == null)
                         continue;
 
-                    bool wasEnabled = action.enabled;
-                    _actionEnabledStates[action] = wasEnabled;
-                    if (wasEnabled)
-                        action.Disable();
+                    actions.Add(action);
+                    if (lockAllActionsInReferencedMaps && action.actionMap != null)
+                    {
+                        foreach (InputAction mapAction in action.actionMap.actions)
+                            actions.Add(mapAction);
+                    }
                 }
+            }
+
+            foreach (InputAction action in actions)
+            {
+                bool wasEnabled = action.enabled;
+                _actionEnabledStates[action] = wasEnabled;
+                if (wasEnabled)
+                    action.Disable();
             }
 
             _actionsLocked = true;
