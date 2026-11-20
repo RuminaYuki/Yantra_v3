@@ -675,7 +675,7 @@ MonoBehaviour:
   IkWeight: 1
   GroundLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 256
   RaycastDistance: 1.2
   FootOffsetY: 0.1
   SphereCastRadius: 0.05
@@ -704,6 +704,7 @@ MonoBehaviour:
   _armAnimator: {fileID: 0}
   _requestTimeout: 0.5
   _stateEnterTimeout: 1
+  _disableWhilePlaying: []
 --- !u!114 &9087765588107246808
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -738,6 +739,7 @@ MonoBehaviour:
   _duration: 1.5
   _visibleAmount: 0
   _hiddenAmount: 1
+  _startDissolved: 0
   _loop: 0
   _loopFadeIn: 1
   _loopHiddenTime: 1
@@ -754,6 +756,10 @@ MonoBehaviour:
     FollowPoint: 0
     EmitFromMesh: 0
     Lifetime: 3
+  _vfx: {fileID: 0}
+  _vfxProperty: SmokeRadius
+  _vfxStartValue: 0
+  _vfxEndValue: 1
   _onDissolveStarted:
     m_PersistentCalls:
       m_Calls:
@@ -785,6 +791,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GhostRimGlow
   _rimMaterial: {fileID: 2100000, guid: c1c875fd357904e46af62ee358345c21, type: 2}
+  _gloryReadyMaterial: {fileID: 0}
   _modelRoot: {fileID: 0}
   _amountProperty: _DissolveAmount
   _fadeFaster: 5
@@ -900,6 +907,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Follow3D
   _target: {fileID: 8442641395957942614}
+  _isFollowing: 1
   _constrainPosition: 1
   _constrainRotation: 1
   _maintainOffset: 0
@@ -923,6 +931,15 @@ MonoBehaviour:
   _playerAnimation: {fileID: 11400000, guid: f0df5507a2c6b8a4ba07fb6cd07eb755, type: 2}
   _victimAnimation: {fileID: 11400000, guid: f3f77b162d6deb8479c0beb4f44eb5ac, type: 2}
   _distance: 1.2
+  _sideOffset: 0
+  _heightOffset: 0
+  _maxHeightDifference: 0.4
+  _aimPoint: {fileID: 0}
+  _handScreenX: 0.5
+  _alignTime: 0.35
+  _alignSpeed: 18
+  _maxAlign: 0.3
+  _logAlign: 0
 --- !u!1 &3980447771441699500
 GameObject:
   m_ObjectHideFlags: 0
