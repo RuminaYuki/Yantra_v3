@@ -194,6 +194,7 @@ public class SealSpellInteractAddition : MonoBehaviour
         _completed = true;
 
         IsSealed = !IsSealed;
+        Debug.Log($"{name} is now {(IsSealed ? "sealed" : "unsealed")}");
         if (IsSealed) OnSealed?.Invoke();
         else OnUnsealed?.Invoke();
 

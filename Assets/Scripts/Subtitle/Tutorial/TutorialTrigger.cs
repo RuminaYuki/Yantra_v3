@@ -4,7 +4,7 @@ public class TutorialTrigger : MonoBehaviour
 {
     [SerializeField] private TutorialDataSO _tutorial;
 
-    public void OnEnter(GameObject other)
+    public void OnEnter()
     {
         if (_tutorial == null)
         {
