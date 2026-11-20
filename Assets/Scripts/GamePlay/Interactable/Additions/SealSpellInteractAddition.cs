@@ -188,12 +188,14 @@ public class SealSpellInteractAddition : MonoBehaviour
         EndDrawing();
     }
 
+    [ContextMenu("Toggle Seal State")]
     private void ApplyResult()
     {
         if (_completed) return;
         _completed = true;
 
         IsSealed = !IsSealed;
+        Debug.Log($"{name} is now {(IsSealed ? "sealed" : "unsealed")}");
         if (IsSealed) OnSealed?.Invoke();
         else OnUnsealed?.Invoke();
 
