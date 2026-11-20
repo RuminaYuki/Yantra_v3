@@ -99,4 +99,10 @@ public class TriggerZone : MonoBehaviour
             ? other.attachedRigidbody.gameObject
             : other.transform.root.gameObject;
     }
+
+    public void Clear()
+    {
+        _occupants.Clear();
+        _consumed = false;
+    }
 }
