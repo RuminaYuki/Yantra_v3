@@ -173,7 +173,7 @@ public class SpellController : MonoBehaviour
 
         Destroy(splineToLineRenderer.gameObject);
         splineToLineRenderer = null;
-        //RestoreTime();
+        RestoreTime();
     }
 
     //timeScale = 0 แปลว่า pause / hitstop / game over กำลังคุมเวลาอยู่ ห้ามไปทับ

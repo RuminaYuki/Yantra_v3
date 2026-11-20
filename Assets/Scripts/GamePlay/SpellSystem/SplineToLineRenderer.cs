@@ -14,6 +14,7 @@ public class SplineToLineRenderer : MonoBehaviour
     [Range(0.01f, 100f)]
     [SerializeField] float nextKnotProgressDelta = 0.01f;
     [SerializeField] float offset = 0f;
+    [SerializeField] float errorMargin = 0.01f;
 
     [Header("Debug")]
     #region Debug
@@ -31,12 +32,11 @@ public class SplineToLineRenderer : MonoBehaviour
     {
         get
         {
-            float CP = Mathf.Clamp01(currentProgress + offset);
-            return CP;
+            return ClampProgress(currentProgress + offset);
         }
         set 
         {
-            currentProgress = Mathf.Clamp01(value + offset);
+            currentProgress = ClampProgress(value + offset);
             if (currentProgress < 1f)
             {
                 finishedSpellRaised = false;
@@ -44,6 +44,12 @@ public class SplineToLineRenderer : MonoBehaviour
             progressIsChange();
             SpellProgress.Raise(currentProgress);
         }
+    }
+
+    private static float ClampProgress(float progress)
+    {
+        float clampedProgress = Mathf.Clamp01(progress);
+        return Mathf.Approximately(clampedProgress, 1f) ? 1f : clampedProgress;
     }
 
     public Vector3 CurrentKnotPosition
@@ -87,8 +93,9 @@ public class SplineToLineRenderer : MonoBehaviour
             currentPosition = splineContainer.EvaluatePosition(t);
 
             lineRenderer.SetPosition(i, lineTransform.InverseTransformPoint(currentPosition));
-            if (t >= 1f && !finishedSpellRaised)
+            if (t >= 1f - errorMargin && !finishedSpellRaised)
             {
+                currentPosition = splineContainer.EvaluatePosition(1f);
                 finishedSpellRaised = true;
             }
         }

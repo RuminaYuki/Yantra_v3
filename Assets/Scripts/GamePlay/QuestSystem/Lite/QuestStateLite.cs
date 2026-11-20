@@ -13,6 +13,7 @@ public class QuestState : MonoBehaviour
     public UnityEvent OnComplate;
     public UnityEvent<int> OnObjectiveUpdate;
 
+    [ContextMenu("Repost")]
     public void Repost()
     {
         currentCount++;
