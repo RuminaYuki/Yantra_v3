@@ -188,6 +188,7 @@ public class SealSpellInteractAddition : MonoBehaviour
         EndDrawing();
     }
 
+    [ContextMenu("Toggle Seal State")]
     private void ApplyResult()
     {
         if (_completed) return;
