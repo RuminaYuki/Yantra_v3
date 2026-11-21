@@ -696,4 +696,16 @@ public class DissolveVFXPlayer : MonoBehaviour
             Debug.Log($"[Dissolve VFX] {Time.time:0.00}s {name}: {message}", this);
     }
     private void OnDestroy() => ResetDissolve();
+
+    [ContextMenu("Set-up/Find Renderers")]
+    public void FindRenderers()
+    {
+        _renderers = null;
+
+        Renderer[] targets = _visualRoot != null ? _visualRoot.GetComponentsInChildren<Renderer>(true) : GetComponentsInChildren<Renderer>(true);
+        _renderers = new Renderer[targets.Length];
+        for (int i = 0; i < targets.Length; i++)
+            _renderers[i] = targets[i];
+
+    }
 }
