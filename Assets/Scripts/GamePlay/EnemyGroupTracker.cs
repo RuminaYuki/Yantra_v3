@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -7,16 +7,22 @@ using UnityEngine.Events;
 public class EnemyGroupTracker : MonoBehaviour
 {
     [SerializeField] Health[] enemies;
-    [Tooltip("�ӹǹ�ѵ�ٷ���ͧ��¶֧�ж����Ҫ�� ����� 0 = ��ͧ��·�����")]
+    [Tooltip("จำนวนศัตรูที่ต้องตายถึงจะถือว่าชนะ ถ้าเป็น 0 = ต้องตายทั้งหมด")]
     [SerializeField] int minCount;
+
+    [Header("Barriers")]
+    [Tooltip("ล็อคตอนผู้เล่นเดินเข้า ปลดล็อคตอนศัตรูตายครบ\n" +
+             "ล็อค = Play ParticleSystem + collider เป็นของแข็ง, ปลดล็อค = Stop + collider เป็น trigger (เดินผ่านได้)\n" +
+             "ใช้ ParticleSystem/Collider ทั้งหมดใน object นั้นและลูกของมัน")]
+    [SerializeField] GameObject[] barriers;
 
     [Header("Events")]
     public UnityEvent OnPlayerEnter;
     public UnityEvent OnAllEnemiesDefeated;
 
-    // �纵�Ƿ�������� �� HashSet �ѹ�Ѻ���
+    // เก็บตัวที่ตายแล้ว ใช้ HashSet กันนับซ้ำ
     private readonly HashSet<Health> deadEnemies = new HashSet<Health>();
-    // �� handler �ͧ���е����� ���� unsubscribe ��١���
+    // เก็บ handler ของแต่ละตัวไว้ เพื่อ unsubscribe ได้ถูกตัว
     private readonly Dictionary<Health, Action> handlers = new Dictionary<Health, Action>();
 
     private bool defeated;
@@ -41,17 +47,37 @@ public class EnemyGroupTracker : MonoBehaviour
         {
             if (enemy == null) continue;
 
-            var target = enemy; // capture ���١���
+            var target = enemy; // capture ให้ถูกตัว
             Action handler = () => RegisterDead(target);
             handlers[target] = handler;
             target.OnDead += handler;
         }
     }
 
-    // ��� Start ������� script ��蹷�� Awake �������� (�� spawner) ��駤�� active ���º���¡�͹
+    // เช็คใน Start เพื่อให้ script อื่นที่ Awake เสร็จแล้ว (เช่น spawner) ตั้งค่า active เรียบร้อยก่อน
     private void Start()
     {
+        SetBarriersLocked(false); // เริ่มแบบเปิดทางไว้เสมอ ไม่ต้องตั้งค่า barrier ใน scene เอง
         CheckEnemyAlive();
+    }
+
+    private void SetBarriersLocked(bool locked)
+    {
+        if (barriers == null) return;
+
+        foreach (var barrier in barriers)
+        {
+            if (barrier == null) continue;
+
+            foreach (var particle in barrier.GetComponentsInChildren<ParticleSystem>(true))
+            {
+                if (locked) particle.Play();
+                else particle.Stop();
+            }
+
+            foreach (var col in barrier.GetComponentsInChildren<Collider>(true))
+                col.isTrigger = !locked;
+        }
     }
 
     private void OnDestroy()
@@ -64,7 +90,7 @@ public class EnemyGroupTracker : MonoBehaviour
         handlers.Clear();
     }
 
-    // ����� Enemy ⴹ SetActive(false) ����������������� ������������ҵ������
+    // เช็คว่า Enemy โดน SetActive(false) ตั้งแต่เริ่มหรือไม่ ถ้าใช่ให้ถือว่าตายแล้ว
     private void CheckEnemyAlive()
     {
         if (enemies == null) return;
@@ -81,18 +107,19 @@ public class EnemyGroupTracker : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (playerEntered) return; // ź��÷Ѵ�������ҡ����ԧ�ء���駷���Թ���
+        if (playerEntered) return; // ลบบรรทัดนี้ถ้าอยากให้ยิงทุกครั้งที่เดินเข้า
 
         if (other.CompareTag("Player"))
         {
             playerEntered = true;
+            if (!defeated) SetBarriersLocked(true); // ศัตรูตายครบแล้ว ไม่ต้องขังผู้เล่น
             OnPlayerEnter?.Invoke();
         }
     }
 
     private void RegisterDead(Health enemy)
     {
-        if (!deadEnemies.Add(enemy)) return; // �¹Ѻ���� ����
+        if (!deadEnemies.Add(enemy)) return; // เคยนับแล้ว ข้าม
 
         CheckAllEnemiesDefeated();
     }
@@ -100,11 +127,12 @@ public class EnemyGroupTracker : MonoBehaviour
     public void CheckAllEnemiesDefeated()
     {
         if (defeated) return;
-        if (TotalCount == 0) return; // ������ѵ��㹡���� ����ͧ�ԧ event
+        if (TotalCount == 0) return; // ไม่มีศัตรูในกลุ่ม ไม่ต้องยิง event
 
         if (deadEnemies.Count >= RequiredCount)
         {
             defeated = true;
+            SetBarriersLocked(false);
             OnAllEnemiesDefeated?.Invoke();
         }
     }
@@ -112,7 +140,7 @@ public class EnemyGroupTracker : MonoBehaviour
     [ContextMenu("Set Up List Enemy")]
     public void SetUpListEnemy()
     {
-        // �� enemies ������� BoxCollider �ͧ EnemyGroupTracker (�����Ƿ��Դ�������)
+        // หา enemies ทั้งหมดใน BoxCollider ของ EnemyGroupTracker (รวมตัวที่ปิดอยู่ด้วย)
         BoxCollider boxCollider = GetComponent<BoxCollider>();
         var all = FindObjectsByType<Health>(FindObjectsInactive.Include, FindObjectsSortMode.None);
 
