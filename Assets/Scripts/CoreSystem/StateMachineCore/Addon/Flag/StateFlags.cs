@@ -24,6 +24,9 @@ public class StateFlags : StateFlagsAccess
     [SerializeField] private List<FlagEntry> flags = new();
     private readonly Dictionary<FlagSO, bool> values = new();
 
+    // FlagChanged (declared in StateFlagsAccess) is raised via Set, the indexer, ResetToInitialValues,
+    // and in the Editor when RuntimeValue is ticked in the Inspector during Play (see OnValidate).
+
     private void Awake()
     {
         values.Clear();
@@ -45,6 +48,24 @@ public class StateFlags : StateFlagsAccess
 #endif
         }
     }
+
+#if UNITY_EDITOR
+    // Inspector edits write RuntimeValue directly (no Set call), so sync them into `values`
+    // and raise FlagChanged here. Play Mode only — OnValidate also runs on load/recompile.
+    private void OnValidate()
+    {
+        if (!Application.isPlaying) return;
+
+        foreach (FlagEntry entry in flags)
+        {
+            if (entry.Flag == null || !values.TryGetValue(entry.Flag, out bool oldValue)) continue;
+            if (oldValue == entry.RuntimeValue) continue;
+
+            values[entry.Flag] = entry.RuntimeValue;
+            RaiseFlagChanged(entry.Flag, entry.RuntimeValue);
+        }
+    }
+#endif
 
     public override bool Get(FlagSO flag)
     {
@@ -74,6 +95,7 @@ public class StateFlags : StateFlagsAccess
             return;
         }
 
+        bool oldValue = Get(flag);   // Get, not values[flag]: in the Editor the Inspector value is the truth
         values[flag] = value;
 
 #if UNITY_EDITOR
@@ -84,6 +106,8 @@ public class StateFlags : StateFlagsAccess
             break;
         }
 #endif
+
+        if (oldValue != value) RaiseFlagChanged(flag, value);
     }
 
     public bool Contains(FlagSO flag)
@@ -102,11 +126,14 @@ public class StateFlags : StateFlagsAccess
         foreach (FlagEntry entry in flags)
         {
             if (entry.Flag == null) continue;
+            bool oldValue = Get(entry.Flag);
             values[entry.Flag] = entry.InitialValue;
 
 #if UNITY_EDITOR
             entry.RuntimeValue = entry.InitialValue;
 #endif
+
+            if (oldValue != entry.InitialValue) RaiseFlagChanged(entry.Flag, entry.InitialValue);
         }
     }
 }
