@@ -108,6 +108,134 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             Reload();
         }
 
+        // ---------- A Base's state: remove / restore ----------
+
+        // A variant can't delete a Base's state, but it can stop using it (_removedStates): every Base
+        // arrow into / out of it is then off here, at runtime too (TransitionTableSO.EffectiveTransitions).
+        private void AppendRemoveStateMenu(DropdownMenu menu, StateNodeView stateNode, bool isInitial)
+        {
+            if (!IsBaseStateHere(stateNode.State))
+            {
+                return;
+            }
+
+            if (stateNode.IsRemovedHere)
+            {
+                menu.AppendAction("Restore State", _ => SetStateRemoved(stateNode.State, false));
+                return;
+            }
+
+            // The machine would have nowhere to start.
+            if (isInitial)
+            {
+                menu.AppendAction(
+                    "Remove State from This Table (it's the initial state: set another one first)",
+                    _ => { },
+                    DropdownMenuAction.Status.Disabled);
+                return;
+            }
+
+            menu.AppendAction("Remove State from This Table", _ => SetStateRemoved(stateNode.State, true));
+        }
+
+        public void SetStateRemoved(StateSO state, bool remove)
+        {
+            SetStateRemoved(_serializedTable, new[] { state }, remove);
+        }
+
+        // Delete key: a Base's state isn't Deletable, and GraphView's Delete command only runs when
+        // something Deletable is selected, so it never sees one. Catch the key here and remove the
+        // selected Base states from this table instead, like the menu. Not stopped: this table's own
+        // selected states / arrows still go through the normal Delete command.
+        private void OnKeyDownRemoveBaseStates(KeyDownEvent evt)
+        {
+            if (evt.keyCode != KeyCode.Delete || _serializedTable == null)
+            {
+                return;
+            }
+
+            StateSO initial = GetInitialState();
+            List<StateNodeView> baseNodes = selection.OfType<StateNodeView>()
+                .Where(node => IsBaseStateHere(node.State) && !node.IsRemovedHere)
+                .ToList();
+            if (baseNodes.Count == 0)
+            {
+                return;
+            }
+
+            if (baseNodes.Any(node => node.State == initial))
+            {
+                Debug.LogWarning($"{initial.name} is the initial state, so it stays. Set another initial state first.", _table);
+            }
+
+            List<StateSO> toRemove = baseNodes
+                .Select(node => node.State)
+                .Where(state => state != initial)
+                .ToList();
+            if (toRemove.Count == 0)
+            {
+                return;
+            }
+
+            // Next frame: let the normal Delete command finish with this table's own elements first
+            // (removing reloads the graph, which would pull the selection out from under it).
+            schedule.Execute(() => SetStateRemoved(_serializedTable, toRemove, true));
+        }
+
+        internal static void SetStateRemoved(SerializedObject serializedTable, StateSO state, bool remove)
+        {
+            SetStateRemoved(serializedTable, new[] { state }, remove);
+        }
+
+        // Also used by the Inspector panel of a Base's state (VariantStatePanel). One Undo step.
+        internal static void SetStateRemoved(SerializedObject serializedTable, IEnumerable<StateSO> states, bool remove)
+        {
+            if (serializedTable == null || serializedTable.targetObject == null)
+            {
+                return;
+            }
+
+            serializedTable.Update();
+            SerializedProperty removedStates = serializedTable.FindProperty("_removedStates");
+            if (removedStates == null)
+            {
+                return;
+            }
+
+            foreach (StateSO state in states)
+            {
+                if (state == null)
+                {
+                    continue;
+                }
+
+                int index = -1;
+                for (int i = 0; i < removedStates.arraySize; i++)
+                {
+                    if (removedStates.GetArrayElementAtIndex(i).objectReferenceValue == state)
+                    {
+                        index = i;
+                        break;
+                    }
+                }
+
+                if (remove && index < 0)
+                {
+                    removedStates.arraySize++;
+                    removedStates.GetArrayElementAtIndex(removedStates.arraySize - 1).objectReferenceValue = state;
+                }
+                else if (!remove && index >= 0)
+                {
+                    // Clear first: on older Unity a non-null reference element needs two deletes.
+                    removedStates.GetArrayElementAtIndex(index).objectReferenceValue = null;
+                    removedStates.DeleteArrayElementAtIndex(index);
+                }
+            }
+
+            serializedTable.ApplyModifiedProperties();
+            StateMachineGraphWindow.ReloadAll();
+        }
+
         // ---------- A Base's transitions ----------
 
         // One transition: Remove / Restore. Several on one arrow: one submenu entry each, plus all at once.
@@ -118,6 +246,13 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             if (items.Count == 0)
             {
                 menu.AppendAction("Initial state from the Base (set one here to replace it)", _ => { }, DropdownMenuAction.Status.Disabled);
+                return;
+            }
+
+            // One arrow = one From -> To pair, so its state being removed applies to all of them.
+            if (items.Any(item => item.RemovedByState))
+            {
+                menu.AppendAction("Off with its removed state (Restore State to bring it back)", _ => { }, DropdownMenuAction.Status.Disabled);
                 return;
             }
 

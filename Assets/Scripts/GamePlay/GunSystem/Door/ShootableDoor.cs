@@ -26,7 +26,7 @@ public class ShootableDoor : MonoBehaviour
 
     private List<RendererMaterialPair> rendererMaterialPairs = new List<RendererMaterialPair>();
 
-    public bool canDissolve { private get; set; }
+    public bool canDissolve = true;
 
     public void OnShot()
     {

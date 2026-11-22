@@ -26,6 +26,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             // Where this table sent a Base's arrows (_transitionRetargets). They need a node, but they
             // aren't the Base's: usually this table's own state, so it stays editable here.
             public readonly HashSet<StateSO> RetargetTargets = new HashSet<StateSO>();
+
+            // The Base's states this table removed (_removedStates): drawn faint red, their arrows too.
+            public readonly HashSet<StateSO> RemovedStates = new HashSet<StateSO>();
         }
 
         private static InheritedParts ReadInherited(SerializedObject serializedTable, TransitionTableSO baseTable)
@@ -41,6 +44,15 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             for (int i = 0; i < removedIds.arraySize; i++)
             {
                 removed.Add(removedIds.GetArrayElementAtIndex(i).stringValue);
+            }
+
+            SerializedProperty removedStates = serializedTable.FindProperty("_removedStates");
+            for (int i = 0; removedStates != null && i < removedStates.arraySize; i++)
+            {
+                if (removedStates.GetArrayElementAtIndex(i).objectReferenceValue is StateSO removedState)
+                {
+                    parts.RemovedStates.Add(removedState);
+                }
             }
 
             void AddState(StateSO state)
@@ -81,17 +93,22 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 replaced.Add(replaceList.GetArrayElementAtIndex(i).FindPropertyRelative("_transitionId").stringValue);
             }
 
-            InheritedTransition Describe(string id, TransitionTableSO.ConditionGroupUsage[] groups)
+            // from = null for Any State. Checked on the end after retargeting, like the runtime.
+            InheritedTransition Describe(string id, TransitionTableSO.ConditionGroupUsage[] groups, StateSO from, StateSO to)
             {
                 bool isOverridden = overridden.Contains(id);
                 bool isReplaced = !isOverridden && replaced.Contains(id);
                 bool isRetargeted = retargets.ContainsKey(id);
+                bool isRemovedByState = (from != null && parts.RemovedStates.Contains(from)) ||
+                    (to != null && parts.RemovedStates.Contains(to));
                 string summary = Summary(groups) +
                     (isOverridden ? " (overridden here)" : "") +
                     (isReplaced ? " (conditions replaced here)" : "") +
-                    (isRetargeted ? " (target changed here)" : "");
+                    (isRetargeted ? " (target changed here)" : "") +
+                    (isRemovedByState ? " (state removed here)" : "");
                 return new InheritedTransition(
-                    id, summary, removed.Contains(id), isOverridden || isReplaced, ConditionsIn(groups), isRetargeted);
+                    id, summary, removed.Contains(id), isOverridden || isReplaced, ConditionsIn(groups), isRetargeted,
+                    isRemovedByState);
             }
 
             StateSO ToHere(string id, StateSO baseTo) => retargets.TryGetValue(id, out StateSO to) ? to : baseTo;
@@ -119,7 +136,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                     continue;
                 }
 
-                parts.Transitions.Add((item.FromState, to, Describe(item.Id, item.ConditionGroups)));
+                parts.Transitions.Add((item.FromState, to, Describe(item.Id, item.ConditionGroups, item.FromState, to)));
                 AddState(item.FromState);
                 AddTarget(item.Id, to);
             }
@@ -132,7 +149,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                     continue;
                 }
 
-                parts.AnyTransitions.Add((to, Describe(item.Id, item.ConditionGroups)));
+                parts.AnyTransitions.Add((to, Describe(item.Id, item.ConditionGroups, null, to)));
                 AddTarget(item.Id, to);
             }
 

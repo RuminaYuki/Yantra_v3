@@ -231,6 +231,32 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             _changesLabel.style.display = count > 0 ? DisplayStyle.Flex : DisplayStyle.None;
         }
 
+        private static readonly Color RemovedTitleColor = new Color(0.45f, 0.18f, 0.18f, 1f);
+        private static readonly Color RemovedTextColor = new Color(1f, 0.45f, 0.45f);
+
+        // A Base's state this variant removed (TransitionTableSO._removedStates): its Base arrows are off
+        // here. Faint red, "✕ Removed here" under the title. Right-click > Restore State brings it back.
+        public bool IsRemovedHere { get; private set; }
+
+        public void SetRemovedHere()
+        {
+            IsRemovedHere = true;
+            style.opacity = 0.45f;
+            titleContainer.style.backgroundColor = RemovedTitleColor;
+            tooltip = "From the Base, removed in this table: its Base arrows don't run here. " +
+                "Right-click > Restore State to bring it back.";
+
+            var removedLabel = new Label("✕ Removed here");
+            removedLabel.pickingMode = PickingMode.Ignore;
+            removedLabel.style.fontSize = 10;
+            removedLabel.style.unityFontStyleAndWeight = FontStyle.Bold;
+            removedLabel.style.color = RemovedTextColor;
+            removedLabel.style.paddingLeft = 8;
+            removedLabel.style.paddingTop = 2;
+            removedLabel.style.paddingBottom = 3;
+            mainContainer.Insert(mainContainer.IndexOf(titleContainer) + 1, removedLabel);
+        }
+
         // The graph builds the whole menu (StateMachineGraphView.BuildContextualMenu).
         public override void BuildContextualMenu(ContextualMenuPopulateEvent evt)
         {

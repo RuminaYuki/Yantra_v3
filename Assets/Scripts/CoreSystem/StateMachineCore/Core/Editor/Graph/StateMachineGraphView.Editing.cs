@@ -29,6 +29,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             RegisterCallback<MouseUpEvent>(OnMouseUpWhileConnecting, TrickleDown.TrickleDown);
             RegisterCallback<KeyDownEvent>(OnKeyDownWhileConnecting);
             RegisterCallback<KeyDownEvent>(OnKeyDownRename);
+            RegisterCallback<KeyDownEvent>(OnKeyDownRemoveBaseStates);
 
             RegisterCallback<DetachFromPanelEvent>(_ => DestroyStateSearchProvider());
         }
@@ -414,14 +415,20 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                     evt.menu.AppendSeparator();
                 }
 
-                evt.menu.AppendAction("Make Transition", _ => StartTransitionCreation(stateNode, mousePosition));
+                // A removed state takes no new arrows and can't start the machine: restore it first.
+                DropdownMenuAction.Status ifNotRemoved = stateNode.IsRemovedHere
+                    ? DropdownMenuAction.Status.Disabled
+                    : DropdownMenuAction.Status.Normal;
+
+                evt.menu.AppendAction("Make Transition", _ => StartTransitionCreation(stateNode, mousePosition), ifNotRemoved);
                 evt.menu.AppendAction(
                     "Set as Initial State",
                     _ => SetInitialState(stateNode.State),
-                    isInitial ? DropdownMenuAction.Status.Disabled : DropdownMenuAction.Status.Normal);
+                    isInitial ? DropdownMenuAction.Status.Disabled : ifNotRemoved);
                 AppendMoveToSubMenu(evt.menu, stateNode);
                 evt.menu.AppendSeparator();
                 evt.menu.AppendAction("Rename", _ => BeginRename(stateNode));
+                AppendRemoveStateMenu(evt.menu, stateNode, isInitial);
 
                 // A Base's state isn't in this table to delete (its transitions are removed in the Inspector).
                 if (!stateNode.IsInherited)
@@ -686,6 +693,13 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             // like Animator. Any State can't be a target, so it never loops.
             if (target == null)
             {
+                return;
+            }
+
+            // A state removed in this variant takes no arrows: restore it first.
+            if (target.IsRemovedHere)
+            {
+                Debug.LogWarning($"{target.State.name} is removed in {_table.name}. Right-click it > Restore State first.", _table);
                 return;
             }
 

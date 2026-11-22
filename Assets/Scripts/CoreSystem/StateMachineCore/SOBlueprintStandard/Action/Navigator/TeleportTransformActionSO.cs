@@ -9,7 +9,7 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 [UseSelfAnchor][MenuGroup("Standard")]
 [CreateAssetMenu(
     fileName = "NewTeleportTransform_Action",
-    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Standard/Teleport Transform")]
+    menuName = "YUKI Learning State Machine/StateMachineList/Actions/Standard/Navigator/Teleport Transform")]
 public class TeleportTransformActionSO : StateActionSO
 {
     [Tooltip("Where to go. Empty = this state machine's owner.")]

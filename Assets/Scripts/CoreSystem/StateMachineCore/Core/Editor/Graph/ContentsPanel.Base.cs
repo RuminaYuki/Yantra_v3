@@ -60,8 +60,10 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 "graph (select a Base's state). Drag one into a transition or the override panel to use it here.";
 
             FolderData folders = FolderData.Load(baseTable);
+            var removedHere = new HashSet<StateSO>(items.OfType<StateSO>().Where(_table.IsStateRemovedHere));
             AddParentPart(group, BaseGroupKey, StatesGroup,
-                items.OfType<StateSO>().Where(state => !subStates.ContainsKey(state)), folders, tablePath, true);
+                items.OfType<StateSO>().Where(state => !subStates.ContainsKey(state)), folders, tablePath, true,
+                removedHere);
             AddParentPart(group, BaseGroupKey, ActionsGroup, items.OfType<StateActionSO>(), folders, tablePath, true);
             AddParentPart(group, BaseGroupKey, ConditionsGroup, items.OfType<StateConditionSO>(), folders, tablePath, true);
 
