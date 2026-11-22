@@ -123,6 +123,7 @@ GameObject:
   - component: {fileID: 5068545586422385937}
   - component: {fileID: 5174205519202930237}
   - component: {fileID: 1218190127373290111}
+  - component: {fileID: 2294358897599821574}
   m_Layer: 9
   m_Name: Enchanted Door
   m_TagString: Untagged
@@ -164,6 +165,7 @@ MonoBehaviour:
   opacityProperty: _DissolveAmount
   smoothDissolve: 1
   dissolveSpeed: 1
+  canDissolve: 1
 --- !u!65 &1218190127373290111
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -185,3 +187,50 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.96978337, y: 1.9414101, z: 0.20781517}
   m_Center: {x: -0.48090038, y: 0.9524219, z: -0.043773185}
+--- !u!114 &2294358897599821574
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7308364612590431720}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9be17d996828a644affab2f9d3c3892, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OnGameStateChange
+  _states:
+  - Name: Idle
+    EventChannel: {fileID: 11400000, guid: 70924c209c91e1e48ae830155e5500e6, type: 2}
+    OnStateChange:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 5174205519202930237}
+          m_TargetAssemblyTypeName: ShootableDoor, Assembly-CSharp
+          m_MethodName: set_canDissolve
+          m_Mode: 6
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 1
+          m_CallState: 2
+  - Name: Battle
+    EventChannel: {fileID: 11400000, guid: b8ce22274883fd844a112f11326fa3cb, type: 2}
+    OnStateChange:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 5174205519202930237}
+          m_TargetAssemblyTypeName: ShootableDoor, Assembly-CSharp
+          m_MethodName: set_canDissolve
+          m_Mode: 6
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
