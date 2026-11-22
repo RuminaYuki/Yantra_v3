@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: PlayerDie_Timed_Action
   m_EditorClassIdentifier: Assembly-CSharp::TimedActionSO
   _selfAnchor: {fileID: 0}
-  _unit: 0
-  _start: 0.2
+  _unit: 1
+  _start: 0.619
   _end: 0
   _actions:
   - {fileID: -8213120255863930141}
   _action: {fileID: 0}
-  _stateName: 
+  _stateName: Attack
   _layerIndex: 0
 --- !u!114 &-8776548165987663865
 MonoBehaviour:
@@ -81,7 +81,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PretDetectConditionSO
   _selfAnchor: {fileID: 0}
   _comparison: 3
-  _value: 20
+  _value: 120
 --- !u!114 &-8170289565474031905
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -286,7 +286,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PretDetectConditionSO
   _selfAnchor: {fileID: 0}
   _comparison: 3
-  _value: 100
+  _value: 170
 --- !u!114 &-2302289933325334192
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -401,7 +401,7 @@ MonoBehaviour:
   - State: {fileID: 1182286990967500170}
     Position: {x: 175, y: 250}
   - State: {fileID: 2823670914057304664}
-    Position: {x: 175, y: 320}
+    Position: {x: 175, y: 307}
   - State: {fileID: 6185060203097426108}
     Position: {x: 175, y: 191}
   - State: {fileID: 8569292205905908183}
@@ -678,6 +678,7 @@ MonoBehaviour:
   - {fileID: 4981551736367049853}
   - {fileID: 626253143063107120}
   - {fileID: -8864204874983247546}
+  - {fileID: -7201521197881898793}
 --- !u!114 &3110492273662909892
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -942,7 +943,7 @@ MonoBehaviour:
   _selfAnchor: {fileID: 0}
   flag: {fileID: -8116253085103806520}
   value: 0
-  changeValueOnExit: 1
+  changeValueOnExit: 0
 --- !u!114 &8569292205905908183
 MonoBehaviour:
   m_ObjectHideFlags: 0
