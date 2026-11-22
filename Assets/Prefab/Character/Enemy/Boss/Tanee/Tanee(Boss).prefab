@@ -264,6 +264,7 @@ Transform:
   - {fileID: 4639107531126785997}
   - {fileID: 1926919688552921446}
   - {fileID: 8666323109106404500}
+  - {fileID: 9022562545874990725}
   m_Father: {fileID: 390315180164249689}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!143 &6571016672129650021
@@ -567,7 +568,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d4aeb4fe51b196b499f15f35f00eb527, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ProjectileShooter
-  _firePoint: {fileID: 4044931644489976322}
+  _firePoint: {fileID: 9022562545874990725}
   _projectilePrefab: {fileID: 0}
   _poolTag: DeathBlossomBullet
   _owner: {fileID: 6131794996966925021}
@@ -738,37 +739,6 @@ MonoBehaviour:
   - {fileID: 9129065948501893209}
   _provider: {fileID: 7414548169560943970}
   _gloryPointAnchorID: {fileID: 3756904374871233294, guid: 4afba263dd48e504d81a0fabc94e8771, type: 2}
---- !u!1 &7775192114796026823
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 4044931644489976322}
-  m_Layer: 0
-  m_Name: Attackorigin
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &4044931644489976322
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7775192114796026823}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0.65013814, y: 0.011398024, z: 0.013317298, w: 0.7596139}
-  m_LocalPosition: {x: -0.001, y: 0.148, z: 0.034}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 6925326897578588}
-  m_LocalEulerAnglesHint: {x: -81.119, y: 0, z: 2.009}
 --- !u!1 &7788560549871594969
 GameObject:
   m_ObjectHideFlags: 0
@@ -880,6 +850,37 @@ MonoBehaviour:
   targetCamera: {fileID: 0}
   lockYAxis: 0
   reverseZ: 0
+--- !u!1 &8734674125900457743
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9022562545874990725}
+  m_Layer: 7
+  m_Name: DeathBlossomOriginPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9022562545874990725
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8734674125900457743}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.517, z: 0.772}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6131794996966925021}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &9091941144880169204
 GameObject:
   m_ObjectHideFlags: 0
@@ -1251,10 +1252,7 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 5866666021909216657, guid: a8c610d100bef2849b8664e5c0f97c3a, type: 3}
     m_RemovedGameObjects: []
-    m_AddedGameObjects:
-    - targetCorrespondingSourceObject: {fileID: 5184567075958727290, guid: a8c610d100bef2849b8664e5c0f97c3a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 4044931644489976322}
+    m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 509873057387252057, guid: a8c610d100bef2849b8664e5c0f97c3a, type: 3}
       insertIndex: -1
@@ -1675,7 +1673,7 @@ MonoBehaviour:
   - {fileID: 4810501749817945397}
   - {fileID: 4722571084973372013}
   - {fileID: 4036215801014996002}
-  - {fileID: 4044931644489976322}
+  - {fileID: 0}
   - {fileID: 644633591861090337}
   - {fileID: 7216733222370746043}
   - {fileID: 2215399378868312787}

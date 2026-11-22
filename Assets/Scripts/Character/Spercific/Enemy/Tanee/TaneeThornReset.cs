@@ -10,8 +10,11 @@ using UnityEngine.Splines;
 [RequireComponent(typeof(StateMachineController), typeof(StateFlags))]
 public class TaneeThornReset : MonoBehaviour
 {
-    private const string PoolTag = "VengefulRoots";
     private const float DespawnDelay = 0.5f;
+
+    [Tooltip("Tag ของ pool ที่ตัวนี้ถูก spawn ออกมา (ต้องตรงกับใน ObjectPooler) — ตอนหายจะคืนเข้า pool นี้\n" +
+             "Variant ที่ใช้ pool อื่น (เช่น Phase3) ต้องเปลี่ยนตรงนี้ ไม่งั้นจะไปอยู่ผิด pool")]
+    [SerializeField] private string _poolTag = "VengefulRoots";
 
     [Tooltip("When this flag turns on, Vengeful Roots despawns.")]
     [SerializeField] private FlagSO _finishFlag;
@@ -20,10 +23,31 @@ public class TaneeThornReset : MonoBehaviour
     private StateFlags _flags;
     private Coroutine _despawnRoutine;
 
+    [Tooltip("Prefab ที่ SwapSplineItem จะใช้ (หนาม / ดิน) — สร้างไว้ล่วงหน้าตอนโหลดฉาก ตอนเด้งจะได้ไม่กระตุก")]
+    [SerializeField] private GameObject[] _prewarmItems;
+
     private void Awake()
     {
         _controller = GetComponent<StateMachineController>();
         _flags = GetComponent<StateFlags>();
+        PrewarmSplineItems();
+    }
+
+    // ObjectPooler makes each pooled copy on, then turns it off, so this runs at scene load:
+    // the thorns are made there instead of on the first spawn in the fight.
+    private void PrewarmSplineItems()
+    {
+        if (_prewarmItems == null || _prewarmItems.Length == 0)
+            return;
+
+        foreach (SplineInstantiate spline in GetComponentsInChildren<SplineInstantiate>(true))
+        {
+            if (!spline.TryGetComponent(out SplineItemCache cache))
+                cache = spline.gameObject.AddComponent<SplineItemCache>();
+
+            foreach (GameObject prefab in _prewarmItems)
+                cache.Prewarm(prefab);
+        }
     }
 
     private void OnEnable()
@@ -51,12 +75,20 @@ public class TaneeThornReset : MonoBehaviour
         // Done before the children turn off, while SplineInstantiate can still remove its instances.
         foreach (SplineInstantiate spline in GetComponentsInChildren<SplineInstantiate>(true))
         {
+            // Items kept for reuse (SwapSplineItemAction → SplineItemCache): only turn them off,
+            // destroying them would make the next spawn build them again and hitch.
+            if (spline.TryGetComponent(out SplineItemCache cache))
+            {
+                cache.HideAll();
+                continue;
+            }
+
             spline.itemsToInstantiate = System.Array.Empty<SplineInstantiate.InstantiableItem>();
             spline.Clear();
         }
 
         if (ObjectPooler.Instance != null)
-            ObjectPooler.Instance.ReturnToPool(PoolTag, gameObject);
+            ObjectPooler.Instance.ReturnToPool(_poolTag, gameObject);
         else
             gameObject.SetActive(false);
     }
