@@ -59,8 +59,8 @@ MonoBehaviour:
   m_Name: EWDWhenTime_Sequence_Condition
   m_EditorClassIdentifier: Assembly-CSharp::SequenceConditionSO
   _selfAnchor: {fileID: 0}
-  _firstCondition: {fileID: 6767680509252391310}
-  _firstExpected: 1
+  _firstCondition: {fileID: -4653060728196727812}
+  _firstExpected: 0
   _thenCondition: {fileID: 3712536116073936905}
   _thenExpected: 1
 --- !u!114 &-2818115556523619333
@@ -147,8 +147,8 @@ MonoBehaviour:
   m_Name: FWDWhenTime_Sequence_Condition
   m_EditorClassIdentifier: Assembly-CSharp::SequenceConditionSO
   _selfAnchor: {fileID: 0}
-  _firstCondition: {fileID: 4801892192098847423}
-  _firstExpected: 1
+  _firstCondition: {fileID: -4653060728196727812}
+  _firstExpected: 0
   _thenCondition: {fileID: 3712536116073936905}
   _thenExpected: 1
 --- !u!114 &-1406081206348409195
@@ -295,6 +295,16 @@ MonoBehaviour:
         ExpectedResult: 0
     ToState: {fileID: 6316323394180978816}
     Id: 96b897ed-a6b7-4ecb-a895-324ee45ec1f9
+  - FromState: {fileID: 7420138637109490489}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -1264748534412683400}
+        ExpectedResult: 0
+    - Conditions:
+      - Condition: {fileID: -8906182662095325831}
+        ExpectedResult: 0
+    ToState: {fileID: 2265815445736503686}
+    Id: 39f8f3fe-016d-4880-973a-2c31f30e5f67
   _base: {fileID: 0}
   _fieldOverrides: []
   _removedIds: []
@@ -311,6 +321,8 @@ MonoBehaviour:
     Position: {x: 170, y: 68}
   - State: {fileID: 7420138637109490489}
     Position: {x: 170, y: 138}
+  - State: {fileID: 2265815445736503686}
+    Position: {x: 170, y: 207}
   _entryNodePosition: {x: 0, y: 0}
   _anyStateNodePosition: {x: 3, y: 68}
   _contentsFolders:
@@ -323,10 +335,6 @@ MonoBehaviour:
   - Item: {fileID: -8906182662095325831}
     Folder: QTECondition
   - Item: {fileID: 3712536116073936905}
-    Folder: QTECondition
-  - Item: {fileID: 6767680509252391310}
-    Folder: QTECondition
-  - Item: {fileID: 4801892192098847423}
     Folder: QTECondition
   - Item: {fileID: -1829394453756941309}
     Folder: QTECondition
@@ -354,6 +362,33 @@ MonoBehaviour:
   _selfAnchor: {fileID: 0}
   minDuration: 2.5
   maxDuration: 0
+--- !u!114 &499687927159318875
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0984bd16e16fdcc4caa95f03c3832ec0, type: 3}
+  m_Name: Player_LockMovement_Action
+  m_EditorClassIdentifier: Assembly-CSharp::LockMovementActionSO
+  _selfAnchor: {fileID: 3098212187013812954}
+  _resetMoveAnimation: 1
+--- !u!114 &2265815445736503686
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: FinishExcute_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions: []
 --- !u!114 &3098212187013812954
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -381,23 +416,6 @@ MonoBehaviour:
   _selfAnchor: {fileID: 0}
   minDuration: 0.5
   maxDuration: 0
---- !u!114 &4801892192098847423
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0963579bde5f68045a78c7bd197ed21d, type: 3}
-  m_Name: FailedQTEWhenDistance_Sequence_Condition
-  m_EditorClassIdentifier: Assembly-CSharp::SequenceConditionSO
-  _selfAnchor: {fileID: 0}
-  _firstCondition: {fileID: -8906182662095325831}
-  _firstExpected: 1
-  _thenCondition: {fileID: -4653060728196727812}
-  _thenExpected: 0
 --- !u!114 &6316323394180978816
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -413,23 +431,6 @@ MonoBehaviour:
   _actions:
   - {fileID: -2818115556523619333}
   - {fileID: -2383884236871855066}
---- !u!114 &6767680509252391310
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0963579bde5f68045a78c7bd197ed21d, type: 3}
-  m_Name: EscapedQTEWhenDistance_Sequence_Condition
-  m_EditorClassIdentifier: Assembly-CSharp::SequenceConditionSO
-  _selfAnchor: {fileID: 0}
-  _firstCondition: {fileID: -1264748534412683400}
-  _firstExpected: 1
-  _thenCondition: {fileID: -4653060728196727812}
-  _thenExpected: 0
 --- !u!114 &7027420836479781187
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -6,6 +6,17 @@ public class StateFlagReader : StateFlagsAccess
     [SerializeField] private StateFlagsAccess target;
     [SerializeField] private List<FlagSO> flags = new();
 
+    // A reader holds no values of its own, so forward the target's FlagChanged as ours.
+    private void OnEnable()
+    {
+        if (target != null && target != this) target.FlagChanged += RaiseFlagChanged;
+    }
+
+    private void OnDisable()
+    {
+        if (target != null && target != this) target.FlagChanged -= RaiseFlagChanged;
+    }
+
     public override bool Get(FlagSO flag)
     {
         if (target == null || target == this || flag == null) return false;
