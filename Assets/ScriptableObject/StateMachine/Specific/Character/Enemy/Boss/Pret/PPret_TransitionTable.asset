@@ -224,7 +224,7 @@ MonoBehaviour:
   m_Name: ReachPathNavigatorTarget_Condition
   m_EditorClassIdentifier: Assembly-CSharp::ReachPathNavigatorTargetConditionSO
   _selfAnchor: {fileID: 0}
-  _arrivalDistance: 1.5
+  _arrivalDistance: 4
   _randomArrivalRange: 0
 --- !u!114 &-4088664225925658987
 MonoBehaviour:
@@ -254,22 +254,6 @@ MonoBehaviour:
   - {fileID: -8242194717277687297}
   - {fileID: -8170289565474031905}
   - {fileID: -2901021905662518965}
-  - {fileID: 1009804629794776655}
---- !u!114 &-3483356140587633546
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2dd0baeb4cc158b428c94ea09cfb75b6, type: 3}
-  m_Name: PretShowUpFalse_RaiseBoolEventChannel_Action
-  m_EditorClassIdentifier: Assembly-CSharp::RaiseBoolEventChannelActionSO
-  _selfAnchor: {fileID: 0}
-  _eventChannel: {fileID: 11400000, guid: 3e806aabef0af164c839cf27c944c248, type: 2}
-  _value: 0
 --- !u!114 &-2901021905662518965
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -417,9 +401,9 @@ MonoBehaviour:
   - State: {fileID: 1182286990967500170}
     Position: {x: 175, y: 250}
   - State: {fileID: 2823670914057304664}
-    Position: {x: 175, y: 311}
+    Position: {x: 175, y: 320}
   - State: {fileID: 6185060203097426108}
-    Position: {x: 175, y: 190}
+    Position: {x: 175, y: 191}
   - State: {fileID: 8569292205905908183}
     Position: {x: 1, y: 126}
   - State: {fileID: 3110492273662909892}
@@ -555,10 +539,58 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::SetTwoBoneIKActionSO
   _selfAnchor: {fileID: -4506901892652121025}
   _enterWeight: 1
-  _enterDuration: 0.2
+  _enterDuration: 1
+  _enterCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0.6791667
+      value: 0
+      inSlope: 0.5131196
+      outSlope: 0.5131196
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.6363636
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 8.142865
+      outSlope: 8.142865
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.051948003
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   _setWeightOnExit: 1
   _exitWeight: 0
   _exitDuration: 0.2
+  _exitCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   _changeTarget: 0
   _targetAnchor: {fileID: 0}
   _changeHint: 0
@@ -569,21 +601,6 @@ MonoBehaviour:
   _targetPositionWeight: 1
   _targetRotationWeight: 1
   _hintWeight: 1
---- !u!114 &1009804629794776655
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2dd0baeb4cc158b428c94ea09cfb75b6, type: 3}
-  m_Name: PretShowUpTrue_RaiseBoolEventChannel_Action
-  m_EditorClassIdentifier: Assembly-CSharp::RaiseBoolEventChannelActionSO
-  _selfAnchor: {fileID: 0}
-  _eventChannel: {fileID: 11400000, guid: 3e806aabef0af164c839cf27c944c248, type: 2}
-  _value: 1
 --- !u!114 &1182286990967500170
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -676,7 +693,6 @@ MonoBehaviour:
   _actions:
   - {fileID: -7644064108279904171}
   - {fileID: 271830646956946250}
-  - {fileID: -3483356140587633546}
 --- !u!114 &3233797620667729015
 MonoBehaviour:
   m_ObjectHideFlags: 0

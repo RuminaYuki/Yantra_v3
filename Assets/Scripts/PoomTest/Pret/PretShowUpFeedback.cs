@@ -2,26 +2,29 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Rendering;
 
-// วางที่ไหนในซีนก็ได้ — ฟังสัญญาณเปรตโผล่ (State ShowUp ส่งมา) แล้ว
+// วางบนตัวเปรตแต่ละตัว — ฟัง Flag "โผล่" ของเปรตตัวนี้เอง (StateFlags.FlagChanged) แล้ว
 // หันกล้องไปมอง + จอสั่นครืน ๆ + ท้องฟ้าค่อย ๆ แดง + เรียก On Show Up (นกบิน / เสียง)
-// พอได้สัญญาณเปรตกลับบ้าน ท้องฟ้าค่อย ๆ กลับปกติ
+// พอ Flag กลับเป็น false (เปรตกลับบ้าน) ท้องฟ้าค่อย ๆ กลับปกติ
+//
+// ท้องฟ้าเป็นของทั้งฉาก ไม่ใช่ของเปรตตัวไหน: แดงเมื่อมีเปรตโผล่อยู่อย่างน้อย 1 ตัว
+// และกลับปกติเมื่อทุกตัวกลับบ้านแล้ว (นับรวมทุกตัว)
 public class PretShowUpFeedback : MonoBehaviour
 {
     [Header("สัญญาณ")]
-    [Tooltip("สัญญาณที่ State ShowUp ของเปรตส่ง (PretShowUp_VoidEventChannel)")]
-    [SerializeField] private VoidEventChannelSO _showUpChannel;
+    [Tooltip("Flag ที่ State ของเปรตตั้ง: true ตอนโผล่ (ShowUp) / false ตอนกลับบ้าน")]
+    [SerializeField] private FlagSO _showUpFlag;
 
-    [Tooltip("สัญญาณตอนเปรตเดินกลับบ้าน — ท้องฟ้าค่อย ๆ กลับปกติ (ว่างได้ = แดงค้าง)")]
-    [SerializeField] private VoidEventChannelSO _backHomeChannel;
+    [Tooltip("StateFlags ของเปรตตัวนี้ — ว่าง = หาบนตัวนี้หรือตัวแม่ให้เอง")]
+    [SerializeField] private StateFlagsAccess _flags;
 
     [Header("หันไปมอง")]
-    [Tooltip("ตัวเปรตที่จะให้กล้องหันไปมอง (เช่น Test Pret) — ว่าง = ไม่หัน")]
+    [Tooltip("จุดที่จะให้กล้องหันไปมอง — ว่าง = ตัวเปรตนี้เอง")]
     [SerializeField] private Transform _lookTarget;
 
     [Tooltip("ยกจุดที่มองขึ้นจากเท้าเปรตกี่เมตร — ใส่ประมาณความสูงหัวมัน")]
     [SerializeField] private float _lookHeight = 1.8f;
 
-    [Tooltip("บังคับมองค้างไว้กี่วินาที แล้วค่อยคืนเมาส์ให้ผู้เล่น")]
+    [Tooltip("บังคับมองค้างไว้กี่วินาที แล้วค่อยคืนเมาส์ให้ผู้เล่น — 0 = ไม่หัน")]
     [SerializeField, Min(0f)] private float _lookDuration = 2.5f;
 
     [Tooltip("ใช้เวลาหันกี่วินาที — น้อย = หันพรวด / มาก = ค่อย ๆ หัน")]
@@ -38,7 +41,8 @@ public class PretShowUpFeedback : MonoBehaviour
     [SerializeField, Min(0f)] private float _rumbleFadeOut = 0.6f;
 
     [Header("ท้องฟ้าแดง")]
-    [Tooltip("Global Volume โทนแดง (Priority สูงกว่าตัวหลักของฉาก) — เริ่มเกมจะตั้ง Weight = 0 ให้เอง")]
+    [Tooltip("Global Volume โทนแดง (Priority สูงกว่าตัวหลักของฉาก) — เปรตทุกตัวใส่ Volume ตัวเดียวกันได้\n" +
+             "เริ่มเกมจะตั้ง Weight = 0 ให้เอง")]
     [SerializeField] private Volume _redSkyVolume;
 
     [Tooltip("ค่อย ๆ แดงจนเต็มในกี่วินาที")]
@@ -51,53 +55,101 @@ public class PretShowUpFeedback : MonoBehaviour
     [Tooltip("ลากของที่ต้องเล่นตอนเปรตโผล่มาใส่ เช่น Particle นกบิน → Play()")]
     public UnityEvent OnShowUp;
 
+    // ---------- ใช้ร่วมกันทุกเปรต ----------
+
+    // เปรตที่โผล่อยู่ตอนนี้กี่ตัว — มากกว่า 0 = ท้องฟ้าแดง
+    private static int s_showingCount;
+
+    // เฟรมล่าสุดที่ขยับท้องฟ้าไปแล้ว — หลายตัวใช้ Volume เดียวกัน ให้ขยับแค่ครั้งเดียวต่อเฟรม ไม่งั้นแดงเร็วเกิน
+    private static int s_redSkyFrame = -1;
+
+    // ปิด Domain Reload ใน Editor ค่า static จะค้างข้ามการกด Play — ล้างทุกครั้งที่เริ่มเกม
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetShared()
+    {
+        s_showingCount = 0;
+        s_redSkyFrame = -1;
+    }
+
+    // ---------- ของตัวนี้ ----------
+
     private PlayerCameraController _camera;
     private float _rumbleTime = -1f;
-    private float _redTarget;
+
+    // ตัวนี้นับรวมอยู่ใน s_showingCount หรือยัง — กันนับซ้ำ / ลืมลบ
+    private bool _isShowing;
 
     private void Awake()
     {
-        // ตอนจูนสีใน Editor อาจเปิด Weight ค้างไว้ — เริ่มเกมให้ปิดเสมอ
+        if (_flags == null)
+            _flags = GetComponentInParent<StateFlagsAccess>();
+
+        if (_lookTarget == null)
+            _lookTarget = transform;
+
+        if (_redSkyVolume == null)
+        {
+            GameObject volumeObject = GameObject.FindWithTag("RedSkyVolume");
+            if (volumeObject != null)
+                _redSkyVolume = volumeObject.GetComponent<Volume>();
+        }
+        
         if (_redSkyVolume != null)
             _redSkyVolume.weight = 0f;
     }
 
     private void OnEnable()
     {
-        if (_showUpChannel != null)
-            _showUpChannel.Raised += HandleShowUp;
-        else
-            Debug.LogWarning("[PretShowUpFeedback] ยังไม่ได้ใส่ Show Up Channel", this);
+        if (_flags == null || _showUpFlag == null)
+        {
+            Debug.LogWarning("[PretShowUpFeedback] ยังไม่ได้ใส่ Show Up Flag หรือหา StateFlags ของเปรตไม่เจอ", this);
+            return;
+        }
 
-        if (_backHomeChannel != null)
-            _backHomeChannel.Raised += HandleBackHome;
+        _flags.FlagChanged += HandleFlagChanged;
     }
 
     private void OnDisable()
     {
-        if (_showUpChannel != null)
-            _showUpChannel.Raised -= HandleShowUp;
-        if (_backHomeChannel != null)
-            _backHomeChannel.Raised -= HandleBackHome;
+        if (_flags != null)
+            _flags.FlagChanged -= HandleFlagChanged;
+
         _rumbleTime = -1f;
+
+        // ตัวนี้หายไปกลางทาง (ปิด / ถูกทำลาย) — ไม่นับว่าโผล่อยู่แล้ว ไม่งั้นท้องฟ้าแดงค้าง
+        SetShowing(false);
     }
 
-    private void HandleShowUp()
+    private void HandleFlagChanged(FlagSO flag, bool value)
     {
-        LookAtPret();
-        _rumbleTime = 0f;
-        _redTarget = 1f;
-        OnShowUp?.Invoke();
+        if (flag != _showUpFlag)
+            return;
+
+        if (value && !_isShowing)
+        {
+            SetShowing(true);
+            LookAtPret();
+            _rumbleTime = 0f;
+            OnShowUp?.Invoke();
+        }
+        else if (!value)
+        {
+            SetShowing(false);
+        }
     }
 
-    private void HandleBackHome()
+    private void SetShowing(bool showing)
     {
-        _redTarget = 0f;
+        if (_isShowing == showing)
+            return;
+
+        _isShowing = showing;
+        s_showingCount = Mathf.Max(0, s_showingCount + (showing ? 1 : -1));
     }
 
     private void LookAtPret()
     {
-        if (_lookTarget == null)
+        if (_lookTarget == null || _lookDuration <= 0f)
             return;
 
         if (_camera == null)
@@ -117,13 +169,19 @@ public class PretShowUpFeedback : MonoBehaviour
 
     private void UpdateRedSky()
     {
-        if (_redSkyVolume == null || Mathf.Approximately(_redSkyVolume.weight, _redTarget))
+        if (_redSkyVolume == null || s_redSkyFrame == Time.frameCount)
             return;
 
-        float time = _redTarget > _redSkyVolume.weight ? _redInTime : _redOutTime;
+        s_redSkyFrame = Time.frameCount;
+
+        float target = s_showingCount > 0 ? 1f : 0f;
+        if (Mathf.Approximately(_redSkyVolume.weight, target))
+            return;
+
+        float time = target > _redSkyVolume.weight ? _redInTime : _redOutTime;
         _redSkyVolume.weight = time > 0f
-            ? Mathf.MoveTowards(_redSkyVolume.weight, _redTarget, Time.deltaTime / time)
-            : _redTarget;
+            ? Mathf.MoveTowards(_redSkyVolume.weight, target, Time.deltaTime / time)
+            : target;
     }
 
     // เติมให้สั่นค้างไว้ระดับเดิมจนหมดเวลา
