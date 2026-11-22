@@ -114,6 +114,7 @@ MonoBehaviour:
   _distance: 1.2
   _sideOffset: 0
   _heightOffset: 0
+  _maxHeightDifference: 0.4
   _aimPoint: {fileID: 0}
   _handScreenX: 0.5
   _alignTime: 0.35
@@ -185,6 +186,7 @@ GameObject:
   - component: {fileID: 7174765401960451764}
   - component: {fileID: 9205895371593651123}
   - component: {fileID: 4333807487518201511}
+  - component: {fileID: 1580577494883027094}
   m_Layer: 7
   m_Name: EnemeyController
   m_TagString: Enemy
@@ -670,6 +672,12 @@ MonoBehaviour:
   _duration: 1.5
   _visibleAmount: 0
   _hiddenAmount: 1
+  _startDissolved: 0
+  _disableColliders: 1
+  _collidersOffAtStart: 0
+  _includeTriggers: 1
+  _colliderRoot: {fileID: 0}
+  _colliders: []
   _loop: 0
   _loopFadeIn: 1
   _loopHiddenTime: 1
@@ -749,6 +757,35 @@ MonoBehaviour:
       Weight: 1
       Cooldown: {fileID: 0}
       CooldownDuration: 0
+--- !u!114 &1580577494883027094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3067078080897093266}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29f2f56df7929ec4c9b21f3717f5454a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeldFleshChunk
+  _animator: {fileID: 3896365105674866857}
+  _clipName: Krasue_Attack
+  _layer: 0
+  _showAt: 0.32
+  _hideAt: 0.8
+  _chunkPrefab: {fileID: 8224104884699167713, guid: af2c64ce52198d041a69f4d97bda43f4, type: 3}
+  _hand: {fileID: 8835645394898386714}
+  _tailToNeck: 1
+  _offset: {x: 0, y: 0, z: 0}
+  _rotation: {x: 0, y: 0, z: 0}
+  _neck: {fileID: 7934110556564880009}
+  _pullBlood: {fileID: 7188267930824792108, guid: f61ce61c3e2f30d4f9d1d1fd6cd66549, type: 3}
+  _pullBloodAt: 0.32
+  _throwBlood: {fileID: 7188267930824792108, guid: f61ce61c3e2f30d4f9d1d1fd6cd66549, type: 3}
+  _bloodRotation: {x: 0, y: 0, z: 0}
+  _bloodLifetime: 3
+  _logSteps: 0
 --- !u!1 &3108910180406645416
 GameObject:
   m_ObjectHideFlags: 0
@@ -1188,6 +1225,50 @@ MonoBehaviour:
   targetCamera: {fileID: 0}
   lockYAxis: 0
   reverseZ: 0
+--- !u!1 &7414955396261405670
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5194939042005849435}
+  - component: {fileID: 7934110556564880009}
+  m_Layer: 0
+  m_Name: NeckStump
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5194939042005849435
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7414955396261405670}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.0872, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2956431194054722496}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7934110556564880009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7414955396261405670}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94c04e2e08500fe489091cbaada2f513, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FleshStrandAnchor
 --- !u!1 &7871936598375670711
 GameObject:
   m_ObjectHideFlags: 0
@@ -1564,6 +1645,9 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 45837305997127050, guid: c426e500eceaf324083831d73f220485, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5194939042005849435}
     - targetCorrespondingSourceObject: {fileID: -744153538311794797, guid: c426e500eceaf324083831d73f220485, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8835645394898386714}
@@ -1578,6 +1662,11 @@ PrefabInstance:
 --- !u!4 &2579796236972357870 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8473305773113403740, guid: c426e500eceaf324083831d73f220485, type: 3}
+  m_PrefabInstance: {fileID: 3000947975178382922}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &2956431194054722496 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 45837305997127050, guid: c426e500eceaf324083831d73f220485, type: 3}
   m_PrefabInstance: {fileID: 3000947975178382922}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &3210990081103860582 stripped
