@@ -14,6 +14,8 @@ GameObject:
   - component: {fileID: 6692549722807391636}
   - component: {fileID: 44768286512573326}
   - component: {fileID: -6170044150760939037}
+  - component: {fileID: 6439086068921890079}
+  - component: {fileID: 9061517877992385496}
   m_Layer: 0
   m_Name: KrasueProjectileBullet
   m_TagString: Untagged
@@ -33,7 +35,8 @@ Transform:
   m_LocalPosition: {x: -0.25451, y: 0.5, z: 0.01765}
   m_LocalScale: {x: 0.21374378, y: 0.2606192, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 7968305035577798797}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &6334340395841921896
@@ -79,7 +82,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8224104884699167713}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -166,6 +169,143 @@ Rigidbody:
   m_ImplicitTensor: 1
   m_UseGravity: 1
   m_IsKinematic: 1
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &6439086068921890079
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8224104884699167713}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5bcaaa27665621f41bfb280d291ccad1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FleshStrands
+  _strandCount: 5
+  _pointsPerStrand: 10
+  _lengthRange: {x: 0.15, y: 0.35}
+  _rootRadius: 0.03
+  _rootTowardAnchor: 0.1
+  _roots: []
+  _tether: 3
+  _anchor: {fileID: 0}
+  _anchorSearchRadius: 3
+  _anchorRadius: 0.04
+  _snapDistance: {x: 1.5, y: 3}
+  _sag: 0.08
+  _recoilTime: 0.3
+  _onSnap:
+    m_PersistentCalls:
+      m_Calls: []
+  _gravityScale: 1
+  _damping: 0.06
+  _wiggle: 1.5
+  _wiggleSpeed: 3
+  _iterations: 6
+  _material: {fileID: 2100000, guid: 9895d735cefb6804aafd6706ad3ea59b, type: 2}
+  _rootWidth: 0.03
+  _tipWidth: 0.25
+  _thinnestWhenStretched: 0.5
+  _castShadows: 0
+--- !u!114 &9061517877992385496
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8224104884699167713}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eae4f9e2805b227429536431c3e3bcd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FleshImpactBlood
+  _landSplash: {fileID: 7188267930824792108, guid: f61ce61c3e2f30d4f9d1d1fd6cd66549, type: 3}
+  _splashRotation: {x: 0, y: 0, z: 0}
+  _splashLifetime: 3
+  _landPool: {fileID: 0}
+  _groundCheckDistance: 2.5
+  _groundLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  _poolSize: {x: 0.8, y: 1.2}
+  _poolGrowTime: 0.4
+  _poolStayTime: 8
+  _poolShrinkTime: 1.5
+  _logSteps: 0
+--- !u!1001 &7574951542293223270
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 1169780117395364072}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 7bce5dd74bf1b1e4d9a2281fb86346a2, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7bce5dd74bf1b1e4d9a2281fb86346a2, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7bce5dd74bf1b1e4d9a2281fb86346a2, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7bce5dd74bf1b1e4d9a2281fb86346a2, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.042
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7bce5dd74bf1b1e4d9a2281fb86346a2, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.01
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7bce5dd74bf1b1e4d9a2281fb86346a2, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.0041
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7bce5dd74bf1b1e4d9a2281fb86346a2, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7bce5dd74bf1b1e4d9a2281fb86346a2, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7bce5dd74bf1b1e4d9a2281fb86346a2, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7bce5dd74bf1b1e4d9a2281fb86346a2, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7bce5dd74bf1b1e4d9a2281fb86346a2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7bce5dd74bf1b1e4d9a2281fb86346a2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 7bce5dd74bf1b1e4d9a2281fb86346a2, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 7bce5dd74bf1b1e4d9a2281fb86346a2, type: 3}
+      propertyPath: m_Name
+      value: flesh_projectile_krasue_1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 7bce5dd74bf1b1e4d9a2281fb86346a2, type: 3}
+--- !u!4 &7968305035577798797 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 7bce5dd74bf1b1e4d9a2281fb86346a2, type: 3}
+  m_PrefabInstance: {fileID: 7574951542293223270}
+  m_PrefabAsset: {fileID: 0}
