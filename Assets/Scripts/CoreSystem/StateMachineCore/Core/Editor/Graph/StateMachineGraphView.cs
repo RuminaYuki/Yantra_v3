@@ -106,7 +106,7 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 {
                     case StateNodeView node when node.State != null:
                         node.SetUsesSelection(selectedActions.Count > 0 &&
-                                              TableContents.ActionsOf(node.State).Any(selectedActions.Contains));
+                                              ActionsRunHere(node.State).Any(selectedActions.Contains));
                         break;
                     case TransitionEdgeView edge:
                         edge.SetUsesSelection(selectedConditions.Count > 0 &&
@@ -114,6 +114,21 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                         break;
                 }
             }
+        }
+
+        // What the state runs in this table: in a variant, with the actions it adds / replaces / removes
+        // (_actionChanges) applied, the same list the runtime and the Inspector panel (VariantStatePanel) use.
+        // A plain table has no changes, so it's just the state's own actions.
+        private List<StateActionSO> ActionsRunHere(StateSO state)
+        {
+            List<StateActionSO> stateActions = TableContents.ActionsOf(state).OfType<StateActionSO>().ToList();
+            if (_table == null)
+            {
+                return stateActions;
+            }
+
+            return ElementResolver.BuildActionList(
+                state, stateActions, _table.EffectiveActionChanges, _table.EffectiveActionOrders);
         }
 
         public override void AddToSelection(ISelectable selectable)
@@ -309,6 +324,10 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
                 bool isInherited = inherited.States.Contains(states[i]);
                 displayNames.TryGetValue(states[i], out string displayName);
                 var node = new StateNodeView(states[i], states[i] == initialState, isInherited, _table, displayName);
+                if (isInherited && inherited.RemovedStates.Contains(states[i]))
+                {
+                    node.SetRemovedHere();
+                }
                 node.SetPosition(new Rect(position, Vector2.zero));
                 AddElement(node);
                 stateNodes.Add(states[i], node);

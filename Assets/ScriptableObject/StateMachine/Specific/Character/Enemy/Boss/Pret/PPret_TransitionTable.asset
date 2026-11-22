@@ -254,7 +254,22 @@ MonoBehaviour:
   - {fileID: -8242194717277687297}
   - {fileID: -8170289565474031905}
   - {fileID: -2901021905662518965}
-  - {fileID: 8994212043909208896}
+  - {fileID: 1009804629794776655}
+--- !u!114 &-3483356140587633546
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2dd0baeb4cc158b428c94ea09cfb75b6, type: 3}
+  m_Name: PretShowUpFalse_RaiseBoolEventChannel_Action
+  m_EditorClassIdentifier: Assembly-CSharp::RaiseBoolEventChannelActionSO
+  _selfAnchor: {fileID: 0}
+  _eventChannel: {fileID: 11400000, guid: 3e806aabef0af164c839cf27c944c248, type: 2}
+  _value: 0
 --- !u!114 &-2901021905662518965
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -385,6 +400,7 @@ MonoBehaviour:
   _base: {fileID: 0}
   _fieldOverrides: []
   _removedIds: []
+  _removedStates: []
   _transitionOverrides: []
   _conditionReplaces: []
   _transitionRetargets: []
@@ -553,6 +569,21 @@ MonoBehaviour:
   _targetPositionWeight: 1
   _targetRotationWeight: 1
   _hintWeight: 1
+--- !u!114 &1009804629794776655
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2dd0baeb4cc158b428c94ea09cfb75b6, type: 3}
+  m_Name: PretShowUpTrue_RaiseBoolEventChannel_Action
+  m_EditorClassIdentifier: Assembly-CSharp::RaiseBoolEventChannelActionSO
+  _selfAnchor: {fileID: 0}
+  _eventChannel: {fileID: 11400000, guid: 3e806aabef0af164c839cf27c944c248, type: 2}
+  _value: 1
 --- !u!114 &1182286990967500170
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -645,6 +676,7 @@ MonoBehaviour:
   _actions:
   - {fileID: -7644064108279904171}
   - {fileID: 271830646956946250}
+  - {fileID: -3483356140587633546}
 --- !u!114 &3233797620667729015
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -912,17 +944,3 @@ MonoBehaviour:
   - {fileID: 4151749851804201053}
   - {fileID: -8170289565474031905}
   - {fileID: 8037316441915004972}
---- !u!114 &8994212043909208896
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0523dd8c3773bd74ab2f4c900e513913, type: 3}
-  m_Name: Showup_RaiseVoidEventChannel_Action
-  m_EditorClassIdentifier: Assembly-CSharp::RaiseVoidEventChannelActionSO
-  _selfAnchor: {fileID: 0}
-  _eventChannel: {fileID: 11400000, guid: cda2e76e499eac64e9bb92832f4ac23f, type: 2}

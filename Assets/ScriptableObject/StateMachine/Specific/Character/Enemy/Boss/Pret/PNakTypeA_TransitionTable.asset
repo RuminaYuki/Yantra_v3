@@ -46,23 +46,6 @@ MonoBehaviour:
   _selfAnchor: {fileID: 0}
   _targetAnchor: {fileID: 3098212187013812954}
   _distance: 3
---- !u!114 &-3023520104107730230
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0963579bde5f68045a78c7bd197ed21d, type: 3}
-  m_Name: EWDWhenTime_Sequence_Condition
-  m_EditorClassIdentifier: Assembly-CSharp::SequenceConditionSO
-  _selfAnchor: {fileID: 0}
-  _firstCondition: {fileID: -4653060728196727812}
-  _firstExpected: 0
-  _thenCondition: {fileID: 3712536116073936905}
-  _thenExpected: 1
 --- !u!114 &-2818115556523619333
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -144,7 +127,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0963579bde5f68045a78c7bd197ed21d, type: 3}
-  m_Name: FWDWhenTime_Sequence_Condition
+  m_Name: DistanceWhenTime_Sequence_Condition
   m_EditorClassIdentifier: Assembly-CSharp::SequenceConditionSO
   _selfAnchor: {fileID: 0}
   _firstCondition: {fileID: -4653060728196727812}
@@ -288,16 +271,6 @@ MonoBehaviour:
   - FromState: {fileID: 7420138637109490489}
     ConditionGroups:
     - Conditions:
-      - Condition: {fileID: -3023520104107730230}
-        ExpectedResult: 0
-    - Conditions:
-      - Condition: {fileID: -1829394453756941309}
-        ExpectedResult: 0
-    ToState: {fileID: 6316323394180978816}
-    Id: 96b897ed-a6b7-4ecb-a895-324ee45ec1f9
-  - FromState: {fileID: 7420138637109490489}
-    ConditionGroups:
-    - Conditions:
       - Condition: {fileID: -1264748534412683400}
         ExpectedResult: 0
     - Conditions:
@@ -305,6 +278,13 @@ MonoBehaviour:
         ExpectedResult: 0
     ToState: {fileID: 2265815445736503686}
     Id: 39f8f3fe-016d-4880-973a-2c31f30e5f67
+  - FromState: {fileID: 2265815445736503686}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -1829394453756941309}
+        ExpectedResult: 0
+    ToState: {fileID: 6316323394180978816}
+    Id: 7c810a73-dcc4-4573-8b41-e2955255903a
   _base: {fileID: 0}
   _fieldOverrides: []
   _removedIds: []
@@ -320,7 +300,7 @@ MonoBehaviour:
   - State: {fileID: 8849147312837727596}
     Position: {x: 170, y: 68}
   - State: {fileID: 7420138637109490489}
-    Position: {x: 170, y: 138}
+    Position: {x: 170, y: 139}
   - State: {fileID: 2265815445736503686}
     Position: {x: 170, y: 207}
   _entryNodePosition: {x: 0, y: 0}
@@ -337,8 +317,6 @@ MonoBehaviour:
   - Item: {fileID: 3712536116073936905}
     Folder: QTECondition
   - Item: {fileID: -1829394453756941309}
-    Folder: QTECondition
-  - Item: {fileID: -3023520104107730230}
     Folder: QTECondition
   _contentsFolderPaths:
   - Group: Actions
@@ -481,6 +459,7 @@ MonoBehaviour:
   _actions:
   - {fileID: -826716435119943352}
   - {fileID: -2155214059330508088}
+  - {fileID: 499687927159318875}
 --- !u!114 &8849147312837727596
 MonoBehaviour:
   m_ObjectHideFlags: 0

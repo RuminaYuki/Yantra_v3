@@ -37,6 +37,12 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
         private string[] _removedIds =
             Array.Empty<string>();
 
+        // state ของ Base ที่ table นี้ไม่เอา — เส้นของ Base ที่เข้า / ออก state นี้หายไปด้วย
+        // (แก้จาก graph: คลิกขวา state ของ Base → Remove State)
+        [SerializeField]
+        private StateSO[] _removedStates =
+            Array.Empty<StateSO>();
+
         // transition จาก Base ที่ table นี้ใช้เงื่อนไขของตัวเองแทน (แก้จาก graph: คลิกเส้นของ Base)
         [SerializeField]
         private TransitionOverride[] _transitionOverrides =
@@ -117,6 +123,12 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
                             transition.ToState = retargetedTo;
                         }
 
+                        // เข้า / ออก state ที่ table นี้ลบ → ไม่เอา (เช็คหลัง retarget: เส้นที่ย้ายปลายหนีไปแล้วยังอยู่)
+                        if (IsStateRemoved(transition.FromState) || IsStateRemoved(transition.ToState))
+                        {
+                            continue;
+                        }
+
                         yield return transition;
                     }
                 }
@@ -151,6 +163,11 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
                         if (retargetedTo != null)
                         {
                             transition.ToState = retargetedTo;
+                        }
+
+                        if (IsStateRemoved(transition.ToState))
+                        {
+                            continue;
                         }
 
                         yield return transition;
@@ -350,6 +367,50 @@ namespace Yuki.Learning.StateMachine.ScriptableObjects
             }
 
             return false;
+        }
+
+        private bool IsStateRemoved(StateSO state)
+        {
+            if (state == null)
+            {
+                return false;
+            }
+
+            foreach (StateSO removed in _removedStates)
+            {
+                if (removed == state)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        // state ที่ table นี้ลบเอง (ไม่รวมของ Base)
+        public bool IsStateRemovedHere(StateSO state) => IsStateRemoved(state);
+
+        // state ที่ถูกลบตลอดสาย: ของ Base (ทุกชั้น) + ของตัวเอง
+        public IEnumerable<StateSO> EffectiveRemovedStates
+        {
+            get
+            {
+                if (_base != null)
+                {
+                    foreach (StateSO state in _base.EffectiveRemovedStates)
+                    {
+                        yield return state;
+                    }
+                }
+
+                foreach (StateSO state in _removedStates)
+                {
+                    if (state != null)
+                    {
+                        yield return state;
+                    }
+                }
+            }
         }
 
 #if UNITY_EDITOR

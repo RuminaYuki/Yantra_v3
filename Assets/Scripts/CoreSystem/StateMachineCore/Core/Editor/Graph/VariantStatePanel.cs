@@ -114,6 +114,25 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             OverrideInspectorGUI.DrawHeader(_state.name, _table.name);
 
+            // Removed in this variant (_removedStates): say so, with a way back.
+            if (_table.IsStateRemovedHere(_state))
+            {
+                EditorGUILayout.HelpBox(
+                    $"Removed in {_table.name}: the Base's arrows into and out of {_state.name} don't run here.",
+                    MessageType.Warning);
+
+                if (GUILayout.Button("Restore State"))
+                {
+                    // After this GUI pass: restoring reloads the graph, which rebuilds this panel.
+                    TransitionTableSO restoreTable = _table;
+                    StateSO restoreState = _state;
+                    EditorApplication.delayCall += () =>
+                        StateMachineGraphView.SetStateRemoved(new SerializedObject(restoreTable), restoreState, false);
+                }
+
+                EditorGUILayout.Space(4f);
+            }
+
             _list.DoLayoutList();
             EditorGUILayout.Space(4f);
 

@@ -1,5 +1,34 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-7499754862069638104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfcaae7805ae66b4588545169ca0a35e, type: 3}
+  m_Name: NextState_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::NextStateConditionSO
+  _selfAnchor: {fileID: 0}
+--- !u!114 &-5869045004033373411
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d855db352630f2d4dab89d598e53aacf, type: 3}
+  m_Name: PlayerToOwner_ForceCameraLook_Action
+  m_EditorClassIdentifier: Assembly-CSharp::ForceCameraLookActionSO
+  _selfAnchor: {fileID: -3038863432783370886}
+  _targetAnchor: {fileID: 6708316029072234448}
+  _offset: {x: 0, y: 0, z: 0}
+  _turnTime: 0.3
 --- !u!114 &-5502662737635913559
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -47,6 +76,20 @@ MonoBehaviour:
     directionCount: 16
   _maxAttempts: 10
   _requireNavMeshBaked: 0
+--- !u!114 &-4650579729652064831
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7da57aa186da8c4a92fe7e1a7ef5add, type: 3}
+  m_Name: SetSpawnPoint_State
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
+  _actions:
+  - {fileID: -2631228047302129901}
 --- !u!114 &-4171952969878970766
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -77,6 +120,41 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GrabQTEConditionSO
   _selfAnchor: {fileID: 0}
   _check: 0
+--- !u!114 &-3038863432783370886
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29aaa39665320664388a123863eae513, type: 3}
+  m_Name: PlayerCamera_AnchorID
+  m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.AnchorIDSO
+--- !u!114 &-2748215795088464928
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cea39afc1a75b7646a1bd105ab75cb29, type: 3}
+  m_Name: SpawnPoint_TeleportAnchorOffset_Action
+  m_EditorClassIdentifier: Assembly-CSharp::TeleportAnchorOffsetActionSO
+  _selfAnchor: {fileID: 0}
+  _targetAnchor: {fileID: 0}
+  _offsetMin: {x: 0, y: 0, z: 0}
+  _offsetMax: {x: 0, y: 0, z: 0}
+  _maxAttempts: 8
+  _faceTarget: 1
+  _matchTargetRotation: 0
+  _lead:
+    usePrediction: 0
+    leadTime: 0.5
+    maxDistance: 3
 --- !u!114 &-2706972474091422522
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -165,7 +243,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5492ed31ba40b643aaf3d94f1de0aa7, type: 3}
   m_Name: PNakTypeB_TransitionTable_Variant
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.TransitionTableSO
-  _initialState: {fileID: 0}
+  _initialState: {fileID: -4650579729652064831}
   _anyTransitions: []
   _transitions:
   - FromState: {fileID: 8026634343205636463}
@@ -188,6 +266,20 @@ MonoBehaviour:
         ExpectedResult: 0
     ToState: {fileID: 6316323394180978816, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
     Id: 0c60812f-bbd8-4617-9364-50dd6b96575a
+  - FromState: {fileID: 7420138637109490489, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -3533848237192763334}
+        ExpectedResult: 0
+    ToState: {fileID: 8026634343205636463}
+    Id: b3f87fed-58d2-4546-8d28-68db09eb4940
+  - FromState: {fileID: -4650579729652064831}
+    ConditionGroups:
+    - Conditions:
+      - Condition: {fileID: -7499754862069638104}
+        ExpectedResult: 0
+    ToState: {fileID: 6316323394180978816, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
+    Id: b4ff81a6-6730-49e8-aeb6-d1b9d891e8d1
   _base: {fileID: 11400000, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
   _fieldOverrides:
   - _value: 1.5
@@ -207,6 +299,8 @@ MonoBehaviour:
     _target: {fileID: 7027420836479781187, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
     _fieldPath: _distance
   _removedIds: []
+  _removedStates:
+  - {fileID: 2265815445736503686, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
   _transitionOverrides:
   - _transitionId: 96b897ed-a6b7-4ecb-a895-324ee45ec1f9
     _conditionGroups:
@@ -230,25 +324,27 @@ MonoBehaviour:
     _action: {fileID: -2155214059330508088, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
     _with: {fileID: -2706972474091422522}
   - _state: {fileID: 7420138637109490489, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
-    _kind: 1
+    _kind: 3
     _action: {fileID: -826716435119943352, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
-    _with: {fileID: -2706972474091422522}
-  - _state: {fileID: 6316323394180978816, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
-    _kind: 2
-    _action: {fileID: -2631228047302129901}
-    _with: {fileID: -2706972474091422522}
+    _with: {fileID: 8188069677855546775}
   _actionOrders: []
   _exposedParameters: {fileID: 0}
   _nodePositions:
   - State: {fileID: 8026634343205636463}
-    Position: {x: 170, y: 231}
+    Position: {x: 403, y: 204}
   - State: {fileID: 7420138637109490489, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
-    Position: {x: 170, y: 142}
+    Position: {x: 403, y: 98}
   - State: {fileID: -4171952969878970766}
-    Position: {x: 170, y: 299}
+    Position: {x: 170, y: 204}
   - State: {fileID: 6316323394180978816, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
     Position: {x: 170, y: 6}
-  _entryNodePosition: {x: 0, y: 0}
+  - State: {fileID: 2265815445736503686, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
+    Position: {x: 403, y: -107}
+  - State: {fileID: 8849147312837727596, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
+    Position: {x: 403, y: 6}
+  - State: {fileID: -4650579729652064831}
+    Position: {x: 170, y: -107}
+  _entryNodePosition: {x: 0, y: -107}
   _anyStateNodePosition: {x: 0, y: 120}
   _contentsFolders: []
   _contentsFolderPaths: []
@@ -393,6 +489,22 @@ MonoBehaviour:
   - {fileID: -775651415800135073}
   - {fileID: -5502662737635913559}
   - {fileID: -2155214059330508088, guid: b6f771fb708585049b7f03da15b042bb, type: 2}
+  - {fileID: -5869045004033373411}
+--- !u!114 &8188069677855546775
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: afb42a8d0fd1b64449dbf739c05fe05d, type: 3}
+  m_Name: DontStop_StartGrabQTE_Action
+  m_EditorClassIdentifier: Assembly-CSharp::StartGrabQTEActionSO
+  _selfAnchor: {fileID: 0}
+  _playerTag: Player
+  _stopOnExit: 0
 --- !u!114 &8580876553332980715
 MonoBehaviour:
   m_ObjectHideFlags: 0

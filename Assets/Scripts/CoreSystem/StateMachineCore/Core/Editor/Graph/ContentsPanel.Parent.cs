@@ -141,7 +141,8 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             IEnumerable<ScriptableObject> items,
             FolderData folders,
             string tablePath,
-            bool isFromBase)
+            bool isFromBase,
+            ICollection<StateSO> removedHere = null)
         {
             List<ScriptableObject> sorted = items.OrderBy(item => item.name).ToList();
             if (sorted.Count == 0)
@@ -174,8 +175,21 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             {
                 folders.ItemFolders.TryGetValue(item, out string folder);
                 VisualElement parent = folder != null ? folderViews[folder] : part;
-                parent.Add(CreateRow(item, null, null, true, tablePath, null,
-                    isFromParent: !isFromBase, isFromBase: isFromBase));
+                VisualElement row = CreateRow(item, null, null, true, tablePath, null,
+                    isFromParent: !isFromBase, isFromBase: isFromBase);
+
+                // A Base's state this variant removed (_removedStates): faint red, like in the graph.
+                if (removedHere != null && item is StateSO state && removedHere.Contains(state))
+                {
+                    row.style.opacity = 0.5f;
+                    row.tooltip = $"{state.name} is removed in this table. Right-click it in the graph > Restore State.";
+                    foreach (Label label in row.Query<Label>().ToList())
+                    {
+                        label.style.color = new Color(1f, 0.45f, 0.45f);
+                    }
+                }
+
+                parent.Add(row);
             }
         }
 
