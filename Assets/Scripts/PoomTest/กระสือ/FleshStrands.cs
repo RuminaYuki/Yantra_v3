@@ -137,6 +137,13 @@ public class FleshStrands : MonoBehaviour
         _tether = anchor != null ? TetherMode.Transform : TetherMode.SpawnPoint;
     }
 
+    /// <summary>เปลี่ยนระยะที่เส้นขาด (สุ่มระหว่าง x – y เมตร) — มีผลตอนเส้นเกิดใหม่รอบถัดไป</summary>
+    public void SetSnapDistance(Vector2 range)
+    {
+        float min = Mathf.Max(0.05f, range.x);
+        _snapDistance = new Vector2(min, Mathf.Max(min, range.y));
+    }
+
     private void Awake()
     {
         if (_material == null)

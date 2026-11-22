@@ -933,6 +933,12 @@ MonoBehaviour:
   _duration: 1.5
   _visibleAmount: 0
   _hiddenAmount: 1
+  _startDissolved: 0
+  _disableColliders: 1
+  _collidersOffAtStart: 0
+  _includeTriggers: 1
+  _colliderRoot: {fileID: 0}
+  _colliders: []
   _loop: 0
   _loopFadeIn: 1
   _loopHiddenTime: 1
@@ -1225,6 +1231,7 @@ MonoBehaviour:
   _distance: 1.08
   _sideOffset: 0
   _heightOffset: -0.01
+  _maxHeightDifference: 0.4
   _aimPoint: {fileID: 4059990734982099099}
   _handScreenX: 0.5
   _alignTime: 0.35
@@ -1244,9 +1251,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GloryBloodTrigger
   _bloodTimes:
-  - 0.7
-  - 1.7
-  - 2.7
+  - 1.35
+  - 2.55
   _splatterEffect: {fileID: 7188267930824792108, guid: f61ce61c3e2f30d4f9d1d1fd6cd66549, type: 3}
   _effectPoint: {fileID: 8750988943549715822}
   _direction: 0

@@ -49,8 +49,16 @@ public class HeldFleshChunk : MonoBehaviour
     [SerializeField] private Vector3 _offset;
     [SerializeField] private Vector3 _rotation;
 
-    [Tooltip("ตอคอ (NeckStump) — รู้ว่าก้อนจริงออกไปแล้วตอนมีก้อนมายึดจุดนี้")]
+    [Tooltip("ตอคอ (NeckStump) — รู้ว่าก้อนจริงออกไปแล้วตอนมีก้อนมายึดจุดนี้\n" +
+             "ว่าง = หาตอคอที่ใกล้มือที่สุดเองตอนเริ่มท่า (ใช้ตอนวางบนแขนผู้เล่น ท่า Glory)")]
     [SerializeField] private FleshStrandAnchor _neck;
+
+    [Tooltip("Neck ว่าง: หาตอคอในระยะนี้รอบมือ (เมตร)")]
+    [SerializeField, Min(0.1f)] private float _findNeckRadius = 3f;
+
+    [Tooltip("ระยะที่เส้นขาด (เมตร) เฉพาะก้อนในมือ — 0, 0 = ใช้ค่าเดิมใน prefab ก้อนเนื้อ\n" +
+             "กระชากใน Glory มือดึงไปไม่ไกล ใส่สั้น ๆ เช่น 0.5 – 0.9 เส้นจะขาดระหว่างกระชาก")]
+    [SerializeField] private Vector2 _snapDistance = Vector2.zero;
 
     [Header("เลือด (ไม่ใส่ก็ได้)")]
     [Tooltip("เลือดพุ่งออกจากตอคอตอนควัก — เช่น Vfx_blood_Bust Variant")]
@@ -62,8 +70,8 @@ public class HeldFleshChunk : MonoBehaviour
     [Tooltip("เลือดสาดจากมือตอนขว้าง (ตอนก้อนจริงหลุดมือ) — เช่น Vfx_blood_Bust Variant")]
     [SerializeField] private GameObject _throwBlood;
 
-    [Tooltip("เลือดพุ่งไปข้างหน้ากระสือ (ทางผู้เล่น) แล้วเงยขึ้นกี่องศา\n" +
-             "0 = พุ่งตรงไปข้างหน้า / 90 = พุ่งขึ้นฟ้าเป็นเสาแนวตั้ง")]
+    [Tooltip("เลือดพุ่งไปทางที่มือดึง (ทิศยังไม่ชัด = เข้าหากล้อง) แล้วเงยขึ้นกี่องศา\n" +
+             "0 = พุ่งขนานพื้น / 90 = พุ่งขึ้นฟ้าเป็นเสาแนวตั้ง")]
     [SerializeField, Range(-30f, 90f)] private float _bloodUpAngle = 25f;
 
     [Tooltip("หมุนเพิ่มหลังเล็งแล้ว — ปกติไม่ต้องแตะ (VFX พุ่งตามแกน Z ลูกศรสีฟ้า)")]
@@ -79,12 +87,32 @@ public class HeldFleshChunk : MonoBehaviour
     private GameObject _held;
     private bool _thrown;   // ก้อนจริงออกไปแล้วในท่ารอบนี้
     private bool _pullBled; // เลือดตอนควักออกไปแล้วในท่ารอบนี้
+    private FleshStrandAnchor _foundNeck;   // Neck ว่าง — ตอคอที่หาเจอในท่ารอบนี้
+    private bool _neckSearched;             // หาไปแล้วในท่ารอบนี้ (ไม่เจอก็ไม่หาซ้ำทุกเฟรม)
+
+    // ตอคอของท่ารอบนี้ — ใส่ Neck ไว้ใช้อันนั้นเสมอ / ไม่ใส่ หาอันที่ใกล้มือตอนต้องใช้ครั้งแรก
+    private FleshStrandAnchor Neck
+    {
+        get
+        {
+            if (_neck != null) return _neck;
+            if (!_neckSearched && _hand != null)
+            {
+                _neckSearched = true;
+                _foundNeck = FleshStrandAnchor.FindNearest(_hand.position, _findNeckRadius);
+                if (_logSteps)
+                    Debug.Log(_foundNeck != null
+                        ? $"[HeldFleshChunk] เจอตอคอ {_foundNeck.name}"
+                        : $"[HeldFleshChunk] ไม่เจอตอคอในระยะ {_findNeckRadius} ม. รอบมือ", this);
+            }
+            return _foundNeck;
+        }
+    }
 
     private void Awake()
     {
         if (_animator == null) _animator = GetComponentInChildren<Animator>();
         if (_animator == null) Debug.LogWarning($"[HeldFleshChunk] {name} ไม่เจอ Animator", this);
-        if (_neck == null) Debug.LogWarning($"[HeldFleshChunk] {name} ยังไม่ได้ใส่ Neck (NeckStump)", this);
 
         CreateHeldChunk();
     }
@@ -116,12 +144,14 @@ public class HeldFleshChunk : MonoBehaviour
         {
             _thrown = false;
             _pullBled = false;
+            ForgetNeck();
             SetHeld(false);
             return;
         }
 
         // ยังไม่ถึงจังหวะดึง = ท่ารอบใหม่ (หรือยังไม่เริ่ม) — พร้อมโชว์อีกรอบ
         if (t < _showAt) _thrown = false;
+        if (t < Mathf.Min(_showAt, _pullBloodAt)) ForgetNeck();   // รอบใหม่อาจเป็นผีคนละตัว
 
         if (t < _pullBloodAt) _pullBled = false;
         else if (!_pullBled)
@@ -134,12 +164,19 @@ public class HeldFleshChunk : MonoBehaviour
         if (_held.activeSelf) AimTailToNeck();
     }
 
+    private void ForgetNeck()
+    {
+        _foundNeck = null;
+        _neckSearched = false;
+    }
+
     // หันหาง (-Z ของก้อน) เข้าตอคอ — แกนยาวของก้อนคือ Z (ก้อนที่บินก็หันหัวตามทิศบินแบบเดียวกัน)
     private void AimTailToNeck()
     {
-        if (!_tailToNeck || _neck == null) return;
+        FleshStrandAnchor neck = Neck;
+        if (!_tailToNeck || neck == null) return;
 
-        Vector3 away = _hand.position - _neck.transform.position;
+        Vector3 away = _hand.position - neck.transform.position;
         if (away.sqrMagnitude < 0.05f * 0.05f) return;   // มือยังจมอยู่ในคอ ทิศยังไม่นิ่ง — ใช้ทิศเดิมไปก่อน
 
         Vector3 dir = away.normalized;
@@ -175,6 +212,13 @@ public class HeldFleshChunk : MonoBehaviour
             rb.interpolation = RigidbodyInterpolation.None;
         }
 
+        // ระยะเส้นขาดของก้อนในมือ — ไม่แตะก้อนที่ขว้าง (คนละตัว)
+        if (_snapDistance.y > 0f)
+        {
+            foreach (var strands in _held.GetComponentsInChildren<FleshStrands>(true))
+                strands.SetSnapDistance(_snapDistance);
+        }
+
         // ขนาดในโลกให้เท่ากับก้อนที่ขว้าง ไม่ว่ากระดูกมือจะถูก scale เท่าไหร่
         Transform t = _held.transform;
         t.localPosition = _offset;
@@ -201,8 +245,11 @@ public class HeldFleshChunk : MonoBehaviour
 
     private void OnNeckClaimed(FleshStrands by)
     {
-        // เส้นของก้อนในมือเองก็มายึดคอ — ไม่นับ
-        if (_held != null && by.transform.IsChildOf(_held.transform)) return;
+        // นับเฉพาะก้อนที่ขว้างจริง (ProjectileBullet เปิดอยู่) ตอนเรากำลังถือก้อนอยู่
+        // ไม่นับ: ก้อนในมือเราเอง / ก้อนในมือผู้เล่นตอน Glory ที่มายึดคอเดียวกัน
+        ProjectileBullet bullet = by.GetComponentInParent<ProjectileBullet>();
+        if (bullet == null || !bullet.enabled) return;
+        if (_held == null || !_held.activeSelf) return;
 
         _thrown = true;
         SetHeld(false);
@@ -212,14 +259,22 @@ public class HeldFleshChunk : MonoBehaviour
 
     // ---------- เลือด ----------
 
-    // ควัก: พุ่งจากตอคอไปข้างหน้ากระสือ เงยนิดหน่อย
+    // ควัก / กระชาก: พุ่งจากตอคอไปทางที่มือดึง เงยนิดหน่อย
+    // มือยังจมอยู่ในคอ (ทิศดึงยังไม่ชัด) → พุ่งไปข้างหน้าตัวที่ถือสคริปต์นี้แทน
     private void PullBlood()
     {
         if (_pullBlood == null) return;
 
-        Vector3 from = _neck != null ? _neck.transform.position : transform.position;
-        BloodFx.Spawn(_pullBlood, from, BloodDirection(), _bloodRotation, _bloodLifetime);
-        if (_logSteps) Debug.Log("[HeldFleshChunk] เลือดตอนควัก", this);
+        FleshStrandAnchor neck = Neck;
+        Vector3 from = neck != null ? neck.transform.position : transform.position;
+
+        Vector3 pull = neck != null && _hand != null ? Vector3.ProjectOnPlane(_hand.position - from, Vector3.up) : Vector3.zero;
+        Vector3 dir = pull.sqrMagnitude > 0.1f * 0.1f
+            ? BloodFx.Tilt(pull, Vector3.up, _bloodUpAngle)
+            : BloodDirection(from);
+
+        BloodFx.Spawn(_pullBlood, from, dir, _bloodRotation, _bloodLifetime);
+        if (_logSteps) Debug.Log("[HeldFleshChunk] เลือดตอนควัก / กระชาก", this);
     }
 
     // ขว้าง: สาดจากมือไปข้างหน้ากระสือ (ทางที่ขว้างไป)
@@ -227,11 +282,17 @@ public class HeldFleshChunk : MonoBehaviour
     {
         if (_throwBlood == null || _hand == null) return;
 
-        BloodFx.Spawn(_throwBlood, _hand.position, BloodDirection(), _bloodRotation, _bloodLifetime);
+        BloodFx.Spawn(_throwBlood, _hand.position, BloodDirection(_hand.position), _bloodRotation, _bloodLifetime);
         if (_logSteps) Debug.Log("[HeldFleshChunk] เลือดตอนขว้าง", this);
     }
 
-    private Vector3 BloodDirection() => BloodFx.Tilt(transform.forward, Vector3.up, _bloodUpAngle);
+    // พุ่งเข้าหากล้อง (ผู้เล่น) เงยนิดหน่อย — ใช้ได้ทั้งบนกระสือและบนแขนผู้เล่น
+    private Vector3 BloodDirection(Vector3 from)
+    {
+        Camera cam = Camera.main;
+        Vector3 toward = cam != null ? cam.transform.position - from : transform.forward;
+        return BloodFx.Tilt(toward, Vector3.up, _bloodUpAngle);
+    }
 
     // ---------- อ่านท่า ----------
 

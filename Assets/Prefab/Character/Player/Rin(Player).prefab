@@ -2880,6 +2880,70 @@ Transform:
   - {fileID: 769166738888883413}
   m_Father: {fileID: 6523883548631400888}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &993619838523029237
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2047505224996190664}
+  - component: {fileID: 2554829698811711524}
+  m_Layer: 0
+  m_Name: 'GloryFleshPull_Krasue '
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2047505224996190664
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 993619838523029237}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2379594060923102107}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2554829698811711524
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 993619838523029237}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 29f2f56df7929ec4c9b21f3717f5454a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeldFleshChunk
+  _animator: {fileID: 3970455072621369329}
+  _clipName: Rin_Glory_Krasue
+  _layer: 0
+  _showAt: 0.63
+  _hideAt: 0.95
+  _chunkPrefab: {fileID: 8224104884699167713, guid: af2c64ce52198d041a69f4d97bda43f4, type: 3}
+  _hand: {fileID: 6777967470199864865}
+  _tailToNeck: 1
+  _offset: {x: 0, y: 0, z: 0}
+  _rotation: {x: 0, y: 0, z: 0}
+  _neck: {fileID: 0}
+  _findNeckRadius: 3
+  _snapDistance: {x: 0.5, y: 0.9}
+  _pullBlood: {fileID: 7188267930824792108, guid: f61ce61c3e2f30d4f9d1d1fd6cd66549, type: 3}
+  _pullBloodAt: 0.631
+  _throwBlood: {fileID: 0}
+  _bloodUpAngle: 25
+  _bloodRotation: {x: 0, y: 0, z: 0}
+  _bloodLifetime: 3
+  _logSteps: 1
 --- !u!1 &998187679989262526
 GameObject:
   m_ObjectHideFlags: 0
@@ -6825,7 +6889,7 @@ Transform:
   m_GameObject: {fileID: 3970923857070277191}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -3.38421, y: 1.7, z: 4.95783}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -10272,6 +10336,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8371500944265945781}
+  - {fileID: 2047505224996190664}
   m_Father: {fileID: 8627954844671174362}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &3970455072621369329
