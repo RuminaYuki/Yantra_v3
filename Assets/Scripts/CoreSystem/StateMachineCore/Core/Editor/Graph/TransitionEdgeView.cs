@@ -15,9 +15,11 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
     {
         public string Id { get; }
         public string Summary { get; }   // "when A and not B", for the right-click menu
-        public bool Removed { get; }     // in this table's _removedIds
+        public bool Removed { get; }     // in this table's _removedIds, or RemovedByState
         public bool Overridden { get; }  // this table uses its own conditions (_transitionOverrides)
         public bool Retargeted { get; }  // this table sends it to another state (_transitionRetargets)
+        // Its From or To state is in this table's _removedStates: off with it, restored only with the state.
+        public bool RemovedByState { get; }
         public IReadOnlyList<StateConditionSO> Conditions { get; }
 
         public InheritedTransition(
@@ -26,13 +28,15 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
             bool removed,
             bool overridden,
             IReadOnlyList<StateConditionSO> conditions,
-            bool retargeted = false)
+            bool retargeted = false,
+            bool removedByState = false)
         {
             Id = id;
             Summary = summary;
-            Removed = removed;
+            Removed = removed || removedByState;
             Overridden = overridden;
             Retargeted = retargeted;
+            RemovedByState = removedByState;
             Conditions = conditions;
         }
     }
@@ -161,7 +165,9 @@ namespace Yuki.Learning.StateMachine.Editor.Graph
 
             if (isInherited)
             {
-                tooltip = IsRemoved
+                tooltip = IsRemoved && InheritedTransitions.Any(item => item.RemovedByState)
+                    ? "From the Base, off because its state is removed in this table. Restore the state to bring it back."
+                    : IsRemoved
                     ? "From the Base, removed in this table. Click to restore it."
                     : IsOverridden
                         ? "From the Base, with conditions overridden in this table. Click to see them."

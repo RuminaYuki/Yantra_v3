@@ -10,20 +10,26 @@ public class StartGrabQTEActionSO : StateActionSO
 {
     [SerializeField] private string _playerTag = "Player";
 
+    [Tooltip("ออกจาก State นี้ก่อนผู้เล่นดิ้นหลุด / แพ้ = ปิด QTE ทิ้ง\n" +
+             "ถ้าจับใน State นี้แล้วไปลากต่อใน State อื่น (QTE ต้องเล่นต่อ) ให้เอาติ๊กออก")]
+    [SerializeField] private bool _stopOnExit = true;
+
     protected override StateAction OnCreateAction(StateMachine stateMachine)
     {
-        return new StartGrabQTEAction(_playerTag);
+        return new StartGrabQTEAction(_playerTag, _stopOnExit);
     }
 }
 
 public class StartGrabQTEAction : StateAction
 {
     private readonly string _playerTag;
+    private readonly bool _stopOnExit;
     private GrabQTEInteractAddition _qte;
 
-    public StartGrabQTEAction(string playerTag)
+    public StartGrabQTEAction(string playerTag, bool stopOnExit)
     {
         _playerTag = playerTag;
+        _stopOnExit = stopOnExit;
     }
 
     public override void Awake(StateMachine stateMachine)
@@ -52,7 +58,7 @@ public class StartGrabQTEAction : StateAction
     // ออกจาก State ก่อนผู้เล่นดิ้นหลุด / แพ้ (เช่น ลากถึงเปรตแล้ว) — ปิด QTE ทิ้ง ไม่ให้ค้างบนจอ
     public override void OnStateExit()
     {
-        if (_qte != null)
+        if (_stopOnExit && _qte != null)
             _qte.StopQTE();
     }
 
