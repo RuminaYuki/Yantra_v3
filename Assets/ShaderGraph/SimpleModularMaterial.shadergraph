@@ -140,6 +140,9 @@
         },
         {
             "m_Id": "7f77ba72142046b7ab3ef7ca8c4581c5"
+        },
+        {
+            "m_Id": "d096fea4c7144234a751cd5aaa1d8fd3"
         }
     ],
     "m_GroupDatas": [
@@ -441,13 +444,13 @@
         {
             "m_OutputSlot": {
                 "m_Node": {
-                    "m_Id": "e9fb2fb6d7574f908bb28fe478e19d80"
+                    "m_Id": "d096fea4c7144234a751cd5aaa1d8fd3"
                 },
                 "m_SlotId": 0
             },
             "m_InputSlot": {
                 "m_Node": {
-                    "m_Id": "7113ea9335c94cf7a930ce7762439c85"
+                    "m_Id": "9ce69d2190494067b936176e7bd8520b"
                 },
                 "m_SlotId": 1
             }
@@ -455,13 +458,13 @@
         {
             "m_OutputSlot": {
                 "m_Node": {
-                    "m_Id": "fcae973debfb4bcc9bed8619b1ca7ce3"
+                    "m_Id": "e9fb2fb6d7574f908bb28fe478e19d80"
                 },
                 "m_SlotId": 0
             },
             "m_InputSlot": {
                 "m_Node": {
-                    "m_Id": "9ce69d2190494067b936176e7bd8520b"
+                    "m_Id": "7113ea9335c94cf7a930ce7762439c85"
                 },
                 "m_SlotId": 1
             }
@@ -973,8 +976,8 @@
     "m_ObjectId": "1a55b7b6bea64c6c9fc0c29e3dc6813e",
     "m_Title": "Mask Map",
     "m_Position": {
-        "x": -1727.000244140625,
-        "y": -36.99998474121094
+        "x": -1727.0,
+        "y": -37.000003814697266
     }
 }
 
@@ -1024,10 +1027,10 @@
         "m_Expanded": true,
         "m_Position": {
             "serializedVersion": "2",
-            "x": -2466.0,
-            "y": 454.9999694824219,
-            "width": 109.000244140625,
-            "height": 34.0
+            "x": -2479.000244140625,
+            "y": 541.0,
+            "width": 109.0,
+            "height": 34.00006103515625
         }
     },
     "m_Slots": [
@@ -1289,7 +1292,7 @@
     "m_ObjectId": "2e5ebd65fea346c4a00ef87a0a7699df",
     "m_Title": "Base Color",
     "m_Position": {
-        "x": -1719.0,
+        "x": -1718.9998779296875,
         "y": -638.0
     }
 }
@@ -1662,8 +1665,8 @@
     "m_ObjectId": "468bcb9cba1b4bd09fa6def3b8804fd6",
     "m_Title": "Tilling/Offset",
     "m_Position": {
-        "x": -2491.0,
-        "y": 263.00006103515625
+        "x": -2504.000244140625,
+        "y": 263.0
     }
 }
 
@@ -1691,7 +1694,7 @@
     "m_ObjectId": "49b9e27fe2a44357b916b27e4021a0ee",
     "m_Title": "Normal Map",
     "m_Position": {
-        "x": -1678.0,
+        "x": -1677.9998779296875,
         "y": 1145.0001220703125
     }
 }
@@ -1961,6 +1964,31 @@
     },
     "m_Labels": [],
     "m_Channel": 0
+}
+
+{
+    "m_SGVersion": 0,
+    "m_Type": "UnityEditor.ShaderGraph.Vector3MaterialSlot",
+    "m_ObjectId": "5b524881f4b64701a84776625b9c25da",
+    "m_Id": 0,
+    "m_DisplayName": "Out",
+    "m_SlotType": 1,
+    "m_Hidden": false,
+    "m_HideConnector": false,
+    "m_ShaderOutputName": "Out",
+    "m_StageCapability": 3,
+    "m_CustomBinding": "",
+    "m_Value": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+    },
+    "m_DefaultValue": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+    },
+    "m_Labels": []
 }
 
 {
@@ -3373,6 +3401,43 @@
         "m_SerializableColors": []
     },
     "m_SerializedDescriptor": "SurfaceDescription.Alpha"
+}
+
+{
+    "m_SGVersion": 1,
+    "m_Type": "UnityEditor.ShaderGraph.PositionNode",
+    "m_ObjectId": "d096fea4c7144234a751cd5aaa1d8fd3",
+    "m_Group": {
+        "m_Id": ""
+    },
+    "m_Name": "Position",
+    "m_DrawState": {
+        "m_Expanded": true,
+        "m_Position": {
+            "serializedVersion": "2",
+            "x": -2784.000244140625,
+            "y": 352.0,
+            "width": 208.0,
+            "height": 314.00006103515625
+        }
+    },
+    "m_Slots": [
+        {
+            "m_Id": "5b524881f4b64701a84776625b9c25da"
+        }
+    ],
+    "synonyms": [
+        "location"
+    ],
+    "m_Precision": 1,
+    "m_PreviewExpanded": true,
+    "m_DismissedVersion": 0,
+    "m_PreviewMode": 2,
+    "m_CustomColors": {
+        "m_SerializableColors": []
+    },
+    "m_Space": 2,
+    "m_PositionSource": 0
 }
 
 {
