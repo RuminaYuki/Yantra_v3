@@ -27,6 +27,26 @@ public class DissolveVFXPlayer : MonoBehaviour
     [SerializeField, Min(0.01f)] private float _duration = 1.5f;
     [SerializeField] private float _visibleAmount = 0f;
     [SerializeField] private float _hiddenAmount = 1f;
+    [Header("เริ่มต้น")]
+    [Tooltip("ติ๊กเพื่อให้โมเดลเริ่มต้นในสถานะสลายแล้ว และใช้ Play Fade In เพื่อให้ค่อยๆ ปรากฏ")]
+    [SerializeField] private bool _startDissolved;
+
+    [Header("Collider")]
+    [Tooltip("ติ๊ก = สลายเสร็จแล้วปิด Collider ด้วย — เดินทะลุได้ / กระสุนไม่โดน / กดโต้ตอบไม่ได้\n" +
+             "กลับมาโผล่ (Reset / Fade In / วนเล่นซ้ำ) จะเปิดคืนให้เอง")]
+    [SerializeField] private bool _disableColliders = true;
+
+    [Tooltip("ติ๊ก = ปิดตั้งแต่เริ่มสลาย ไม่ต้องรอหายหมด (เช่น ผีตาย ไม่อยากให้บังกระสุน / บังทางระหว่างสลาย)")]
+    [SerializeField] private bool _collidersOffAtStart;
+
+    [Tooltip("ปิดตัว Trigger ด้วย (โซนกดโต้ตอบ / โซนเดินเข้า) — ไม่ติ๊ก = ปิดแค่ตัวที่ชนจริง")]
+    [SerializeField] private bool _includeTriggers = true;
+
+    [Tooltip("หา Collider ใต้ตัวไหน (รวมลูกทั้งหมด) — เว้นว่าง = ตัวที่ใส่สคริปต์นี้")]
+    [SerializeField] private Transform _colliderRoot;
+
+    [Tooltip("เว้นว่าง = ปิดทุกตัวที่หาเจอใต้ Collider Root / ใส่เองได้ถ้าอยากปิดเฉพาะบางตัว")]
+    [SerializeField] private Collider[] _colliders = new Collider[0];
 
     [System.Serializable]
     private class EffectSlot
@@ -98,12 +118,15 @@ public class DissolveVFXPlayer : MonoBehaviour
 
     private readonly List<RendererState> _states = new List<RendererState>();
     private readonly List<VFXHandle> _attachedEffects = new List<VFXHandle>();
+    private readonly List<Collider> _disabledColliders = new List<Collider>();
+    private readonly List<Rigidbody> _frozenBodies = new List<Rigidbody>();
     private bool _played;
     private bool _finished;
     private int _amountId;
     private int _runVersion;
     private bool _warnedNoVfxProperty;
 
+    [ContextMenu("Play Dissolve")]
     public void PlayDissolve()
     {
         LogStep($"PlayDissolve ถูกเรียก (เล่นไปแล้ว: {_played})");
@@ -114,6 +137,19 @@ public class DissolveVFXPlayer : MonoBehaviour
         _finished = false;
         _runVersion++;
         StartCoroutine(DissolveRoutine(_runVersion));
+    }
+
+    [ContextMenu("Play Fade In")]
+    public void PlayFadeIn()
+    {
+        if (!isActiveAndEnabled)
+        {
+            Debug.LogWarning("[Dissolve VFX] เปิดใช้งาน Component ก่อนเล่น Fade In", this);
+            return;
+        }
+
+        ResetDissolve();
+        StartCoroutine(AppearRoutine());
     }
 
     private bool PrepareMaterials()
@@ -369,6 +405,8 @@ public class DissolveVFXPlayer : MonoBehaviour
         ApplyAmount(_visibleAmount);
         PlayEffect(_startEffect);
         LogStep("เริ่มจาง: สลับเป็น Material Dissolve แล้ว");
+        if (_collidersOffAtStart)
+            DisableColliders();
         _onDissolveStarted?.Invoke();
         if (!IsCurrentRun(version))
             yield break;
@@ -390,6 +428,7 @@ public class DissolveVFXPlayer : MonoBehaviour
         foreach (RendererState state in _states)
             if (state.Renderer != null)
                 state.Renderer.enabled = false;
+        DisableColliders();
 
         // Hidden renderers no longer need material instances. Keep visibility snapshots for pooling.
         RestoreMaterials();
@@ -450,7 +489,22 @@ public class DissolveVFXPlayer : MonoBehaviour
         }
 
         ApplyAmount(_visibleAmount);
+        PreserveVisibleAmount();
         ResetState();
+    }
+
+    private void PreserveVisibleAmount()
+    {
+        foreach (RendererState state in _states)
+        {
+            for (int i = 0; i < state.OriginalMaterials.Length; i++)
+            {
+                if (state.OriginalMaterials[i] != null &&
+                    state.OriginalBlocks[i] != null &&
+                    SupportsAmount(state.OriginalMaterials[i]))
+                    state.OriginalBlocks[i].SetFloat(_amountId, _visibleAmount);
+            }
+        }
     }
 
     private void PlayEffect(EffectSlot slot)
@@ -601,6 +655,7 @@ public class DissolveVFXPlayer : MonoBehaviour
         }
     }
 
+    [ContextMenu("Reset Dissolve")]
     public void ResetDissolve()
     {
         if (_states.Count > 0)
@@ -618,6 +673,7 @@ public class DissolveVFXPlayer : MonoBehaviour
         foreach (RendererState state in _states)
             if (state.Renderer != null)
                 state.Renderer.enabled = state.OriginalEnabled;
+        RestoreColliders();
         _states.Clear();
         _played = false;
         _finished = false;
@@ -626,8 +682,29 @@ public class DissolveVFXPlayer : MonoBehaviour
     private void OnEnable()
     {
         SetVfxValue(_visibleAmount);
+        if (_startDissolved)
+            StartDissolvedImmediately();
         if (_loop)
             StartCoroutine(LoopRoutine());
+    }
+
+    private void StartDissolvedImmediately()
+    {
+        if (!PrepareMaterials())
+            return;
+
+        foreach (RendererState state in _states)
+        {
+            if (state.Renderer == null)
+                continue;
+            state.Renderer.sharedMaterials = state.RuntimeMaterials;
+            state.MaterialsApplied = true;
+        }
+        ApplyAmount(_hiddenAmount);
+        DisableColliders();
+        _played = true;
+        _finished = true;
+        LogStep("เริ่มต้นในสถานะสลายแล้ว");
     }
 
     private void OnDisable()
@@ -637,10 +714,74 @@ public class DissolveVFXPlayer : MonoBehaviour
         ResetDissolve();
     }
 
+    // ---------- Collider ----------
+
+    // ปิดเฉพาะตัวที่เปิดอยู่ แล้วจำไว้ — ตอนเปิดคืนจะได้ไม่ไปเปิดตัวที่คนอื่นปิดไว้เอง
+    private void DisableColliders()
+    {
+        if (!_disableColliders || _disabledColliders.Count > 0)
+            return;
+
+        Transform root = _colliderRoot != null ? _colliderRoot : transform;
+        Collider[] targets = _colliders != null && _colliders.Length > 0
+            ? _colliders
+            : root.GetComponentsInChildren<Collider>(true);
+
+        foreach (Collider collider in targets)
+        {
+            if (collider == null || !collider.enabled)
+                continue;
+            if (collider.isTrigger && !_includeTriggers)
+                continue;
+            collider.enabled = false;
+            _disabledColliders.Add(collider);
+        }
+
+        // ไม่มี Collider แล้วแต่ยังโดนแรงโน้มถ่วง = ร่วงทะลุพื้น ตอนกลับมาโผล่จะไปอยู่ใต้ดิน — ตรึงไว้ก่อน
+        foreach (Rigidbody body in root.GetComponentsInChildren<Rigidbody>(true))
+        {
+            if (body == null || body.isKinematic)
+                continue;
+            body.isKinematic = true;
+            _frozenBodies.Add(body);
+        }
+
+        LogStep($"ปิด Collider {_disabledColliders.Count} ตัว" + (_frozenBodies.Count > 0 ? $" / ตรึง Rigidbody {_frozenBodies.Count} ตัว" : ""));
+    }
+
+    private void RestoreColliders()
+    {
+        if (_disabledColliders.Count == 0 && _frozenBodies.Count == 0)
+            return;
+
+        foreach (Collider collider in _disabledColliders)
+            if (collider != null)
+                collider.enabled = true;
+        foreach (Rigidbody body in _frozenBodies)
+            if (body != null)
+                body.isKinematic = false;
+
+        LogStep($"เปิด Collider คืน {_disabledColliders.Count} ตัว");
+        _disabledColliders.Clear();
+        _frozenBodies.Clear();
+    }
+
     private void LogStep(string message)
     {
         if (_logSteps)
             Debug.Log($"[Dissolve VFX] {Time.time:0.00}s {name}: {message}", this);
     }
     private void OnDestroy() => ResetDissolve();
+
+    [ContextMenu("Set-up/Find Renderers")]
+    public void FindRenderers()
+    {
+        _renderers = null;
+
+        Renderer[] targets = _visualRoot != null ? _visualRoot.GetComponentsInChildren<Renderer>(true) : GetComponentsInChildren<Renderer>(true);
+        _renderers = new Renderer[targets.Length];
+        for (int i = 0; i < targets.Length; i++)
+            _renderers[i] = targets[i];
+
+    }
 }

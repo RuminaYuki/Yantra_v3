@@ -19,6 +19,9 @@ public class MenuButtonEffect : MonoBehaviour,
     [SerializeField] private Color _normalColor = new(0.65f, 0.65f, 0.65f, 1f);
     [SerializeField] private Color _hoverColor = Color.white;
 
+    [Tooltip("สีตัวหนังสือตอนปุ่มกดไม่ได้ (Interactable ปิด) — ปุ่มที่กดไม่ได้จะไม่ขยาย ไม่เลื่อน ไม่เต้น")]
+    [SerializeField] private Color _disabledColor = new(1f, 1f, 1f, 0.6f);
+
     [Header("Highlight Image (ไม่ใส่ก็ได้)")]
     [Tooltip("Image ลูกของปุ่มที่วางไว้ใต้ตัวหนังสือ — โผล่จางๆ ตอนเมาส์ชี้ / ถูกเลือก")]
     [SerializeField] private Image _highlightImage;
@@ -37,6 +40,7 @@ public class MenuButtonEffect : MonoBehaviour,
 
     private TMP_Text _label;
     private RectTransform _rect;
+    private Selectable _selectable;
     private Vector3 _baseScale;
 
     // ตำแหน่งปุ่มเป็นของ Layout Group — เราแค่ยืมไปเลื่อนตอนถูกเลือก แล้วคืนให้
@@ -54,6 +58,7 @@ public class MenuButtonEffect : MonoBehaviour,
     {
         _rect = GetComponent<RectTransform>();
         _label = GetComponentInChildren<TMP_Text>();
+        _selectable = GetComponent<Selectable>();
         _baseScale = _rect.localScale;
 
         // รูปไม่ควรบังคลิกของปุ่ม
@@ -69,7 +74,7 @@ public class MenuButtonEffect : MonoBehaviour,
         _isHighlighted = false;
 
         _rect.localScale = _baseScale;
-        if (_label != null) _label.color = _normalColor;
+        if (_label != null) _label.color = CanUse ? _normalColor : _disabledColor;
 
         _slide = 0f;
         _enabledFrame = Time.frameCount;
@@ -85,25 +90,35 @@ public class MenuButtonEffect : MonoBehaviour,
         _slide = 0f;
     }
 
+    // ใช้ interactable ของปุ่มเอง ไม่ใช้ IsInteractable()
+    // เพราะตอนหน้าจอกำลัง fade เข้า CanvasGroup ยังกดไม่ได้ ปุ่มทั้งหน้าจะกระพริบเป็นสีเทา
+    private bool CanUse => _selectable == null || _selectable.interactable;
+
     private void Update()
     {
         float dt = Time.unscaledDeltaTime;
         float t = 1f - Mathf.Exp(-_speed * dt);   // ลื่นกว่า Lerp แบบคูณ deltaTime ตรง ๆ
 
-        float targetScale = _isHighlighted ? _hoverScale : 1f;
+        bool canUse = CanUse;
+        bool on = _isHighlighted && canUse;
 
-        if (_isHighlighted && _pulse)
+        float targetScale = on ? _hoverScale : 1f;
+
+        if (on && _pulse)
             targetScale += Mathf.Sin(Time.unscaledTime * _pulseSpeed) * _pulseAmount;
 
         _rect.localScale = Vector3.Lerp(_rect.localScale, _baseScale * targetScale, t);
 
         if (_label != null)
-            _label.color = Color.Lerp(_label.color, _isHighlighted ? _hoverColor : _normalColor, t);
+        {
+            Color target = !canUse ? _disabledColor : on ? _hoverColor : _normalColor;
+            _label.color = Color.Lerp(_label.color, target, t);
+        }
 
-        _highlight = Mathf.Lerp(_highlight, _isHighlighted ? 1f : 0f, t);
+        _highlight = Mathf.Lerp(_highlight, on ? 1f : 0f, t);
         ApplyHighlight();
 
-        UpdateSlide(t);
+        UpdateSlide(t, on);
     }
 
     private void ApplyHighlight()
@@ -118,12 +133,12 @@ public class MenuButtonEffect : MonoBehaviour,
             _highlightImage.fillAmount = _highlight;
     }
 
-    private void UpdateSlide(float t)
+    private void UpdateSlide(float t, bool on)
     {
         // Layout Group จัดตำแหน่งตอนท้ายเฟรม เฟรมแรกหลังเปิดค่ายังไม่ถูก รอไปก่อน
         if (Time.frameCount <= _enabledFrame) return;
 
-        if (!_isHighlighted && _slide < 0.01f)
+        if (!on && _slide < 0.01f)
         {
             // กลับถึงที่แล้ว ปล่อยตำแหน่งคืนให้ Layout Group ไม่ไปแตะอีก
             if (_slide != 0f)
@@ -137,7 +152,7 @@ public class MenuButtonEffect : MonoBehaviour,
         // เพิ่งเริ่มเลื่อน — จำจุดตั้งต้นจากที่ Layout Group วางไว้ตอนนี้
         if (_slide == 0f) _basePosition = _rect.anchoredPosition;
 
-        _slide = Mathf.Lerp(_slide, _isHighlighted ? _slideDistance : 0f, t);
+        _slide = Mathf.Lerp(_slide, on ? _slideDistance : 0f, t);
         _rect.anchoredPosition = _basePosition + new Vector2(_slide, 0f);
     }
 

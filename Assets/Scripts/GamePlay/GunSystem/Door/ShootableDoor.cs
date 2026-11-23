@@ -26,8 +26,12 @@ public class ShootableDoor : MonoBehaviour
 
     private List<RendererMaterialPair> rendererMaterialPairs = new List<RendererMaterialPair>();
 
+    public bool canDissolve = true;
+
     public void OnShot()
     {
+        if (!canDissolve) return;
+
         //doorObject.SetActive(false);
         Collider doorCollider = GetComponent<Collider>();
         if (doorCollider != null)

@@ -16,6 +16,7 @@ public class Sequence : MonoBehaviour
 
     Coroutine routine;
 
+    [ContextMenu("Play Sequence")]
     public void Play()
     {
         if (IsPlaying) return;

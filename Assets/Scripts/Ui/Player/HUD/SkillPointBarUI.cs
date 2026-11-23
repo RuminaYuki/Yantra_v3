@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,15 +10,19 @@ using UnityEngine.UI;
 /// ตาม GDD: Ap ถึงเกณฑ์ = ปืนยิงกระสุนต้องคำสาป ดาเมจหนัก
 /// เห็นเป็นช่องแล้วนับได้ทันทีว่าเหลืออีกกี่ครั้ง
 ///
-/// พอเต็ม: แสงวิ่งจากซ้ายไปขวา ช่องทั้งหมดรวมเป็นแถบเดียว → เด้ง + สั่น
-/// แล้วไอคอนปืนตกลงมาใต้แถบ บอกว่ายิงได้แล้ว ระหว่างรอยิงมีแสงวิ่งผ่านแถบเป็นระยะ
+/// ช่องไล่ขนาดจากเล็ก (ซ้าย) ไปใหญ่ (ขวา) — พลังกำลังโต อยู่ในกรอบหลอดเกจ (พื้นเข้ม + เส้นขอบ) เห็นชัดทั้งฉากมืดและสว่าง
+/// ได้ SP = แถบสั่น ได้เยอะทีเดียวหรือได้ถี่ ๆ ยิ่งสั่นแรง และยิ่งใกล้เต็มยิ่งแรง
+/// พอเต็ม: แสงวิ่งจากซ้ายไปขวา ช่องทั้งหมดรวมเป็นแถบเดียว (ทรงเดียวกับช่อง) → เด้ง + สั่น
+/// แล้วไอคอนปืนตกลงมาใต้แถบ ระหว่างรอยิงมีแสงวิ่งผ่านแถบเป็นระยะ
 /// ยิงไปแล้ว (SP ลด) แถบรวมหดกลับ เหลือเป็นช่องเหมือนเดิม
 ///
-/// โค้ดสร้างแถบเติม แถบรวม แสงวิ่ง และกรอบเด้งให้เอง ไม่ต้องสร้างใน Hierarchy
+/// โค้ดสร้างแถบเติม กรอบหลอด แถบรวม และกรอบเด้งให้เอง ไม่ต้องสร้างใน Hierarchy
 /// แปะบน GameObject ที่จะเป็นแถวของช่อง (ควรมี Horizontal Layout Group)
 /// </summary>
 public class SkillPointBarUI : MonoBehaviour
 {
+    public enum SlotAlign { Bottom, Center, Top }
+
     [Header("Source")]
     [Tooltip("เว้นว่างได้ จะหาจาก tag Player ให้เอง")]
     [SerializeField] private SkillPoints _skillPoints;
@@ -34,8 +39,38 @@ public class SkillPointBarUI : MonoBehaviour
     [Tooltip("ช่องทั้งหมด เรียงจากซ้ายไปขวา")]
     [SerializeField] private Image[] _slots;
 
+    [Header("ขนาดช่อง เล็ก → ใหญ่")]
+    [Tooltip("ช่องแรก (ซ้ายสุด) หนากี่เท่าของช่องสุดท้าย — 1 = เท่ากันหมด")]
+    [SerializeField, Range(0.1f, 1f)] private float _firstSlotSize = 0.45f;
+
+    [Tooltip("โค้งของการไล่ขนาด — 1 = ไล่เท่า ๆ กัน / มากกว่า 1 = ช่องท้าย ๆ ใหญ่ขึ้นเร็ว")]
+    [SerializeField, Range(0.3f, 3f)] private float _sizeCurve = 1.4f;
+
+    [Tooltip("ช่องชิดขอบไหน — Bottom = ขอบล่างตรง / Center = เรียวทั้งบนล่าง / Top = ขอบบนตรง")]
+    [SerializeField] private SlotAlign _slotAlign = SlotAlign.Center;
+
+    [Tooltip("หลอดหนาขึ้นกี่เท่าจากขนาดช่องที่ตั้งไว้ — ไม่ต้องไปแก้ขนาดช่องทีละอัน")]
+    [SerializeField, Range(0.5f, 5f)] private float _thickness = 2.5f;
+
+    [Header("กรอบหลอดเกจ")]
+    [Tooltip("มีพื้นหลังเข้ม + เส้นขอบรอบหลอด ทรงตามช่อง (เล็กไปใหญ่ก็ตาม)")]
+    [SerializeField] private bool _showFrame = true;
+
+    [Tooltip("พื้นหลังหลอด — สีเข้มเกือบทึบ ให้เห็นชัดในฉากสว่าง\n(HDRP ผสมสีแบบ Linear ค่า A ต่ำ ๆ จะดูเป็นสีเทาจาง)")]
+    [SerializeField] private Color _gaugeBackColor = new(0.045f, 0.035f, 0.03f, 0.95f);
+
+    [Tooltip("พื้นหลังเลยขอบช่องออกไปกี่พิกเซล")]
+    [SerializeField, Min(0f)] private float _framePadding = 3f;
+
+    [Tooltip("เส้นขอบรอบนอก — สีสว่างทึบ ให้เห็นชัดในฉากมืด")]
+    [SerializeField] private Color _gaugeLineColor = new(0.8f, 0.68f, 0.48f, 1f);
+
+    [Tooltip("เส้นขอบหนากี่พิกเซล — 0 = ไม่มีเส้นขอบ")]
+    [SerializeField, Min(0f)] private float _borderWidth = 1.5f;
+
     [Header("Colors")]
-    [SerializeField] private Color _emptyColor = new(1f, 1f, 1f, 0.15f);
+    [Tooltip("สีช่องที่ยังว่าง — ใช้สีทึบ (A = 255)\nHDRP ผสมสีแบบ Linear สีโปร่งแสงจะดูจางกว่าที่ตั้งไว้มาก โดยเฉพาะในฉากสว่าง")]
+    [SerializeField] private Color _emptySlotColor = new(0.29f, 0.27f, 0.25f, 1f);
     [SerializeField] private Color _filledColor = new(0.94f, 0.62f, 0.15f, 1f);
 
     [Tooltip("สีตอนเต็ม = ปืนพร้อมยิงกระสุนพิเศษ")]
@@ -54,6 +89,35 @@ public class SkillPointBarUI : MonoBehaviour
     [SerializeField] private Color _flashColor = new(1f, 0.95f, 0.75f, 1f);
     [SerializeField] private float _flashTime = 0.25f;
 
+    [Header("สั่นตอนได้ SP")]
+    [Tooltip("แรงสั่นต่อ 'ความร้อน' 1 หน่วย (พิกเซล) — ได้ SP แต่ละครั้งเพิ่มความร้อน แล้วค่อย ๆ เย็นลง")]
+    [SerializeField, Min(0f)] private float _gainShakeStrength = 2.5f;
+
+    [Tooltip("สั่นแรงสุดได้แค่นี้ (พิกเซล)")]
+    [SerializeField, Min(0f)] private float _gainShakeMax = 9f;
+
+    [Tooltip("ความถี่: ได้ SP หนึ่งครั้งเพิ่มความร้อนเท่านี้ — ต่อยรัว ๆ ความร้อนสะสม ยิ่งสั่นแรง")]
+    [SerializeField, Min(0f)] private float _heatPerHit = 0.6f;
+
+    [Tooltip("จำนวน: ได้ SP 1 ช่องเต็ม เพิ่มความร้อนเท่านี้ — ได้เยอะทีเดียว ยิ่งสั่นแรง")]
+    [SerializeField, Min(0f)] private float _heatPerSlot = 1f;
+
+    [Tooltip("ความร้อนสะสมได้สูงสุดเท่านี้")]
+    [SerializeField, Min(0.1f)] private float _maxHeat = 4f;
+
+    [Tooltip("ความร้อนเย็นลงเร็วแค่ไหน (วินาที) — มาก = ต่อยห่าง ๆ ก็ยังสะสมได้")]
+    [SerializeField, Min(0.05f)] private float _heatDecay = 0.35f;
+
+    [Tooltip("ตอนแถบเกือบเต็ม สั่นแรงกว่าตอนแถบว่างกี่เท่า")]
+    [SerializeField, Min(1f)] private float _shakeAtFull = 1.8f;
+
+    [Tooltip("ตอนร้อนสุด แถบเอียงไปมาได้กี่องศา — 0 = ไม่เอียง")]
+    [SerializeField, Range(0f, 8f)] private float _gainTilt = 1.5f;
+
+    [Tooltip("ช่องที่เพิ่งได้ SP พองหนาขึ้นกี่ส่วน (0.6 = 60%)")]
+    [SerializeField, Min(0f)] private float _gainSlotPunch = 0.6f;
+    [SerializeField, Min(0.01f)] private float _gainPunchTime = 0.2f;
+
     [Header("Ready Pulse")]
     [Tooltip("ให้แถบเต้นเบา ๆ ตอนเต็ม เพื่อบอกว่าพร้อมยิงแล้ว")]
     [SerializeField] private bool _pulseWhenReady = true;
@@ -63,9 +127,6 @@ public class SkillPointBarUI : MonoBehaviour
     [Header("รวมเป็นแถบเดียวตอนเต็ม")]
     [Tooltip("ติ๊ก = SP เต็มแล้วช่องทั้งหมดรวมเป็นแถบเดียว / ไม่ติ๊ก = เป็นช่องเหมือนเดิม")]
     [SerializeField] private bool _mergeWhenFull = true;
-
-    [Tooltip("รูปของแถบรวม — เว้นว่าง = ใช้รูปเดียวกับช่อง")]
-    [SerializeField] private Sprite _mergedSprite;
 
     [Tooltip("แสงวิ่งรวมช่องจากซ้ายไปขวาภายในกี่วินาที")]
     [SerializeField, Min(0.01f)] private float _mergeTime = 0.22f;
@@ -93,7 +154,7 @@ public class SkillPointBarUI : MonoBehaviour
     [SerializeField] private float _echoThickness = 2.5f;
     [SerializeField] private Color _echoColor = new(1f, 0.93f, 0.67f, 0.85f);
 
-    [Header("สั่น (แถบรวม + ไอคอน)")]
+    [Header("สั่นตอนเต็ม")]
     [Tooltip("ตอนรวมเสร็จ สั่นแรงแค่ไหน (พิกเซล)")]
     [SerializeField, Min(0f)] private float _shakeStrength = 6f;
     [SerializeField, Min(0.01f)] private float _shakeDuration = 0.4f;
@@ -101,7 +162,7 @@ public class SkillPointBarUI : MonoBehaviour
     [Tooltip("สั่นเบา ๆ ค้างไว้ตลอดที่เต็ม (พิกเซล) — 0 = ไม่สั่น")]
     [SerializeField, Min(0f)] private float _holdShake = 0.6f;
 
-    [Tooltip("สั่นถี่แค่ไหน")]
+    [Tooltip("สั่นถี่แค่ไหน — ตอนได้ SP รัว ๆ จะถี่ขึ้นเองอีก")]
     [SerializeField, Min(1f)] private float _shakeFrequency = 28f;
 
     [Header("แสงวิ่งผ่านแถบ")]
@@ -181,6 +242,11 @@ public class SkillPointBarUI : MonoBehaviour
     private float _flashTimer;
     private int _flashSlot = -1;
 
+    private float _heat;
+    private int _punchSlot = -1;
+    private float _punchTimer;
+    private float _shakePhase;
+
     private bool _popped;
     private float _popTimer = -1f;      // ช่วงแสงวิ่งรวมช่อง
     private float _impactTimer = -1f;   // นับจากตอนรวมเสร็จ — เด้ง / วาบ / สั่น
@@ -189,17 +255,38 @@ public class SkillPointBarUI : MonoBehaviour
     private float _shineTimer;
 
     private Vector3[] _slotScales;
-    private Vector2 _spanCenter;
+    private Vector2[] _slotMin;         // ขอบเขตของแต่ละช่องในพิกัดของแถว
+    private Vector2[] _slotMax;
+    private Vector2 _spanMid;           // กลางของช่องทั้งหมด ในพิกัดของแถว
+    private Vector2 _spanCenter;        // ตัวเดียวกัน แต่นับจากมุมล่างซ้ายของแถว (ใช้วางลูก)
     private Vector2 _spanSize;
+    private readonly List<Vector3> _profile = new();
+
+    // ขนาดช่องแบบไม่นับตอนพอง/เด้ง — กรอบใช้อันนี้ จะได้ไม่บวมตามตอนได้ SP
+    private float[] _slotTransient;
+    private Vector2[] _baseMin;
+    private Vector2[] _baseMax;
+    private Vector2 _baseMid;
+    private Vector2 _baseCenter;
+    private Vector2 _baseSize;
+    private readonly List<Vector3> _frameProfile = new();
+
+    private RectTransform _trackRect;
+    private SPWedgeBar _track;
 
     private RectTransform _merged;
-    private Image _bar;
-    private RectTransform _barRect;
-    private Image _shine;
-    private RectTransform _shineRect;
+    private SPWedgeBar _bar;
 
     private RectTransform _echo;
     private Image[] _echoLines;
+
+    // สั่นทั้งแถว — จำจุดเดิมไว้ ถ้า Layout ย้ายแถวไประหว่างนั้นจะนับจุดใหม่เอง
+    private bool _shakeBaseSaved;
+    private bool _rowShaken;
+    private Vector3 _shakeBasePos;
+    private Quaternion _shakeBaseRot = Quaternion.identity;
+    private Vector3 _shakeSetPos;
+    private Quaternion _shakeSetRot = Quaternion.identity;
 
     private float _iconAlpha;
     private float _iconTimer = -1f;
@@ -221,6 +308,7 @@ public class SkillPointBarUI : MonoBehaviour
     private bool _gateSearched;
 
     private static readonly Vector3[] _corners = new Vector3[4];
+    private static readonly System.Comparison<Vector3> _byX = (a, b) => a.x.CompareTo(b.x);
 
     private void Awake()
     {
@@ -234,6 +322,13 @@ public class SkillPointBarUI : MonoBehaviour
     private void OnDisable()
     {
         // ปิดกลางคันตอนกำลังสั่น — คืนตำแหน่งเดิมไว้
+        if (_rowShaken)
+        {
+            transform.localPosition = _shakeBasePos;
+            transform.localRotation = _shakeBaseRot;
+            _rowShaken = false;
+        }
+
         if (_iconSaved && _readyIcon != null)
         {
             _readyIcon.rectTransform.anchoredPosition = _iconBasePos;
@@ -266,16 +361,16 @@ public class SkillPointBarUI : MonoBehaviour
         bool isReady = current >= max;
         bool firstRead = _lastValue < 0f;
 
-        if (!firstRead && current > _lastValue + 0.0001f && _flashOnGain)
-        {
-            _flashSlot = Mathf.Min(_slots.Length - 1, Mathf.FloorToInt(target - 0.0001f));
-            _flashTimer = _flashTime;
-        }
+        if (!firstRead && current > _lastValue + 0.0001f)
+            OnGain((current - _lastValue) / perSlot, target);
         _lastValue = current;
 
         // ลดลง (ใช้ SP) = หายทันที / เพิ่มขึ้น = วิ่งตาม
         _shown = _shown < 0f || target < _shown ? target : Mathf.MoveTowards(_shown, target, _fillSpeed * dt);
         _flashTimer = Mathf.Max(0f, _flashTimer - dt);
+        _punchTimer = Mathf.Max(0f, _punchTimer - dt);
+        _heat *= Mathf.Exp(-dt / _heatDecay);
+        if (_heat < 0.01f) _heat = 0f;
 
         // นับว่าเต็มตอนแถบวิ่งไปถึงจริง ไม่ใช่ตอนค่าเต็ม — เด้งพร้อมภาพ
         // แถบถูกซ่อนอยู่ (ยังไม่ได้ปืน / HUD ซ่อน) = ไม่เด้ง ไม่มีเสียง พอโผล่กลับมาแล้วค่อยเด้ง
@@ -286,14 +381,12 @@ public class SkillPointBarUI : MonoBehaviour
         bool merged = _mergeWhenFull && _popped;
         if (!merged) _merge = Mathf.MoveTowards(_merge, 0f, dt / _breakTime);
 
-        MeasureSpan();
-        Vector2 shake = ShakeOffset();
         float bump = PopBump();
         float popFlash = _impactTimer >= 0f && _impactTimer < _popFlashTime ? 1f - _impactTimer / _popFlashTime : 0f;
 
         // แถบรวมเด้งทั้งหนาและยาว / ถ้าไม่รวม ช่องพองหนาแบบเดิม
         Vector2 barScale = new(1f + (_popStretch - 1f) * bump, 1f + (_popThickness - 1f) * bump);
-        float slotThickness = _mergeWhenFull ? 1f : barScale.y;
+        float popThickness = _mergeWhenFull ? 1f : barScale.y;
 
         // รวมเสร็จแล้วซ่อนช่องไว้ข้างใต้ — ใช้สีใสแทนการปิด Image ไม่งั้น Layout คำนวณขนาดช่องใหม่
         bool hideSlots = merged && _merge >= 1f;
@@ -314,21 +407,115 @@ public class SkillPointBarUI : MonoBehaviour
             if (popFlash > 0f)
                 color = Color.Lerp(color, Color.white, popFlash);
 
-            _slots[i].color = hideSlots ? Color.clear : _emptyColor;   // ตัวช่องเป็นพื้นหลัง
+            _slots[i].color = hideSlots ? Color.clear : _emptySlotColor;   // ตัวช่องเป็นพื้นหลัง
             _fills[i].fillAmount = amount;
             _fills[i].color = color;
             _fills[i].enabled = !hideSlots && amount > 0f;
 
+            float transient = popThickness * SlotPunch(i);
+            _slotTransient[i] = transient;
+
             Vector3 scale = _slotScales[i];
-            scale.y *= slotThickness;
+            scale.y *= SlotSize(i) * _thickness * transient;
             _slots[i].rectTransform.localScale = scale;
         }
 
-        UpdateMerged(dt, merged, barScale, popFlash, shake);
-        UpdateEcho(barScale, shake);
+        MeasureSlots();
+        UpdateFrame();
+        Vector2 shake = UpdateShake(dt);
+        UpdateMerged(dt, merged, barScale, popFlash);
+        UpdateEcho(barScale);
         UpdateReadyIcon(full, dt, shake);
         UpdateReadyText(full, shake);
         UpdateCallout();
+    }
+
+    // ---------- ได้ SP ----------
+
+    // ได้เยอะทีเดียว (จำนวน) หรือได้ถี่ ๆ (ความถี่) = ความร้อนขึ้นมาก = สั่นแรง
+    private void OnGain(float slotsGained, float target)
+    {
+        int slot = Mathf.Clamp(Mathf.FloorToInt(target - 0.0001f), 0, _slots.Length - 1);
+
+        if (_flashOnGain)
+        {
+            _flashSlot = slot;
+            _flashTimer = _flashTime;
+        }
+
+        _punchSlot = slot;
+        _punchTimer = _gainPunchTime;
+        _heat = Mathf.Min(_maxHeat, _heat + _heatPerHit + Mathf.Max(0f, slotsGained) * _heatPerSlot);
+    }
+
+    // ช่องซ้ายเล็ก ไล่ไปขวาใหญ่
+    private float SlotSize(int i)
+    {
+        if (_slots.Length <= 1) return 1f;
+        float t = i / (_slots.Length - 1f);
+        return Mathf.Lerp(_firstSlotSize, 1f, Mathf.Pow(t, _sizeCurve));
+    }
+
+    private float SlotPunch(int i)
+    {
+        if (i != _punchSlot || _punchTimer <= 0f) return 1f;
+        float k = _punchTimer / _gainPunchTime;
+        return 1f + _gainSlotPunch * k * k;
+    }
+
+    // สั่นทั้งแถว: ได้ SP (ตามความร้อน) + ตอนรวมเสร็จ + สั่นค้างตอนรอยิง
+    private Vector2 UpdateShake(float dt)
+    {
+        float fill = Mathf.Clamp01(_shown / _slots.Length);
+        float heat01 = Mathf.Clamp01(_heat / _maxHeat);
+
+        float amp = Mathf.Min(_gainShakeMax, _gainShakeStrength * _heat * Mathf.Lerp(1f, _shakeAtFull, fill));
+
+        float fullAmp = 0f;
+        if (_impactTimer >= 0f && _impactTimer < _shakeDuration)
+        {
+            float k = 1f - _impactTimer / _shakeDuration;
+            fullAmp = _shakeStrength * k * k;
+        }
+        if (_popped && _popTimer < 0f)
+            fullAmp = Mathf.Max(fullAmp, _holdShake);
+
+        amp += fullAmp;
+
+        // ร้อนมาก = สั่นถี่ขึ้นด้วย
+        _shakePhase += dt * _shakeFrequency * (1f + 0.6f * heat01);
+        if (_shakePhase > 10000f) _shakePhase -= 10000f;
+
+        Vector2 offset = Vector2.zero;
+        float tilt = 0f;
+        if (amp > 0.001f)
+        {
+            float p = _shakePhase;
+            offset = new Vector2(Mathf.PerlinNoise(p, 0.37f) - 0.5f, Mathf.PerlinNoise(0.71f, p) - 0.5f) * (2f * amp);
+            tilt = (Mathf.PerlinNoise(p * 0.8f, 5.3f) - 0.5f) * 2f * _gainTilt * heat01;
+        }
+
+        ApplyRowShake(offset, tilt);
+        return offset;
+    }
+
+    private void ApplyRowShake(Vector2 offset, float tilt)
+    {
+        bool shaking = offset.sqrMagnitude > 0.000001f || Mathf.Abs(tilt) > 0.0001f;
+        if (!shaking && !_rowShaken) return;   // นิ่งอยู่แล้ว ไม่ต้องเขียนทับทุกเฟรม
+
+        Transform t = transform;
+
+        // Layout ย้ายแถวไประหว่างสั่น → ใช้ตำแหน่งใหม่เป็นจุดเดิม
+        if (!_shakeBaseSaved || t.localPosition != _shakeSetPos) _shakeBasePos = t.localPosition;
+        if (!_shakeBaseSaved || t.localRotation != _shakeSetRot) _shakeBaseRot = t.localRotation;
+        _shakeBaseSaved = true;
+
+        _shakeSetPos = _shakeBasePos + new Vector3(offset.x, offset.y, 0f);
+        _shakeSetRot = _shakeBaseRot * Quaternion.Euler(0f, 0f, tilt);
+        t.localPosition = _shakeSetPos;
+        t.localRotation = _shakeSetRot;
+        _rowShaken = shaking;
     }
 
     // ---------- เต็ม: วิ่งรวม → เด้ง ----------
@@ -422,29 +609,9 @@ public class SkillPointBarUI : MonoBehaviour
         return Mathf.Sin(k * Mathf.PI * 2.5f) * decay / 0.64f;
     }
 
-    // สั่นแรงตอนรวมเสร็จแล้วค่อย ๆ เบาลง / ระหว่างรอยิงสั่นเบา ๆ ค้างไว้
-    private Vector2 ShakeOffset()
-    {
-        float amp = 0f;
-
-        if (_impactTimer >= 0f && _impactTimer < _shakeDuration)
-        {
-            float k = 1f - _impactTimer / _shakeDuration;
-            amp = _shakeStrength * k * k;
-        }
-
-        if (_popped && _popTimer < 0f)
-            amp = Mathf.Max(amp, _holdShake);
-
-        if (amp <= 0f) return Vector2.zero;
-
-        float t = Time.unscaledTime * _shakeFrequency;
-        return new Vector2(Mathf.PerlinNoise(t, 0.37f) - 0.5f, Mathf.PerlinNoise(0.71f, t) - 0.5f) * (2f * amp);
-    }
-
     // ---------- แถบรวม ----------
 
-    private void UpdateMerged(float dt, bool merged, Vector2 barScale, float popFlash, Vector2 shake)
+    private void UpdateMerged(float dt, bool merged, Vector2 barScale, float popFlash)
     {
         bool show = _mergeWhenFull && (merged || _merge > 0.001f);
         if (!show)
@@ -456,13 +623,12 @@ public class SkillPointBarUI : MonoBehaviour
         EnsureMerged();
         if (!_merged.gameObject.activeSelf) _merged.gameObject.SetActive(true);
 
-        _merged.anchoredPosition = _spanCenter + shake;
+        _merged.anchoredPosition = _spanCenter;
         _merged.sizeDelta = _spanSize;
         _merged.localScale = new Vector3(barScale.x, barScale.y, 1f);
 
         // วิ่งจากซ้ายไปขวาตอนรวม / หดจากขวาไปซ้ายตอนยิงแล้ว
         float reveal = Smooth(_merge);
-        _barRect.anchorMax = new Vector2(reveal, 1f);
 
         Color color = ApplyPulse(_readyColor);
         float whiten = merged && _merge < 1f ? 0.45f : popFlash;   // ตอนวิ่งรวมสว่างกว่าปกติ
@@ -470,23 +636,14 @@ public class SkillPointBarUI : MonoBehaviour
         if (!merged) color.a *= reveal;
         _bar.color = color;
 
-        UpdateShine(dt, merged, reveal);
-    }
-
-    private void UpdateShine(float dt, bool merged, float reveal)
-    {
-        float width = _spanSize.x;
-        float shineWidth = Mathf.Max(4f, width * _shineWidth);
-        _shineRect.sizeDelta = new Vector2(shineWidth, _spanSize.y * 4f);
-
-        float x = 0f;
-        float alpha = 0f;
+        float shinePos = -1f;
+        float shineAlpha = 0f;
 
         if (merged && _merge < 1f)
         {
             // หัวแสงนำหน้าตอนวิ่งรวมช่อง
-            x = reveal * width - shineWidth * 0.25f;
-            alpha = 1f;
+            shinePos = reveal - _shineWidth * 0.25f;
+            shineAlpha = 1f;
         }
         else if (merged && _shineInterval > 0f)
         {
@@ -496,84 +653,179 @@ public class SkillPointBarUI : MonoBehaviour
             float p = (_shineTimer - (period - _shineDuration)) / _shineDuration;
             if (p >= 0f)
             {
-                x = Mathf.Lerp(-shineWidth, width + shineWidth, p);
-                alpha = _shineAlpha;
+                shinePos = Mathf.Lerp(-_shineWidth, 1f + _shineWidth, p);
+                shineAlpha = _shineAlpha;
             }
         }
 
-        _shineRect.anchoredPosition = new Vector2(x, 0f);
-        _shine.color = new Color(1f, 1f, 1f, alpha);
-        _shine.enabled = alpha > 0.001f;
+        float slant = Mathf.Tan(_shineAngle * Mathf.Deg2Rad) * _spanSize.y * 0.5f / Mathf.Max(1f, _spanSize.x);
+
+        BuildProfile(_profile, _slotMin, _slotMax, _spanMid, _spanSize.x * 0.5f, 0f);
+        _bar.SetState(_profile, reveal, shinePos, _shineWidth, shineAlpha, slant);
     }
 
-    // ขอบเขตของช่องทั้งหมดในพิกัดของแถว — แถบรวมกับกรอบเด้งวางทับตรงนี้
-    private void MeasureSpan()
+    // ขอบเขตของแต่ละช่องในพิกัดของแถว — แถบรวมกับกรอบเด้งใช้ตรงนี้
+    private void MeasureSlots()
     {
         var row = transform as RectTransform;
         if (row == null) return;
 
+        if (_slotMin == null || _slotMin.Length != _slots.Length)
+        {
+            _slotMin = new Vector2[_slots.Length];
+            _slotMax = new Vector2[_slots.Length];
+            _baseMin = new Vector2[_slots.Length];
+            _baseMax = new Vector2[_slots.Length];
+        }
+
         Vector2 min = new(float.MaxValue, float.MaxValue);
         Vector2 max = new(float.MinValue, float.MinValue);
+        Vector2 baseMin = min;
+        Vector2 baseMax = max;
         bool any = false;
 
-        foreach (Image slot in _slots)
+        for (int i = 0; i < _slots.Length; i++)
         {
-            if (slot == null) continue;
+            if (_slots[i] == null) continue;
 
-            slot.rectTransform.GetWorldCorners(_corners);
+            Vector2 slotMin = new(float.MaxValue, float.MaxValue);
+            Vector2 slotMax = new(float.MinValue, float.MinValue);
+            _slots[i].rectTransform.GetWorldCorners(_corners);
             for (int c = 0; c < 4; c++)
             {
                 Vector2 p = row.InverseTransformPoint(_corners[c]);
-                min = Vector2.Min(min, p);
-                max = Vector2.Max(max, p);
+                slotMin = Vector2.Min(slotMin, p);
+                slotMax = Vector2.Max(slotMax, p);
             }
+
+            _slotMin[i] = slotMin;
+            _slotMax[i] = slotMax;
+            min = Vector2.Min(min, slotMin);
+            max = Vector2.Max(max, slotMax);
+
+            // ถอดส่วนที่พองชั่วคราวออก — หดกลับเข้าหาขอบที่เลือกชิดไว้
+            float transient = Mathf.Max(0.01f, _slotTransient[i]);
+            float height = (slotMax.y - slotMin.y) / transient;
+            Vector2 bMin = slotMin;
+            Vector2 bMax = slotMax;
+            if (_slotAlign == SlotAlign.Bottom) bMax.y = slotMin.y + height;
+            else if (_slotAlign == SlotAlign.Top) bMin.y = slotMax.y - height;
+            else
+            {
+                float mid = (slotMin.y + slotMax.y) * 0.5f;
+                bMin.y = mid - height * 0.5f;
+                bMax.y = mid + height * 0.5f;
+            }
+
+            _baseMin[i] = bMin;
+            _baseMax[i] = bMax;
+            baseMin = Vector2.Min(baseMin, bMin);
+            baseMax = Vector2.Max(baseMax, bMax);
             any = true;
         }
 
         if (!any)
         {
-            min = row.rect.min;
-            max = row.rect.max;
+            min = baseMin = row.rect.min;
+            max = baseMax = row.rect.max;
         }
 
         _spanSize = max - min;
-        _spanCenter = (min + max) * 0.5f - row.rect.min;
+        _spanMid = (min + max) * 0.5f;
+        _spanCenter = _spanMid - row.rect.min;
+
+        _baseSize = baseMax - baseMin;
+        _baseMid = (baseMin + baseMax) * 0.5f;
+        _baseCenter = _baseMid - row.rect.min;
     }
 
-    // แถบรวมกับแสงวิ่งอยู่ใน RectMask2D แสงจะได้ไม่ล้นออกนอกแถบ / Ignore Layout ไม่ให้ Layout Group นับเป็นช่อง
+    // ทรงตามช่อง = ลากผ่านกลางทุกช่อง ขอบบนล่างตามช่องจริง (เล็กไปใหญ่ก็ตามได้) / expand = ขยายออกรอบด้าน
+    private void BuildProfile(List<Vector3> output, Vector2[] mins, Vector2[] maxs, Vector2 mid, float halfWidth, float expand)
+    {
+        output.Clear();
+
+        for (int i = 0; i < _slots.Length; i++)
+        {
+            if (_slots[i] == null) continue;
+
+            Vector2 min = mins[i] - mid;
+            Vector2 max = maxs[i] - mid;
+            output.Add(new Vector3((min.x + max.x) * 0.5f, min.y - expand, max.y + expand));
+        }
+
+        if (output.Count == 0) return;
+
+        output.Sort(_byX);
+
+        // ต่อปลายซ้ายขวาให้ถึงขอบช่องแรก / ช่องสุดท้าย
+        Vector3 head = output[0];
+        Vector3 tail = output[^1];
+        float half = halfWidth + expand;
+        output.Insert(0, new Vector3(-half, head.y, head.z));
+        output.Add(new Vector3(half, tail.y, tail.z));
+    }
+
+    // ---------- กรอบหลอด ----------
+
+    // พื้นหลังเข้ม (เห็นในฉากสว่าง) + เส้นขอบสว่าง (เห็นในฉากมืด) วางไว้หลังช่อง
+    // ขอบกับพื้นอยู่ใน mesh เดียวกัน — ขอบอยู่ข้างหลังพื้นเสมอ
+    private void UpdateFrame()
+    {
+        if (!_showFrame)
+        {
+            if (_trackRect != null && _trackRect.gameObject.activeSelf) _trackRect.gameObject.SetActive(false);
+            return;
+        }
+
+        EnsureFrame();
+        if (!_trackRect.gameObject.activeSelf) _trackRect.gameObject.SetActive(true);
+
+        PlaceFrame(_trackRect, _framePadding + _borderWidth);
+        BuildProfile(_frameProfile, _baseMin, _baseMax, _baseMid, _baseSize.x * 0.5f, _framePadding);
+        _track.color = _gaugeBackColor;
+        _track.SetOutline(_borderWidth, _gaugeLineColor);
+        _track.SetState(_frameProfile, 1f, -1f, 0.1f, 0f, 0f);
+    }
+
+    private void PlaceFrame(RectTransform rt, float expand)
+    {
+        rt.anchoredPosition = _baseCenter;
+        rt.sizeDelta = _baseSize + Vector2.one * (expand * 2f);
+    }
+
+    private void EnsureFrame()
+    {
+        if (_trackRect != null) return;
+
+        // ลูกตัวแรก = วาดก่อน อยู่หลังช่องทั้งหมด
+        _track = CreateWedge("SPGauge", out _trackRect);
+        _trackRect.SetAsFirstSibling();
+    }
+
+    private SPWedgeBar CreateWedge(string objectName, out RectTransform rect)
+    {
+        var go = new GameObject(objectName, typeof(RectTransform), typeof(CanvasRenderer), typeof(LayoutElement), typeof(SPWedgeBar));
+        go.layer = gameObject.layer;
+        go.GetComponent<LayoutElement>().ignoreLayout = true;   // ไม่ให้ Layout Group นับเป็นช่อง
+
+        rect = (RectTransform)go.transform;
+        rect.SetParent(transform, false);
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.zero;
+        rect.pivot = new Vector2(0.5f, 0.5f);
+
+        var wedge = go.GetComponent<SPWedgeBar>();
+        wedge.raycastTarget = false;
+        return wedge;
+    }
+
     private void EnsureMerged()
     {
         if (_merged != null) return;
 
-        var go = new GameObject("SPMerged", typeof(RectTransform), typeof(LayoutElement), typeof(RectMask2D));
-        go.layer = gameObject.layer;
-        go.GetComponent<LayoutElement>().ignoreLayout = true;
-
-        _merged = (RectTransform)go.transform;
-        _merged.SetParent(transform, false);
-        _merged.anchorMin = Vector2.zero;
-        _merged.anchorMax = Vector2.zero;
-        _merged.pivot = new Vector2(0.5f, 0.5f);
+        _bar = CreateWedge("SPMerged", out _merged);
         _merged.SetAsLastSibling();
         if (_echo != null) _echo.SetAsLastSibling();
-
-        Sprite sprite = _mergedSprite != null ? _mergedSprite : FirstSlotSprite();
-        _bar = CreateImage("Bar", _merged, sprite);
-        _bar.type = sprite.border.sqrMagnitude > 0f ? Image.Type.Sliced : Image.Type.Simple;
-        _barRect = _bar.rectTransform;
-        _barRect.anchorMin = Vector2.zero;
-        _barRect.anchorMax = Vector2.one;
-        _barRect.pivot = new Vector2(0f, 0.5f);
-        _barRect.offsetMin = Vector2.zero;
-        _barRect.offsetMax = Vector2.zero;
-
-        _shine = CreateImage("Shine", _merged, ShineSprite());
-        _shineRect = _shine.rectTransform;
-        _shineRect.anchorMin = new Vector2(0f, 0.5f);
-        _shineRect.anchorMax = new Vector2(0f, 0.5f);
-        _shineRect.pivot = new Vector2(0.5f, 0.5f);
-        _shineRect.localRotation = Quaternion.Euler(0f, 0f, -_shineAngle);
-        _shine.enabled = false;
     }
 
     private Image CreateImage(string objectName, Transform parent, Sprite sprite)
@@ -588,16 +840,9 @@ public class SkillPointBarUI : MonoBehaviour
         return image;
     }
 
-    private Sprite FirstSlotSprite()
-    {
-        foreach (Image slot in _slots)
-            if (slot != null && slot.sprite != null) return slot.sprite;
-        return WhiteSprite();
-    }
-
     // ---------- กรอบเด้ง ----------
 
-    private void UpdateEcho(Vector2 barScale, Vector2 shake)
+    private void UpdateEcho(Vector2 barScale)
     {
         if (_echoTimer < 0f)
         {
@@ -612,7 +857,7 @@ public class SkillPointBarUI : MonoBehaviour
         float ease = 1f - (1f - e) * (1f - e);
 
         Vector2 spread = new(1f + _echoSpread.x * ease, 1f + _echoSpread.y * ease);
-        _echo.anchoredPosition = _spanCenter + shake;
+        _echo.anchoredPosition = _spanCenter;
         _echo.sizeDelta = Vector2.Scale(_spanSize, barScale) + spread * 2f;
 
         Color color = _echoColor;
@@ -826,19 +1071,23 @@ public class SkillPointBarUI : MonoBehaviour
         return 1f + c3 * t * t * t + c1 * t * t;
     }
 
-    // สร้างแถบเติมเป็นลูกของแต่ละช่อง ใช้รูปเดียวกับช่อง
+    // สร้างแถบเติมเป็นลูกของแต่ละช่อง ใช้รูปเดียวกับช่อง + ตั้งจุดหมุนตามที่เลือกชิดขอบ
     private void EnsureFills()
     {
         if (_fills != null && _fills.Length == _slots.Length) return;
 
+        float pivotY = _slotAlign == SlotAlign.Bottom ? 0f : _slotAlign == SlotAlign.Top ? 1f : 0.5f;
+
         _fills = new Image[_slots.Length];
         _slotScales = new Vector3[_slots.Length];
+        _slotTransient = new float[_slots.Length];
         for (int i = 0; i < _slots.Length; i++)
         {
             Image slot = _slots[i];
             if (slot == null) continue;
 
             _slotScales[i] = slot.rectTransform.localScale;
+            SetPivotYKeepPosition(slot.rectTransform, pivotY);
 
             Image fill = CreateImage("Fill", slot.transform, slot.sprite != null ? slot.sprite : WhiteSprite());   // Filled ต้องมีรูป ไม่งั้นไม่ตัด
             RectTransform rt = fill.rectTransform;
@@ -854,39 +1103,24 @@ public class SkillPointBarUI : MonoBehaviour
         }
     }
 
+    // ย่อช่องแล้วให้หดเข้าหาขอบที่เลือก — ย้ายจุดหมุนโดยที่ช่องไม่ขยับ
+    private static void SetPivotYKeepPosition(RectTransform rt, float pivotY)
+    {
+        Vector2 pivot = rt.pivot;
+        if (Mathf.Approximately(pivot.y, pivotY)) return;
+
+        float dy = (pivotY - pivot.y) * rt.rect.height * rt.localScale.y;
+        rt.pivot = new Vector2(pivot.x, pivotY);
+        rt.localPosition += rt.localRotation * new Vector3(0f, dy, 0f);
+    }
+
     private static Sprite _white;
-    private static Sprite _shineSprite;
 
     private static Sprite WhiteSprite()
     {
         if (_white == null)
             _white = Sprite.Create(Texture2D.whiteTexture, new Rect(0, 0, 4, 4), new Vector2(0.5f, 0.5f));
         return _white;
-    }
-
-    // แสงขาวนุ่ม ๆ จางสองข้าง — สร้างเองไม่ต้องมีไฟล์รูป
-    private static Sprite ShineSprite()
-    {
-        if (_shineSprite != null) return _shineSprite;
-
-        const int width = 64;
-        var tex = new Texture2D(width, 1, TextureFormat.RGBA32, false)
-        {
-            name = "SPShine",
-            wrapMode = TextureWrapMode.Clamp,
-            filterMode = FilterMode.Bilinear,
-        };
-
-        for (int x = 0; x < width; x++)
-        {
-            float t = x / (width - 1f) * 2f - 1f;
-            float a = 1f - t * t;
-            tex.SetPixel(x, 0, new Color(1f, 1f, 1f, a * a));
-        }
-        tex.Apply();
-
-        _shineSprite = Sprite.Create(tex, new Rect(0, 0, width, 1), new Vector2(0.5f, 0.5f));
-        return _shineSprite;
     }
 
     private Color ApplyPulse(Color baseColor)
@@ -913,6 +1147,14 @@ public class SkillPointBarUI : MonoBehaviour
 
         _skillPoints = PlayerLookup.Find<SkillPoints>(_playerTag);
         return _skillPoints != null;
+    }
+
+    /// <summary>ลองสั่นเหมือนได้ SP 1 ช่อง — คลิกขวาที่ component ตอน Play กดรัว ๆ ดูความแรงตอนต่อยถี่ได้</summary>
+    [ContextMenu("ทดสอบ: สั่นเหมือนได้ SP 1 ช่อง")]
+    private void DebugGain()
+    {
+        if (_slots == null || _slots.Length == 0) return;
+        OnGain(1f, Mathf.Max(1f, _shown));
     }
 
 #if UNITY_EDITOR

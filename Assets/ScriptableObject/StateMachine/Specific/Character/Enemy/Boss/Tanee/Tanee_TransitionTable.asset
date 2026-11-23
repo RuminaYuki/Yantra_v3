@@ -330,6 +330,7 @@ MonoBehaviour:
   _base: {fileID: -71561965455795426}
   _fieldOverrides: []
   _removedIds: []
+  _removedStates: []
   _transitionOverrides: []
   _conditionReplaces: []
   _transitionRetargets: []
@@ -433,6 +434,7 @@ MonoBehaviour:
   _base: {fileID: 0}
   _fieldOverrides: []
   _removedIds: []
+  _removedStates: []
   _transitionOverrides: []
   _conditionReplaces: []
   _transitionRetargets: []
@@ -628,6 +630,7 @@ MonoBehaviour:
   _base: {fileID: -6770472972828221010}
   _fieldOverrides: []
   _removedIds: []
+  _removedStates: []
   _transitionOverrides: []
   _conditionReplaces: []
   _transitionRetargets: []
@@ -722,6 +725,7 @@ MonoBehaviour:
   _base: {fileID: 0}
   _fieldOverrides: []
   _removedIds: []
+  _removedStates: []
   _transitionOverrides: []
   _conditionReplaces: []
   _transitionRetargets: []
@@ -861,6 +865,7 @@ MonoBehaviour:
     _target: {fileID: -3485846655665348216}
     _fieldPath: _transitionTable
   _removedIds: []
+  _removedStates: []
   _transitionOverrides: []
   _conditionReplaces:
   - _transitionId: c221c4b4-b5cf-48c8-b955-8efad1dd2c55
@@ -1043,7 +1048,7 @@ MonoBehaviour:
   - FromState: {fileID: -250177761744804098}
     ConditionGroups:
     - Conditions:
-      - Condition: {fileID: 6037934602718916035}
+      - Condition: {fileID: -271846247945593196}
         ExpectedResult: 0
     ToState: {fileID: -5386280242133745992}
     Id: c6055b60-c388-4c03-a797-1ba0d856bcfc
@@ -1112,6 +1117,7 @@ MonoBehaviour:
   _base: {fileID: 0}
   _fieldOverrides: []
   _removedIds: []
+  _removedStates: []
   _transitionOverrides: []
   _conditionReplaces: []
   _transitionRetargets: []
@@ -1391,6 +1397,7 @@ MonoBehaviour:
   _actions:
   - {fileID: 2536985460722662302}
   - {fileID: -781150139735503398}
+  - {fileID: 8282429274341853667}
   _roundEndsWhen: {fileID: -6991968770991651269}
   _counter: {fileID: 4717505191290285078}
   _count: 3
@@ -1600,6 +1607,7 @@ MonoBehaviour:
   _base: {fileID: -207004843464869831}
   _fieldOverrides: []
   _removedIds: []
+  _removedStates: []
   _transitionOverrides: []
   _conditionReplaces: []
   _transitionRetargets: []
@@ -1715,6 +1723,7 @@ MonoBehaviour:
   _base: {fileID: 0}
   _fieldOverrides: []
   _removedIds: []
+  _removedStates: []
   _transitionOverrides: []
   _conditionReplaces: []
   _transitionRetargets: []
@@ -1725,11 +1734,11 @@ MonoBehaviour:
   - State: {fileID: 7656412590403315305}
     Position: {x: 148, y: 1}
   - State: {fileID: 6574777442462947647}
-    Position: {x: 148, y: 64}
+    Position: {x: 149, y: 64}
   - State: {fileID: 2612334169479102241}
-    Position: {x: 148, y: 126}
+    Position: {x: 148, y: 127}
   - State: {fileID: 4845272432260930050}
-    Position: {x: 140, y: 188}
+    Position: {x: 142, y: 189}
   _entryNodePosition: {x: 0, y: 0}
   _anyStateNodePosition: {x: 0, y: 120}
   _contentsFolders:
@@ -1750,6 +1759,8 @@ MonoBehaviour:
   - Item: {fileID: -2953408723601327662}
     Folder: DashAttackAnim
   - Item: {fileID: -781150139735503398}
+    Folder: DashAttackAnim
+  - Item: {fileID: 8282429274341853667}
     Folder: DashAttackAnim
   _contentsFolderPaths:
   - Group: Actions
@@ -1899,6 +1910,20 @@ MonoBehaviour:
     attackRange: 2
     attackRadius: 2
   _damageType: {fileID: 0}
+--- !u!114 &-271846247945593196
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 828323aa1aace154891a3661130da74b, type: 3}
+  m_Name: OnTrigger_Flag_Condition
+  m_EditorClassIdentifier: Assembly-CSharp::FlagConditionSO
+  _selfAnchor: {fileID: 0}
+  flag: {fileID: 8858860218392231533}
 --- !u!114 &-250177761744804098
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1951,6 +1976,7 @@ MonoBehaviour:
   _base: {fileID: 0}
   _fieldOverrides: []
   _removedIds: []
+  _removedStates: []
   _transitionOverrides: []
   _conditionReplaces: []
   _transitionRetargets: []
@@ -2019,6 +2045,7 @@ MonoBehaviour:
   _base: {fileID: 0}
   _fieldOverrides: []
   _removedIds: []
+  _removedStates: []
   _transitionOverrides: []
   _conditionReplaces: []
   _transitionRetargets: []
@@ -2080,6 +2107,7 @@ MonoBehaviour:
   _base: {fileID: 0}
   _fieldOverrides: []
   _removedIds: []
+  _removedStates: []
   _transitionOverrides: []
   _conditionReplaces: []
   _transitionRetargets: []
@@ -2166,6 +2194,8 @@ MonoBehaviour:
     Folder: Anchor
   - Item: {fileID: -4681942629760074664}
     Folder: Counter
+  - Item: {fileID: 8858860218392231533}
+    Folder: Flag
   _contentsFolderPaths:
   - Group: Actions
     Path: Animator
@@ -2499,6 +2529,7 @@ MonoBehaviour:
     _target: {fileID: 6974495473247056236}
     _fieldPath: _transitionTable
   _removedIds: []
+  _removedStates: []
   _transitionOverrides: []
   _conditionReplaces:
   - _transitionId: ac007b75-39d0-4dc0-a531-5838298b4b57
@@ -2955,6 +2986,11 @@ MonoBehaviour:
     - _target: {fileID: 2764140267114960417}
       _fieldName: minDuration
     _category: Phase3/Vengeful
+  - _name: Dash_Damage.Amount
+    _bindings:
+    - _target: {fileID: 0}
+      _fieldName: _attackParameters.damageAmount
+    _category: DashAttack
 --- !u!114 &3462530901500068662
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3318,6 +3354,7 @@ MonoBehaviour:
   _base: {fileID: 0}
   _fieldOverrides: []
   _removedIds: []
+  _removedStates: []
   _transitionOverrides: []
   _conditionReplaces: []
   _transitionRetargets: []
@@ -3769,6 +3806,24 @@ MonoBehaviour:
     usePrediction: 1
     leadTime: 0.5
     maxDistance: 3
+--- !u!114 &8282429274341853667
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9fe4139a30361344c8f731c022ca3779, type: 3}
+  m_Name: DashDamage_ContinuousAttack_Action
+  m_EditorClassIdentifier: Assembly-CSharp::ContinuousAttackActionSO
+  _selfAnchor: {fileID: 0}
+  _attackParameters:
+    damageAmount: 2
+    attackRange: 0
+    attackRadius: 1
+  _damageType: {fileID: 0}
 --- !u!114 &8299861116441461489
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3827,6 +3882,18 @@ MonoBehaviour:
   _actions:
   - {fileID: 2619414572063913780}
   - {fileID: 651750329511366051}
+--- !u!114 &8858860218392231533
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6687386e458fac4db6106b19ddf0699, type: 3}
+  m_Name: OnTrigger_Flag
+  m_EditorClassIdentifier: Assembly-CSharp::FlagSO
 --- !u!114 &9032502992824110892
 MonoBehaviour:
   m_ObjectHideFlags: 0

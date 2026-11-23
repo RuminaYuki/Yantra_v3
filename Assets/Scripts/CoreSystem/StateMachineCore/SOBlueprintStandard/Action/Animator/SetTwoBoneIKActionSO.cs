@@ -17,9 +17,14 @@ public class SetTwoBoneIKActionSO : StateActionSO
     [Header("Weight")]
     [SerializeField, Range(0f, 1f),Exposed] private float _enterWeight = 1f;
     [SerializeField, Min(0f),Exposed] private float _enterDuration = 0.2f;
+    [Tooltip("How the weight moves over Enter Duration. X = time (0 → 1), Y = how far from the start weight " +
+             "to Enter Weight (0 → 1). A straight line = steady, the old behavior.")]
+    [SerializeField] private AnimationCurve _enterCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
     [SerializeField,Exposed] private bool _setWeightOnExit = true;
     [SerializeField, Range(0f, 1f),Exposed] private float _exitWeight;
     [SerializeField, Min(0f),Exposed] private float _exitDuration = 0.2f;
+    [Tooltip("How the weight moves over Exit Duration, like Enter Curve.")]
+    [SerializeField] private AnimationCurve _exitCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
 
     [Header("Source Objects")]
     [Tooltip("Changing Target / Hint / Maintain Target Offset rebuilds the RigBuilder, which is costly. " +
@@ -73,7 +78,7 @@ public class SetTwoBoneIKActionSO : StateActionSO
             if (!_constraint.TryGet(out TwoBoneIKConstraint constraint)) return;
 
             ApplySettings(constraint);
-            StartWeightLerp(constraint, _so._enterWeight, _so._enterDuration);
+            StartWeightLerp(constraint, _so._enterWeight, _so._enterDuration, _so._enterCurve);
         }
 
         public override void OnUpdate()
@@ -85,7 +90,7 @@ public class SetTwoBoneIKActionSO : StateActionSO
             if (!_so._setWeightOnExit) return;
             if (!_constraint.TryGet(out TwoBoneIKConstraint constraint)) return;
 
-            StartWeightLerp(constraint, _so._exitWeight, _so._exitDuration);
+            StartWeightLerp(constraint, _so._exitWeight, _so._exitDuration, _so._exitCurve);
         }
 
         private void ApplySettings(TwoBoneIKConstraint constraint)
@@ -137,7 +142,7 @@ public class SetTwoBoneIKActionSO : StateActionSO
             rigBuilder.Build();
         }
 
-        private void StartWeightLerp(TwoBoneIKConstraint constraint, float targetWeight, float duration)
+        private void StartWeightLerp(TwoBoneIKConstraint constraint, float targetWeight, float duration, AnimationCurve curve)
         {
             if (!_coroutineRunner.TryGet(out StateMachineController runner)) return;
 
@@ -155,22 +160,27 @@ public class SetTwoBoneIKActionSO : StateActionSO
                 return;
             }
 
-            _weightCoroutine = runner.StartCoroutine(LerpWeight(constraint, targetWeight, duration));
+            _weightCoroutine = runner.StartCoroutine(LerpWeight(constraint, targetWeight, duration, curve));
         }
 
-        private IEnumerator LerpWeight(TwoBoneIKConstraint constraint, float targetWeight, float duration)
+        private IEnumerator LerpWeight(TwoBoneIKConstraint constraint, float targetWeight, float duration, AnimationCurve curve)
         {
             float startWeight = constraint.weight;
             float elapsedTime = 0f;
+
+            // No keys (curve cleared in the Inspector) = straight line, like before curves existed.
+            bool useCurve = curve != null && curve.length > 0;
 
             while (elapsedTime < duration)
             {
                 elapsedTime += Time.DeltaTime;
                 float t = Mathf.Clamp01(elapsedTime / duration);
+                float eased = useCurve ? curve.Evaluate(t) : t;
 
                 if (constraint == null) yield break;   // destroyed mid-lerp
 
-                constraint.weight = Mathf.Lerp(startWeight, targetWeight, t);
+                // Unclamped so a curve going past 1 can overshoot; the constraint weight itself stays 0..1.
+                constraint.weight = Mathf.Clamp01(Mathf.LerpUnclamped(startWeight, targetWeight, eased));
                 yield return null;
             }
 

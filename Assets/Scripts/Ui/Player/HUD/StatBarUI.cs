@@ -17,7 +17,8 @@ public abstract class StatBarUI : MonoBehaviour
         [Tooltip("ใช้ fillAmount — ลดจากขอบตาม Fill Origin ที่ตั้งใน Image")]
         Filled,
 
-        [Tooltip("ย่อ scale แกน X — หุบเข้าหาตรงกลาง ต้องตั้ง Pivot X = 0.5")]
+        [Tooltip("ย่อ scale แกน X — Pivot X = 0.5 หุบเข้าหาตรงกลาง / Pivot X = 0 หดเข้าซ้าย\n" +
+                 "แถบที่ปลายจาง (รูปไล่สี) ใช้แบบนี้ + Pivot X = 0 ปลายจางจะเลื่อนตามค่าเสมอ")]
         ScaleFromCenter,
     }
 
@@ -25,8 +26,8 @@ public abstract class StatBarUI : MonoBehaviour
     [Tooltip("Image ที่จะใช้แสดงค่า")]
     [SerializeField] protected Image _fill;
 
-    [Tooltip("Filled = ลดจากขอบ (Health)\n" +
-             "ScaleFromCenter = หุบเข้ากลาง (Guard)\n\n" +
+    [Tooltip("Filled = ลดจากขอบ — Image ต้องมี Source Image (ไม่มีรูป Unity ไม่ตัดแถบให้ แถบจะเต็มค้าง)\n" +
+             "ScaleFromCenter = ย่อแกน X — Pivot X = 0.5 หุบเข้ากลาง (Guard) / Pivot X = 0 หดเข้าซ้าย (แถบปลายจาง)\n\n" +
              "Unity ไม่มี Fill Origin แบบ Center ให้เลือก เลยต้องใช้ scale แทน")]
     [SerializeField] private FillMode _mode = FillMode.Filled;
 
@@ -92,9 +93,19 @@ public abstract class StatBarUI : MonoBehaviour
 
     // ---------- ภายใน ----------
 
+    private bool _warnedNoSprite;
+
     private void UpdateFill(float target)
     {
         if (_fill == null) return;
+
+        // Filled ไม่มีรูป = Unity วาดเป็นสี่เหลี่ยมเต็มเสมอ fillAmount ไม่มีผล → แถบไม่ลด
+        if (_mode == FillMode.Filled && _fill.sprite == null && !_warnedNoSprite)
+        {
+            _warnedNoSprite = true;
+            Debug.LogWarning($"[StatBar] {name}: Image '{_fill.name}' ไม่มี Source Image — โหมด Filled ใช้ไม่ได้ แถบจะไม่ลด " +
+                             "ใส่รูปให้ Image หรือเปลี่ยน Mode เป็น ScaleFromCenter", this);
+        }
 
         _displayed = _fillSpeed <= 0f
             ? target
@@ -142,6 +153,9 @@ public abstract class StatBarUI : MonoBehaviour
         }
 
         ApplyAmount(_delayedFill, _delayedDisplayed);
+
+        // โชว์เฉพาะตอนไล่ตามอยู่ — แถบปลายจาง (โปร่งแสง) ถ้าเปิดค้าง สีแถบหลังจะทะลุปลายแถบหลักตลอดเวลา
+        _delayedFill.enabled = _delayedDisplayed > _displayed + 0.002f;
     }
 
     private void UpdateText(float current, float max)

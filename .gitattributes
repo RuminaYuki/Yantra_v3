@@ -1,0 +1,67 @@
+# ============================================
+# ค่าเริ่มต้น: ให้ Git เดาเองว่าไฟล์ไหนเป็น text
+# ============================================
+* text=auto
+
+# ============================================
+# Unity YAML: บังคับใช้ LF (ตรงกับที่ Unity เขียน)
+# ============================================
+*.mat            text eol=lf
+*.meta           text eol=lf
+*.prefab         text eol=lf
+*.unity          text eol=lf
+# .asset บางไฟล์เป็น binary (NavMesh, LightingData, TerrainData) — text=auto ให้ Git ตรวจก่อน
+# ไฟล์ YAML ได้ LF / ไฟล์ binary ไม่ถูกแปลง (ถ้าใส่ text เฉยๆ ไฟล์พวกนั้นจะพัง)
+*.asset          text=auto eol=lf
+*.anim           text eol=lf
+*.controller     text eol=lf
+*.overrideController text eol=lf
+*.physicMaterial text eol=lf
+*.physicsMaterial2D text eol=lf
+*.mask           text eol=lf
+*.playable       text eol=lf
+*.signal         text eol=lf
+*.shadergraph    text eol=lf
+*.shadersubgraph text eol=lf
+*.vfx            text eol=lf
+*.terrainlayer   text eol=lf
+*.lighting       text eol=lf
+*.spriteatlas    text eol=lf
+*.inputactions   text eol=lf
+*.unitypackage   binary
+
+# ============================================
+# Code
+# ============================================
+*.cs     text diff=csharp
+*.shader text
+*.hlsl   text
+*.cginc  text
+*.json   text
+*.asmdef text
+
+# ============================================
+# Binary: ห้าม Git แปลงข้อมูลในไฟล์เหล่านี้
+# ============================================
+# 3D
+*.fbx   binary
+*.obj   binary
+*.blend binary
+*.ma    binary
+*.mb    binary
+# รูปภาพ
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.tga   binary
+*.psd   binary
+*.exr   binary
+*.hdr   binary
+# เสียง / วิดีโอ
+*.wav   binary
+*.mp3   binary
+*.ogg   binary
+*.mp4   binary
+# ฟอนต์
+*.ttf   binary
+*.otf   binary
