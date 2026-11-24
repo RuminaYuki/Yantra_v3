@@ -79,15 +79,6 @@ public class BlockSystem : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            ExecuteBlock(!_isBlockEnable);
-        }
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            ExecuteParry(!_isParryEnable);
-        }
-
         if (_isBlockEnable)
         {
             _recoveryDelayTimer = 0f;

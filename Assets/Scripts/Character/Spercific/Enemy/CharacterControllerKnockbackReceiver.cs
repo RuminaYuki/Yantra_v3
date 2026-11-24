@@ -34,6 +34,14 @@ public class CharacterControllerKnockbackReceiver : MonoBehaviour, IKnockbackRec
 
     private void LateUpdate()
     {
+        // controller ถูกปิด (เช่น state ตาย / ถูกจับ) — Move ไม่ได้ และไม่ควรสะสมแรงโน้มถ่วงไว้
+        if (!characterController.enabled)
+        {
+            CancelKnockback();
+            playerVelocity.y = 0f;
+            return;
+        }
+
         IsGrounded = characterController.isGrounded;
 
         if (IsKnockback)
@@ -67,6 +75,17 @@ public class CharacterControllerKnockbackReceiver : MonoBehaviour, IKnockbackRec
     {
         playerVelocity.y += gravityValue * Time.deltaTime;
         characterController.Move(playerVelocity * Time.deltaTime);
+    }
+
+    // ปลดเฉพาะล็อกของตัวนี้ — ล็อกของระบบอื่น (เช่น ท่าคู่) ยังอยู่
+    private void CancelKnockback()
+    {
+        if (!IsKnockback)
+            return;
+
+        IsKnockback = false;
+        knockbackVelocity = Vector3.zero;
+        locomotionLock?.UnlockLocomotion(this);
     }
 
 }
