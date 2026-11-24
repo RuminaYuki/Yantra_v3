@@ -49,12 +49,33 @@ public class SceneLoader : MonoBehaviour
     [Tooltip("คืน memory หลังโหลด — ช่วยเยอะกับ HDRP แต่กินเวลาเล็กน้อย")]
     [SerializeField] private bool _unloadUnusedAssets = true;
 
+    [Tooltip("ข้าม UnloadUnusedAssets เมื่อโหลดออกจาก Main Menu\n" +
+             "หน้าเมนูหลักมี asset น้อยมาก ถ้าไปสแกนคืน memory หลังเข้าด่านใหญ่จะเสียเวลาฟรีหลายวินาที")]
+    [SerializeField] private bool _skipUnloadFromMainMenu = true;
+
     [Tooltip("ความเร็วโหลดเบื้องหลัง ระหว่างอยู่หน้าโหลด\n" +
-             "Low = จอลื่น เส้นโหลด/วิดีโอไม่ค้าง แต่โหลดนานขึ้นนิดหน่อย\n" +
+             "Low = จอลื่นสุดแต่โหลดช้ามาก (2ms/เฟรม)\n" +
+             "Normal = สมดุล เร็วขึ้น ~5 เท่าและหน้าโหลดยังลื่น\n" +
              "High = โหลดเร็วสุด แต่จอกระตุก/ค้างระหว่างโหลด")]
-    [SerializeField] private ThreadPriority _loadingPriority = ThreadPriority.Low;
+    [SerializeField] private ThreadPriority _loadingPriority = ThreadPriority.Normal;
+
+    [Tooltip("เร่งความเร็วอัปโหลด Texture/Mesh ขึ้น GPU ชั่วคราวระหว่างหน้าโหลด แล้วคืนค่าเดิมเมื่อโหลดเสร็จ")]
+    [SerializeField] private bool _boostAsyncUpload = true;
+
+    [SerializeField, Range(2, 33)] private int _loadingUploadTimeSliceMs = 16;
+    [SerializeField, Range(16, 256)] private int _loadingUploadBufferMB = 64;
+
+    [Header("Debug")]
+    [Tooltip("แสดงเวลาที่ใช้ในแต่ละขั้นตอนลง Console หลังโหลดเสร็จ")]
+    [SerializeField] private bool _logLoadTimings = true;
 
     public bool IsLoading { get; private set; }
+
+    /// <summary>
+    /// ให้ฉากเปิดของซีนใหม่ (เช่น TaxiDriveAway ที่มีจอดำของตัวเองอยู่แล้ว) ตั้งเป็น true ตอน Start
+    /// SceneLoader จะส่งไม้ต่อให้จอดำนั้นทันที แทนที่จะเสียเวลาเฟดดำทับดำซ้ำอีกรอบ
+    /// </summary>
+    public bool SkipNextFadeIn { get; set; }
 
     /// <summary>ให้ระบบอื่นอ่านชื่อ scene ได้โดยไม่ต้องถือ reference เอง</summary>
     public SceneCatalog Catalog => _catalog;
@@ -186,14 +207,17 @@ public class SceneLoader : MonoBehaviour
         StartCoroutine(LoadRoutine(sceneName, openAfterLoad));
     }
 
-    // ลำดับ: จอค่อย ๆ ดำ → สว่างเป็นหน้าโหลด → โหลดเสร็จค่อย ๆ ดำ → สว่างเข้าซีนใหม่
-    // ทุกอย่างที่เปิด/ปิดหน้าจอ ทำตอนจอดำสนิท คนเล่นเลยไม่เห็นอะไรกระพริบ
+    // ลำดับ: จอค่อย ๆ ดำ → สว่างเป็นหน้าโหลด → โหลด+Activate ซีนใหม่ใต้หน้าโหลด → ดำสั้น ๆ → สว่างเข้าซีนใหม่
+    // งานหนักทั้งหมดทำระหว่างที่ยังโชว์หน้าโหลดอยู่ จอดำช่วงสลับเข้าเกมเลยสั้นเท่าเวลาเฟดจริง ๆ
     private IEnumerator LoadRoutine(string sceneName, ScreenId openAfterLoad)
     {
         IsLoading = true;
+        SkipNextFadeIn = false;
         LoadStarted?.Invoke(sceneName);
 
         var ui = UIManager.Instance;
+        string prevSceneName = SceneManager.GetActiveScene().name;
+        bool fromMainMenu = _catalog != null && _catalog.IsMainMenu(prevSceneName);
 
         // หยุดฉากเดิมทั้งหมดระหว่างโหลด — ผู้เล่นต่อย/เดินไม่ได้ ศัตรูก็ไม่ตีตอนจอดำ
         // ทุกอย่างของหน้าโหลด (fade, tip, วิดีโอ) ใช้ unscaled time อยู่แล้ว ไม่ค้าง
@@ -225,20 +249,71 @@ public class SceneLoader : MonoBehaviour
         // แล้วพอสว่าง เส้นโหลดก็เต็มไปแล้ว
         yield return FadeTo(0f, _fadeFromBlackDuration);
 
-        // โหลดเบื้องหลังแบบเบา ๆ — จอยังขยับได้ระหว่างโหลด
-        ThreadPriority prevPriority = Application.backgroundLoadingPriority;
-        Application.backgroundLoadingPriority = _loadingPriority;
-
-        var op = SceneManager.LoadSceneAsync(sceneName);
-        op.allowSceneActivation = false;
-
         float startTime = Time.unscaledTime;
+        float tLoadEnd = startTime;
+        float tActivateEnd = startTime;
+        float tUnloadEnd = startTime;
+        bool didUnload = false;
 
-        // progress ของ Unity จะตันที่ 0.9 เมื่อ allowSceneActivation = false
-        while (op.progress < 0.9f)
+        ThreadPriority prevPriority = Application.backgroundLoadingPriority;
+        int prevUploadTimeSlice = QualitySettings.asyncUploadTimeSlice;
+        int prevUploadBufferSize = QualitySettings.asyncUploadBufferSize;
+
+        try
         {
-            screen?.SetProgress(op.progress / 0.9f);
+            // เร่งความเร็วโหลดเบื้องหลัง + อัปโหลด GPU ชั่วคราวระหว่างอยู่หน้าโหลด
+            Application.backgroundLoadingPriority = _loadingPriority;
+            if (_boostAsyncUpload)
+            {
+                QualitySettings.asyncUploadTimeSlice = Mathf.Max(prevUploadTimeSlice, _loadingUploadTimeSliceMs);
+                QualitySettings.asyncUploadBufferSize = Mathf.Max(prevUploadBufferSize, _loadingUploadBufferMB);
+            }
+
+            var op = SceneManager.LoadSceneAsync(sceneName);
+            op.allowSceneActivation = false;
+
+            // ช่วง 0..0.9 ของ Unity = อ่านข้อมูลฉากเบื้องหลัง → แสดงบนแถบ 0..85%
+            // เหลือช่วง 85..100% ไว้ให้ตอน Activate ซีนจริง แถบจะได้ไม่ค้างที่ 100%
+            while (op.progress < 0.9f)
+            {
+                screen?.SetProgress((op.progress / 0.9f) * 0.85f);
+                yield return null;
+            }
+            screen?.SetProgress(0.85f);
+            tLoadEnd = Time.unscaledTime;
+
+            // Activate ซีนทันทีขณะที่ยังเห็นหน้าโหลดอยู่ (ไม่ใช่ไปทำตอนจอดำ)
+            // งานหนักจริง (Awake/OnEnable, โหลด APV/Occlusion/Lightmap, คอมไพล์ shader) จะจบใต้หน้าโหลดนี้
+            Application.backgroundLoadingPriority = ThreadPriority.High;
+            op.allowSceneActivation = true;
+            while (!op.isDone) yield return null;
+            Application.backgroundLoadingPriority = prevPriority;
+            tActivateEnd = Time.unscaledTime;
+            screen?.SetProgress(0.95f);
+
+            // คืน memory ระหว่างที่ยังเห็นหน้าโหลดอยู่ ไม่ไปค้างตอนจอดำ
+            // ถ้ามาจาก Main Menu (ซีนเล็กมาก) ข้ามได้ เพื่อไม่ต้องสแกนฉากเกมทั้งด่านฟรี ๆ
+            if (_unloadUnusedAssets && !(_skipUnloadFromMainMenu && fromMainMenu))
+            {
+                didUnload = true;
+                yield return Resources.UnloadUnusedAssets();
+                GC.Collect();
+            }
+            tUnloadEnd = Time.unscaledTime;
+
+            // ปล่อยให้ Start() ของซีนใหม่ (เช่น TaxiDriveAway เตรียมวิดีโอ) และเฟรมแรกของ HDRP วอร์มอัปใต้หน้าโหลด
+            // ยังคงเร่ง asyncUpload ไว้ตลอด 2 เฟรมนี้ เพื่อให้ Texture/Lightmap อัปขึ้น GPU เร็วขึ้นด้วย
             yield return null;
+            yield return null;
+        }
+        finally
+        {
+            Application.backgroundLoadingPriority = prevPriority;
+            if (_boostAsyncUpload)
+            {
+                QualitySettings.asyncUploadTimeSlice = prevUploadTimeSlice;
+                QualitySettings.asyncUploadBufferSize = prevUploadBufferSize;
+            }
         }
 
         screen?.SetProgress(1f);
@@ -246,6 +321,10 @@ public class SceneLoader : MonoBehaviour
         // 5) รอให้ครบเวลาขั้นต่ำ (นับตั้งแต่เห็นหน้าโหลด)
         while (Time.unscaledTime - startTime < _minLoadingTime)
             yield return null;
+
+        // หน่วงสั้น ๆ ตอนแถบ 100% ให้แถบวิ่งจนสุดและเกมตั้งตัวทัน ก่อนเริ่มเฟดดำ
+        if (_postLoadHold > 0f)
+            yield return new WaitForSecondsRealtime(_postLoadHold);
 
         // 6) รอกดปุ่ม (ถ้าเปิดออปชันไว้)
         if (_waitForKeyPress)
@@ -255,31 +334,18 @@ public class SceneLoader : MonoBehaviour
             screen?.ShowPressAnyKey(false);
         }
 
-        // 7) ดำลงอีกรอบ แล้วค่อยสลับ scene ตอนมืด
+        float tFadeStart = Time.unscaledTime;
+
+        // 7) ดำลงจากหน้าโหลด — งานหนักจบหมดแล้ว จอดำจะสั้นเท่าเวลาเฟดจริง ๆ
         yield return FadeTo(1f, _fadeToBlackDuration);
 
-        // ตอนสลับ scene จอดำอยู่แล้ว — ใช้ความเร็วสูงสุดได้เลย
-        Application.backgroundLoadingPriority = ThreadPriority.High;
-        op.allowSceneActivation = true;
-        while (!op.isDone) yield return null;
-        Application.backgroundLoadingPriority = prevPriority;
-
-        // ปลดหลังซีนเก่าหายไปแล้วเท่านั้น — ถ้าปลดก่อน ตัวละครเก่ายังอยู่อีกไม่กี่เฟรม
-        // แล้วจะต่อยตามคลิกที่ค้างไว้ตอนโหลด (จอดำอยู่ เลยได้ยินแค่เสียง)
+        // ปลดหยุดเกมหลังหน้าโหลดมืดสนิทและซีนใหม่พร้อมแล้ว
         // ถ้ามีหน้าจออื่นเปิดขึ้นมาแล้ว (เช่น tutorial ตอนเกิด) ปล่อยให้หน้านั้นเป็นคนปลดเอง
         if (ui.Current == ScreenId.Loading)
         {
             Time.timeScale = 1f;
             StateMachineController.IsPaused = false;
         }
-
-        if (_unloadUnusedAssets)
-        {
-            yield return Resources.UnloadUnusedAssets();
-            GC.Collect();
-        }
-
-        yield return new WaitForSecondsRealtime(_postLoadHold);
 
         // 8) ยังมืดอยู่ — เปิดหน้าที่ต้องการ ปิดหน้าโหลด
         if (openAfterLoad != ScreenId.None)
@@ -289,7 +355,33 @@ public class SceneLoader : MonoBehaviour
         LoadCompleted?.Invoke(sceneName);
 
         // 9) สว่างเข้าซีนใหม่
-        yield return FadeTo(0f, _fadeFromBlackDuration);
+        // ถ้าฉากเปิดของซีนใหม่ (เช่น TaxiDriveAway) คุมจอดำต่อเองอยู่แล้ว ส่งไม้ต่อทันที ไม่ต้องเฟดดำทับดำเสียเวลา
+        if (SkipNextFadeIn)
+        {
+            SkipNextFadeIn = false;
+            yield return null;   // รอ 1 เฟรมให้จอดำของฉากเปิดโผล่รับก่อนปิด fader กันจอกระพริบ
+            if (_fader != null)
+            {
+                _fader.alpha = 0f;
+                _fader.blocksRaycasts = false;
+            }
+        }
+        else
+        {
+            yield return FadeTo(0f, _fadeFromBlackDuration);
+        }
+
+        if (_logLoadTimings)
+        {
+            float now = Time.unscaledTime;
+            Debug.Log(
+                $"[SceneLoader] โหลด '{sceneName}' เสร็จ (รวม {now - startTime:0.00} วิ) | " +
+                $"อ่านฉาก 0→0.9: {tLoadEnd - startTime:0.00} วิ | " +
+                $"Activate: {tActivateEnd - tLoadEnd:0.00} วิ | " +
+                $"Unload: {(didUnload ? $"{tUnloadEnd - tActivateEnd:0.00} วิ" : "ข้าม")} | " +
+                $"Warmup+Hold: {tFadeStart - tUnloadEnd:0.00} วิ | " +
+                $"Fade เข้าฉาก: {now - tFadeStart:0.00} วิ", this);
+        }
 
         IsLoading = false;
     }

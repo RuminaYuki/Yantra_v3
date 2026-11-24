@@ -221,7 +221,10 @@ public class TaxiDriveAway : MonoBehaviour
     private bool _skipVideo;
     private bool _videoFinished;
     private bool _videoReady;
+    private bool _videoPreparing;
     private CanvasGroup _videoGroup;
+    private CanvasGroup _videoImageGroup;
+    private bool _videoCanvasCover;
     private AudioSource _videoAudio;
     private string _videoError;
 
@@ -264,6 +267,7 @@ public class TaxiDriveAway : MonoBehaviour
     private PlayerInventory _inventory;
     private InventoryUI _inventoryUI;
     private bool _inventoryBlocked;
+    private UIManager _uiManager;
 
     private enum IntroPhase { Black, Video, Dialogue, Done }
     private IntroPhase _phase = IntroPhase.Black;
@@ -287,6 +291,13 @@ public class TaxiDriveAway : MonoBehaviour
             body.isKinematic = true;
 
         _black = CreateBlackScreen();
+        _uiManager = UIManager.Instance;
+        if (_uiManager != null)
+            _uiManager.StackChanged += OnUIStackChanged;
+
+        // ฉากเปิดนี้มีจอดำคุมเองอยู่แล้ว บอก SceneLoader ให้ส่งไม้ต่อทันที ไม่ต้องเฟดดำทับดำซ้ำ
+        if (SceneLoader.Instance != null && SceneLoader.Instance.IsLoading)
+            SceneLoader.Instance.SkipNextFadeIn = true;
 
         _playerLocked = true;
         foreach (Behaviour behaviour in _alsoDisable)
@@ -299,14 +310,34 @@ public class TaxiDriveAway : MonoBehaviour
         TryLockPlayer();
 
         _idle = PlayLoop(_idleSound);
+
+        // เริ่มเตรียมวิดีโอตั้งแต่ตอนหน้าโหลดยังบังอยู่ จะได้ไม่ต้องจอดำรอ isPrepared หลังโหลดจบ
+        if (_preTaxiVideo != null)
+        {
+            _idle.SetVolumeMultiplier(_idleVolumeDuringVideo);
+            if (SetupVideoScreen())
+            {
+                _videoPreparing = true;
+                StartCoroutine(PrepareVideoRoutine());
+            }
+            else
+            {
+                _videoError = "ไม่พบ TaxiIntro_Video หรือ component ใน prefab Taxi ไม่ครบ";
+            }
+        }
+
         StartCoroutine(IntroRoutine());
     }
 
     private void OnDisable()
     {
+        if (_uiManager != null)
+            _uiManager.StackChanged -= OnUIStackChanged;
+        _uiManager = null;
+
         _idle.Stop();
         _drive.Stop();
-        DestroyVideoScreen();
+        ResetVideoScreen();
         RestoreGameAudio();
         RestoreCutsceneMode();
         UnlockPlayer();
@@ -315,9 +346,7 @@ public class TaxiDriveAway : MonoBehaviour
 
     private void Update()
     {
-        // มีเมนูเปิด (Pause / หน้าโหลด) ให้เมนูโผล่ ไม่โดนจอดำทับ
-        if (_black != null)
-            _black.alpha = IsMenuOpen() ? 0f : _blackAlpha;
+        SyncMenuOverlays(IsMenuOpen());
 
         WatchStuckBlack();
 
@@ -355,6 +384,20 @@ public class TaxiDriveAway : MonoBehaviour
             FollowTaxi();
     }
 
+    private void OnUIStackChanged(ScreenId current)
+    {
+        SyncMenuOverlays(current != ScreenId.None);
+    }
+
+    private void SyncMenuOverlays(bool menuOpen)
+    {
+        if (_black != null)
+            _black.alpha = menuOpen ? 0f : _blackAlpha;
+
+        if (_videoCanvasCover && _phase != IntroPhase.Video && _videoGroup != null)
+            _videoGroup.alpha = menuOpen ? 0f : 1f;
+    }
+
     private IEnumerator IntroRoutine()
     {
         while (SceneLoader.Instance != null && SceneLoader.Instance.IsLoading)
@@ -364,7 +407,11 @@ public class TaxiDriveAway : MonoBehaviour
         if (_preTaxiVideo != null)
         {
             _idle.SetVolumeMultiplier(_idleVolumeDuringVideo);
-            StartCoroutine(PrepareVideoRoutine());
+            if (!_videoPreparing && !_videoReady && string.IsNullOrEmpty(_videoError))
+            {
+                _videoPreparing = true;
+                StartCoroutine(PrepareVideoRoutine());
+            }
 
             _phase = IntroPhase.Video;
             MuteGameAudio();
@@ -410,32 +457,31 @@ public class TaxiDriveAway : MonoBehaviour
         yield return DriveRoutine();
     }
 
-    // เตรียมวิดีโอล่วงหน้าตอนจอดำ — canvas ซ่อนไว้ก่อน จนกว่าจะถึงเวลาเล่น
+    // เตรียม VideoPlayer ที่ผูกกับ prefab ไว้ระหว่างหน้าโหลด
     private IEnumerator PrepareVideoRoutine()
     {
         _videoReady = false;
         _videoFinished = false;
         _videoError = null;
 
-        CreateVideoScreen();
-        _videoRoot.GetComponent<Canvas>().enabled = false;
+        if (_videoRoot == null || _videoPlayer == null || _videoImage == null || _videoAspect == null ||
+            _videoGroup == null || _videoImageGroup == null || _videoTexture == null)
+        {
+            _videoPreparing = false;
+            _videoError = "ไม่พบ TaxiIntro_Video หรือ component ใน prefab Taxi ไม่ครบ";
+            yield break;
+        }
 
         _videoPlayer.errorReceived += OnVideoError;
         _videoPlayer.loopPointReached += OnVideoFinished;
-        _videoPlayer.clip = _preTaxiVideo;
 
-        int width = Mathf.Max(16, (int)_preTaxiVideo.width);
-        int height = Mathf.Max(16, (int)_preTaxiVideo.height);
-        _videoTexture = new RenderTexture(width, height, 0) { name = "TaxiIntroVideo" };
-        _videoTexture.Create();
-        _videoPlayer.targetTexture = _videoTexture;
-        _videoImage.texture = _videoTexture;
-        _videoAspect.aspectRatio = width / (float)height;
-
+        // ใช้ UnscaledGameTime ระหว่าง Prepare เผื่อหน้าโหลดยังตั้ง timeScale = 0 อยู่
+        _videoPlayer.timeUpdateMode = VideoTimeUpdateMode.UnscaledGameTime;
         _videoPlayer.Prepare();
         while (_videoPlayer != null && !_videoPlayer.isPrepared && string.IsNullOrEmpty(_videoError))
             yield return null;
 
+        _videoPreparing = false;
         _videoReady = _videoPlayer != null && string.IsNullOrEmpty(_videoError);
     }
 
@@ -445,23 +491,24 @@ public class TaxiDriveAway : MonoBehaviour
         _skipHold = 0f;
         _skipHintTimer = _skipHintShowTime;   // วิดีโอเริ่ม โชว์ป้ายให้รู้ว่าข้ามได้แป๊บนึง
 
-        // ปกติเตรียมเสร็จไปแล้วตอนจอดำ เลยไม่ต้องรอ
+        // ปกติเตรียมเสร็จไปแล้วตอนหน้าโหลด/จอดำ เลยไม่ต้องรอ
         while (!_videoReady && !_skipVideo && string.IsNullOrEmpty(_videoError))
             yield return null;
 
         if (_videoReady && !_skipVideo && _videoPlayer != null)
         {
-            _videoGroup.alpha = 0f;
-            _videoRoot.GetComponent<Canvas>().enabled = true;
+            _videoPlayer.timeUpdateMode = VideoTimeUpdateMode.GameTime;
+            _videoGroup.alpha = 1f;
+            _videoImageGroup.alpha = 0f;
             _videoPlayer.Play();
 
             float fade = 0f;
             while (!_videoFinished && !_skipVideo && string.IsNullOrEmpty(_videoError))
             {
-                if (_videoGroup != null)
+                if (_videoImageGroup != null)
                 {
                     fade += Time.deltaTime;
-                    _videoGroup.alpha = _videoFadeIn > 0f ? Mathf.SmoothStep(0f, 1f, fade / _videoFadeIn) : 1f;
+                    _videoImageGroup.alpha = _videoFadeIn > 0f ? Mathf.SmoothStep(0f, 1f, fade / _videoFadeIn) : 1f;
                 }
                 yield return null;
             }
@@ -470,7 +517,7 @@ public class TaxiDriveAway : MonoBehaviour
         if (!string.IsNullOrEmpty(_videoError))
             Debug.LogError($"[Taxi] เล่นวิดีโอฉากเปิดไม่สำเร็จ: {_videoError}", this);
 
-        DestroyVideoScreen();
+        ResetVideoScreen();
         _videoReady = false;
     }
 
@@ -484,48 +531,52 @@ public class TaxiDriveAway : MonoBehaviour
         _videoFinished = true;
     }
 
-    private void CreateVideoScreen()
+    private bool SetupVideoScreen()
     {
-        _videoRoot = new GameObject("TaxiIntro_Video", typeof(RectTransform));
-        SceneManager.MoveGameObjectToScene(_videoRoot, gameObject.scene);
+        Transform videoRoot = transform.Find("TaxiIntro_Video");
+        Transform background = transform.Find("TaxiIntro_Video/Background");
+        Transform video = transform.Find("TaxiIntro_Video/Video");
+        if (videoRoot == null || background == null || video == null)
+            return false;
 
-        Canvas canvas = _videoRoot.AddComponent<Canvas>();
+        _videoRoot = videoRoot.gameObject;
+        Canvas canvas = _videoRoot.GetComponent<Canvas>();
+        _videoGroup = _videoRoot.GetComponent<CanvasGroup>();
+        _videoPlayer = _videoRoot.GetComponent<VideoPlayer>();
+        _videoAudio = _videoRoot.GetComponent<AudioSource>();
+        _videoImage = video.GetComponent<RawImage>();
+        _videoImageGroup = video.GetComponent<CanvasGroup>();
+        _videoAspect = video.GetComponent<AspectRatioFitter>();
+        Image backgroundImage = background.GetComponent<Image>();
+        if (canvas == null || _videoGroup == null || _videoPlayer == null || _videoAudio == null ||
+            _videoImage == null || _videoImageGroup == null || _videoAspect == null || backgroundImage == null)
+        {
+            _videoRoot = null;
+            return false;
+        }
+
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         canvas.sortingOrder = BlackSortingOrder + 1;
 
-        _videoGroup = _videoRoot.AddComponent<CanvasGroup>();
-        _videoGroup.alpha = 0f;
+        _videoGroup.alpha = IsMenuOpen() ? 0f : 1f;
         _videoGroup.interactable = false;
         _videoGroup.blocksRaycasts = false;
+        _videoCanvasCover = true;
 
-        var background = new GameObject("Background", typeof(RectTransform), typeof(Image));
-        background.transform.SetParent(_videoRoot.transform, false);
-        RectTransform backgroundRect = (RectTransform)background.transform;
-        backgroundRect.anchorMin = Vector2.zero;
-        backgroundRect.anchorMax = Vector2.one;
-        backgroundRect.offsetMin = Vector2.zero;
-        backgroundRect.offsetMax = Vector2.zero;
-        background.GetComponent<Image>().color = Color.black;
-
-        var video = new GameObject("Video", typeof(RectTransform), typeof(RawImage), typeof(AspectRatioFitter));
-        video.transform.SetParent(_videoRoot.transform, false);
-        RectTransform videoRect = (RectTransform)video.transform;
-        videoRect.anchorMin = new Vector2(0.5f, 0.5f);
-        videoRect.anchorMax = new Vector2(0.5f, 0.5f);
-        videoRect.anchoredPosition = Vector2.zero;
-        _videoImage = video.GetComponent<RawImage>();
+        backgroundImage.color = Color.black;
         _videoImage.raycastTarget = false;
-        _videoAspect = video.GetComponent<AspectRatioFitter>();
+        _videoImageGroup.alpha = 0f;
+        _videoImageGroup.interactable = false;
+        _videoImageGroup.blocksRaycasts = false;
         _videoAspect.aspectMode = AspectRatioFitter.AspectMode.FitInParent;
 
-        _videoPlayer = _videoRoot.AddComponent<VideoPlayer>();
+        _videoPlayer.clip = _preTaxiVideo;
         _videoPlayer.playOnAwake = false;
         _videoPlayer.isLooping = false;
         _videoPlayer.renderMode = VideoRenderMode.RenderTexture;
 
         // เสียงวิดีโอออกทาง AudioSource จะได้ผ่าน AudioMixer ตามระบบเสียงของเกม
         // ไม่หยุดตาม AudioListener.pause — ตอนวิดีโอเราหยุดเสียงในเกมด้วย pause แต่วิดีโอต้องดังต่อ
-        _videoAudio = _videoRoot.AddComponent<AudioSource>();
         _videoAudio.playOnAwake = false;
         _videoAudio.ignoreListenerPause = true;
         _videoAudio.spatialBlend = 0f;
@@ -537,10 +588,20 @@ public class TaxiDriveAway : MonoBehaviour
         _videoPlayer.EnableAudioTrack(0, true);
         _videoPlayer.SetTargetAudioSource(0, _videoAudio);
         _videoPlayer.skipOnDrop = true;
-        _videoPlayer.timeUpdateMode = VideoTimeUpdateMode.GameTime;
+        _videoPlayer.timeUpdateMode = VideoTimeUpdateMode.UnscaledGameTime;
+
+        int width = Mathf.Max(16, (int)_preTaxiVideo.width);
+        int height = Mathf.Max(16, (int)_preTaxiVideo.height);
+        _videoTexture = new RenderTexture(width, height, 0) { name = "TaxiIntroVideo" };
+        _videoTexture.Create();
+        _videoPlayer.targetTexture = _videoTexture;
+        _videoImage.texture = _videoTexture;
+        _videoAspect.aspectRatio = width / (float)height;
 
         if (_allowSkip)
             CreateSkipHint();
+
+        return true;
     }
 
     // ป้าย "กด ESC ค้างเพื่อข้าม" มุมขวาล่าง — วงแหวนหมุนเต็มตามเวลาที่กดค้าง
@@ -724,33 +785,34 @@ public class TaxiDriveAway : MonoBehaviour
         _cutsceneSet = false;
     }
 
-    private void DestroyVideoScreen()
+    private void ResetVideoScreen()
     {
         if (_videoPlayer != null)
         {
             _videoPlayer.errorReceived -= OnVideoError;
             _videoPlayer.loopPointReached -= OnVideoFinished;
             _videoPlayer.Stop();
+            _videoPlayer.targetTexture = null;
         }
 
         if (_videoTexture != null)
         {
             _videoTexture.Release();
             Destroy(_videoTexture);
+            _videoTexture = null;
         }
 
-        if (_videoRoot != null)
-            Destroy(_videoRoot);
+        if (_videoImage != null)
+            _videoImage.texture = null;
+        if (_videoGroup != null)
+            _videoGroup.alpha = 0f;
+        if (_videoImageGroup != null)
+            _videoImageGroup.alpha = 0f;
 
-        _videoRoot = null;
-        _videoPlayer = null;
-        _videoImage = null;
-        _videoTexture = null;
-        _videoAspect = null;
-        _videoGroup = null;
-        _videoAudio = null;
+        _videoCanvasCover = false;
         _skipGroup = null;
         _skipRing = null;
+        _videoPreparing = false;
     }
 
     // กดข้ามตอนจอดำ = ตัดเวลารอที่เหลือทิ้งหมด
