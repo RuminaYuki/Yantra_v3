@@ -98,6 +98,9 @@ public class BlockQTE : MonoBehaviour
     [Tooltip("กันได้แล้วรออย่างน้อยกี่วินาทีค่อยขึ้นป้าย — ให้ผู้เล่นเห็นเส้น Guard ลดก่อน")]
     [SerializeField, Min(0f)] private float _tutorialDelay = 1f;
 
+    [Tooltip("รอให้หน้าสอน (Blocked Tutorials) ขึ้นก่อนค่อยยิง On Blocked — กันปลดล็อกต่อยก่อนป้ายสอนต่อยจะโผล่")]
+    [SerializeField] private bool _delayOnBlockedUntilTutorials = true;
+
     // ส่งตัวผู้เล่นมาด้วย — ต่อกับ FlagAddition.HandleEndInteract ได้เลย แบบเดียวกับ Trigger Zone Events
     // (เลือกอันที่อยู่หัวข้อ Dynamic GameObject)
     [Header("Events (ส่งตัวผู้เล่นมาด้วย)")]
@@ -161,13 +164,26 @@ public class BlockQTE : MonoBehaviour
     /// <summary>กันได้แล้ว กำลังรอบทพูดจบเพื่อส่งหน้าสอน</summary>
     public bool IsShowingTutorials { get; private set; }
 
+    private bool _deferTutorials;
+
     /// <summary>คัตซีนสั่งหน้าสอนเอง — กันได้แล้วยังไม่ขึ้น เก็บไว้จนคัตซีนเรียก ShowHeldTutorials()
     /// (หน้าสอนหยุดเกม ถ้าขึ้นกลางคัตซีน รินจะค้างกลางทางถอย)</summary>
-    public bool DeferTutorials { get; set; }
+    public bool DeferTutorials
+    {
+        get => _deferTutorials;
+        set
+        {
+            _deferTutorials = value;
+            // กันเหนียว: คัตซีนถูกตัดจบ/ปิดกลางคันก่อนเรียก ShowHeldTutorials() → ยิง OnBlocked ที่ค้างไว้เลย จะได้ไม่ล็อกต่อยถาวร
+            if (!value && _blockedEventHeld && !IsShowingTutorials && Application.isPlaying && gameObject.scene.isLoaded)
+                FlushPendingBlockedEvent();
+        }
+    }
 
     public bool HasBlockedLine => _blockedLine != null;
 
     private bool _tutorialsHeld;
+    private bool _blockedEventHeld;
     public bool HasEverBlocked => _hasBlocked;
 
     private Health _health;
@@ -313,19 +329,27 @@ public class BlockQTE : MonoBehaviour
         if (blocked)
         {
             PlayLine(_blockedLine);
-            if (_blockedTutorials != null && _blockedTutorials.Length > 0)
+            bool hasTutorials = HasBlockedTutorials();
+            bool delayBlockedEvent = _delayOnBlockedUntilTutorials && hasTutorials;
+            if (hasTutorials)
             {
                 if (DeferTutorials)
                 {
                     _tutorialsHeld = true;
+                    if (delayBlockedEvent)
+                        _blockedEventHeld = true;
                 }
                 else
                 {
                     IsShowingTutorials = true;
+                    if (delayBlockedEvent)
+                        _blockedEventHeld = true;
                     StartCoroutine(ShowTutorialsAfterLine());
                 }
             }
-            OnBlocked?.Invoke(_rootPlayer);
+
+            if (!delayBlockedEvent)
+                OnBlocked?.Invoke(_rootPlayer);
         }
         else
         {
@@ -500,14 +524,19 @@ public class BlockQTE : MonoBehaviour
     /// <summary>คัตซีนจบแล้ว ขึ้นหน้าสอนที่เก็บไว้ — คืน true ถ้ามีหน้าสอนขึ้นจริง</summary>
     public bool ShowHeldTutorials()
     {
-        if (!_tutorialsHeld)
-            return false;
-        _tutorialsHeld = false;
-
         bool shown = false;
-        foreach (TutorialDataSO tutorial in _blockedTutorials)
-            if (tutorial != null && !TutorialScreen.HasSeen(tutorial))
-                shown |= TutorialScreen.TryShow(tutorial);
+        if (_tutorialsHeld)
+        {
+            _tutorialsHeld = false;
+            if (_blockedTutorials != null)
+            {
+                foreach (TutorialDataSO tutorial in _blockedTutorials)
+                    if (tutorial != null && !TutorialScreen.HasSeen(tutorial))
+                        shown |= TutorialScreen.TryShow(tutorial);
+            }
+        }
+
+        FlushPendingBlockedEvent();
         return shown;
     }
 
@@ -530,6 +559,25 @@ public class BlockQTE : MonoBehaviour
                     TutorialScreen.TryShow(tutorial);
         }
         IsShowingTutorials = false;
+        FlushPendingBlockedEvent();
+    }
+
+    private bool HasBlockedTutorials()
+    {
+        if (_blockedTutorials == null)
+            return false;
+        foreach (TutorialDataSO tutorial in _blockedTutorials)
+            if (tutorial != null)
+                return true;
+        return false;
+    }
+
+    private void FlushPendingBlockedEvent()
+    {
+        if (!_blockedEventHeld)
+            return;
+        _blockedEventHeld = false;
+        OnBlocked?.Invoke(_rootPlayer);
     }
 
 
@@ -618,6 +666,14 @@ public class BlockQTE : MonoBehaviour
     private void OnDisable()
     {
         IsShowingTutorials = false;
+        _tutorialsHeld = false;
+        if (_blockedEventHeld)
+        {
+            if (Application.isPlaying && gameObject.scene.isLoaded)
+                FlushPendingBlockedEvent();
+            else
+                _blockedEventHeld = false;
+        }
         Cancel();
         _restoreFloorPending = false;
         RestoreHealthFloor();
