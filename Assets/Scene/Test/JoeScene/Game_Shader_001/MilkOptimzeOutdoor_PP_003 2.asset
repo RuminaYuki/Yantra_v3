@@ -1,5 +1,23 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8547690688542185548
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a7ff42a8c5be6646ad3975f3a54c1eb, type: 3}
+  m_Name: DiffusionProfileList
+  m_EditorClassIdentifier: Unity.RenderPipelines.HighDefinition.Runtime::UnityEngine.Rendering.HighDefinition.DiffusionProfileList
+  active: 1
+  diffusionProfiles:
+    m_OverrideState: 1
+    m_Value:
+    - {fileID: 11400000, guid: 2503e07a67287104b8bac92b8bed7795, type: 2}
+    - {fileID: 11400000, guid: de441b07eed190341996ddd21a8acb7d, type: 2}
 --- !u!114 &-7240610790023196159
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -60,13 +78,13 @@ MonoBehaviour:
   interCascadeBorders: 1
   maxShadowDistance:
     m_OverrideState: 1
-    m_Value: 150
+    m_Value: 60
   directionalTransmissionMultiplier:
     m_OverrideState: 0
     m_Value: 1
   cascadeShadowSplitCount:
     m_OverrideState: 1
-    m_Value: 2
+    m_Value: 3
   cascadeShadowSplit0:
     m_OverrideState: 0
     m_Value: 0.05
@@ -383,6 +401,7 @@ MonoBehaviour:
   - {fileID: -1017957008440950287}
   - {fileID: -4256368706930596677}
   - {fileID: -3310914883012940831}
+  - {fileID: -8547690688542185548}
 --- !u!114 &278289140943859053
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -647,7 +666,7 @@ MonoBehaviour:
     m_OverrideState: 1
     m_Value:
       mode: 0
-      customValue: 200
+      customValue: 1000
       additiveValue: 0
       multiplyValue: 1
   sunInitialRotation:
