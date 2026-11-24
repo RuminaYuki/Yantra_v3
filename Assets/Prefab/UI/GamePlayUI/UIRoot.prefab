@@ -1277,14 +1277,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.23529412, g: 0.23529412, b: 0.23529412, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 9085546173938197295, guid: a104d6afe00eeda4fac87ed334fa488e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -9600,7 +9600,8 @@ MonoBehaviour:
   marker: {fileID: 8690547305974599078}
   markerSpeed: 14
   background: {fileID: 711797613789938214}
-  backgroundFollowsSelection: 0
+  defaultBackground: {fileID: 8995154407686431259, guid: 38581116d5939564d8f464e9b5b34723, type: 3}
+  backgroundFollowsSelection: 1
   backgroundFade: 0.25
   emptyText: Empty Slot
   datePrefix: 'Date : '
@@ -14883,6 +14884,7 @@ MonoBehaviour:
   _fadeInOnGameStart: 1
   _waitForKeyPress: 0
   _unloadUnusedAssets: 1
+  _loadingPriority: 0
 --- !u!114 &4291708903242283353
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -30638,10 +30640,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 1361344611025844704, guid: 21b73714cf01f1c42aa53a50a0c31054, type: 3}
-      propertyPath: m_fontColor32.rgba
-      value: 4294967295
-      objectReference: {fileID: 0}
     - target: {fileID: 1769059755016162970, guid: 21b73714cf01f1c42aa53a50a0c31054, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -30654,21 +30652,9 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2387361863789029424, guid: 21b73714cf01f1c42aa53a50a0c31054, type: 3}
-      propertyPath: m_fontColor32.rgba
-      value: 3019898879
-      objectReference: {fileID: 0}
     - target: {fileID: 6075766096249930461, guid: 21b73714cf01f1c42aa53a50a0c31054, type: 3}
       propertyPath: m_Name
       value: SaveSlot (2)
-      objectReference: {fileID: 0}
-    - target: {fileID: 8559577535995431263, guid: 21b73714cf01f1c42aa53a50a0c31054, type: 3}
-      propertyPath: m_fontColor32.rgba
-      value: 3019898879
-      objectReference: {fileID: 0}
-    - target: {fileID: 9103418445096854014, guid: 21b73714cf01f1c42aa53a50a0c31054, type: 3}
-      propertyPath: m_fontColor32.rgba
-      value: 3019898879
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
