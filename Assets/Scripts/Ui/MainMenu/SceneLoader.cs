@@ -49,6 +49,11 @@ public class SceneLoader : MonoBehaviour
     [Tooltip("คืน memory หลังโหลด — ช่วยเยอะกับ HDRP แต่กินเวลาเล็กน้อย")]
     [SerializeField] private bool _unloadUnusedAssets = true;
 
+    [Tooltip("ความเร็วโหลดเบื้องหลัง ระหว่างอยู่หน้าโหลด\n" +
+             "Low = จอลื่น เส้นโหลด/วิดีโอไม่ค้าง แต่โหลดนานขึ้นนิดหน่อย\n" +
+             "High = โหลดเร็วสุด แต่จอกระตุก/ค้างระหว่างโหลด")]
+    [SerializeField] private ThreadPriority _loadingPriority = ThreadPriority.Low;
+
     public bool IsLoading { get; private set; }
 
     /// <summary>ให้ระบบอื่นอ่านชื่อ scene ได้โดยไม่ต้องถือ reference เอง</summary>
@@ -197,30 +202,35 @@ public class SceneLoader : MonoBehaviour
         Time.timeScale = 0f;
         StateMachineController.IsPaused = true;
 
-        // 1) ดำลงทับเมนูที่เปิดอยู่
-        yield return FadeTo(1f, _fadeToBlackDuration);
-
-        // 2) เริ่มโหลด — ถ้าโหลดไม่ได้ คืนทุกอย่างแล้วสว่างกลับมาที่เดิม
-        var op = SceneManager.LoadSceneAsync(sceneName);
-        if (op == null)
+        // 1) เช็คก่อนว่ามี scene นี้ใน Build Settings — ไม่มีก็จบตรงนี้ ยังไม่ได้แตะจอ
+        if (!Application.CanStreamedLevelBeLoaded(sceneName))
         {
             Debug.LogError($"[SceneLoader] โหลด '{sceneName}' ไม่ได้ — เพิ่มใน Build Settings หรือยัง");
             Time.timeScale = prevTimeScale;
             StateMachineController.IsPaused = prevSmPaused;
-            yield return FadeTo(0f, _fadeFromBlackDuration);
             IsLoading = false;
             yield break;
         }
 
-        op.allowSceneActivation = false;
+        // 2) ดำลงทับเมนูที่เปิดอยู่
+        yield return FadeTo(1f, _fadeToBlackDuration);
 
         // 3) ตอนจอดำ: เปิดหน้าโหลด ปิดเมนูทั้งหมด (มันข้าม scene มาด้วยเพราะอยู่ใต้ UIRoot)
         ui.Open(ScreenId.Loading, instant: true);
         ui.CloseAllExcept(ScreenId.Loading, instant: true);
         UIManager.TryGet<LoadingScreen>(ScreenId.Loading, out var screen);
 
-        // 4) สว่างขึ้นเห็นหน้าโหลด
+        // 4) สว่างขึ้นเห็นหน้าโหลดให้เต็มก่อน แล้วค่อยเริ่มโหลด
+        // ถ้าเริ่มโหลดก่อน ตอนโหลดหนัก ๆ เกมจะค้างกลางทางที่จอยังมืดอยู่ — คนเล่นเห็นจอดำค้างหลายวินาที
+        // แล้วพอสว่าง เส้นโหลดก็เต็มไปแล้ว
         yield return FadeTo(0f, _fadeFromBlackDuration);
+
+        // โหลดเบื้องหลังแบบเบา ๆ — จอยังขยับได้ระหว่างโหลด
+        ThreadPriority prevPriority = Application.backgroundLoadingPriority;
+        Application.backgroundLoadingPriority = _loadingPriority;
+
+        var op = SceneManager.LoadSceneAsync(sceneName);
+        op.allowSceneActivation = false;
 
         float startTime = Time.unscaledTime;
 
@@ -248,8 +258,11 @@ public class SceneLoader : MonoBehaviour
         // 7) ดำลงอีกรอบ แล้วค่อยสลับ scene ตอนมืด
         yield return FadeTo(1f, _fadeToBlackDuration);
 
+        // ตอนสลับ scene จอดำอยู่แล้ว — ใช้ความเร็วสูงสุดได้เลย
+        Application.backgroundLoadingPriority = ThreadPriority.High;
         op.allowSceneActivation = true;
         while (!op.isDone) yield return null;
+        Application.backgroundLoadingPriority = prevPriority;
 
         // ปลดหลังซีนเก่าหายไปแล้วเท่านั้น — ถ้าปลดก่อน ตัวละครเก่ายังอยู่อีกไม่กี่เฟรม
         // แล้วจะต่อยตามคลิกที่ค้างไว้ตอนโหลด (จอดำอยู่ เลยได้ยินแค่เสียง)
