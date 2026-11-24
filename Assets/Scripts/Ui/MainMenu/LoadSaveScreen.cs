@@ -45,6 +45,7 @@ public class LoadSaveScreen : UIScreen
     [Header("Background (optional)")]
     [Tooltip("The picture behind the dark shade.")]
     [SerializeField] private Image background;
+    [SerializeField] private Sprite defaultBackground;
 
     [Tooltip("Show the selected slot's location picture as the background.\n" +
              "Off = keep the picture that is set on the Image.")]
@@ -295,7 +296,12 @@ public class LoadSaveScreen : UIScreen
         MoveMarkerTo(_selected, instant);
 
         if (backgroundFollowsSelection)
-            SetBackground(HasSelection && _hasSave[_selected] ? _images[_selected] : null, instant);
+        {
+            Sprite selectedImage = HasSelection
+                ? (_hasSave[_selected] ? _images[_selected] : defaultBackground)
+                : null;
+            SetBackground(selectedImage, instant);
+        }
     }
 
     private void RefreshButtons()

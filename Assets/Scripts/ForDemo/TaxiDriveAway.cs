@@ -71,6 +71,10 @@ public class TaxiDriveAway : MonoBehaviour
     [Tooltip("ความดังเสียงเครื่องรถตอนวิดีโอเล่น — 0 = เงียบ จบวิดีโอแล้วกลับมาดังปกติ")]
     [SerializeField, Range(0f, 1f)] private float _idleVolumeDuringVideo = 0f;
 
+    [Tooltip("ติ๊ก = ตอนวิดีโอเล่น เสียงในเกมหยุดหมด (เพลง / บรรยากาศ / ศัตรู) เหลือแค่เสียงวิดีโอ\n" +
+             "จบวิดีโอแล้วเล่นต่อจากจุดเดิม เหมือนกด Pause")]
+    [SerializeField] private bool _muteGameAudioDuringVideo = true;
+
     [Header("ข้ามวิดีโอ (กด ESC ค้าง)")]
     [Tooltip("ต้องกด ESC (จอย = ปุ่ม B) ค้างกี่วินาทีถึงจะข้ามวิดีโอ — ปล่อยก่อน วงจะค่อยๆ ถอยกลับ\n" +
              "ตอนวิดีโอ คลิก / Space / Enter จะไม่ข้ามแล้ว กันกดพลาด")]
@@ -229,6 +233,10 @@ public class TaxiDriveAway : MonoBehaviour
     private bool _cutsceneSet;
     private bool _cutsceneWasActive;
 
+    private bool _audioMuted;
+    private readonly List<AudioSource> _pausedMusic = new List<AudioSource>();
+    private readonly List<AudioSource> _audioBuffer = new List<AudioSource>();
+
     private SFXHandle _idle;
     private SFXHandle _drive;
     private bool _idleFading;
@@ -313,6 +321,7 @@ public class TaxiDriveAway : MonoBehaviour
         _idle.Stop();
         _drive.Stop();
         DestroyVideoScreen();
+        RestoreGameAudio();
         RestoreCutsceneMode();
         UnlockPlayer();
         DestroyBlackScreen();
@@ -329,6 +338,8 @@ public class TaxiDriveAway : MonoBehaviour
         if (_phase == IntroPhase.Video)
         {
             SetCutsceneMode();
+            if (_audioMuted)
+                PauseMusic();
             if (_allowSkip)
                 UpdateVideoSkip();
         }
@@ -374,7 +385,9 @@ public class TaxiDriveAway : MonoBehaviour
             }
 
             _phase = IntroPhase.Video;
+            MuteGameAudio();
             yield return PlayPreTaxiVideo();
+            RestoreGameAudio();
             _phase = IntroPhase.Black;   // หลังวิดีโอกดข้ามจอดำได้เหมือนเดิม
             RestoreCutsceneMode();
 
@@ -532,9 +545,11 @@ public class TaxiDriveAway : MonoBehaviour
         _videoPlayer.isLooping = false;
         _videoPlayer.renderMode = VideoRenderMode.RenderTexture;
 
-        // เสียงวิดีโอออกทาง AudioSource จะได้ผ่าน AudioMixer / AudioListener.pause ตามระบบเสียงของเกม
+        // เสียงวิดีโอออกทาง AudioSource จะได้ผ่าน AudioMixer ตามระบบเสียงของเกม
+        // ไม่หยุดตาม AudioListener.pause — ตอนวิดีโอเราหยุดเสียงในเกมด้วย pause แต่วิดีโอต้องดังต่อ
         _videoAudio = _videoRoot.AddComponent<AudioSource>();
         _videoAudio.playOnAwake = false;
+        _videoAudio.ignoreListenerPause = true;
         _videoAudio.spatialBlend = 0f;
         _videoAudio.volume = _videoVolume;
         _videoAudio.outputAudioMixerGroup = _videoMixerGroup;
@@ -655,6 +670,58 @@ public class TaxiDriveAway : MonoBehaviour
             if (_videoPlayer != null)
                 _videoPlayer.Stop();
         }
+    }
+
+    // ---------- เสียงในเกมตอนวิดีโอ ----------
+
+    // หยุดเสียงในเกมทั้งหมดแบบเดียวกับเมนู Pause — เหลือแค่เสียงวิดีโอ (ignoreListenerPause)
+    private void MuteGameAudio()
+    {
+        if (!_muteGameAudioDuringVideo || _audioMuted)
+            return;
+
+        _audioMuted = true;
+        AudioListener.pause = true;
+        PauseMusic();
+    }
+
+    // เพลง (BGM) ตั้งให้ไม่หยุดตาม AudioListener.pause (SoundManager → bgmPlaysDuringPause) ต้องหยุดเอง
+    // เรียกทุกเฟรมตอนวิดีโอ เผื่อมีเพลงเริ่มเล่นใหม่กลางวิดีโอ (เช่น BattleMusic สลับเพลง)
+    private void PauseMusic()
+    {
+        SoundManager sound = SoundManager.Instance;
+        if (sound == null)
+            return;
+
+        sound.GetComponentsInChildren(true, _audioBuffer);
+        foreach (AudioSource source in _audioBuffer)
+        {
+            if (source == null || source == _videoAudio || !source.ignoreListenerPause || !source.isPlaying)
+                continue;
+
+            source.Pause();
+            if (!_pausedMusic.Contains(source))
+                _pausedMusic.Add(source);
+        }
+    }
+
+    // เล่นเสียงต่อจากจุดเดิม — เรียกตอนวิดีโอจบ / ถูกข้าม / object ถูกปิด กันเสียงเงียบค้างทั้งเกม
+    private void RestoreGameAudio()
+    {
+        if (!_audioMuted)
+            return;
+        _audioMuted = false;
+
+        foreach (AudioSource source in _pausedMusic)
+        {
+            if (source != null)
+                source.UnPause();
+        }
+        _pausedMusic.Clear();
+
+        // ถ้าเกมถูก Pause อยู่จริง ๆ ให้ PauseController เป็นคนปลดเอง
+        if (PauseController.Instance == null || !PauseController.Instance.IsPaused)
+            AudioListener.pause = false;
     }
 
     // เปิดโหมดคัตซีนของกล้องตอนวิดีโอ — PauseController จะไม่เปิดเมนู Pause ตอนกด ESC
