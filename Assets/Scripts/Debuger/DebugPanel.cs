@@ -1,4 +1,5 @@
 using UnityEngine;
+using Yantra.UI;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -68,6 +69,11 @@ public class DebugPanel : MonoBehaviour
 
         // panel เปิดอยู่ + กด ESC = ปิด panel
         if (_open && EscapePressed())
+            Close();
+
+        // หน้า UI ของเกมเปิดขึ้นมา (Game Over / Tutorial / Loading) — หลีกทางให้
+        // ไม่งั้น panel (Sort Order สูงกว่า) จะบังปุ่มของหน้านั้น
+        if (_open && IsGameScreenOpen())
             Close();
 
         // คืน PauseController หลังปิด panel ไป 1 เฟรม — ESC ของเฟรมที่ปิดจะได้ไม่ไปเปิด Pause ต่อ
@@ -162,6 +168,12 @@ public class DebugPanel : MonoBehaviour
         _pause = null;
     }
 
+    private static bool IsGameScreenOpen()
+    {
+        UIManager ui = UIManager.Instance;
+        return ui != null && ui.HasAnyOpen;
+    }
+
     private static bool EscapePressed()
     {
 #if ENABLE_INPUT_SYSTEM
@@ -187,7 +199,9 @@ public class DebugPanel : MonoBehaviour
 
     private void UnlockPlayer()
     {
-        if (_camera != null)
+        // ตั้ง IsPaused = false จะล็อก + ซ่อนเมาส์ทันที — ถ้าหน้าอื่น (Game Over / Tutorial) เปิดอยู่
+        // มันต้องใช้เมาส์ ปล่อยไว้ให้หน้านั้นคืนกล้องเอง (Tutorial ปิดแล้วคืนให้ / Game Over โหลดฉากใหม่)
+        if (_camera != null && !IsGameScreenOpen())
             _camera.IsPaused = _cameraWasPaused;
         if (_locomotion != null)
             _locomotion.UnlockLocomotion(this);
