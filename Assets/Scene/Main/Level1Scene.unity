@@ -50621,11 +50621,19 @@ MonoBehaviour:
   _doorOpenToClose: 1.2
   _blackAfterDoor: 0.6
   _fadeInDuration: 1.5
-  _preTaxiVideo: {fileID: 32900000, guid: bc126d0a24b9c5e4c9a5e43acda86ec4, type: 3}
+  _preTaxiVideo: {fileID: 32900000, guid: a4d0a00b1ffb88b4d976cb52d8c1917c, type: 3}
   _videoFadeIn: 0.8
-  _videoMixerGroup: {fileID: 0}
+  _videoMixerGroup: {fileID: 2432979055273420014, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
   _videoVolume: 1
   _idleVolumeDuringVideo: 0
+  _holdToSkipVideo: 1
+  _skipRingSprite: {fileID: 21300000, guid: 6314208ab01590b4a9f5e767747b7b04, type: 3}
+  _skipRingColor: {r: 1, g: 1, b: 1, a: 1}
+  _skipRingSize: 56
+  _skipText: "\u0E01\u0E14 ESC \u0E04\u0E49\u0E32\u0E07\u0E40\u0E1E\u0E37\u0E48\u0E2D\u0E02\u0E49\u0E32\u0E21"
+  _skipFont: {fileID: 11400000, guid: f5b85ea66df3d2a4aac7e97b6dfb38b9, type: 2}
+  _skipFontSize: 26
+  _skipHintShowTime: 2.5
   _dialogue: {fileID: 11400000, guid: 5b794765e87a61d41a08c95cde55cac2, type: 2}
   _startDelay: 0
   _afterDialogueDelay: 1
@@ -82441,6 +82449,10 @@ PrefabInstance:
     - target: {fileID: 912990588788619273, guid: c958c578a6cb95d4589b31ffd1b4d07c, type: 3}
       propertyPath: m_SizeDelta.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1128240810251892557, guid: c958c578a6cb95d4589b31ffd1b4d07c, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -107.99988
       objectReference: {fileID: 0}
     - target: {fileID: 1143200342012053889, guid: c958c578a6cb95d4589b31ffd1b4d07c, type: 3}
       propertyPath: m_AnchorMax.y
@@ -279908,19 +279920,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6121089114684089452, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 50.50898
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6121089114684089452, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 35.54
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6121089114684089452, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 435.07013
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6121089114684089452, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.8879868
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6121089114684089452, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_LocalRotation.x
@@ -279928,7 +279940,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6121089114684089452, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0.4598691
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6121089114684089452, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_LocalRotation.z
@@ -279936,15 +279948,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6121089114684089452, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 2.478211
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6121089114684089452, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 4.29125
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6121089114684089452, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 359.5553
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6538292314560294204, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_LocalPosition.x
@@ -359659,7 +359671,7 @@ MonoBehaviour:
   m_OverrideTileSize: 0
   m_TileSize: 256
   m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.16666667
+  m_VoxelSize: 0.033333335
   m_MinRegionArea: 2
   m_NavMeshData: {fileID: 23800000, guid: e23e52297cb0e704c9226883abc06c1b, type: 2}
   m_BuildHeightMesh: 0

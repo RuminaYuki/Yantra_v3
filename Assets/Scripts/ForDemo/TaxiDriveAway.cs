@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
@@ -69,6 +70,31 @@ public class TaxiDriveAway : MonoBehaviour
 
     [Tooltip("ความดังเสียงเครื่องรถตอนวิดีโอเล่น — 0 = เงียบ จบวิดีโอแล้วกลับมาดังปกติ")]
     [SerializeField, Range(0f, 1f)] private float _idleVolumeDuringVideo = 0f;
+
+    [Header("ข้ามวิดีโอ (กด ESC ค้าง)")]
+    [Tooltip("ต้องกด ESC (จอย = ปุ่ม B) ค้างกี่วินาทีถึงจะข้ามวิดีโอ — ปล่อยก่อน วงจะค่อยๆ ถอยกลับ\n" +
+             "ตอนวิดีโอ คลิก / Space / Enter จะไม่ข้ามแล้ว กันกดพลาด")]
+    [SerializeField, Min(0.1f)] private float _holdToSkipVideo = 1f;
+
+    [Tooltip("รูปวงแหวนที่หมุนเต็มตอนกดค้าง (แนะนำ Assets/Ui/QTE/QTE_Ring) — เว้นว่าง = ไม่มีวง มีแค่ข้อความ")]
+    [SerializeField] private Sprite _skipRingSprite;
+
+    [Tooltip("สีวงแหวน")]
+    [SerializeField] private Color _skipRingColor = Color.white;
+
+    [Tooltip("ขนาดวงแหวน (pixel ที่ความละเอียด 1920x1080)")]
+    [SerializeField, Min(16f)] private float _skipRingSize = 56f;
+
+    [Tooltip("ข้อความข้างวงแหวน — เว้นว่าง = ไม่มีข้อความ")]
+    [SerializeField] private string _skipText = "กด ESC ค้างเพื่อข้าม";
+
+    [Tooltip("ฟอนต์ข้อความ (ต้องมีภาษาไทย) — เว้นว่าง = ใช้ฟอนต์ default ของ TextMeshPro")]
+    [SerializeField] private TMP_FontAsset _skipFont;
+
+    [SerializeField, Min(8f)] private float _skipFontSize = 26f;
+
+    [Tooltip("ผู้เล่นกดปุ่มอะไรก็ได้ ป้ายข้ามจะโผล่กี่วินาที แล้วค่อยจางหาย — กดค้างอยู่จะโชว์ตลอด")]
+    [SerializeField, Min(0f)] private float _skipHintShowTime = 2.5f;
 
     [Tooltip("ไฟล์บทพูด (Subtitle Data) — เว้นว่าง = ไม่คุย รถออกเลย")]
     [SerializeField] private SubtitleDataSO _dialogue;
@@ -195,6 +221,13 @@ public class TaxiDriveAway : MonoBehaviour
     private AudioSource _videoAudio;
     private string _videoError;
 
+    private CanvasGroup _skipGroup;
+    private Image _skipRing;
+    private float _skipHold;
+    private float _skipHintTimer;
+    private bool _cutsceneSet;
+    private bool _cutsceneWasActive;
+
     private SFXHandle _idle;
     private SFXHandle _drive;
     private bool _idleFading;
@@ -266,6 +299,7 @@ public class TaxiDriveAway : MonoBehaviour
         _idle.Stop();
         _drive.Stop();
         DestroyVideoScreen();
+        RestoreCutsceneMode();
         UnlockPlayer();
         DestroyBlackScreen();
     }
@@ -278,16 +312,16 @@ public class TaxiDriveAway : MonoBehaviour
 
         WatchStuckBlack();
 
-        if (_allowSkip && _phase != IntroPhase.Done && CanSkipNow() && SkipPressed())
+        if (_phase == IntroPhase.Video)
+        {
+            SetCutsceneMode();
+            if (_allowSkip)
+                UpdateVideoSkip();
+        }
+        else if (_allowSkip && _phase != IntroPhase.Done && CanSkipNow() && SkipPressed())
         {
             if (_phase == IntroPhase.Black)
                 _hurry = true;
-            else if (_phase == IntroPhase.Video)
-            {
-                _skipVideo = true;
-                if (_videoPlayer != null)
-                    _videoPlayer.Stop();
-            }
             else if (SubtitleSystem.Instance != null)
                 SubtitleSystem.Instance.SkipLine();
         }
@@ -324,6 +358,7 @@ public class TaxiDriveAway : MonoBehaviour
             _phase = IntroPhase.Video;
             yield return PlayPreTaxiVideo();
             _phase = IntroPhase.Black;   // หลังวิดีโอกดข้ามจอดำได้เหมือนเดิม
+            RestoreCutsceneMode();
 
             _idle.SetVolumeMultiplier(1f);
         }
@@ -394,6 +429,8 @@ public class TaxiDriveAway : MonoBehaviour
     private IEnumerator PlayPreTaxiVideo()
     {
         _skipVideo = false;
+        _skipHold = 0f;
+        _skipHintTimer = _skipHintShowTime;   // วิดีโอเริ่ม โชว์ป้ายให้รู้ว่าข้ามได้แป๊บนึง
 
         // ปกติเตรียมเสร็จไปแล้วตอนจอดำ เลยไม่ต้องรอ
         while (!_videoReady && !_skipVideo && string.IsNullOrEmpty(_videoError))
@@ -486,6 +523,138 @@ public class TaxiDriveAway : MonoBehaviour
         _videoPlayer.SetTargetAudioSource(0, _videoAudio);
         _videoPlayer.skipOnDrop = true;
         _videoPlayer.timeUpdateMode = VideoTimeUpdateMode.GameTime;
+
+        if (_allowSkip)
+            CreateSkipHint();
+    }
+
+    // ป้าย "กด ESC ค้างเพื่อข้าม" มุมขวาล่าง — วงแหวนหมุนเต็มตามเวลาที่กดค้าง
+    private void CreateSkipHint()
+    {
+        var root = new GameObject("SkipHint", typeof(RectTransform), typeof(CanvasGroup));
+        root.transform.SetParent(_videoRoot.transform, false);
+        RectTransform rootRect = (RectTransform)root.transform;
+        rootRect.anchorMin = new Vector2(1f, 0f);
+        rootRect.anchorMax = new Vector2(1f, 0f);
+        rootRect.pivot = new Vector2(1f, 0f);
+        rootRect.anchoredPosition = new Vector2(-60f, 50f);
+        rootRect.sizeDelta = new Vector2(_skipRingSize, _skipRingSize);
+
+        _skipGroup = root.GetComponent<CanvasGroup>();
+        _skipGroup.alpha = 0f;
+        _skipGroup.interactable = false;
+        _skipGroup.blocksRaycasts = false;
+
+        if (_skipRingSprite != null)
+        {
+            // วงจางๆ ด้านหลัง ให้เห็นว่าต้องเติมให้เต็มวง
+            Color backColor = _skipRingColor;
+            backColor.a *= 0.25f;
+            CreateRingImage(root.transform, "RingBack", backColor);
+
+            _skipRing = CreateRingImage(root.transform, "RingFill", _skipRingColor);
+            _skipRing.type = Image.Type.Filled;
+            _skipRing.fillMethod = Image.FillMethod.Radial360;
+            _skipRing.fillOrigin = (int)Image.Origin360.Top;
+            _skipRing.fillClockwise = true;
+            _skipRing.fillAmount = 0f;
+        }
+
+        if (!string.IsNullOrEmpty(_skipText))
+        {
+            var label = new GameObject("Label", typeof(RectTransform));
+            label.transform.SetParent(root.transform, false);
+            RectTransform labelRect = (RectTransform)label.transform;
+            labelRect.anchorMin = new Vector2(0f, 0.5f);
+            labelRect.anchorMax = new Vector2(0f, 0.5f);
+            labelRect.pivot = new Vector2(1f, 0.5f);
+            labelRect.anchoredPosition = new Vector2(_skipRingSprite != null ? -16f : 0f, 0f);
+            labelRect.sizeDelta = new Vector2(600f, _skipRingSize);
+
+            var text = label.AddComponent<TextMeshProUGUI>();
+            if (_skipFont != null)
+                text.font = _skipFont;
+            text.text = _skipText;
+            text.fontSize = _skipFontSize;
+            text.color = Color.white;
+            text.alignment = TextAlignmentOptions.MidlineRight;
+            text.raycastTarget = false;
+        }
+    }
+
+    private Image CreateRingImage(Transform parent, string name, Color color)
+    {
+        var ring = new GameObject(name, typeof(RectTransform), typeof(Image));
+        ring.transform.SetParent(parent, false);
+        RectTransform rect = (RectTransform)ring.transform;
+        rect.anchorMin = Vector2.zero;
+        rect.anchorMax = Vector2.one;
+        rect.offsetMin = Vector2.zero;
+        rect.offsetMax = Vector2.zero;
+
+        Image image = ring.GetComponent<Image>();
+        image.sprite = _skipRingSprite;
+        image.color = color;
+        image.preserveAspect = true;
+        image.raycastTarget = false;
+        return image;
+    }
+
+    // เรียกทุกเฟรมตอนวิดีโอ — กดค้างจนวงเต็ม = ข้าม
+    private void UpdateVideoSkip()
+    {
+        float dt = Time.unscaledDeltaTime;
+        bool holding = CanSkipNow() && SkipHeld();
+
+        if (holding)
+            _skipHold += dt;
+        else
+            _skipHold = Mathf.Max(0f, _skipHold - dt * 2f);   // ปล่อยแล้วถอยเร็วกว่าตอนเติม
+
+        if (holding || AnyInputPressed())
+            _skipHintTimer = _skipHintShowTime;
+        else
+            _skipHintTimer -= dt;
+
+        float progress = Mathf.Clamp01(_skipHold / _holdToSkipVideo);
+
+        if (_skipRing != null)
+            _skipRing.fillAmount = progress;
+
+        if (_skipGroup != null)
+        {
+            float target = _skipHintTimer > 0f || progress > 0f ? 1f : 0f;
+            _skipGroup.alpha = Mathf.MoveTowards(_skipGroup.alpha, target, dt * 4f);
+        }
+
+        if (progress >= 1f && !_skipVideo)
+        {
+            _skipVideo = true;
+            if (_videoPlayer != null)
+                _videoPlayer.Stop();
+        }
+    }
+
+    // เปิดโหมดคัตซีนของกล้องตอนวิดีโอ — PauseController จะไม่เปิดเมนู Pause ตอนกด ESC
+    // ผู้เล่นอาจ spawn ทีหลัง เลยลองทุกเฟรมจนเจอกล้อง
+    private void SetCutsceneMode()
+    {
+        if (_cutsceneSet || _camera == null)
+            return;
+
+        _cutsceneWasActive = _camera.IsCutsceneMode;
+        _camera.IsCutsceneMode = true;
+        _cutsceneSet = true;
+    }
+
+    private void RestoreCutsceneMode()
+    {
+        if (!_cutsceneSet)
+            return;
+
+        if (_camera != null)
+            _camera.IsCutsceneMode = _cutsceneWasActive;
+        _cutsceneSet = false;
     }
 
     private void DestroyVideoScreen()
@@ -513,6 +682,8 @@ public class TaxiDriveAway : MonoBehaviour
         _videoAspect = null;
         _videoGroup = null;
         _videoAudio = null;
+        _skipGroup = null;
+        _skipRing = null;
     }
 
     // กดข้ามตอนจอดำ = ตัดเวลารอที่เหลือทิ้งหมด
@@ -551,6 +722,34 @@ public class TaxiDriveAway : MonoBehaviour
                (gamepad != null && gamepad.buttonSouth.wasPressedThisFrame);
 #else
         return Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return);
+#endif
+    }
+
+    // ปุ่มข้ามวิดีโอ — ESC / ปุ่ม B ของจอย ต้องกดค้าง
+    private static bool SkipHeld()
+    {
+#if ENABLE_INPUT_SYSTEM
+        Keyboard keyboard = Keyboard.current;
+        Gamepad gamepad = Gamepad.current;
+        return (keyboard != null && keyboard.escapeKey.isPressed) ||
+               (gamepad != null && gamepad.buttonEast.isPressed);
+#else
+        return Input.GetKey(KeyCode.Escape);
+#endif
+    }
+
+    // กดอะไรก็ได้ = ผู้เล่นอยากทำอะไรสักอย่าง โชว์ป้ายบอกวิธีข้าม
+    private static bool AnyInputPressed()
+    {
+#if ENABLE_INPUT_SYSTEM
+        Mouse mouse = Mouse.current;
+        Keyboard keyboard = Keyboard.current;
+        Gamepad gamepad = Gamepad.current;
+        return (mouse != null && mouse.leftButton.wasPressedThisFrame) ||
+               (keyboard != null && keyboard.anyKey.wasPressedThisFrame) ||
+               (gamepad != null && (gamepad.buttonSouth.wasPressedThisFrame || gamepad.startButton.wasPressedThisFrame));
+#else
+        return Input.anyKeyDown;
 #endif
     }
 
