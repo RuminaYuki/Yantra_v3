@@ -164,6 +164,28 @@ public class GhostEncounterCutscene : MonoBehaviour
     [Tooltip("ช่วงนี้นานอย่างน้อยกี่วินาที — เผื่อบทพูดสั้น / ไม่ได้ใส่ Blocked Line")]
     [SerializeField, Min(0f)] private float _afterBlockMinTime = 2.5f;
 
+    [Tooltip("ติ๊ก = หลังกันได้ ผียืนนิ่งจ้องริน รอรินพูด Blocked Line จบ → หน้าสอนขึ้น → ปิดหน้าสอนแล้วค่อยปล่อยผี\n" +
+             "ไม่ติ๊ก = ผีทำตาม AI เอง (ง้างตีอีกรอบ = จบคัตซีนก่อนพูดจบ)")]
+    [SerializeField] private bool _afterBlockHoldGhost = true;
+
+    [Tooltip("กันได้แล้วรอกี่วินาทีค่อยตรึงผี — ต้องรอท่าตบจบก่อน ตรึงกลางท่าผีจะค้างในกล่องตบ\n" +
+             "ผีเข้าท่าตบอีกรอบก่อนถึงเวลานี้ = จบคัตซีนแบบเดิม (ลดค่าลงถ้าเจอบ่อย)")]
+    [SerializeField, Min(0f)] private float _afterBlockHoldDelay = 1f;
+
+    [Tooltip("ตรึงผีแล้ว ให้ผีเดินถอยหลังออกห่างรินกี่เมตรก่อนหยุดยืนจ้อง (ใช้ท่าเดินถอยหลังใน Animator) — 0 = หยุดนิ่งทันที")]
+    [SerializeField, Min(0f)] private float _afterBlockGhostBackDistance = 1.5f;
+
+    [Tooltip("ถอยนานสุดกี่วินาที — ข้างหลังติดอะไรถอยไม่ครบระยะ ก็หยุดเองเมื่อครบเวลานี้")]
+    [SerializeField, Min(0.1f)] private float _afterBlockGhostBackMaxTime = 2f;
+
+    [Tooltip("ค่า Move Multiply ตอนผีถอย — 1 = ท่าเดิน / 2 = ท่าวิ่ง (ตามตำแหน่งใน blend tree)")]
+    [SerializeField, Min(0.1f)] private float _afterBlockGhostBackMultiply = 1f;
+
+    [Tooltip("ชื่อ state ท่าเดินใน Animator ของผี (blend tree VelocityZ) — ตอนถอยสั่งกลับมา state นี้")]
+    [SerializeField] private string _afterBlockGhostMoveState = "BaseMovement";
+
+    private LocomotionMoveMode _savedGhostMoveMode;
+
     [Tooltip("ขึ้นบรรทัดใน Console บอกแต่ละขั้น (ผีเริ่มเดิน / ถอยไปกี่เมตร / ผล QTE แต่ละรอบ) — ปิดได้หลังจูนเสร็จ")]
     [SerializeField] private bool _logSteps = true;
 
@@ -467,6 +489,11 @@ public class GhostEncounterCutscene : MonoBehaviour
         float closest = float.MaxValue;
         float startDistance = FlatDistanceToGhost();
         string endNote = "";
+        bool ghostHeld = false;
+        bool ghostStepping = false;
+        float ghostBackTime = 0f;
+        float savedMultiply = 1f;
+        Vector3 ghostBackStart = Vector3.zero;
 
         while (time < 20f)
         {
@@ -481,6 +508,41 @@ public class GhostEncounterCutscene : MonoBehaviour
             {
                 endNote = $" | ผีเข้าท่าตบอีกรอบตอน {time:0.0} วิ (ห่าง {distance:0.0} ม.) — จบคัตซีนก่อนบทพูดจบ";
                 break;
+            }
+
+            // ท่าตบจบแล้ว → ตรึงผี (ปิดสมอง) → เดินถอยหลังออกห่างริน → หยุดยืนจ้อง จนรินพูดจบ + ปิดหน้าสอน (Finish ปล่อยให้)
+            if (_afterBlockHoldGhost && !ghostHeld && time >= _afterBlockHoldDelay)
+            {
+                ghostHeld = true;
+                HoldGhost(keepLooking: true);
+                ghostStepping = StartGhostStepBack(out ghostBackStart, out savedMultiply);
+                ghostBackTime = 0f;
+                if (_logSteps)
+                    Debug.Log($"[GhostEncounter] ตรึงผีรอรินพูดจบ (ห่าง {distance:0.0} ม.){(ghostStepping ? $" — ผีถอยหลัง {_afterBlockGhostBackDistance:0.0} ม. ก่อน" : "")}", this);
+            }
+
+            if (ghostStepping)
+            {
+                ghostBackTime += Time.deltaTime;
+                Vector3 moved = _ghost.position - ghostBackStart;
+                moved.y = 0f;
+                if (moved.magnitude >= _afterBlockGhostBackDistance || ghostBackTime >= _afterBlockGhostBackMaxTime)
+                {
+                    ghostStepping = false;
+                    StopGhostStepBack(savedMultiply);
+                    if (_logSteps)
+                        Debug.Log($"[GhostEncounter] ผีถอยไป {moved.magnitude:0.00} ม. ใช้ {ghostBackTime:0.0} วิ — หยุดยืนจ้อง", this);
+                }
+                else
+                {
+                    Vector3 away = _ghost.position - _player.transform.position;
+                    away.y = 0f;
+                    if (away.sqrMagnitude > 0.0001f)
+                    {
+                        _ghostLocomotion.SetMovementDirection(away.normalized);
+                        _ghostLocomotion.SetFacingDirection(-away);
+                    }
+                }
             }
 
             bool talking = SubtitleSystem.Instance != null && SubtitleSystem.Instance.IsPlaying;
@@ -511,11 +573,16 @@ public class GhostEncounterCutscene : MonoBehaviour
                 }
             }
 
-            if (done && speed <= 0.0001f)
+            // ผียังถอยไม่เสร็จ — รอให้หยุดก่อนค่อยจบช่วงนี้ (ไม่งั้นหน้าสอนขึ้นตอนผีกำลังเดิน)
+            if (done && speed <= 0.0001f && !ghostStepping)
                 break;
 
             yield return null;
         }
+
+        // หลุดลูปกลางทาง (ผีตบอีกรอบ / ครบ 20 วิ) — หยุดเดินถอยให้เรียบร้อย
+        if (ghostStepping)
+            StopGhostStepBack(savedMultiply);
 
         if (_logSteps)
         {
@@ -828,6 +895,56 @@ public class GhostEncounterCutscene : MonoBehaviour
                 _ghostLookIK.SetIKEnabled(false);
             }
         }
+    }
+
+    // ผีถูกตรึงอยู่ (สมองปิด) — ปลดล็อกการเดินชั่วคราว ให้ Root Motion พาเดินถอยหลังด้วยท่าจริง
+    // คืน false = ไม่ต้องถอย (ระยะ 0 / หา Locomotion ไม่เจอ) ผียืนนิ่งเลย
+    private bool StartGhostStepBack(out Vector3 start, out float savedMultiply)
+    {
+        start = _ghost != null ? _ghost.position : Vector3.zero;
+        savedMultiply = 1f;
+
+        if (_afterBlockGhostBackDistance <= 0f || _ghostLocomotion == null || _player == null || !_ghostHeld)
+            return false;
+
+        // สมองปิดแล้ว Animator ยังค้างท่า Attack (ไม่มีทางกลับเอง) — สั่งกลับท่าเดินเอง ไม่งั้นไม่มี Root Motion
+        Animator animator = _ghostLocomotion.GetComponent<Animator>();
+        int moveState = Animator.StringToHash(_afterBlockGhostMoveState);
+        if (animator != null && animator.HasState(0, moveState))
+        {
+            if (animator.GetCurrentAnimatorStateInfo(0).shortNameHash != moveState)
+                animator.CrossFadeInFixedTime(moveState, 0.25f, 0);
+        }
+        else
+        {
+            Debug.LogWarning($"[GhostEncounter] {name} ไม่เจอ state \"{_afterBlockGhostMoveState}\" ใน Animator ของผี — ผีอาจไม่ถอย", this);
+        }
+
+        // ตอนตีสมองอาจตั้งโหมดเดินเป็นแบบไม่ขยับไว้ — บังคับ Root Motion ระหว่างถอย แล้วคืนตอนหยุด
+        _savedGhostMoveMode = _ghostLocomotion.MoveMode;
+        _ghostLocomotion.MoveMode = LocomotionMoveMode.RootMotion;
+
+        if (_logSteps)
+            Debug.Log($"[GhostEncounter] เริ่มถอยผี — Move Mode เดิม {_savedGhostMoveMode}", this);
+
+        savedMultiply = _ghostLocomotion.GetMoveMultiply();
+        _ghostLocomotion.SetMoveMultiply(_afterBlockGhostBackMultiply);
+        _ghostLocomotion.UnlockLocomotion(this);
+        return true;
+    }
+
+    private void StopGhostStepBack(float savedMultiply)
+    {
+        if (_ghostLocomotion == null)
+            return;
+
+        _ghostLocomotion.ClearMovementDirection();
+        _ghostLocomotion.SetMoveMultiply(savedMultiply);
+        _ghostLocomotion.MoveMode = _savedGhostMoveMode;
+
+        // ล็อกกลับ (รีเซ็ตท่าเดินเป็นยืน) — ReleaseGhost ตอน Finish จะปลดให้เอง
+        if (_ghostHeld)
+            _ghostLocomotion.LockLocomotion(this);
     }
 
     private void ReleaseGhost()
