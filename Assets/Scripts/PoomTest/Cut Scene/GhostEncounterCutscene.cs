@@ -5,6 +5,9 @@ using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Events;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Yantra.UI;
@@ -185,6 +188,10 @@ public class GhostEncounterCutscene : MonoBehaviour
     [SerializeField] private string _afterBlockGhostMoveState = "BaseMovement";
 
     private LocomotionMoveMode _savedGhostMoveMode;
+
+    [Header("ข้ามบทพูด")]
+    [Tooltip("ระหว่างคัตซีน คลิกซ้าย / Space / Enter / ปุ่ม A จอย = ข้ามประโยคที่รินกำลังพูด (แบบเดียวกับ Taxi)")]
+    [SerializeField] private bool _allowSkipLine = true;
 
     [Tooltip("ขึ้นบรรทัดใน Console บอกแต่ละขั้น (ผีเริ่มเดิน / ถอยไปกี่เมตร / ผล QTE แต่ละรอบ) — ปิดได้หลังจูนเสร็จ")]
     [SerializeField] private bool _logSteps = true;
@@ -1046,6 +1053,44 @@ public class GhostEncounterCutscene : MonoBehaviour
                 return child;
         }
         return null;
+    }
+
+    // คลิกข้ามประโยค — เฉพาะตอนคัตซีนนี้เล่นอยู่ / ไม่มีเมนูเปิด / ไม่ได้โหลดฉาก
+    private void Update()
+    {
+        if (!_running || !_allowSkipLine)
+            return;
+
+        SubtitleSystem subtitles = SubtitleSystem.Instance;
+        if (subtitles == null || !subtitles.IsPlaying || !CanSkipLineNow() || !SkipLinePressed())
+            return;
+
+        subtitles.SkipLine();
+        if (_logSteps)
+            Debug.Log("[GhostEncounter] ผู้เล่นกดข้ามประโยค", this);
+    }
+
+    private static bool CanSkipLineNow()
+    {
+        if (SceneLoader.Instance != null && SceneLoader.Instance.IsLoading)
+            return false;
+        if (PauseController.Instance != null && PauseController.Instance.IsPaused)
+            return false;
+        return UIManager.Instance == null || !UIManager.Instance.HasAnyOpen;
+    }
+
+    private static bool SkipLinePressed()
+    {
+#if ENABLE_INPUT_SYSTEM
+        Mouse mouse = Mouse.current;
+        Keyboard keyboard = Keyboard.current;
+        Gamepad gamepad = Gamepad.current;
+        return (mouse != null && mouse.leftButton.wasPressedThisFrame) ||
+               (keyboard != null && (keyboard.spaceKey.wasPressedThisFrame || keyboard.enterKey.wasPressedThisFrame)) ||
+               (gamepad != null && gamepad.buttonSouth.wasPressedThisFrame);
+#else
+        return Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Return);
+#endif
     }
 
     private void LateUpdate()
