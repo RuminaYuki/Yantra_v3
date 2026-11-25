@@ -22,7 +22,8 @@ public enum TutorialKey
 {
     E,
     Tab,
-    F
+    F,
+    HoldRightClick   // ต่อท้ายเสมอ — แทรกกลางแล้ว SO เดิมที่ตั้ง Tab / F ไว้จะเพี้ยน
 }
 
 // tutorial 1 ชุด — กด + ที่ Pages เพื่อเพิ่มหน้า
@@ -42,6 +43,9 @@ public class TutorialDataSO : ScriptableObject
     [Tooltip("ปุ่มที่ต้องกดเพื่อปิดหน้าสุดท้าย — บังคับให้ผู้เล่นลองกดปุ่มนั้นจริง\nหน้าก่อนหน้ายังกด E ไปต่อตามปกติ")]
     [SerializeField] private TutorialKey _closeKey = TutorialKey.E;
 
+    [Tooltip("ใช้กับ Close Key = Hold Right Click — ต้องกดคลิกขวาค้างกี่วินาที (เวลาจริง) ถึงจะปิด\nปล่อยก่อนครบ = ค่อยๆ ถอยกลับ")]
+    [SerializeField, Min(0.1f)] private float _holdSeconds = 1f;
+
     [Tooltip("ข้อความปุ่มหน้าสุดท้าย เช่น {Tab} Open Inventory\nเว้นว่าง = ใช้ข้อความปกติ แต่เปลี่ยนไอคอนเป็นปุ่มที่บังคับ")]
     [SerializeField] private string _closeLabel;
 
@@ -53,6 +57,7 @@ public class TutorialDataSO : ScriptableObject
     public float LockSeconds => _lockSeconds;
     public IReadOnlyList<TutorialPage> Pages => _pages ?? Array.Empty<TutorialPage>();
     public TutorialKey CloseKey => _closeKey;
+    public float HoldSeconds => _holdSeconds;
     public string CloseLabel => _closeLabel;
     public VoidEventChannelSO OnClosed => _onClosed;
 
