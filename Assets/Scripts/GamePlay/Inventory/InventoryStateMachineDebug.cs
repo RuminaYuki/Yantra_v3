@@ -21,7 +21,8 @@ namespace SDFcl.Inventory.TestStateMachine
             if (controller != null) controller.MainStateChanged -= Log;
         }
 
-        private void Log(string from, string to) =>
-            Debug.Log($"[StateMachine] {from} -> {to}", controller);
+        // ปิด log ชั่วคราว — Console รก
+        private void Log(string from, string to) { }
+            // Debug.Log($"[StateMachine] {from} -> {to}", controller);
     }
 }

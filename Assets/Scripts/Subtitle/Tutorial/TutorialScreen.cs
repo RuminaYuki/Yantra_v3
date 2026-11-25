@@ -47,10 +47,6 @@ public class TutorialScreen : UIScreen
     [Tooltip("ชื่อไอคอนใน Sprite Asset ของปุ่มที่บังคับกด — ใช้แทน {E} ในข้อความปุ่ม ตอน tutorial บังคับปุ่มอื่น")]
     [SerializeField] private string _tabIconName = "Tab";
     [SerializeField] private string _fIconName = "F";
-    [SerializeField] private string _rmbIconName = "RMB";
-
-    [Tooltip("ใช้กับ tutorial ที่ Close Key = Hold Right Click — Image แบบ Filled เติมตามเวลาที่กดค้าง\nซ่อนเองในหน้าอื่น / เว้นว่าง = ไม่มีแถบ (กดค้างยังใช้ได้)")]
-    [SerializeField] private Image _holdFill;
 
     [Tooltip("โชว์ตัวเลขนับถอยหลังบนปุ่มตอนยังล็อก — ปิดแล้วปุ่มยังล็อกอยู่ แค่ไม่มีเลขให้เห็น (จางไว้แทน)")]
     [SerializeField] private bool _showCountdown = true;
@@ -99,8 +95,6 @@ public class TutorialScreen : UIScreen
     private float _lockTimer;
     private float _unlockedAt;
     private int _openFrame;
-    private float _holdTimer;
-    private bool _holdArmed;   // ต้องปล่อยคลิกขวาก่อน 1 ครั้ง — กันค้างมาจากตอนเล่นแล้วปิดเองทันที
 
     private bool _frozen;
     private bool _unfreezePending;
@@ -254,58 +248,9 @@ public class TutorialScreen : UIScreen
             return;
         }
 
-        if (RequiredKey() == TutorialKey.HoldRightClick)
-        {
-            UpdateHold();
-            return;
-        }
-
         // กันเคสเปิดจากการกด E (เช่นเก็บของ) แล้วข้ามหน้าแรกทันที
         if (Time.frameCount > _openFrame && ContinuePressed())
             Continue();
-    }
-
-    // หน้าสุดท้ายแบบกดคลิกขวาค้าง — เติมจนครบ Hold Seconds = ปิด / ปล่อยก่อน = ถอยเร็วกว่าตอนเติม (แบบวงข้ามวิดีโอ Taxi)
-    // เวลาจริง เพราะหน้า tutorial หยุดเกมไว้ (timeScale = 0)
-    private void UpdateHold()
-    {
-        bool pressed = RightClickHeld();
-        if (!pressed)
-            _holdArmed = true;
-
-        float dt = Time.unscaledDeltaTime;
-        if (pressed && _holdArmed)
-            _holdTimer += dt;
-        else
-            _holdTimer = Mathf.Max(0f, _holdTimer - dt * 2f);
-
-        float hold = Mathf.Max(0.1f, _current.HoldSeconds);
-        if (_holdFill != null)
-            _holdFill.fillAmount = Mathf.Clamp01(_holdTimer / hold);
-
-        if (_holdTimer >= hold)
-        {
-            ResetHold();
-            Continue();
-        }
-    }
-
-    private void ResetHold()
-    {
-        _holdTimer = 0f;
-        _holdArmed = false;
-        if (_holdFill != null)
-            _holdFill.fillAmount = 0f;
-    }
-
-    private static bool RightClickHeld()
-    {
-#if ENABLE_INPUT_SYSTEM
-        Mouse mouse = Mouse.current;
-        return mouse != null && mouse.rightButton.isPressed;
-#else
-        return Input.GetMouseButton(1);
-#endif
     }
 
     private void RemoveInteractionBlocker()
@@ -399,7 +344,6 @@ public class TutorialScreen : UIScreen
 
         _lockTimer = _current.LockSeconds;
         _unlockedAt = Time.unscaledTime;
-        ResetHold();
         RefreshButton();
         UpdateLabelAlpha();
     }
@@ -510,12 +454,8 @@ public class TutorialScreen : UIScreen
         {
             label = !string.IsNullOrWhiteSpace(_current.CloseLabel)
                 ? _current.CloseLabel
-                : label.Replace("{E}", "{" + IconName(key) + "}").Replace("[E]", "[" + IconName(key) + "]");
+                : label.Replace("{E}", "{" + IconName(key) + "}").Replace("[E]", "[" + key + "]");
         }
-
-        // แถบกดค้าง โชว์เฉพาะหน้าที่บังคับคลิกขวาค้าง
-        if (_holdFill != null)
-            _holdFill.gameObject.SetActive(key == TutorialKey.HoldRightClick);
 
         // ปิดเมาส์ = ปุ่มรับคลิก/Enter ไม่ได้เลย ใช้ E อย่างเดียว
         if (_continueButton != null)
@@ -594,7 +534,6 @@ public class TutorialScreen : UIScreen
     {
         TutorialKey.Tab => _tabIconName,
         TutorialKey.F => _fIconName,
-        TutorialKey.HoldRightClick => _rmbIconName,
         _ => "E",
     };
 
@@ -610,7 +549,6 @@ public class TutorialScreen : UIScreen
         {
             TutorialKey.Tab => keyboard.tabKey.wasPressedThisFrame,
             TutorialKey.F => keyboard.fKey.wasPressedThisFrame,
-            TutorialKey.HoldRightClick => false,   // กดค้าง — UpdateHold จัดการเอง ไม่ให้ตกไปใช้ E
             _ => keyboard.eKey.wasPressedThisFrame,
         };
 #else
@@ -618,7 +556,6 @@ public class TutorialScreen : UIScreen
         {
             TutorialKey.Tab => Input.GetKeyDown(KeyCode.Tab),
             TutorialKey.F => Input.GetKeyDown(KeyCode.F),
-            TutorialKey.HoldRightClick => false,
             _ => Input.GetKeyDown(KeyCode.E),
         };
 #endif
