@@ -637,94 +637,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1956527594404138038}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1246621065637921664
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 8915311359970255633}
-  - component: {fileID: 2857697354012705260}
-  m_Layer: 0
-  m_Name: SpellCastPrompt
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &8915311359970255633
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1246621065637921664}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 8.94, y: -1.28727, z: -16.91}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 2451415878282227241}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2857697354012705260
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1246621065637921664}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3fded879b38d43e1938ce05dc222e001, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::SpellCastPrompt
-  _startChannel: {fileID: 11400000, guid: a9ff347bd52d4f37852f6ea21a19ed28, type: 2}
-  _requiredFlag: {fileID: 11400000, guid: c74e338715f473e40a12992295979ef4, type: 2}
-  _waitForRequiredFlag: 5
-  _lockFlags:
-  - {fileID: 11400000, guid: 29c4c1e00bf9c394faf1087b399da580, type: 2}
-  - {fileID: 11400000, guid: e06435090cb775044a93576fe0373ffe, type: 2}
-  - {fileID: 11400000, guid: a78aef708d7efbd468b529f76518e3c2, type: 2}
-  _lockMovement: 1
-  _lockCamera: 1
-  _cameraEaseTime: 0.35
-  _cameraEaseHold: 2.5
-  _doneText: 
-  _doneTime: 1
-  _backgroundScale: {x: 1.3, y: 1.6}
-  _font: {fileID: 11400000, guid: f5b85ea66df3d2a4aac7e97b6dfb38b9, type: 2}
-  _fontSize: 28
-  _bold: 1
-  _upperCase: 1
-  _textOutline: 0.15
-  _textOutlineColor: {r: 0, g: 0, b: 0, a: 1}
-  _textShadow: 1
-  _textShadowColor: {r: 0, g: 0, b: 0, a: 0.9}
-  _textShadowSize: 0.6
-  _textShadowSoftness: 0.6
-  _screenPosition: {x: 0.5, y: 0.28}
-  _pulse: 0.12
-  _pulseSpeed: 8
-  _playerTag: Player
-  _radialChannel: {fileID: 11400000, guid: 1066bfc6aaaab7d4ca52b755e80ea879, type: 2}
-  _drawFinishedChannel: {fileID: 11400000, guid: b60df277e448c304fa3652d66128c202, type: 2}
-  _castFinishedChannel: {fileID: 11400000, guid: a6c6e57fef32dcb48bda4838e8fdab90, type: 2}
-  _freeCast: 1
-  _holdText: HOLD TO OPEN YOUR SPELLS
-  _selectText: MOVE TO A SPELL, THEN RELEASE
-  _drawText: MOVE THE MOUSE ALONG THE LINE
-  _castText: 
-  _holdIcon: {fileID: 1683557108, guid: 231b269a098b2654584b85d9a8c7f59e, type: 3}
-  _selectIcon: {fileID: 21300000, guid: ead668d956a645b0bb1560a2947b1605, type: 3}
-  _drawIcon: {fileID: 0}
-  _castIcon: {fileID: 0}
-  _holdBackground: 0
-  _selectBackground: 1
-  _drawBackground: 0
-  _castBackground: 0
 --- !u!1 &1349168351853011219
 GameObject:
   m_ObjectHideFlags: 0
@@ -1000,8 +912,6 @@ Transform:
   - {fileID: 8330862760776284769}
   - {fileID: 7137523017818033229}
   - {fileID: 3550825035499434755}
-  - {fileID: 8915311359970255633}
-  - {fileID: 685250103983915179}
   m_Father: {fileID: 1239144568927216152}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1537583297467894238
@@ -4629,10 +4539,15 @@ MonoBehaviour:
   _screenPosition: {x: 0.5, y: 0.28}
   _pulse: 0.12
   _pulseSpeed: 8
+  _fadeTime: 0.4
   _playerTag: Player
   _pressText: PRESS TO OPEN YOUR BAG
   _pressIcon: {fileID: 720470225, guid: 231b269a098b2654584b85d9a8c7f59e, type: 3}
   _pressBackground: 0
+  _closeHintDelay: 3
+  _closeText: PRESS TO CLOSE YOUR BAG
+  _closeIcon: {fileID: 0}
+  _closeBackground: 0
 --- !u!1 &3084827923616664163
 GameObject:
   m_ObjectHideFlags: 0
@@ -5670,6 +5585,7 @@ MonoBehaviour:
   _screenPosition: {x: 0.5, y: 0.28}
   _pulse: 0.12
   _pulseSpeed: 8
+  _fadeTime: 0.4
   _playerTag: Player
   _radialChannel: {fileID: 11400000, guid: 1066bfc6aaaab7d4ca52b755e80ea879, type: 2}
   _drawFinishedChannel: {fileID: 11400000, guid: b60df277e448c304fa3652d66128c202, type: 2}
@@ -10765,82 +10681,6 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
---- !u!1 &8821863592273722053
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 685250103983915179}
-  - component: {fileID: 5785113757750421905}
-  m_Layer: 0
-  m_Name: InventoryOpenPrompt
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &685250103983915179
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8821863592273722053}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 8.94, y: -1.28727, z: -16.91}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 2451415878282227241}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5785113757750421905
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8821863592273722053}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6a31930b790341b58a0ef1add2651a30, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InventoryOpenPrompt
-  _startChannel: {fileID: 11400000, guid: dea7f67462cf4506abe05246f25810ce, type: 2}
-  _requiredFlag: {fileID: 0}
-  _waitForRequiredFlag: 5
-  _lockFlags:
-  - {fileID: 11400000, guid: 29c4c1e00bf9c394faf1087b399da580, type: 2}
-  - {fileID: 11400000, guid: e06435090cb775044a93576fe0373ffe, type: 2}
-  - {fileID: 11400000, guid: a78aef708d7efbd468b529f76518e3c2, type: 2}
-  - {fileID: 11400000, guid: c74e338715f473e40a12992295979ef4, type: 2}
-  _lockMovement: 1
-  _lockCamera: 1
-  _cameraEaseTime: 0.35
-  _cameraEaseHold: 2.5
-  _doneText: 
-  _doneTime: 1
-  _backgroundScale: {x: 1.3, y: 1.6}
-  _font: {fileID: 11400000, guid: f5b85ea66df3d2a4aac7e97b6dfb38b9, type: 2}
-  _fontSize: 28
-  _bold: 1
-  _upperCase: 1
-  _textOutline: 0.15
-  _textOutlineColor: {r: 0, g: 0, b: 0, a: 1}
-  _textShadow: 1
-  _textShadowColor: {r: 0, g: 0, b: 0, a: 0.9}
-  _textShadowSize: 0.6
-  _textShadowSoftness: 0.6
-  _screenPosition: {x: 0.5, y: 0.28}
-  _pulse: 0.12
-  _pulseSpeed: 8
-  _playerTag: Player
-  _pressText: PRESS TO OPEN YOUR BAG
-  _pressIcon: {fileID: 720470225, guid: 231b269a098b2654584b85d9a8c7f59e, type: 3}
-  _pressBackground: 0
 --- !u!1 &8915372523219258802
 GameObject:
   m_ObjectHideFlags: 0
