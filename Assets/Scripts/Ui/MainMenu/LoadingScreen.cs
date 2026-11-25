@@ -16,9 +16,29 @@ using UnityEngine.InputSystem;
 /// </summary>
 public class LoadingScreen : UIScreen
 {
+    [Header("ภาพพื้นหลัง (ไม่ใส่ก็ได้)")]
+    [Tooltip("Image เต็มจอที่โชว์ภาพในเกม")]
+    [SerializeField] private Image _background;
+
+    [Tooltip("ภาพในเกม — สุ่มทุกครั้งที่เปิดหน้าโหลด ไม่ซ้ำรูปเดิมติดกัน\nว่าง = ใช้รูปที่ใส่ไว้ใน Image เดิม")]
+    [SerializeField] private Sprite[] _backgrounds;
+
     [Header("Progress (ไม่ใส่ก็ได้)")]
     [SerializeField] private Slider _progressBar;
+
+    [Tooltip("เส้นโหลดแบบ Image — ตั้ง Image Type = Filled, Fill Method = Horizontal, Fill Origin = Left\nเส้นจะค่อย ๆ ยาวจากซ้ายไปขวาตามการโหลด")]
+    [SerializeField] private Image _progressFill;
+
     [SerializeField] private TMP_Text _percentText;
+
+    [Header("กะพริบคำว่า Loading (ไม่ใส่ก็ได้)")]
+    [Tooltip("รูปหรือข้อความ Loading... — ค่อย ๆ จางเข้าออกให้รู้ว่ายังทำงานอยู่")]
+    [SerializeField] private Graphic _loadingLabel;
+
+    [SerializeField, Range(0f, 1f)] private float _pulseMinAlpha = 0.45f;
+
+    [Tooltip("รอบกะพริบต่อวินาที — 0 = ไม่กะพริบ")]
+    [SerializeField, Min(0f)] private float _pulseSpeed = 0.8f;
 
     [Tooltip("ความเร็วที่แถบวิ่งตามค่าจริง — ยิ่งต่ำยิ่งลื่นแต่หน่วง")]
     [SerializeField] private float _smoothSpeed = 4f;
@@ -56,12 +76,18 @@ public class LoadingScreen : UIScreen
     private float _tipTimer;
     private float _tipFade;
     private int _lastTip = -1;
+    private int _lastBackground = -1;
+    private float _pulseTime;
 
     protected override void OnOpening()
     {
         _target = 0f;
         _displayed = 0f;
         ApplyToUI(0f);
+
+        PickBackground();
+        _pulseTime = 0f;
+        SetLabelAlpha(1f);
 
         if (_pressAnyKeyPrompt != null) _pressAnyKeyPrompt.SetActive(false);
         if (_spinner != null) _spinner.SetActive(true);
@@ -81,6 +107,9 @@ public class LoadingScreen : UIScreen
 
         // โหลดเสร็จแล้ว ไม่ต้องหมุนต่อ ไม่งั้นดูเหมือนยังทำงานอยู่
         if (_spinner != null) _spinner.SetActive(!show);
+
+        // โหลดเสร็จแล้วหยุดกะพริบ ค้างไว้ทึบ
+        if (show) SetLabelAlpha(1f);
     }
 
     private void Update()
@@ -89,11 +118,53 @@ public class LoadingScreen : UIScreen
 
         UpdateTips();
         UpdateProgress();
+        UpdatePulse();
     }
+
+    // ---------- พื้นหลัง ----------
+
+    private void PickBackground()
+    {
+        if (_background == null || _backgrounds == null || _backgrounds.Length == 0) return;
+
+        int count = _backgrounds.Length;
+        int index = Random.Range(0, count);
+        if (count > 1 && index == _lastBackground)
+            index = (_lastBackground + 1 + Random.Range(0, count - 1)) % count;
+
+        _lastBackground = index;
+        if (_backgrounds[index] == null) return;
+
+        _background.sprite = _backgrounds[index];
+        _background.gameObject.SetActive(true);   // ยังไม่มีรูป ตัวสร้างหน้าโหลดจะปิด BG ไว้ — มีรูปแล้วเปิดเอง
+    }
+
+    // ---------- กะพริบ ----------
+
+    private void UpdatePulse()
+    {
+        if (_loadingLabel == null || _pulseSpeed <= 0f) return;
+        if (_pressAnyKeyPrompt != null && _pressAnyKeyPrompt.activeSelf) return;
+
+        // unscaled — ตอนโหลดจาก Pause ค่า timeScale อาจเป็น 0
+        _pulseTime += Time.unscaledDeltaTime * _pulseSpeed;
+        float wave = 0.5f + 0.5f * Mathf.Cos(_pulseTime * Mathf.PI * 2f);   // เริ่มที่ 1 (ทึบ)
+        SetLabelAlpha(Mathf.Lerp(_pulseMinAlpha, 1f, wave));
+    }
+
+    private void SetLabelAlpha(float alpha)
+    {
+        if (_loadingLabel == null) return;
+        Color c = _loadingLabel.color;
+        c.a = alpha;
+        _loadingLabel.color = c;
+    }
+
+    // ---------- Progress ----------
 
     private void UpdateProgress()
     {
-        if (_progressBar == null && _percentText == null) return;
+        if (_progressBar == null && _progressFill == null && _percentText == null) return;
 
         // ไล่ตามค่าจริงแบบนุ่ม ๆ ไม่ให้แถบกระโดดจาก 0 ไป 100 ทีเดียว
         _displayed = Mathf.MoveTowards(_displayed, _target, _smoothSpeed * Time.unscaledDeltaTime);
@@ -103,6 +174,7 @@ public class LoadingScreen : UIScreen
     private void ApplyToUI(float value)
     {
         if (_progressBar != null) _progressBar.value = value;
+        if (_progressFill != null) _progressFill.fillAmount = value;
         if (_percentText != null) _percentText.text = Mathf.RoundToInt(value * 100f) + "%";
     }
 

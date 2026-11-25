@@ -27,6 +27,9 @@ public class AttackSphereCast : MonoBehaviour
     }
 
     public event Action OnHit;
+
+    // ตัวคูณดาเมจตอนโดนเป้า (debug / buff) — 1 = ปกติ, ค่าฐานยังมาจาก state machine
+    public float DamageMultiplier { get; set; } = 1f;
     #endregion
 
     private AttackParameters _pendingParameters;
@@ -81,7 +84,7 @@ public class AttackSphereCast : MonoBehaviour
         if (damageable == null)
             return false;
 
-        damageable.TakeDamage(parameters.damageAmount);
+        damageable.TakeDamage(parameters.damageAmount * DamageMultiplier);
         OnHit?.Invoke();
         if (damageType != null)
             damageable.DamageType(damageType);

@@ -41,6 +41,9 @@ public class BaseLocomotion : MonoBehaviour,ILocomotionLock,ILocomotionMoveMode
     private Vector3 _movementDirection;
     private Vector3 _facingDirection;
 
+    // ตัวคูณความเร็วเดิน (debug / buff) — 1 = ปกติ, state machine ไม่ได้ตั้งค่านี้ เลยไม่ถูกเขียนทับ
+    public float SpeedMultiplier { get; set; } = 1f;
+
     public bool IsMovementLocked => _movementLockOwners.Count > 0;
     public bool ShouldResetMoveAnimation => _moveAnimationResetOwners.Count > 0;
 
@@ -87,7 +90,14 @@ public class BaseLocomotion : MonoBehaviour,ILocomotionLock,ILocomotionMoveMode
         if (!useRootPosition)
             return;
 
-        CharacterController.Move(Animator.deltaPosition + Gravity.Gravity());
+        if (!CanMoveController())
+            return;
+
+        // คูณเฉพาะแนวนอน — แนวตั้งของคลิป (กระโดด / ลง) คงเดิม
+        Vector3 delta = Animator.deltaPosition;
+        delta.x *= SpeedMultiplier;
+        delta.z *= SpeedMultiplier;
+        CharacterController.Move(delta + Gravity.Gravity());
 
         if (_moveMode == LocomotionMoveMode.FullRootMotion)
             transform.rotation *= Animator.deltaRotation;
@@ -159,10 +169,24 @@ public class BaseLocomotion : MonoBehaviour,ILocomotionLock,ILocomotionMoveMode
         if (_moveMode != LocomotionMoveMode.Velocity)
             return;
 
+        if (!CanMoveController())
+            return;
+
         Vector3 movement = IsMovementLocked
             ? Vector3.zero
-            : _movementDirection * _currentspeed * Time.deltaTime;
+            : _movementDirection * _currentspeed * SpeedMultiplier * Time.deltaTime;
         CharacterController.Move(movement + Gravity.Gravity());
+    }
+
+    // controller ถูกปิด (เช่น state ตาย / ถูกจับ / วาร์ป) — Move ไม่ได้ และไม่ควรสะสมแรงตกไว้
+    // ไม่งั้นพอเปิดกลับมาจะพุ่งลงพื้นแรงผิดปกติ
+    private bool CanMoveController()
+    {
+        if (CharacterController.enabled)
+            return true;
+
+        Gravity._velocityY = 0f;
+        return false;
     }
 
     private void ResetLockedMovement()

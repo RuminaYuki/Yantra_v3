@@ -226,7 +226,7 @@ public class SpellRadialMenuSelect : MonoBehaviour
     // ใช้ item ตามที่ปุ่มกำหนด ถ้าไม่ครบจะไม่หักอะไรเลยและคืน false
     private bool TryConsumeRequiredItem(RadialMenuButtonData data)
     {
-        if (data.itemData == null || data.itemReq <= 0) return true;
+        if (!data.RequiresItem) return true;
         if (_playerInventory == null) return false;
 
         Inventory inventory = _playerInventory.Inventory;

@@ -72,4 +72,15 @@ public class RadialMenuButtonData
     public ItemData itemData;
     [Tooltip("Minimum amount of itemData in the inventory.")]
     [Min(0)] public int itemReq;
+
+    // Debug (Infinite Spell Material): true = ทุกปุ่มใช้ได้โดยไม่ต้องมี item และไม่หัก item
+    // static ไม่ได้เก็บใน asset — ไม่เขียนทับค่าใน RadialMenuDataSO
+    public static bool IgnoreItemCost;
+
+    // true = ปุ่มนี้ต้องใช้ item (เช็คที่เดียว ทั้งตอนโชว์ปุ่มและตอนหักของ)
+    public bool RequiresItem => !IgnoreItemCost && itemData != null && itemReq > 0;
+
+    // Enter Play Mode ไม่ reload domain → static ค้างจากรอบก่อน — รีเซ็ตทุกครั้งที่เริ่มเล่น
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatics() => IgnoreItemCost = false;
 }

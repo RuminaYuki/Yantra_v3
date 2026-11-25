@@ -30,6 +30,13 @@ public class BlockSystem : MonoBehaviour
     [SerializeField] float _skillPointPerHit = 5f;
     [SerializeField] float _guardDecreasedPerParry = 5f;
 
+    // Debug (Infinite Guard): true = guard เต็มตลอด ไม่ลดทั้งตอนบล็อกค้างและตอนโดนตี
+    public static bool InfiniteGuard;
+
+    // Enter Play Mode ไม่ reload domain → static ค้างจากรอบก่อน — รีเซ็ตทุกครั้งที่เริ่มเล่น
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatics() => InfiniteGuard = false;
+
     private float _recoveryDelayTimer;
     private bool _isReady = true;
 
@@ -79,15 +86,6 @@ public class BlockSystem : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.B))
-        {
-            ExecuteBlock(!_isBlockEnable);
-        }
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            ExecuteParry(!_isParryEnable);
-        }
-
         if (_isBlockEnable)
         {
             _recoveryDelayTimer = 0f;
@@ -168,6 +166,9 @@ public class BlockSystem : MonoBehaviour
     // ทุกที่ที่เปลี่ยนค่า guard ต้องผ่านตรงนี้ เพื่อให้ IsReady อัปเดตที่เดียว
     private void SetGuard(float value)
     {
+        if (InfiniteGuard)
+            value = _maxGuardPoints;
+
         _currentGuardPoints = Mathf.Clamp(value, 0f, _maxGuardPoints);
 
         if (_currentGuardPoints <= 0f)

@@ -5041,6 +5041,11 @@ MonoBehaviour:
   _visibleAmount: 0
   _hiddenAmount: 1
   _startDissolved: 0
+  _disableColliders: 1
+  _collidersOffAtStart: 0
+  _includeTriggers: 1
+  _colliderRoot: {fileID: 0}
+  _colliders: []
   _loop: 0
   _loopFadeIn: 1
   _loopHiddenTime: 1
@@ -7608,7 +7613,6 @@ GameObject:
   - component: {fileID: 1564941311048065356}
   - component: {fileID: 4623215982668911494}
   - component: {fileID: 6138719548684081100}
-  - component: {fileID: 4328924251773908492}
   - component: {fileID: 217684740599384389}
   m_Layer: 7
   m_Name: GrabQTE
@@ -7694,21 +7698,6 @@ MonoBehaviour:
   OnDamageTick:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &4328924251773908492
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8557324307837374587}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 074dc5ba51560334493d0f294652e7ba, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GrabQTETester
-  _key: 21
-  _playerTag: Player
-  _showDebugBar: 0
 --- !u!114 &217684740599384389
 MonoBehaviour:
   m_ObjectHideFlags: 0
