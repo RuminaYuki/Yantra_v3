@@ -13,7 +13,7 @@ using Yantra.UI;
 // ไม่มีใน UIRoot = สร้างป้ายตัวหนังสือเอง
 public abstract class ForcedActionPrompt : MonoBehaviour
 {
-    private enum State { Idle, WaitFlag, Running, Done }
+    private enum State { Idle, WaitFlag, Running, Done, FadeOut }
 
     [Header("เริ่มเมื่อ")]
     [Tooltip("ช่องเดียวกับ On Closed ของหน้าสอน — ปิดหน้าสอนแล้วป้ายขึ้นทันที")]
@@ -72,6 +72,9 @@ public abstract class ForcedActionPrompt : MonoBehaviour
     [SerializeField, Min(0f)] private float _pulse = 0.06f;
     [SerializeField, Min(0f)] private float _pulseSpeed = 6f;
 
+    [Tooltip("ป้ายค่อยๆ เฟดเข้า (ทุกครั้งที่เปลี่ยนขั้น) / เฟดออก (ตอนทำสำเร็จ) ใช้เวลากี่วินาที")]
+    [SerializeField, Min(0.01f)] private float _fadeTime = 0.4f;
+
     [SerializeField] private string _playerTag = "Player";
 
     private const int SortingOrder = 450;   // ต่ำกว่าแถบดำคัตซีน / เมนู
@@ -97,6 +100,8 @@ public abstract class ForcedActionPrompt : MonoBehaviour
     private UnityEngine.UI.Image _key;
     private bool _stepBackground;
     private float _keyScale = 1f;
+    private float _fade;          // 0 = จาง → 1 = ชัด (เฟดเข้า / ออก)
+    private float _menuVisible;   // 0 = มีเมนูเปิดทับ → 1 = โชว์
     private Vector2 _keyBaseSize = new Vector2(80f, 80f);
     private string _shownText;
 
@@ -205,12 +210,19 @@ public abstract class ForcedActionPrompt : MonoBehaviour
             case State.Done:
                 _doneTimer -= Time.unscaledDeltaTime;
                 if (_doneTimer <= 0f)
+                    _state = State.FadeOut;
+                break;
+
+            // ทำสำเร็จแล้ว ป้ายค่อยๆ จางหาย แล้วค่อยเก็บ
+            case State.FadeOut:
+                UpdateUI();
+                if (_fade <= 0f)
                 {
                     _state = State.Idle;
+                    _step = -1;
                     DestroyUI();
-                    return;
                 }
-                break;
+                return;
 
             case State.Running:
                 OnPromptUpdate();
@@ -250,9 +262,7 @@ public abstract class ForcedActionPrompt : MonoBehaviour
             return;
         }
 
-        _state = State.Idle;
-        _step = -1;
-        DestroyUI();
+        _state = State.FadeOut;   // จางหายก่อน Update ค่อยเก็บ
     }
 
     private void ApplyVisual(string text, Sprite icon, bool background)
@@ -262,6 +272,7 @@ public abstract class ForcedActionPrompt : MonoBehaviour
         {
             _shownText = text;
             InputIconText.Apply(_label, text ?? "");
+            _fade = 0f;   // เนื้อหาใหม่ — ค่อยๆ เฟดขึ้นมาใหม่
         }
 
         _stepBackground = background;
@@ -420,15 +431,22 @@ public abstract class ForcedActionPrompt : MonoBehaviour
         if (_group == null)
             return;
 
+        float dt = Time.unscaledDeltaTime;
+
         // เมนู / หน้าสอน / Pause เปิดอยู่ = ซ่อนป้าย ไม่ทับเมนู
         UIManager ui = UIManager.Instance;
         bool hidden = ui != null && ui.HasAnyOpen;
-        _group.alpha = Mathf.MoveTowards(_group.alpha, hidden ? 0f : 1f, Time.unscaledDeltaTime * 6f);
+        _menuVisible = Mathf.MoveTowards(_menuVisible, hidden ? 0f : 1f, dt * 6f);
+
+        // เฟดเข้าทุกครั้งที่เปลี่ยนขั้น / ทำสำเร็จแล้วเฟดออก
+        float fadeTarget = _state == State.FadeOut ? 0f : 1f;
+        _fade = Mathf.MoveTowards(_fade, fadeTarget, dt / Mathf.Max(0.01f, _fadeTime));
+        _group.alpha = _menuVisible * Mathf.SmoothStep(0f, 1f, _fade);
 
         UpdateBackground();
 
         // เต้นตุบๆ แบบป้าย Block — มีรูปปุ่มให้ปุ่มเต้น / ไม่มีให้ตัวหนังสือเต้น
-        float target = _state == State.Done ? 1f : 1f + _pulse * Mathf.Max(0f, Mathf.Sin(Time.unscaledTime * _pulseSpeed));
+        float target = _state == State.Done || _state == State.FadeOut ? 1f : 1f + _pulse * Mathf.Max(0f, Mathf.Sin(Time.unscaledTime * _pulseSpeed));
         _keyScale = Mathf.Lerp(_keyScale, target, 1f - Mathf.Exp(-20f * Time.unscaledDeltaTime));
         if (_key != null)
             _key.rectTransform.localScale = Vector3.one * _keyScale;
