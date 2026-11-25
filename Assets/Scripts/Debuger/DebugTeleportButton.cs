@@ -16,6 +16,9 @@ public class DebugTeleportButton : MonoBehaviour
     [Tooltip("จุดที่เท่าไหร่ในกลุ่ม (เริ่ม 0)")]
     [SerializeField, Min(0)] private int _point;
 
+    [Tooltip("แสงที่ใช้หลังวาร์ป (เปลี่ยนทันที ไม่เฟด) — เว้นว่าง = ไม่เปลี่ยนแสง")]
+    [SerializeField] private GlobalLightProfileSO _lightProfile;
+
     private Button _button;
 
     private void Awake()
@@ -41,5 +44,22 @@ public class DebugTeleportButton : MonoBehaviour
     {
         if (_manager != null)
             _manager.TeleportPlayer(_group, _point);
+
+        ApplyLight();
+    }
+
+    private void ApplyLight()
+    {
+        if (_lightProfile == null) return;
+
+        // Debug panel อยู่คนละที่กับฉาก — หาตอนกดทุกครั้ง (เปลี่ยนฉากแล้ว controller ตัวเก่าหายไป)
+        GlobalLightController light = FindAnyObjectByType<GlobalLightController>();
+        if (light == null)
+        {
+            Debug.LogWarning($"[DebugTeleportButton] {name}: ไม่มี GlobalLightController ในฉาก — แสงไม่เปลี่ยน", this);
+            return;
+        }
+
+        light.ApplyProfile(_lightProfile, instant: true);
     }
 }
