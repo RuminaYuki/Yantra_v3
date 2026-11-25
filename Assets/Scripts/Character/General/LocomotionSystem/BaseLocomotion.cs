@@ -41,6 +41,9 @@ public class BaseLocomotion : MonoBehaviour,ILocomotionLock,ILocomotionMoveMode
     private Vector3 _movementDirection;
     private Vector3 _facingDirection;
 
+    // ตัวคูณความเร็วเดิน (debug / buff) — 1 = ปกติ, state machine ไม่ได้ตั้งค่านี้ เลยไม่ถูกเขียนทับ
+    public float SpeedMultiplier { get; set; } = 1f;
+
     public bool IsMovementLocked => _movementLockOwners.Count > 0;
     public bool ShouldResetMoveAnimation => _moveAnimationResetOwners.Count > 0;
 
@@ -90,7 +93,11 @@ public class BaseLocomotion : MonoBehaviour,ILocomotionLock,ILocomotionMoveMode
         if (!CanMoveController())
             return;
 
-        CharacterController.Move(Animator.deltaPosition + Gravity.Gravity());
+        // คูณเฉพาะแนวนอน — แนวตั้งของคลิป (กระโดด / ลง) คงเดิม
+        Vector3 delta = Animator.deltaPosition;
+        delta.x *= SpeedMultiplier;
+        delta.z *= SpeedMultiplier;
+        CharacterController.Move(delta + Gravity.Gravity());
 
         if (_moveMode == LocomotionMoveMode.FullRootMotion)
             transform.rotation *= Animator.deltaRotation;
@@ -167,7 +174,7 @@ public class BaseLocomotion : MonoBehaviour,ILocomotionLock,ILocomotionMoveMode
 
         Vector3 movement = IsMovementLocked
             ? Vector3.zero
-            : _movementDirection * _currentspeed * Time.deltaTime;
+            : _movementDirection * _currentspeed * SpeedMultiplier * Time.deltaTime;
         CharacterController.Move(movement + Gravity.Gravity());
     }
 

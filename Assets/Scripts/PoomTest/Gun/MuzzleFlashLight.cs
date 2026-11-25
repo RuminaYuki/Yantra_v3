@@ -51,6 +51,7 @@ public class MuzzleFlashLight : MonoBehaviour
     private float _peakIntensity;
     private Color _normalColor;
     private bool _gunUsesAmmo = true;
+    private FieldInfo _useItemField;   // GunController.useItemBullet — อ่านใหม่ทุกนัด (ถูกเปลี่ยนระหว่างเล่นได้ เช่น Debug Infinite Ammo)
     private float _ammoAtFrameStart;
 
     private bool _flashing;
@@ -84,8 +85,7 @@ public class MuzzleFlashLight : MonoBehaviour
             if (_dispatcher == null) _dispatcher = ReadField<AnimEventDispatcher>(_gun, "dispatcher");
             if (string.IsNullOrEmpty(_eventKey)) _eventKey = ReadField<string>(_gun, "eventKey");
 
-            FieldInfo useItem = FindField(_gun, "useItemBullet");
-            if (useItem != null && useItem.GetValue(_gun) is bool uses) _gunUsesAmmo = uses;
+            _useItemField = FindField(_gun, "useItemBullet");
         }
 
         if (_dispatcher == null || string.IsNullOrEmpty(_eventKey))
@@ -134,6 +134,8 @@ public class MuzzleFlashLight : MonoBehaviour
     private void OnShoot()
     {
         if (_light == null) return;
+
+        if (_useItemField != null && _useItemField.GetValue(_gun) is bool uses) _gunUsesAmmo = uses;
 
         if (_needAmmo && _gunUsesAmmo && _gun != null &&
             Mathf.Max(_ammoAtFrameStart, _gun.GetCurrentBullet()) <= 0f)

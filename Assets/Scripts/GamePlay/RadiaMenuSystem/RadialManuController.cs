@@ -294,7 +294,7 @@ public class RadialManuController : MonoBehaviour
 
     private bool HasRequiredItem(RadialMenuButtonData data)
     {
-        if (data.itemData == null || data.itemReq <= 0) return true;
+        if (!data.RequiresItem) return true;
         return CountOf(data.itemData) >= data.itemReq;
     }
 
