@@ -3425,6 +3425,7 @@ GameObject:
   - component: {fileID: 4644658838162224744}
   - component: {fileID: 8537911905343582554}
   - component: {fileID: 589294278103877021}
+  - component: {fileID: 4021534618005675958}
   m_Layer: 0
   m_Name: EnemyController
   m_TagString: Pret
@@ -3809,6 +3810,30 @@ MonoBehaviour:
   _ratePerSecond: 10
   _isDetecting: 0
   _detectPoint: 0
+--- !u!114 &4021534618005675958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8322786736477606622}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 221ae8b5bd4ec0c44b0fbfa20bda96d2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HandSlamDust
+  _hands: []
+  _dustPrefab: {fileID: 7888827120660378037, guid: d828908462992b54bbac90d5d1558f01, type: 3}
+  _dustLifetime: 4
+  _dustScale: 1
+  _touchHeight: 0.35
+  _minSlamSpeed: 2
+  _cooldown: 0.5
+  _groundLayers:
+    serializedVersion: 2
+    m_Bits: 768
+  _onlyInState: Attack
+  _logSlam: 0
 --- !u!1 &9159605979800643452
 GameObject:
   m_ObjectHideFlags: 0

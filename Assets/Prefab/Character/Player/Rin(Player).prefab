@@ -19420,7 +19420,7 @@ MonoBehaviour:
   _skillPoints: 0
   _maxPoint: 10
   _onMaxPoint: {fileID: 0}
-  _decayDelay: 10
+  _decayDelay: 18
   _decayRate: 1
   _decayMin: 0
 --- !u!114 &5604823467535502468
@@ -20068,6 +20068,18 @@ PrefabInstance:
       propertyPath: settingNormalMode.bulletDamage
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 1563030117537729699, guid: 6f12d16457b937543b20182206489919, type: 3}
+      propertyPath: settingSpecialMode.bulletDamage
+      value: 18
+      objectReference: {fileID: 0}
+    - target: {fileID: 2935640790491061655, guid: 6f12d16457b937543b20182206489919, type: 3}
+      propertyPath: _aura
+      value: 
+      objectReference: {fileID: 1318606674098721731}
+    - target: {fileID: 2935640790491061655, guid: 6f12d16457b937543b20182206489919, type: 3}
+      propertyPath: _skillPoints
+      value: 
+      objectReference: {fileID: 5003668158767368267}
     - target: {fileID: 4203392764080664779, guid: 6f12d16457b937543b20182206489919, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.2045
@@ -20177,6 +20189,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 5335560492138130233}
   m_SourcePrefab: {fileID: 100100000, guid: 6f12d16457b937543b20182206489919, type: 3}
+--- !u!137 &1318606674098721731 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 653107627213678048, guid: 6f12d16457b937543b20182206489919, type: 3}
+  m_PrefabInstance: {fileID: 1971710382958868003}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &2380609075568166632 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4203392764080664779, guid: 6f12d16457b937543b20182206489919, type: 3}
