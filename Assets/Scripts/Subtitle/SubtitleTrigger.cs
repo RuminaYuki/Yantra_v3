@@ -13,6 +13,26 @@ public class SubtitleTrigger : MonoBehaviour
     [Tooltip("tag ของผู้เล่น — เช็คไล่ขึ้นไปทางตัวแม่ด้วย เพราะใน FPP collider ที่ชนจริงอยู่ที่ตัวลูก")]
     [SerializeField] private string _playerTag = "Player";
 
+    [Tooltip("เล่นจบแล้วต้องรอกี่วินาทีถึงจะ trigger ใหม่ได้ (ใช้ตอนไม่ติ๊ก Play Once)")]
+    [SerializeField, Min(0f)] private float _retriggerDelay = 1f;
+
+    private bool _isPlayingMine;
+    private float _readyTime;
+
+    private void Update()
+    {
+        if (!_isPlayingMine)
+            return;
+
+        SubtitleSystem system = SubtitleSystem.Instance;
+        if (system != null && system.IsPlaying)
+            return;
+
+        // เล่นจบแล้ว (หรือถูกหยุด เช่น ผู้เล่นตาย) → เริ่มนับ delay
+        _isPlayingMine = false;
+        _readyTime = Time.time + _retriggerDelay;
+    }
+
     // ทำงานตอน Add Component — ตั้ง Is Trigger ให้เลย ไม่ต้องจำไปติ๊กเอง
     private void Reset()
     {
@@ -23,6 +43,10 @@ public class SubtitleTrigger : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (!IsPlayer(other))
+            return;
+
+        // ยังพูดไม่จบ หรือยังไม่พ้น delay — ไม่เริ่มใหม่ตั้งแต่ต้น
+        if (_isPlayingMine || Time.time < _readyTime)
             return;
 
         if (_subtitleData == null)
@@ -38,6 +62,7 @@ public class SubtitleTrigger : MonoBehaviour
         }
 
         SubtitleSystem.Instance.PlaySubtitle(_subtitleData);
+        _isPlayingMine = true;
 
         // ปิดหลังเล่นจริงเท่านั้น — ถ้าเล่นไม่ได้แล้วปิดทิ้ง บทนี้จะหายไปเลยจนกว่าจะโหลดด่านใหม่
         if (_playOnce)
