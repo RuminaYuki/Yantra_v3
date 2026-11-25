@@ -295,12 +295,13 @@ public class DissolveVFXPlayer : MonoBehaviour
 
         if (_logMaterialCopy)
         {
-            Texture tex = srcTex != null ? from.GetTexture(srcTex) : null;
-            Debug.Log($"[Dissolve VFX] {renderer.name} | material '{from.name}' shader '{from.shader.name}'\n" +
-                      $"รูปผิว: {srcTex ?? "ไม่เจอ"} ({(tex != null ? tex.name : "ว่าง")}) → {dstTex ?? "ไม่มีช่อง"} | " +
-                      $"สี: {srcColor ?? "ไม่เจอ"} → {dstColor ?? "ไม่มีช่อง"} | normal: {srcNormal ?? "-"} → {dstNormal ?? "-"} | " +
-                      $"mask: {(mask != null ? mask.name : "-")} → {(to.HasTexture("_MaskMap") ? "_MaskMap" : "ไม่มีช่อง")}\n" +
-                      $"ช่องรูปทั้งหมดของ material เดิม: {ListTextures(from)}", this);
+            // ปิด log ชั่วคราว — Console รก
+            // Texture tex = srcTex != null ? from.GetTexture(srcTex) : null;
+            // Debug.Log($"[Dissolve VFX] {renderer.name} | material '{from.name}' shader '{from.shader.name}'\n" +
+            //           $"รูปผิว: {srcTex ?? "ไม่เจอ"} ({(tex != null ? tex.name : "ว่าง")}) → {dstTex ?? "ไม่มีช่อง"} | " +
+            //           $"สี: {srcColor ?? "ไม่เจอ"} → {dstColor ?? "ไม่มีช่อง"} | normal: {srcNormal ?? "-"} → {dstNormal ?? "-"} | " +
+            //           $"mask: {(mask != null ? mask.name : "-")} → {(to.HasTexture("_MaskMap") ? "_MaskMap" : "ไม่มีช่อง")}\n" +
+            //           $"ช่องรูปทั้งหมดของ material เดิม: {ListTextures(from)}", this);
         }
     }
 
@@ -768,8 +769,9 @@ public class DissolveVFXPlayer : MonoBehaviour
 
     private void LogStep(string message)
     {
-        if (_logSteps)
-            Debug.Log($"[Dissolve VFX] {Time.time:0.00}s {name}: {message}", this);
+        // ปิด log ชั่วคราว — Console รก
+        // if (_logSteps)
+        //     Debug.Log($"[Dissolve VFX] {Time.time:0.00}s {name}: {message}", this);
     }
     private void OnDestroy() => ResetDissolve();
 
