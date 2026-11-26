@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 5531542945268835185}
   - component: {fileID: 6451915041105315796}
   - component: {fileID: 102962028267109020}
+  - component: {fileID: 3933109726584682187}
+  - component: {fileID: 8896757607310819703}
   m_Layer: 14
   m_Name: EnemyMechanicGroup
   m_TagString: Untagged
@@ -73,6 +75,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyGroupTracker
   enemies: []
   minCount: 0
+  barriers: []
   OnPlayerEnter:
     m_PersistentCalls:
       m_Calls:
@@ -190,6 +193,42 @@ MonoBehaviour:
   _showGizmo: 1
   _color: {r: 0.2275868, g: 1, b: 0, a: 0.25}
   _drawSolid: 1
+--- !u!135 &3933109726584682187
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 929850049365365112}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 50
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8896757607310819703
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 929850049365365112}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cdd4559fd4dda694497a822e110a70e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyZoneActivator
+  targets:
+  - {fileID: 2325035050302136118}
+  playerTag: Player
 --- !u!1 &2325035050302136118
 GameObject:
   m_ObjectHideFlags: 0
@@ -281,7 +320,7 @@ MonoBehaviour:
   m_OverrideTileSize: 0
   m_TileSize: 256
   m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.16666667
+  m_VoxelSize: 0.033333335
   m_MinRegionArea: 2
   m_NavMeshData: {fileID: 0}
   m_BuildHeightMesh: 0

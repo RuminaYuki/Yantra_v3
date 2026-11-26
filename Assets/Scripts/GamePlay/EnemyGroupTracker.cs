@@ -95,14 +95,17 @@ public class EnemyGroupTracker : MonoBehaviour
         handlers.Clear();
     }
 
-    // เช็คว่า Enemy โดน SetActive(false) ตั้งแต่เริ่มหรือไม่ ถ้าใช่ให้ถือว่าตายแล้ว
+    // นับตัวที่ตายอยู่แล้ว (เช่นตายตอนผู้เล่นยังไม่เข้าห้อง)
+    // ข้ามตัวที่ปิดอยู่: ตัวที่ยังไม่เคยเปิด (เช่นโดน EnemyZoneActivator ปิดไว้) Health.Awake ยังไม่ทำงาน
+    // HP เลยเป็นค่าที่ save ไว้ใน prefab (0) — ถ้านับ จะกลายเป็นตายทั้งกลุ่มตั้งแต่เริ่ม
+    // ตัวที่ตายจริงไม่หลุด: ถูกนับผ่าน OnDead ที่ subscribe ไว้ใน Awake แล้ว (รวมตัวที่ถูกปิดหลังตาย / ตายจาก save)
     private void CheckEnemyAlive()
     {
         if (enemies == null) return;
 
         foreach (var enemy in enemies)
         {
-            if (enemy == null) continue;
+            if (enemy == null || !enemy.gameObject.activeInHierarchy) continue;
 
             if (enemy.IsDead)
             {
