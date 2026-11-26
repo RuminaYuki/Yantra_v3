@@ -4,6 +4,7 @@ using UnityEngine.Events;
 // ใส่บนตัวเปรต (Test Pret) — จับจังหวะมือตบ: มือพุ่งลงเร็ว แล้วหยุด = ตบ 1 ที
 // ตบแต่ละครั้ง จอตึ้ง! (ใกล้ = แรง / ไกล = เบา) + เรียก On Slam (ไว้ใส่เสียง / ฝุ่นทีหลัง)
 // ตอนเปรตกำลังเดินไม่นับ กันแขนแกว่งตอนเดินโดนนับเป็นตบ
+// มี 2 โหมด: จับเองจากความเร็วมือ (ค่าเริ่มต้น) / ติ๊ก Use Animation Event = รอ event "PretSlam" ผ่าน PretAnimEvents
 public class PretSlamShake : MonoBehaviour
 {
     private class Hand
@@ -14,6 +15,11 @@ public class PretSlamShake : MonoBehaviour
         public bool Falling;
         public float PeakSpeed;
     }
+
+    [Header("โหมด")]
+    [Tooltip("ติ๊ก = ไม่จับมือเอง รอ Animation Event \"PretSlam\" ในท่าตบ (ต้องมี PretAnimEvents ที่ตัวที่มี Animator)\n" +
+             "ไม่ติ๊ก = จับเองจากความเร็วมือแบบเดิม")]
+    [SerializeField] private bool _useAnimationEvent;
 
     [Header("มือ")]
     [Tooltip("ว่างไว้ = หาเองจาก Animator (กระดูก LeftHand)")]
@@ -80,13 +86,35 @@ public class PretSlamShake : MonoBehaviour
 
         _left.Bone = _leftHand;
         _right.Bone = _rightHand;
+
+        if (_useAnimationEvent && GetComponentInChildren<PretAnimEvents>(true) == null)
+            Debug.LogWarning("[PretSlamShake] ติ๊ก Use Animation Event แต่ยังไม่มี PretAnimEvents — แปะที่ตัวที่มี Animator", this);
+    }
+
+    /// <summary>เรียกจาก PretAnimEvents ตอนท่าตบถึงเฟรมมือกระแทกพื้น — ใช้มือที่ต่ำที่สุด</summary>
+    public void SlamFromEvent()
+    {
+        if (Time.time - _lastSlamTime < _minSlamInterval)
+            return;
+
+        _lastSlamTime = Time.time;
+        Slam(LowestHandPosition(), 0f);
+    }
+
+    private Vector3 LowestHandPosition()
+    {
+        if (_leftHand != null && _rightHand != null)
+            return _leftHand.position.y <= _rightHand.position.y ? _leftHand.position : _rightHand.position;
+        if (_leftHand != null) return _leftHand.position;
+        if (_rightHand != null) return _rightHand.position;
+        return transform.position;
     }
 
     // หลังแอนิเมชันกับ Hand IK ขยับกระดูกเสร็จแล้ว
     private void LateUpdate()
     {
         float dt = Time.deltaTime;
-        if (dt <= 0f || Time.timeScale <= 0f)
+        if (_useAnimationEvent || dt <= 0f || Time.timeScale <= 0f)
             return;
 
         Vector3 body = transform.position;
@@ -151,7 +179,9 @@ public class PretSlamShake : MonoBehaviour
             : Mathf.Clamp01(Mathf.InverseLerp(_maxDistance, _fullDistance, distance));
 
         if (_logSlams)
-            Debug.Log($"[PretSlamShake] ตบ! — มือลงเร็วสุด {peakSpeed:0.0} ม./วิ — ห่าง {distance:0.0} ม. — แรง {strength:0.00}", this);
+            Debug.Log(peakSpeed > 0f
+                ? $"[PretSlamShake] ตบ! — มือลงเร็วสุด {peakSpeed:0.0} ม./วิ — ห่าง {distance:0.0} ม. — แรง {strength:0.00}"
+                : $"[PretSlamShake] ตบ! (Animation Event) — ห่าง {distance:0.0} ม. — แรง {strength:0.00}", this);
 
         if (strength > 0f && CameraShaker.Instance != null)
             CameraShaker.Instance.Kick(_kick * strength, _kickTime, _kickTilt * strength);

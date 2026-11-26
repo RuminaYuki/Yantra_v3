@@ -10,6 +10,11 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class HandSlamDust : MonoBehaviour
 {
+    [Header("โหมด")]
+    [Tooltip("ติ๊ก = ไม่จับมือเอง รอ Animation Event \"PretSlam\" ในท่าตบ (ผ่าน PretAnimEvents)\n" +
+             "ไม่ติ๊ก = จับเองจากความเร็วมือแบบเดิม")]
+    [SerializeField] private bool _useAnimationEvent;
+
     [Header("มือ")]
     [Tooltip("กระดูกมือที่ตบ — ว่าง = หา hand.l / hand.r ในตัวลูกให้เอง")]
     [SerializeField] private Transform[] _hands;
@@ -43,6 +48,9 @@ public class HandSlamDust : MonoBehaviour
     [Header("Debug")]
     [SerializeField] private bool _logSlam;
 
+    /// <summary>มือตบพื้น — ส่งจุดที่ตบ (GhostAudio ใช้เล่นเสียงตบ)</summary>
+    public event System.Action<Vector3> Slammed;
+
     private const float RayUp = 1f;          // ยิงหาพื้นจากเหนือมือนิดหน่อย เผื่อมือจมดิน
     private const float RayDown = 3f;
 
@@ -67,6 +75,9 @@ public class HandSlamDust : MonoBehaviour
         _hasLast = new bool[_hands.Length];
         for (int i = 0; i < _lastSlam.Length; i++) _lastSlam[i] = -999f;
 
+        if (_useAnimationEvent && GetComponentInChildren<PretAnimEvents>(true) == null)
+            Debug.LogWarning($"[HandSlamDust] {name} ติ๊ก Use Animation Event แต่ยังไม่มี PretAnimEvents — แปะที่ตัวที่มี Animator", this);
+
         _animator = GetComponentInChildren<Animator>();
         _stateHash = string.IsNullOrWhiteSpace(_onlyInState) ? 0 : Animator.StringToHash(_onlyInState.Trim());
     }
@@ -80,7 +91,7 @@ public class HandSlamDust : MonoBehaviour
     private void LateUpdate()
     {
         float dt = Time.deltaTime;
-        if (dt <= 0f) return;
+        if (_useAnimationEvent || dt <= 0f) return;
 
         for (int i = 0; i < _hands.Length; i++)
         {
@@ -106,10 +117,48 @@ public class HandSlamDust : MonoBehaviour
 
             _lastSlam[i] = Time.time;
             SpawnDust(ground);
+            Slammed?.Invoke(ground.point);
 
             if (_logSlam)
                 Debug.Log($"[HandSlamDust] {hand.name} ตบพื้น ความเร็ว {downSpeed:0.0} ม./วิ ที่ {ground.collider.name}", this);
         }
+    }
+
+    /// <summary>
+    /// เรียกจาก PretAnimEvents ตอนท่าตบถึงเฟรมมือกระแทกพื้น
+    /// ฝุ่นออกทุกมือที่แตะพื้นอยู่ (ตบสองมือ = ฝุ่น 2 กอง) — ไม่มีมือไหนแตะ = ออกใต้มือที่ต่ำที่สุด
+    /// </summary>
+    public void SlamFromEvent()
+    {
+        bool any = false;
+        Transform lowest = null;
+
+        foreach (Transform hand in _hands)
+        {
+            if (hand == null) continue;
+            if (lowest == null || hand.position.y < lowest.position.y) lowest = hand;
+
+            if (!FindGround(hand.position, out RaycastHit ground)) continue;
+            if (hand.position.y - ground.point.y > _touchHeight) continue;
+
+            Hit(hand, ground, !any);
+            any = true;
+        }
+
+        if (any) return;
+
+        Vector3 from = lowest != null ? lowest.position : transform.position;
+        if (FindGround(from, out RaycastHit fallback))
+            Hit(lowest, fallback, true);
+    }
+
+    private void Hit(Transform hand, RaycastHit ground, bool sendSignal)
+    {
+        SpawnDust(ground);
+        if (sendSignal) Slammed?.Invoke(ground.point);   // เสียงตบออกครั้งเดียวต่อ event
+
+        if (_logSlam)
+            Debug.Log($"[HandSlamDust] {(hand != null ? hand.name : name)} ตบพื้น (Animation Event) ที่ {ground.collider.name}", this);
     }
 
     private bool InSlamState()
