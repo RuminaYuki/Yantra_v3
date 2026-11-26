@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 // ติดบน Button ใน Debug panel — กดแล้ววาร์ปผู้เล่นไปจุดใน Teleport Groups ของ PlayerDebugManager
@@ -16,8 +17,8 @@ public class DebugTeleportButton : MonoBehaviour
     [Tooltip("จุดที่เท่าไหร่ในกลุ่ม (เริ่ม 0)")]
     [SerializeField, Min(0)] private int _point;
 
-    [Tooltip("แสงที่ใช้หลังวาร์ป (เปลี่ยนทันที ไม่เฟด) — เว้นว่าง = ไม่เปลี่ยนแสง")]
-    [SerializeField] private GlobalLightProfileSO _lightProfile;
+    [Tooltip("บรรยากาศ (แสง + หมอก) หลังวาร์ป เปลี่ยนทันทีไม่เฟด — เว้นว่าง = ไม่เปลี่ยน")]
+    [SerializeField, FormerlySerializedAs("_lightProfile")] private AtmosphereProfileSO _atmosphereProfile;
 
     private Button _button;
 
@@ -45,21 +46,21 @@ public class DebugTeleportButton : MonoBehaviour
         if (_manager != null)
             _manager.TeleportPlayer(_group, _point);
 
-        ApplyLight();
+        ApplyAtmosphere();
     }
 
-    private void ApplyLight()
+    private void ApplyAtmosphere()
     {
-        if (_lightProfile == null) return;
+        if (_atmosphereProfile == null) return;
 
         // Debug panel อยู่คนละที่กับฉาก — หาตอนกดทุกครั้ง (เปลี่ยนฉากแล้ว controller ตัวเก่าหายไป)
-        GlobalLightController light = FindAnyObjectByType<GlobalLightController>();
-        if (light == null)
+        AtmosphereController atmosphere = FindAnyObjectByType<AtmosphereController>();
+        if (atmosphere == null)
         {
-            Debug.LogWarning($"[DebugTeleportButton] {name}: ไม่มี GlobalLightController ในฉาก — แสงไม่เปลี่ยน", this);
+            Debug.LogWarning($"[DebugTeleportButton] {name}: ไม่มี AtmosphereController ในฉาก — บรรยากาศไม่เปลี่ยน", this);
             return;
         }
 
-        light.ApplyProfile(_lightProfile, instant: true);
+        atmosphere.ApplyProfile(_atmosphereProfile, instant: true);
     }
 }
