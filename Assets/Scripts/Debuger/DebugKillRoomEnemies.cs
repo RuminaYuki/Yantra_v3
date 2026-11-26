@@ -19,7 +19,7 @@ public class DebugKillRoomEnemies : MonoBehaviour
         int killed = 0;
         bool inAnyRoom = false;
 
-        foreach (EnemyGroupTracker room in FindObjectsByType<EnemyGroupTracker>(FindObjectsSortMode.None))
+        foreach (EnemyGroupTracker room in FindObjectsByType<EnemyGroupTracker>())
         {
             if (!room.RoomBounds.Contains(playerPos))
                 continue;
