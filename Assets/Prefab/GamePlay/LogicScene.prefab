@@ -232,6 +232,165 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Subtitle
   _subtitleData: {fileID: 11400000, guid: b2b3e6e10d34b804cb00068672c2f079, type: 2}
+--- !u!1 &171463503452936192
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2519685320978613148}
+  - component: {fileID: 2130598923847561796}
+  - component: {fileID: 5866079045262932189}
+  - component: {fileID: 4829732383764947829}
+  - component: {fileID: 289954879647261856}
+  m_Layer: 0
+  m_Name: QuestObjReporter
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2519685320978613148
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 171463503452936192}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 4.683999, y: 0.72072995, z: 3.0939999}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2451415878282227241}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2130598923847561796
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 171463503452936192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc618713b144aeb4c947f9a49da4d287, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SDFcl.GamePlay.QuestSystem.QuestObjectiveReporter
+  quest: {fileID: 7542027528197662675, guid: eec8243173ed56f46b5af35378114f00, type: 2}
+  objectiveId: Pick-up Gun
+  amount: 1
+  oncePerRound: 1
+--- !u!114 &5866079045262932189
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 171463503452936192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc618713b144aeb4c947f9a49da4d287, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SDFcl.GamePlay.QuestSystem.QuestObjectiveReporter
+  quest: {fileID: 7542027528197662675, guid: eec8243173ed56f46b5af35378114f00, type: 2}
+  objectiveId: Pick-up Heal Material
+  amount: 1
+  oncePerRound: 1
+--- !u!114 &4829732383764947829
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 171463503452936192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 188f92d494716dc4a90b31ce8e03c3e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SDFcl.GamePlay.QuestSystem.QuestEventRelay
+  quest: {fileID: 7542027528197662675, guid: eec8243173ed56f46b5af35378114f00, type: 2}
+  onActivated:
+    m_PersistentCalls:
+      m_Calls: []
+  onCompleted:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 3567268609135948491}
+        m_TargetAssemblyTypeName: ShootableDoor, Assembly-CSharp
+        m_MethodName: OnShot
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1560604364047429827}
+        m_TargetAssemblyTypeName: Sequence, Assembly-CSharp
+        m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 8295307101914259609}
+        m_TargetAssemblyTypeName: UnityEngine.MeshCollider, UnityEngine
+        m_MethodName: set_isTrigger
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 6302191422224485953}
+        m_TargetAssemblyTypeName: UnityEngine.BoxCollider, UnityEngine
+        m_MethodName: set_isTrigger
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+  onRestarted:
+    m_PersistentCalls:
+      m_Calls: []
+  onSkipped:
+    m_PersistentCalls:
+      m_Calls: []
+  onFailed:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &289954879647261856
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 171463503452936192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fc618713b144aeb4c947f9a49da4d287, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SDFcl.GamePlay.QuestSystem.QuestObjectiveReporter
+  quest: {fileID: 7542027528197662675, guid: eec8243173ed56f46b5af35378114f00, type: 2}
+  objectiveId: Pick-up Bullet
+  amount: 1
+  oncePerRound: 1
 --- !u!1 &333471186838562335
 GameObject:
   m_ObjectHideFlags: 0
@@ -912,6 +1071,7 @@ Transform:
   - {fileID: 8330862760776284769}
   - {fileID: 7137523017818033229}
   - {fileID: 3550825035499434755}
+  - {fileID: 2519685320978613148}
   m_Father: {fileID: 1239144568927216152}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1537583297467894238
@@ -11084,6 +11244,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1666319075539578104, guid: 84e6dabefccccbe4bbfcb05918bb5f28, type: 3}
   m_PrefabInstance: {fileID: 272208793764699947}
   m_PrefabAsset: {fileID: 0}
+--- !u!65 &6302191422224485953 stripped
+BoxCollider:
+  m_CorrespondingSourceObject: {fileID: 6103210658296320362, guid: 84e6dabefccccbe4bbfcb05918bb5f28, type: 3}
+  m_PrefabInstance: {fileID: 272208793764699947}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &314849410631952890
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -19450,9 +19615,25 @@ PrefabInstance:
       addedObject: {fileID: 1502196947978253267}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 71dac33989787204b9efb233931c3284, type: 3}
+--- !u!114 &3567268609135948491 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7959536009734086223, guid: 71dac33989787204b9efb233931c3284, type: 3}
+  m_PrefabInstance: {fileID: 6914301076465413252}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b3d951cc030a4764cab98e7f25e96b8c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ShootableDoor
 --- !u!4 &6701393519910221145 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 212981812849809885, guid: 71dac33989787204b9efb233931c3284, type: 3}
+  m_PrefabInstance: {fileID: 6914301076465413252}
+  m_PrefabAsset: {fileID: 0}
+--- !u!64 &8295307101914259609 stripped
+MeshCollider:
+  m_CorrespondingSourceObject: {fileID: 3236489346954398749, guid: 71dac33989787204b9efb233931c3284, type: 3}
   m_PrefabInstance: {fileID: 6914301076465413252}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &7040718346169857323
@@ -21416,6 +21597,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8605668951638893582, guid: 0734cd233c5ad574da9cb40ab81f9056, type: 3}
+      propertyPath: onRestoredUsed.m_PersistentCalls.m_Calls.Array.data[3].m_Target
+      value: 
+      objectReference: {fileID: 289954879647261856}
+    - target: {fileID: 8605668951638893582, guid: 0734cd233c5ad574da9cb40ab81f9056, type: 3}
       propertyPath: onRestoredUsed.m_PersistentCalls.m_Calls.Array.data[3].m_CallState
       value: 2
       objectReference: {fileID: 0}
@@ -22011,10 +22196,10 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 2130598923847561796}
         m_TargetAssemblyTypeName: SDFcl.GamePlay.QuestSystem.QuestObjectiveReporter, Assembly-CSharp
         m_MethodName: Report
-        m_Mode: 0
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -22932,6 +23117,10 @@ PrefabInstance:
       propertyPath: OnEndInteract.m_PersistentCalls.m_Calls.Array.data[4].m_Mode
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 7492872405098945825, guid: b8c732780c6260948bb2b7acf2ca77b8, type: 3}
+      propertyPath: OnEndInteract.m_PersistentCalls.m_Calls.Array.data[3].m_Target
+      value: 
+      objectReference: {fileID: 5866079045262932189}
     - target: {fileID: 7492872405098945825, guid: b8c732780c6260948bb2b7acf2ca77b8, type: 3}
       propertyPath: OnEndInteract.m_PersistentCalls.m_Calls.Array.data[4].m_Target
       value: 
