@@ -28,6 +28,8 @@ public class ShootableDoor : MonoBehaviour
 
     public bool canDissolve = true;
 
+    public Action OnShotAction;
+
     public void OnShot()
     {
         if (!canDissolve) return;
@@ -61,6 +63,7 @@ public class ShootableDoor : MonoBehaviour
         }
 
         ChangeDissolve();
+        OnShotAction?.Invoke();
     }
 
     public FlagSO GetDoorFlag()
@@ -79,6 +82,10 @@ public class ShootableDoor : MonoBehaviour
             if (smoothDissolve)
             {
                 pair.dissolveCoroutine = StartCoroutine(DissolveCoroutine(pair));
+            }
+            else
+            {
+                pair.material.SetFloat(opacityProperty, 1f);
             }
         }
     }
