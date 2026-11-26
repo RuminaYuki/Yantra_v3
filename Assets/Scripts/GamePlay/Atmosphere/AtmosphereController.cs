@@ -1,18 +1,24 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.HighDefinition;
 
-// คุมแสงหลักของฉาก (Directional Light) ด้วย GlobalLightProfileSO
+// คุมบรรยากาศของฉากด้วย AtmosphereProfileSO: แสงหลัก (Directional Light) + Fog Maximum Height ของ Global Volume
 //
 // วิธีใช้:
 //   1) ใส่สคริปต์นี้ที่ Directional Light ของฉาก (หรือที่ไหนก็ได้แล้วลาก Light ใส่ช่อง)
-//   2) Trigger Zone Events → On Enter → GlobalLightController.ApplyProfile แล้วลาก Profile ใส่ช่อง
-//      ออกจากโซนแล้วอยากให้กลับค่าเดิม: On Exit → GlobalLightController.ResetToDefault
+//   2) Volume เว้นว่างได้ — หา Global Volume ที่มี Fog เอง
+//   3) วาง AtmosphereZone ในฉาก หรือเรียก ApplyProfile จาก UnityEvent
 //
-// ค่าเดิมตอนเริ่มฉาก (ที่ตั้งใน Inspector ของ Light) ถูกจำไว้ ResetToDefault จะกลับไปค่านั้น
-public class GlobalLightController : MonoBehaviour
+// ค่าเดิมตอนเริ่มฉาก (ที่ตั้งใน Inspector) ถูกจำไว้ ResetToDefault จะกลับไปค่านั้น
+// Fog แก้ที่สำเนาของ Volume Profile ตอนเล่น — ไฟล์ Volume Profile จริงไม่ถูกแก้
+public class AtmosphereController : MonoBehaviour
 {
     [Tooltip("Directional Light ที่จะคุม — เว้นว่าง = ใช้ Light บนตัวเอง หรือ Sun ของฉาก")]
     [SerializeField] private Light _light;
+
+    [Tooltip("Global Volume ที่มี Fog — เว้นว่าง = หาเอง (Global ที่ Priority สูงสุดและมี Fog)")]
+    [SerializeField] private Volume _volume;
 
     [Tooltip("เวลาเปลี่ยนตอน ResetToDefault (วินาที)")]
     [SerializeField, Min(0f)] private float _resetTime = 2f;
@@ -20,18 +26,21 @@ public class GlobalLightController : MonoBehaviour
     [Header("Debug")]
     [SerializeField] private bool _log;
 
-    private struct State
+    public struct State
     {
         public float intensity;
         public Color filter;
         public bool useTemperature;
         public float temperature;
+        public bool hasFog;            // false = ไม่แตะหมอก
+        public float fogMaximumHeight;
     }
 
     private State _default;
     private Coroutine _transition;
+    private Fog _fog;   // Fog ในสำเนา Volume Profile ของฉากนี้ (null = ไม่มีหมอกให้คุม)
 
-    public GlobalLightProfileSO CurrentProfile { get; private set; }
+    public AtmosphereProfileSO CurrentProfile { get; private set; }
 
     private void Awake()
     {
@@ -39,19 +48,50 @@ public class GlobalLightController : MonoBehaviour
         if (_light == null) _light = RenderSettings.sun;
         if (_light == null)
         {
-            Debug.LogWarning($"[GlobalLight] {name} หา Directional Light ไม่เจอ — ลาก Light ใส่ช่อง Light", this);
+            Debug.LogWarning($"[Atmosphere] {name} หา Directional Light ไม่เจอ — ลาก Light ใส่ช่อง Light", this);
             enabled = false;
             return;
         }
 
+        SetupFog();
         _default = Read();
     }
 
+    private void SetupFog()
+    {
+        if (_volume == null) _volume = FindGlobalFogVolume();
+        if (_volume == null)
+        {
+            Debug.LogWarning($"[Atmosphere] {name} หา Global Volume ที่มี Fog ไม่เจอ — จะคุมแค่แสง", this);
+            return;
+        }
+
+        // .profile = สำเนาสำหรับตอนเล่น ไม่ไปแก้ไฟล์ Volume Profile จริง (ถ้าใช้ sharedProfile ค่าจะค้างในไฟล์หลังกด Stop)
+        if (!_volume.profile.TryGet(out _fog))
+        {
+            Debug.LogWarning($"[Atmosphere] Volume {_volume.name} ไม่มี Fog override — จะคุมแค่แสง", _volume);
+            return;
+        }
+
+        _fog.maximumHeight.overrideState = true;
+    }
+
+    private static Volume FindGlobalFogVolume()
+    {
+        Volume best = null;
+        foreach (Volume v in FindObjectsByType<Volume>())
+        {
+            if (!v.isGlobal || v.sharedProfile == null || !v.sharedProfile.Has<Fog>()) continue;
+            if (best == null || v.priority > best.priority) best = v;
+        }
+        return best;
+    }
+
     // Trigger Zone Events → On Enter → ApplyProfile (ลาก Profile ใส่ช่อง)
-    public void ApplyProfile(GlobalLightProfileSO profile) => ApplyProfile(profile, false);
+    public void ApplyProfile(AtmosphereProfileSO profile) => ApplyProfile(profile, false);
 
     // instant = true → เปลี่ยนทันทีไม่เฟด (เช่น หลังวาร์ป)
-    public void ApplyProfile(GlobalLightProfileSO profile, bool instant)
+    public void ApplyProfile(AtmosphereProfileSO profile, bool instant)
     {
         if (profile == null || _light == null) return;
 
@@ -63,9 +103,11 @@ public class GlobalLightController : MonoBehaviour
             filter = profile.filter,
             useTemperature = profile.useTemperature,
             temperature = profile.temperature,
+            hasFog = profile.useFog,
+            fogMaximumHeight = profile.fogMaximumHeight,
         }, duration);
 
-        if (_log) Debug.Log($"[GlobalLight] → {profile.name} ({duration}s)", this);
+        if (_log) Debug.Log($"[Atmosphere] → {profile.name} ({duration}s)", this);
     }
 
     // On Exit → ResetToDefault — กลับไปค่าที่ตั้งไว้ในฉาก
@@ -76,30 +118,25 @@ public class GlobalLightController : MonoBehaviour
         CurrentProfile = null;
         StartTransition(_default, _resetTime);
 
-        if (_log) Debug.Log("[GlobalLight] → ค่าเดิมของฉาก", this);
+        if (_log) Debug.Log("[Atmosphere] → ค่าเดิมของฉาก", this);
     }
 
     // สำหรับ UnityEvent<GameObject> (TriggerZoneEvents) ที่เลือกแบบ Dynamic
     public void ResetToDefault(GameObject _) => ResetToDefault();
 
-    // ---------- ใช้กับ GlobalLightSaveable ----------
+    // ---------- ใช้กับ AtmosphereSaveable ----------
 
-    // ค่าแสงตอนนี้ (ถ้ากำลังเฟดอยู่ = ค่าระหว่างทาง)
-    public bool TryGetCurrent(out float intensity, out Color filter, out bool useTemperature, out float temperature)
+    // ค่าตอนนี้ (ถ้ากำลังเฟดอยู่ = ค่าระหว่างทาง)
+    public bool TryGetCurrent(out State state)
     {
-        intensity = 0f; filter = Color.white; useTemperature = false; temperature = 6500f;
+        state = default;
         if (_light == null) return false;
-
-        State s = Read();
-        intensity = s.intensity;
-        filter = s.filter;
-        useTemperature = s.useTemperature;
-        temperature = s.temperature;
+        state = Read();
         return true;
     }
 
     // ตั้งค่าทันที ไม่เฟด — ใช้ตอน Load
-    public void SetInstant(float intensity, Color filter, bool useTemperature, float temperature)
+    public void SetInstant(State state)
     {
         if (_light == null) return;
 
@@ -109,14 +146,10 @@ public class GlobalLightController : MonoBehaviour
             _transition = null;
         }
 
-        Write(new State
-        {
-            intensity = intensity,
-            filter = filter,
-            useTemperature = useTemperature,
-            temperature = temperature,
-        });
+        Write(state);
     }
+
+    // ---------- ภายใน ----------
 
     private void StartTransition(State target, float duration)
     {
@@ -154,6 +187,8 @@ public class GlobalLightController : MonoBehaviour
                 filter = Color.Lerp(from.filter, to.filter, k),
                 useTemperature = to.useTemperature,
                 temperature = Mathf.Lerp(from.temperature, to.temperature, k),
+                hasFog = to.hasFog,
+                fogMaximumHeight = Mathf.Lerp(from.fogMaximumHeight, to.fogMaximumHeight, k),
             });
             yield return null;
         }
@@ -168,6 +203,8 @@ public class GlobalLightController : MonoBehaviour
         filter = _light.color,
         useTemperature = _light.useColorTemperature,
         temperature = _light.colorTemperature,
+        hasFog = _fog != null,
+        fogMaximumHeight = _fog != null ? _fog.maximumHeight.value : 0f,
     };
 
     private void Write(State s)
@@ -176,19 +213,17 @@ public class GlobalLightController : MonoBehaviour
         _light.color = s.filter;
         _light.useColorTemperature = s.useTemperature;
         _light.colorTemperature = s.temperature;
+
+        if (s.hasFog && _fog != null)
+            _fog.maximumHeight.value = s.fogMaximumHeight;
     }
 
     // รวม Temperature เข้าไปในสี Filter แล้วปิด Temperature — ไว้ lerp ระหว่างโหมดที่ต่างกัน
     private static State Flatten(State s)
     {
         if (!s.useTemperature) return s;
-        Color tint = Mathf.CorrelatedColorTemperatureToRGB(s.temperature);
-        return new State
-        {
-            intensity = s.intensity,
-            filter = s.filter * tint,
-            useTemperature = false,
-            temperature = s.temperature,
-        };
+        s.filter *= Mathf.CorrelatedColorTemperatureToRGB(s.temperature);
+        s.useTemperature = false;
+        return s;
     }
 }
