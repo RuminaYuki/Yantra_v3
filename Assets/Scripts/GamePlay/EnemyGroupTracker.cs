@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
@@ -72,7 +73,7 @@ public class EnemyGroupTracker : MonoBehaviour
             foreach (var particle in barrier.GetComponentsInChildren<ParticleSystem>(true))
             {
                 if (locked) particle.Play();
-                else particle.Stop();
+                else particle.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
             }
 
             foreach (var col in barrier.GetComponentsInChildren<Collider>(true))
@@ -99,8 +100,11 @@ public class EnemyGroupTracker : MonoBehaviour
         {
             if (enemy == null) continue;
 
-            if (!enemy.gameObject.activeInHierarchy)
+            if (enemy.IsDead)
+            {
+                Debug.Log($"Enemy {enemy.name} is already dead at start.");
                 deadEnemies.Add(enemy);
+            }
         }
         CheckAllEnemiesDefeated();
     }
@@ -111,9 +115,15 @@ public class EnemyGroupTracker : MonoBehaviour
 
         if (other.CompareTag("Player"))
         {
+            CheckEnemyAlive();
+            if (TotalCount == 0) return; // ไม่มีศัตรูในกลุ่ม ไม่ต้องยิง event
+
             playerEntered = true;
-            if (!defeated) SetBarriersLocked(true); // ศัตรูตายครบแล้ว ไม่ต้องขังผู้เล่น
-            OnPlayerEnter?.Invoke();
+            if (!defeated)
+            {
+                SetBarriersLocked(true); // ศัตรูตายครบแล้ว ไม่ต้องขังผู้เล่น
+                OnPlayerEnter?.Invoke();
+            }
         }
     }
 

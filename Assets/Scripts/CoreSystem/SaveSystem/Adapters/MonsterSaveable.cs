@@ -19,16 +19,30 @@ public class MonsterSaveable : SaveableBehaviour<MonsterSaveable.SaveData>
         if (health == null) health = GetComponentInChildren<Health>(true);
     }
 
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+        if (health != null) health.OnDead += RecordDeath;
+    }
+
+    protected override void OnDisable()
+    {
+        if (health != null) health.OnDead -= RecordDeath;
+        base.OnDisable();
+    }
+
     protected override SaveData Capture() => new SaveData
     {
         isDead = health != null ? health.IsDead : false
     };
 
+    private void RecordDeath() => RecordNow();
+
     protected override void Restore(SaveData state, int version)
     {
         if (health != null && state.isDead)
         {
-            health.SetCurrentHealth(0f);
+            health.Kill();
 
             if (disableOnDeath)
             {

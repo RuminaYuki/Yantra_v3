@@ -778,9 +778,7 @@ public class DissolveVFXPlayer : MonoBehaviour
     [ContextMenu("Set-up/Find Renderers")]
     public void FindRenderers()
     {
-        _renderers = null;
-
-        Renderer[] targets = _visualRoot != null ? _visualRoot.GetComponentsInChildren<Renderer>(true) : GetComponentsInChildren<Renderer>(true);
+        Renderer[] targets = GetComponentsInChildren<Renderer>(true);
         _renderers = new Renderer[targets.Length];
         for (int i = 0; i < targets.Length; i++)
             _renderers[i] = targets[i];
