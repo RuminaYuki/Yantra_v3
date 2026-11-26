@@ -3,7 +3,7 @@ using UnityEngine.Events;
 
 // ใส่บนตัวเปรต (Test Pret) — จับจังหวะเท้าทีละข้าง: เท้าลงมาเร็ว แล้วหยุด = เท้าแตะพื้น 1 ก้าว
 // แต่ละก้าว จอตึ้ง! (ใกล้ = แรง / ไกล = เบา) + เรียก On Step (ไว้ใส่เสียงเท้าทีหลัง)
-// ไม่ต้องใส่ Animation Event ในคลิป
+// มี 2 โหมด: จับเองจากความเร็วเท้า (ค่าเริ่มต้น) / ติ๊ก Use Animation Event = รอ event "PretFootstep" ผ่าน PretAnimEvents
 public class PretFootstepShake : MonoBehaviour
 {
     private class Foot
@@ -14,6 +14,11 @@ public class PretFootstepShake : MonoBehaviour
         public bool Falling;
         public float PeakSpeed;
     }
+
+    [Header("โหมด")]
+    [Tooltip("ติ๊ก = ไม่จับเท้าเอง รอ Animation Event \"PretFootstep\" ในท่าเดิน (ต้องมี PretAnimEvents ที่ตัวที่มี Animator)\n" +
+             "ไม่ติ๊ก = จับเองจากความเร็วเท้าแบบเดิม")]
+    [SerializeField] private bool _useAnimationEvent;
 
     [Header("เท้า")]
     [Tooltip("ว่างไว้ = หาเองจาก Animator (กระดูก LeftFoot)")]
@@ -75,13 +80,35 @@ public class PretFootstepShake : MonoBehaviour
 
         _left.Bone = _leftFoot;
         _right.Bone = _rightFoot;
+
+        if (_useAnimationEvent && GetComponentInChildren<PretAnimEvents>(true) == null)
+            Debug.LogWarning("[PretFootstepShake] ติ๊ก Use Animation Event แต่ยังไม่มี PretAnimEvents — แปะที่ตัวที่มี Animator", this);
+    }
+
+    /// <summary>เรียกจาก PretAnimEvents ตอนท่าเดินถึงเฟรมเท้าแตะพื้น — ใช้เท้าที่ต่ำที่สุด</summary>
+    public void StepFromEvent()
+    {
+        if (Time.time - _lastStepTime < _minStepInterval)
+            return;
+
+        _lastStepTime = Time.time;
+        Step(LowestFootPosition(), 0f);
+    }
+
+    private Vector3 LowestFootPosition()
+    {
+        if (_leftFoot != null && _rightFoot != null)
+            return _leftFoot.position.y <= _rightFoot.position.y ? _leftFoot.position : _rightFoot.position;
+        if (_leftFoot != null) return _leftFoot.position;
+        if (_rightFoot != null) return _rightFoot.position;
+        return transform.position;
     }
 
     // หลังแอนิเมชันกับ Foot IK ขยับกระดูกเสร็จแล้ว
     private void LateUpdate()
     {
         float dt = Time.deltaTime;
-        if (dt <= 0f || Time.timeScale <= 0f)
+        if (_useAnimationEvent || dt <= 0f || Time.timeScale <= 0f)
             return;
 
         UpdateFoot(_left, dt);
@@ -133,7 +160,9 @@ public class PretFootstepShake : MonoBehaviour
             : Mathf.Clamp01(Mathf.InverseLerp(_maxDistance, _fullDistance, distance));
 
         if (_logSteps)
-            Debug.Log($"[PretFootstepShake] ก้าว — เท้าลงเร็วสุด {peakSpeed:0.0} ม./วิ — ห่าง {distance:0.0} ม. — แรง {strength:0.00}", this);
+            Debug.Log(peakSpeed > 0f
+                ? $"[PretFootstepShake] ก้าว — เท้าลงเร็วสุด {peakSpeed:0.0} ม./วิ — ห่าง {distance:0.0} ม. — แรง {strength:0.00}"
+                : $"[PretFootstepShake] ก้าว (Animation Event) — ห่าง {distance:0.0} ม. — แรง {strength:0.00}", this);
 
         if (strength > 0f && CameraShaker.Instance != null)
             CameraShaker.Instance.Kick(_kick * strength, _kickTime, _kickTilt * strength);
@@ -163,4 +192,4 @@ public class PretFootstepShake : MonoBehaviour
         }
         return null;
     }
-}
+}
