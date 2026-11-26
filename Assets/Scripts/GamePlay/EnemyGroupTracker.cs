@@ -29,6 +29,10 @@ public class EnemyGroupTracker : MonoBehaviour
     private bool defeated;
     private bool playerEntered;
 
+    // อ่านอย่างเดียว ให้ script อื่น (เช่น Debug) เห็นรายชื่อศัตรูกับขอบเขตห้อง
+    public IReadOnlyList<Health> Enemies => enemies ?? Array.Empty<Health>();
+    public Bounds RoomBounds => GetComponent<BoxCollider>().bounds;
+
     private int TotalCount => enemies != null ? enemies.Length : 0;
 
     private int RequiredCount
