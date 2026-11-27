@@ -802,6 +802,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: db7d2c2f751dc8b4b9b74e00719fb013, type: 2}
   - {fileID: 11400000, guid: 2d7edf95ab3dfa94dae1cfd634488ceb, type: 2}
   _tutorialDelay: 1
+  _delayOnBlockedUntilTutorials: 1
   OnStarted:
     m_PersistentCalls:
       m_Calls:
@@ -1328,6 +1329,7 @@ MonoBehaviour:
   _subtitleData: {fileID: 11400000, guid: 76760a7fbe03b3945bce7acb26ae46e7, type: 2}
   _playOnce: 1
   _playerTag: Player
+  _retriggerDelay: 1
 --- !u!65 &267583762
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -9486,6 +9488,10 @@ PrefabInstance:
       propertyPath: _pools.Array.data[0].Options.Array.data[1].Weight
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4940341290140180305, guid: 6df2064968e38404cb4cb50a3f51d5cd, type: 3}
+      propertyPath: id
+      value: ed1fb2de7e0e4a79a5448e5b77723b78
+      objectReference: {fileID: 0}
     - target: {fileID: 5361778458707953895, guid: 6df2064968e38404cb4cb50a3f51d5cd, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -15458,6 +15464,13 @@ MonoBehaviour:
   _afterBlockMaxRetreat: 4
   _afterBlockPanicDistance: 1.8
   _afterBlockMinTime: 2.5
+  _afterBlockHoldGhost: 1
+  _afterBlockHoldDelay: 1
+  _afterBlockGhostBackDistance: 1.5
+  _afterBlockGhostBackMaxTime: 2
+  _afterBlockGhostBackMultiply: 1
+  _afterBlockGhostMoveState: BaseMovement
+  _allowSkipLine: 1
   _logSteps: 0
   _hideHud: 1
   _hudKeepVisible:

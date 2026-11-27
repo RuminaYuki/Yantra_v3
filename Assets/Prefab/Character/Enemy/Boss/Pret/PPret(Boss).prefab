@@ -738,6 +738,7 @@ GameObject:
   - component: {fileID: 2804155554720762952}
   - component: {fileID: 7211126821791089308}
   - component: {fileID: 1719509513022145013}
+  - component: {fileID: 7087004453619541534}
   m_Layer: 0
   m_Name: CrowFlock
   m_TagString: Untagged
@@ -3101,6 +3102,29 @@ ParticleSystemRenderer:
   m_MeshWeighting1: 1
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
+--- !u!114 &7087004453619541534
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4183012489108716864}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4698d954941698448619bd4be0e0bb1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FlockAudio
+  _particles: {fileID: 7211126821791089308}
+  _takeoff: {fileID: 11400000, guid: 32838313860796646b8cb0bb9afc7e5e, type: 2}
+  _caw: {fileID: 11400000, guid: 10aafc8b722ff11419025d9031890a40, type: 2}
+  _cawCount: 3
+  _cawFirstDelay: 0.3
+  _cawWindow: 3
+  _wingsLoop: {fileID: 11400000, guid: 9d1fb57b2f598e64b8701ddfce24e9d9, type: 2}
+  _wingsFadeIn: 0.2
+  _wingsFadeOut: 0.6
+  _followFlock: 1
+  _log: 0
 --- !u!1 &4257191210127115322
 GameObject:
   m_ObjectHideFlags: 0
@@ -5913,6 +5937,9 @@ GameObject:
   - component: {fileID: 8537911905343582554}
   - component: {fileID: 589294278103877021}
   - component: {fileID: 4021534618005675958}
+  - component: {fileID: 8215265142854305518}
+  - component: {fileID: 1166538799554161111}
+  - component: {fileID: 601388679633125368}
   m_Layer: 0
   m_Name: EnemyController
   m_TagString: Pret
@@ -6309,6 +6336,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 221ae8b5bd4ec0c44b0fbfa20bda96d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HandSlamDust
+  _useAnimationEvent: 1
   _hands: []
   _dustPrefab: {fileID: 7888827120660378037, guid: d828908462992b54bbac90d5d1558f01, type: 3}
   _dustLifetime: 4
@@ -6321,6 +6349,90 @@ MonoBehaviour:
     m_Bits: 768
   _onlyInState: Attack
   _logSlam: 0
+--- !u!114 &8215265142854305518
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8322786736477606622}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 892de2b75039a8d4699738295087894c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GhostAudio
+  _step: {fileID: 11400000, guid: 760f5656a5d63e74a90d7d7e662464f2, type: 2}
+  _slam: {fileID: 11400000, guid: edd810e63a14ffe439fe0e359238b4b2, type: 2}
+  _showUp: {fileID: 11400000, guid: a0b825ce48f603f45b6bb10493a86f99, type: 2}
+  _autoSteps: 0
+  _feet: []
+  _stepHeight: 0.15
+  _stepMinSpeed: 0.6
+  _move: {fileID: 11400000, guid: 7487a82d1b93c8f4e8ab4fa78be9339c, type: 2}
+  _moveBones: []
+  _moveMinSpeed: 1
+  _moveFullSpeed: 4
+  _moveResponse: 3
+  _randomVoice: {fileID: 11400000, guid: bc54bcc805823224cae48c72bae80fcc, type: 2}
+  _randomVoiceMin: 15
+  _randomVoiceMax: 30
+  _randomVoiceAfterShowUp: 1
+  _breath: {fileID: 11400000, guid: 8bb7a351dbc75a54bba6f651d6b87114, type: 2}
+  _breathAfterShowUp: 1
+  _breathFade: 1.5
+  _breathDuckWhileVoice: 0.3
+  _voiceFadeIn: 0.25
+  _voiceFadeOut: 0.4
+  _logPlay: 1
+--- !u!114 &1166538799554161111
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8322786736477606622}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 532d310fe0bd4654687a98666f1398dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PretAnimEvents
+  _footstep: {fileID: 1412159386379233760}
+  _slamShake: {fileID: 721605479771135916}
+  _slamDust: {fileID: 4021534618005675958}
+  _audio: {fileID: 8215265142854305518}
+  _minGap: 0.15
+  _logEvents: 1
+--- !u!114 &601388679633125368
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8322786736477606622}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b141d502773dbb4c9304469bf6c40ba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PretTensionFeedback
+  _detect: {fileID: 589294278103877021}
+  _startAt: 60
+  _fullAt: 170
+  _response: 2
+  _heartbeat: {fileID: 11400000, guid: b9d0d08913cde8c41a1981cb94d642de, type: 2}
+  _heartbeatDub: {fileID: 11400000, guid: 93571b7ca5b657c46be1b0db04361f53, type: 2}
+  _gapSlow: 0.3
+  _gapFast: 0.18
+  _dubVolume: 0.8
+  _overlapFade: 0.06
+  _minBpm: 70
+  _maxBpm: 150
+  _minVolume: 0.15
+  _maxVolume: 1
+  _heartbeatFrom: 0.05
+  _rumbleMaxTrauma: 0.3
+  _rumbleFrom: 0.6
+  _tension: 0
+  _log: 0
 --- !u!1 &9159605979800643452
 GameObject:
   m_ObjectHideFlags: 0
@@ -6383,6 +6495,18 @@ MonoBehaviour:
       - m_Target: {fileID: 7211126821791089308}
         m_TargetAssemblyTypeName: UnityEngine.ParticleSystem, UnityEngine
         m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 8215265142854305518}
+        m_TargetAssemblyTypeName: GhostAudio, Assembly-CSharp
+        m_MethodName: ShowUp
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -6716,6 +6840,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -1762552439185300392, guid: a5ca7820f03c7b24f85610a794e76a1a, type: 3}
   m_PrefabInstance: {fileID: 8137900560121619144}
   m_PrefabAsset: {fileID: 0}
+--- !u!4 &3273921557210492784 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -2485723944346841672, guid: a5ca7820f03c7b24f85610a794e76a1a, type: 3}
+  m_PrefabInstance: {fileID: 8137900560121619144}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &5948757385345305920 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -6745941289025572984, guid: a5ca7820f03c7b24f85610a794e76a1a, type: 3}
@@ -6748,6 +6877,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 28f0a00a19b50dd4cae40eb2d4d95fc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PretFootstepShake
+  _useAnimationEvent: 1
   _leftFoot: {fileID: 0}
   _rightFoot: {fileID: 0}
   _stepSpeed: 1.5
@@ -6760,7 +6890,19 @@ MonoBehaviour:
   _maxDistance: 200
   OnStep:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 8215265142854305518}
+        m_TargetAssemblyTypeName: GhostAudio, Assembly-CSharp
+        m_MethodName: Footstep
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   _logSteps: 1
 --- !u!114 &721605479771135916
 MonoBehaviour:
@@ -6774,8 +6916,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 707cb2b5f1d0f8846925c95fbbda1b83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PretSlamShake
-  _leftHand: {fileID: 0}
-  _rightHand: {fileID: 0}
+  _useAnimationEvent: 1
+  _leftHand: {fileID: 3273921557210492784}
+  _rightHand: {fileID: 5948757385345305920}
   _slamSpeed: 4
   _stopSpeed: 0.8
   _ignoreWhenMovingFaster: 0.5
