@@ -1190,6 +1190,9 @@ MonoBehaviour:
   _victim: {fileID: 184239990}
   _playerAnimation: {fileID: 11400000, guid: f0df5507a2c6b8a4ba07fb6cd07eb755, type: 2}
   _victimAnimation: {fileID: 11400000, guid: f3f77b162d6deb8479c0beb4f44eb5ac, type: 2}
+  _finalAt: 0
+  _finalPlayerAnimation: {fileID: 0}
+  _finalVictimAnimation: {fileID: 0}
   _distance: 1.1
   _sideOffset: 0
   _heightOffset: 0
@@ -5542,6 +5545,10 @@ PrefabInstance:
       propertyPath: ItemBullet
       value: 
       objectReference: {fileID: 11400000, guid: 2192083227f477749b9ba795a2bdfc2a, type: 2}
+    - target: {fileID: 1075256099564993152, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
+      propertyPath: useItemBullet
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1108516229437652499, guid: 42607b3ad3a1a8340816661a55902ba1, type: 3}
       propertyPath: m_Alpha
       value: 0
@@ -7218,6 +7225,67 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0be4c18a988caa24d8db9f6fe5d94589, type: 3}
   m_PrefabInstance: {fileID: 382469399}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &385824455
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 895339595292401659, guid: d0728d0a4ca95024bbfcca4398894e19, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -19.932602
+      objectReference: {fileID: 0}
+    - target: {fileID: 895339595292401659, guid: d0728d0a4ca95024bbfcca4398894e19, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.0000005432579
+      objectReference: {fileID: 0}
+    - target: {fileID: 895339595292401659, guid: d0728d0a4ca95024bbfcca4398894e19, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 34.970104
+      objectReference: {fileID: 0}
+    - target: {fileID: 895339595292401659, guid: d0728d0a4ca95024bbfcca4398894e19, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 895339595292401659, guid: d0728d0a4ca95024bbfcca4398894e19, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 895339595292401659, guid: d0728d0a4ca95024bbfcca4398894e19, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 895339595292401659, guid: d0728d0a4ca95024bbfcca4398894e19, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 895339595292401659, guid: d0728d0a4ca95024bbfcca4398894e19, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 895339595292401659, guid: d0728d0a4ca95024bbfcca4398894e19, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 895339595292401659, guid: d0728d0a4ca95024bbfcca4398894e19, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3411321831722237698, guid: d0728d0a4ca95024bbfcca4398894e19, type: 3}
+      propertyPath: m_Name
+      value: Enchanted YellowDoor Variant (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 8102139028708659260, guid: d0728d0a4ca95024bbfcca4398894e19, type: 3}
+      propertyPath: id
+      value: aecf78bb75dd44079f576efc538440c7
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: d0728d0a4ca95024bbfcca4398894e19, type: 3}
 --- !u!1 &390654364
 GameObject:
   m_ObjectHideFlags: 0
@@ -43654,3 +43722,4 @@ SceneRoots:
   - {fileID: 2102642462}
   - {fileID: 131413995}
   - {fileID: 526292091}
+  - {fileID: 385824455}
