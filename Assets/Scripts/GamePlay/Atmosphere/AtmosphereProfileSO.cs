@@ -29,4 +29,10 @@ public class AtmosphereProfileSO : ScriptableObject
     [Header("Transition")]
     [Tooltip("ใช้เวลากี่วินาทีเปลี่ยนจากค่าเดิมมาเป็นค่านี้ (0 = เปลี่ยนทันที)")]
     [Min(0f)] public float transitionTime = 2f;
+
+    [Header("Zone Priority")]
+    [Tooltip("ใช้ตอน AtmosphereZone ซ้อนกัน: สูงกว่าชนะเสมอ / เท่ากัน = โซนที่เข้าล่าสุดชนะ\n" +
+             "พื้นที่กลางแจ้ง (ป่า, หมู่บ้าน) ปล่อย 0 — พื้นที่ข้างใน (ในบ้าน, ถ้ำ) ตั้งสูงกว่า\n" +
+             "จะได้ชนะโซนใหญ่ที่ครอบอยู่เสมอ แม้ตอนเกิด/โหลดเซฟอยู่ข้างในทั้งคู่ ซึ่งลำดับ Enter ไม่แน่นอน")]
+    public int priority;
 }

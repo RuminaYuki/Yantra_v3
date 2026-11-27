@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.HighDefinition;
@@ -123,6 +124,62 @@ public class AtmosphereController : MonoBehaviour
 
     // สำหรับ UnityEvent<GameObject> (TriggerZoneEvents) ที่เลือกแบบ Dynamic
     public void ResetToDefault(GameObject _) => ResetToDefault();
+
+    // ---------- โซน (AtmosphereZone) ----------
+    //
+    // โซนที่ผู้เล่นอยู่ข้างในตอนนี้ เรียงตามลำดับที่เข้า (ตัวท้าย = เข้าล่าสุด)
+    // ใช้ตัดสินตอนโซนซ้อนกัน: Priority สูงสุดชนะ / Priority เท่ากัน = เข้าล่าสุดชนะ
+    // ออกจากโซนหนึ่ง → กลับไปใช้โซนที่ยังอยู่ข้างในเอง ไม่ต้องพึ่ง Exit Profile
+    //
+    // ทำไมต้องจำ: ถ้าแค่ "เข้าโซนไหน ใช้โซนนั้น" เดินจาก A เข้าส่วนที่ซ้อนกับ B แล้วย้อนกลับมาฝั่ง A
+    // A จะไม่ยิง Enter ซ้ำ (ผู้เล่นไม่เคยออกจาก A) → บรรยากาศค้างเป็นของ B
+    private readonly List<AtmosphereZone> _activeZones = new();
+
+    public void EnterZone(AtmosphereZone zone)
+    {
+        if (zone == null) return;
+
+        _activeZones.Remove(zone);   // เข้าซ้ำ = ย้ายไปท้าย (นับเป็นล่าสุด)
+        _activeZones.Add(zone);
+
+        if (_log) Debug.Log($"[Atmosphere] เข้าโซน {zone.name} (อยู่ใน {_activeZones.Count} โซน)", zone);
+        ApplyTopZone();
+    }
+
+    // คืน true = ยังมีโซนอื่นคุมบรรยากาศอยู่ (คนเรียกไม่ต้องใช้ Exit Profile)
+    public bool ExitZone(AtmosphereZone zone)
+    {
+        // ไม่ได้อยู่ในรายการ (เช่น ออกซ้ำตอนโซนถูกปิด) → ไม่เปลี่ยนอะไร แค่ตอบสถานะ
+        if (!_activeZones.Remove(zone)) return FindTopZone() != null;
+
+        if (_log) Debug.Log($"[Atmosphere] ออกโซน {zone.name} (เหลือ {_activeZones.Count} โซน)", zone);
+        return ApplyTopZone();
+    }
+
+    private bool ApplyTopZone()
+    {
+        AtmosphereZone top = FindTopZone();
+        if (top == null) return false;
+
+        // อยู่ใน Profile นี้อยู่แล้ว ไม่ต้องเริ่มเฟดใหม่
+        if (CurrentProfile != top.EnterProfile) ApplyProfile(top.EnterProfile);
+        return true;
+    }
+
+    private AtmosphereZone FindTopZone()
+    {
+        _activeZones.RemoveAll(z => z == null);   // โซนที่ถูก Destroy ไปแล้ว
+
+        AtmosphereZone top = null;
+        foreach (AtmosphereZone z in _activeZones)
+        {
+            if (z.EnterProfile == null) continue;   // โซนที่ไม่มี Enter Profile ไม่ได้คุมอะไร
+
+            // >= : Priority เท่ากัน ตัวที่อยู่ท้ายรายการ (เข้าล่าสุด) ชนะ
+            if (top == null || z.Priority >= top.Priority) top = z;
+        }
+        return top;
+    }
 
     // ---------- ใช้กับ AtmosphereSaveable ----------
 
