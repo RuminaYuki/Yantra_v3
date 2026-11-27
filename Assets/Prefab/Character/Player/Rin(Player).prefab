@@ -6873,6 +6873,7 @@ GameObject:
   - component: {fileID: 4025514517257664060}
   - component: {fileID: 180943104462174031}
   - component: {fileID: 5881901155180492123}
+  - component: {fileID: 8569833947441978906}
   m_Layer: 0
   m_Name: CameraCinemachine
   m_TagString: MainCamera
@@ -6930,7 +6931,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.01
-  far clip plane: 200
+  far clip plane: 1000
   field of view: 60.000004
   orthographic: 0
   orthographic size: 5
@@ -7164,6 +7165,23 @@ MonoBehaviour:
         LayerMask:
           serializedVersion: 2
           m_Bits: 4294967295
+--- !u!114 &8569833947441978906
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3970923857070277191}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7771ce71b9eae04bb63617f9e5d1148, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraLayerCull
+  _defaultCullDistance: 300
+  _farLayers:
+    serializedVersion: 2
+    m_Bits: 16384
+  _spherical: 1
 --- !u!1 &4048066571464125210
 GameObject:
   m_ObjectHideFlags: 0
