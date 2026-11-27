@@ -26,5 +26,11 @@ namespace SDFcl.GamePlay.Interactable
 
         private void HandleEnter(GameObject who) => OnInteract?.Invoke(who);
         private void HandleExit(GameObject who) => OnEndInteract?.Invoke(who);
+
+        [ContextMenu("Invoke Interact")]
+        public void InvokeInteract() => OnInteract?.Invoke(null);
+
+        [ContextMenu("Invoke End Interact")]
+        public void InvokeEndInteract() => OnEndInteract?.Invoke(null);
     }
 }
