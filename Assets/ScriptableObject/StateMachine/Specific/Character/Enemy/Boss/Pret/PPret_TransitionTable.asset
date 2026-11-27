@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TimedActionSO
   _selfAnchor: {fileID: 0}
   _unit: 1
-  _start: 0.619
+  _start: 0.7
   _end: 0
   _actions:
   - {fileID: -8213120255863930141}
@@ -185,6 +185,23 @@ MonoBehaviour:
   _exitStateName: 
   _exitTransitionDuration: 0.25
   _exitStartTimeOffset: 0
+--- !u!114 &-6249186167928164494
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1568bb9b2dbad244ea06dc24958e2477, type: 3}
+  m_Name: Pret_Attack_Audio
+  m_EditorClassIdentifier: Assembly-CSharp::PlayGhostAudioActionSO
+  _selfAnchor: {fileID: 0}
+  _mode: 0
+  _sound: {fileID: 11400000, guid: a0b825ce48f603f45b6bb10493a86f99, type: 2}
+  _delay: 0
+  _fade: 0.5
 --- !u!114 &-5224382328290898766
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -299,6 +316,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29aaa39665320664388a123863eae513, type: 3}
   m_Name: HandIKTarget_AnchorID
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.AnchorIDSO
+--- !u!114 &-2021650128709312784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2749e80a99d14940b0b8b04cb6c959d, type: 3}
+  m_Name: Pret_Music_Stop
+  m_EditorClassIdentifier: Assembly-CSharp::MusicOverrideActionSO
+  _selfAnchor: {fileID: 0}
+  _mode: 1
+  _music: {fileID: 0}
 --- !u!114 &-890722752643233645
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -311,6 +343,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29aaa39665320664388a123863eae513, type: 3}
   m_Name: BackHomePoint_AnchorID
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.AnchorIDSO
+--- !u!114 &-100858216526438094
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1568bb9b2dbad244ea06dc24958e2477, type: 3}
+  m_Name: Pret_EnterStare_Audio
+  m_EditorClassIdentifier: Assembly-CSharp::PlayGhostAudioActionSO
+  _selfAnchor: {fileID: 0}
+  _mode: 0
+  _sound: {fileID: 11400000, guid: f1e0192893bdb2f408ea313f889ecddd, type: 2}
+  _delay: 0
+  _fade: 0.5
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -395,7 +444,7 @@ MonoBehaviour:
   - State: {fileID: -3698309156726073262}
     Position: {x: 175, y: 62}
   - State: {fileID: 4858673127742840136}
-    Position: {x: 175, y: 125}
+    Position: {x: 175, y: 126}
   - State: {fileID: 4051602753645604464}
     Position: {x: 175, y: 0}
   - State: {fileID: 1182286990967500170}
@@ -601,6 +650,23 @@ MonoBehaviour:
   _targetPositionWeight: 1
   _targetRotationWeight: 1
   _hintWeight: 1
+--- !u!114 &1040749149319040385
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1568bb9b2dbad244ea06dc24958e2477, type: 3}
+  m_Name: Pret_Stare_Audio
+  m_EditorClassIdentifier: Assembly-CSharp::PlayGhostAudioActionSO
+  _selfAnchor: {fileID: 0}
+  _mode: 1
+  _sound: {fileID: 11400000, guid: 8c79f4403a08a0847bb43fd58bd30a00, type: 2}
+  _delay: 0
+  _fade: 1
 --- !u!114 &1182286990967500170
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -616,6 +682,7 @@ MonoBehaviour:
   _actions:
   - {fileID: 1839331162041890142}
   - {fileID: -7201521197881898793}
+  - {fileID: 5398050737555966794}
 --- !u!114 &1207851011801801735
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -679,6 +746,7 @@ MonoBehaviour:
   - {fileID: 626253143063107120}
   - {fileID: -8864204874983247546}
   - {fileID: -7201521197881898793}
+  - {fileID: -6249186167928164494}
 --- !u!114 &3110492273662909892
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -766,6 +834,8 @@ MonoBehaviour:
   - {fileID: 5871100796952256884}
   - {fileID: 454724885052693008}
   - {fileID: -7475066050100417114}
+  - {fileID: -100858216526438094}
+  - {fileID: 7635289391110003845}
 --- !u!114 &4981551736367049853
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -799,6 +869,23 @@ MonoBehaviour:
   positionLerpSpeed: 0
   changeRotationLerpSpeed: 0
   rotationLerpSpeed: 0
+--- !u!114 &5398050737555966794
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1568bb9b2dbad244ea06dc24958e2477, type: 3}
+  m_Name: Pret_Alert_Audio
+  m_EditorClassIdentifier: Assembly-CSharp::PlayGhostAudioActionSO
+  _selfAnchor: {fileID: 0}
+  _mode: 0
+  _sound: {fileID: 11400000, guid: 816b9f49a1a9931418cae570f961c884, type: 2}
+  _delay: 0
+  _fade: 0.5
 --- !u!114 &5737282317648859016
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -866,6 +953,7 @@ MonoBehaviour:
   _actions:
   - {fileID: -7007026283403450387}
   - {fileID: -7201521197881898793}
+  - {fileID: 1040749149319040385}
 --- !u!114 &6472776841596556974
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -893,6 +981,38 @@ MonoBehaviour:
   m_Name: TriggerInteractor_Condition
   m_EditorClassIdentifier: Assembly-CSharp::TriggerInteractorSO
   _selfAnchor: {fileID: 1207851011801801735}
+--- !u!114 &7435347021109989449
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1568bb9b2dbad244ea06dc24958e2477, type: 3}
+  m_Name: Pret_BackHome_Audio
+  m_EditorClassIdentifier: Assembly-CSharp::PlayGhostAudioActionSO
+  _selfAnchor: {fileID: 0}
+  _mode: 0
+  _sound: {fileID: 11400000, guid: 6242ad31d3388ef48a15f8a0eaff187b, type: 2}
+  _delay: 0
+  _fade: 0.5
+--- !u!114 &7635289391110003845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2749e80a99d14940b0b8b04cb6c959d, type: 3}
+  m_Name: Pret_Music_Start
+  m_EditorClassIdentifier: Assembly-CSharp::MusicOverrideActionSO
+  _selfAnchor: {fileID: 0}
+  _mode: 0
+  _music: {fileID: 11400000, guid: 56875f51f87e7574cbca2e2eb556d94c, type: 2}
 --- !u!114 &7829830234337253109
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -961,3 +1081,5 @@ MonoBehaviour:
   - {fileID: 4151749851804201053}
   - {fileID: -8170289565474031905}
   - {fileID: 8037316441915004972}
+  - {fileID: 7435347021109989449}
+  - {fileID: -2021650128709312784}
