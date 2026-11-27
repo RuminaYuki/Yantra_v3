@@ -180,8 +180,11 @@ public static class NoteSubtitleFiller
 
         EditorUtility.DisplayDialog("ใส่บทโน้ต",
             $"ใส่บทแล้ว {targets.Count} ไฟล์ ({targets.Count * 2} ประโยค)\n" +
-            $"เจอไฟล์เสียงชื่อตรง ใส่ให้แล้ว {voices} ไฟล์\n\n" +
-            "ที่เหลือ: ตั้งชื่อไฟล์เสียงตาม Text Key (เช่น note_shrine_01) แล้วใช้ Voice Lines ข้อ ④ จับคู่", "ตกลง");
+            $"เจอไฟล์เสียงชื่อตรง ใส่ให้แล้ว {voices} ไฟล์" +
+            (voices >= targets.Count * 2
+                ? "\n\nครบทุกประโยคแล้ว ✓"
+                : $"\n\nยังขาดเสียง {targets.Count * 2 - voices} ประโยค — ตั้งชื่อไฟล์ตาม Text Key (เช่น note_shrine_02) แล้วกดเมนูนี้ใหม่"),
+            "ตกลง");
     }
 
     private static SubtitleDataSO Match(List<SubtitleDataSO> files, NoteDef def)
