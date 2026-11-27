@@ -31,5 +31,6 @@ public class HealOverTime : MonoBehaviour
             elapsedTime += Time.deltaTime;
             yield return null;
         }
+        Destroy(this.gameObject);
     }
 }
