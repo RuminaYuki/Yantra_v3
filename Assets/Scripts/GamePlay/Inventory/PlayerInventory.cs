@@ -22,6 +22,16 @@ public class PlayerInventory : MonoBehaviour
     [SerializeField] private float dropForwardDistance = 1f;
     [SerializeField] private float dropUpOffset = 0.5f;
 
+    [Header("Ground Snap")]
+    [Tooltip("Layers treated as ground when placing dropped items")]
+    [SerializeField] private LayerMask groundMask = ~0;
+    [Tooltip("Start the ground raycast this far above the drop point")]
+    [SerializeField, Min(0f)] private float rayStartHeight = 2f;
+    [Tooltip("Max distance the ground raycast travels downward")]
+    [SerializeField, Min(0f)] private float rayDistance = 20f;
+    [Tooltip("Extra gap between the item's bottom and the ground")]
+    [SerializeField] private float groundOffset = 0.02f;
+
 #if UNITY_EDITOR
     [Header("Debug")]
     public bool debugLog = false;
@@ -97,9 +107,14 @@ public class PlayerInventory : MonoBehaviour
         if (s.IsEmpty) return false;
 
         int left = Inventory.TryAdd(s.item, s.quantity);
-        PickUpLogUI.Instance.ShowPickUpLog(worldItem.Stack.item.icon, worldItem.Stack.item.name, worldItem.Stack.quantity - left);
+        int pickedUp = s.quantity - left;
+        if (pickedUp > 0)
+            PickUpLogUI.Instance.ShowPickUpLog(s.item.icon, s.item.name, pickedUp);
+        if (left > 0)
+            PickUpLogUI.Instance.ShowInventoryFullLog();
+
         worldItem.SetQuantity(left);
-        return left < s.quantity;
+        return pickedUp > 0;
     }
 
     // Removes items from a placed stack and spawns them on the ground as one stack.
@@ -126,5 +141,70 @@ public class PlayerInventory : MonoBehaviour
 
         WorldItem dropped = Instantiate(item.worldPrefab, pos, rot);
         dropped.Initialize(new ItemStack(item, removed));
+        SnapToGround(dropped, pos, item.dropGroundOffset);
+    }
+
+    private void SnapToGround(WorldItem dropped, Vector3 origin, float itemOffset)
+    {
+        if (!TryFindGround(origin, dropped.transform, out float groundY))
+        {
+            Debug.LogWarning("No ground found below the inventory drop point; item remains at the drop point.", this);
+            return;
+        }
+
+        float bottomY = GetBottomY(dropped.gameObject);
+        dropped.transform.position += Vector3.up * (groundY + groundOffset + itemOffset - bottomY);
+
+        Rigidbody rb = dropped.GetComponent<Rigidbody>();
+        if (rb != null) rb.position = dropped.transform.position;
+    }
+
+    private bool TryFindGround(Vector3 origin, Transform droppedTransform, out float groundY)
+    {
+        groundY = origin.y;
+        Vector3 start = origin + Vector3.up * rayStartHeight;
+        RaycastHit[] hits = Physics.RaycastAll(start, Vector3.down, rayStartHeight + rayDistance,
+            groundMask, QueryTriggerInteraction.Ignore);
+
+        bool found = false;
+        float closestDistance = float.MaxValue;
+        foreach (RaycastHit hit in hits)
+        {
+            Transform hitTransform = hit.collider.transform;
+            if (hitTransform == droppedTransform || hitTransform.IsChildOf(droppedTransform)) continue;
+            if (hitTransform == transform.root || hitTransform.IsChildOf(transform.root)) continue;
+            if (hit.distance >= closestDistance) continue;
+
+            closestDistance = hit.distance;
+            groundY = hit.point.y;
+            found = true;
+        }
+
+        return found;
+    }
+
+    private static float GetBottomY(GameObject drop)
+    {
+        bool found = false;
+        Bounds bounds = default;
+
+        foreach (Renderer renderer in drop.GetComponentsInChildren<Renderer>())
+        {
+            if (renderer is ParticleSystemRenderer || renderer is TrailRenderer || renderer is LineRenderer) continue;
+            if (!found) { bounds = renderer.bounds; found = true; }
+            else bounds.Encapsulate(renderer.bounds);
+        }
+
+        if (!found)
+        {
+            foreach (Collider col in drop.GetComponentsInChildren<Collider>())
+            {
+                if (col.isTrigger) continue;
+                if (!found) { bounds = col.bounds; found = true; }
+                else bounds.Encapsulate(col.bounds);
+            }
+        }
+
+        return found ? bounds.min.y : drop.transform.position.y;
     }
 }

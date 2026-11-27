@@ -33,13 +33,10 @@ public class PickUpAddition : MonoBehaviour
     }
     private bool HandleCanInteract(GameObject rootplayer)
     {
-        inventory = rootplayer.GetComponentInChildren<PlayerInventory>();
-        if (inventory == null) return false;
-        // TryAdd returns the leftover amount that did NOT fit.
-        // Allow pickup if at least one item fits.
-        int left = inventory.Inventory.TryAdd(worldItem.Stack.item, worldItem.Stack.quantity, true);
+        if (worldItem == null || worldItem.Stack.IsEmpty) return false;
 
-        return left < worldItem.Stack.quantity;
+        inventory = rootplayer.GetComponentInChildren<PlayerInventory>();
+        return inventory != null;
     }
 
     private void HandleOnInteract(GameObject rootplayer)

@@ -9,12 +9,14 @@ public class PickUpLogUI : Singleton<PickUpLogUI>
         public readonly Sprite Icon;
         public readonly string ItemName;
         public readonly int Amount;
+        public readonly bool IsMessage;
 
-        public PickUpLogEntry(Sprite icon, string itemName, int amount)
+        public PickUpLogEntry(Sprite icon, string itemName, int amount, bool isMessage = false)
         {
             Icon = icon;
             ItemName = itemName;
             Amount = amount;
+            IsMessage = isMessage;
         }
     }
 
@@ -37,6 +39,16 @@ public class PickUpLogUI : Singleton<PickUpLogUI>
 
     public void ShowPickUpLog(Sprite itemIcon, string itemName, int amount)
     {
+        EnqueueEntry(new PickUpLogEntry(itemIcon, itemName, amount));
+    }
+
+    public void ShowInventoryFullLog()
+    {
+        EnqueueEntry(new PickUpLogEntry(null, "กระเป๋าเต็ม", 0, true));
+    }
+
+    private void EnqueueEntry(PickUpLogEntry entry)
+    {
         if (SlotTemplat == null)
         {
             Debug.LogError("Slot prefab is not assigned in PickUpLogUI.");
@@ -49,7 +61,6 @@ public class PickUpLogUI : Singleton<PickUpLogUI>
             return;
         }
 
-        PickUpLogEntry entry = new PickUpLogEntry(itemIcon, itemName, amount);
         if (activeLogCount >= maxLogCount)
         {
             pendingLogs.Enqueue(entry);
@@ -83,7 +94,8 @@ public class PickUpLogUI : Singleton<PickUpLogUI>
     private void ShowEntry(PickUpLogEntry entry)
     {
         SlotPickUpLog slot = GetSlot();
-        slot.SetSlot(entry.Icon, entry.ItemName, entry.Amount);
+        if (entry.IsMessage) slot.SetMessage(entry.ItemName);
+        else slot.SetSlot(entry.Icon, entry.ItemName, entry.Amount);
         slot.SetCanvasGroupAlpha(1f); // Reset alpha left over from the previous fade
 
         // Layout Group arranges children by sibling order

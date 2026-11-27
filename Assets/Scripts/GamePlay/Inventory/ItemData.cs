@@ -35,6 +35,8 @@ public class ItemData : ScriptableObject
     [Header("Prefabs")]
     [Tooltip("Spawned when the item is dropped on the ground.")]
     public WorldItem worldPrefab;
+    [Tooltip("Additional vertical offset from the ground when dropped from inventory.")]
+    public float dropGroundOffset;
     [Tooltip("Spawned in the hand socket when equipped. Leave empty for non-holdable items.")]
     public HeldItem heldPrefab;
 

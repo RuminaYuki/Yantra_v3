@@ -171,6 +171,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7492872405098945825, guid: 695d4f04000e9b547bbc586f83cc621f, type: 3}
+      propertyPath: OnEndInteract.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2261,6 +2265,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &143128059 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7902851486467519849, guid: c5cc09f8b09b7da459ed807dea87805c, type: 3}
+  m_PrefabInstance: {fileID: 7073174767242755879}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67703810c4b097141ba65ef678028ac2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ButtonInteractor
 --- !u!1 &146748146
 GameObject:
   m_ObjectHideFlags: 0
@@ -25744,7 +25759,7 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: 12b62bcafc8dbb149b988d2e1d550d1e, type: 2}
     - target: {fileID: 9146358292841829373, guid: d3f1173d7694a994889b1bc0bfbfa68b, type: 3}
       propertyPath: stack.quantity
-      value: 2
+      value: 20
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -27940,6 +27955,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 806782641122125960, guid: b8c732780c6260948bb2b7acf2ca77b8, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7492872405098945825, guid: b8c732780c6260948bb2b7acf2ca77b8, type: 3}
+      propertyPath: OnEndInteract.m_PersistentCalls.m_Calls.Array.size
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -43480,6 +43499,34 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1219926840448381869, guid: c5cc09f8b09b7da459ed807dea87805c, type: 3}
+      propertyPath: OnEndInteract.m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1219926840448381869, guid: c5cc09f8b09b7da459ed807dea87805c, type: 3}
+      propertyPath: OnEndInteract.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 143128059}
+    - target: {fileID: 1219926840448381869, guid: c5cc09f8b09b7da459ed807dea87805c, type: 3}
+      propertyPath: OnEndInteract.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: SetCanInteract
+      objectReference: {fileID: 0}
+    - target: {fileID: 1219926840448381869, guid: c5cc09f8b09b7da459ed807dea87805c, type: 3}
+      propertyPath: OnEndInteract.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: SetHideInteract
+      objectReference: {fileID: 0}
+    - target: {fileID: 1219926840448381869, guid: c5cc09f8b09b7da459ed807dea87805c, type: 3}
+      propertyPath: OnEndInteract.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: SDFcl.GamePlay.Interactable.ButtonInteractor, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 1219926840448381869, guid: c5cc09f8b09b7da459ed807dea87805c, type: 3}
+      propertyPath: OnEndInteract.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_BoolArgument
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1219926840448381869, guid: c5cc09f8b09b7da459ed807dea87805c, type: 3}
+      propertyPath: OnEndInteract.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_BoolArgument
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1597648784546596168, guid: c5cc09f8b09b7da459ed807dea87805c, type: 3}
       propertyPath: m_LocalPosition.x
       value: -2.382

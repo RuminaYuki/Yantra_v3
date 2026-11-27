@@ -11,25 +11,23 @@ public class SlotPickUpLog : MonoBehaviour
 
     public void SetSlot(Sprite itemIcon, string itemName, int amount)
     {
-        if (icon == null || amountText == null || itemNameText == null)
-        {
-            Debug.LogError("Icon, amount text, or item name text is not assigned on SlotPickUpLog.");
-            return;
-        }
-
-        if (canvasGroup == null)
-        {
-            if (!TryGetComponent(out canvasGroup))
-            {
-                Debug.LogError("CanvasGroup component is missing on the SlotPickUpLog GameObject.");
-                return;
-            }
-        }
+        if (!HasRequiredReferences()) return;
 
         icon.sprite = itemIcon;
         icon.enabled = itemIcon != null;
         amountText.text = $"x{amount}";
         itemNameText.text = itemName;
+        canvasGroup.alpha = 1f;
+    }
+
+    public void SetMessage(string message)
+    {
+        if (!HasRequiredReferences()) return;
+
+        icon.sprite = null;
+        icon.enabled = false;
+        amountText.text = string.Empty;
+        itemNameText.text = message;
         canvasGroup.alpha = 1f;
     }
 
@@ -39,5 +37,22 @@ public class SlotPickUpLog : MonoBehaviour
         {
             canvasGroup.alpha = alpha;
         }
+    }
+
+    private bool HasRequiredReferences()
+    {
+        if (icon == null || amountText == null || itemNameText == null)
+        {
+            Debug.LogError("Icon, amount text, or item name text is not assigned on SlotPickUpLog.");
+            return false;
+        }
+
+        if (canvasGroup == null && !TryGetComponent(out canvasGroup))
+        {
+            Debug.LogError("CanvasGroup component is missing on the SlotPickUpLog GameObject.");
+            return false;
+        }
+
+        return true;
     }
 }
