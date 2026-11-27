@@ -11,8 +11,12 @@ public class EnemyGroupTracker : MonoBehaviour
     [Tooltip("จำนวนศัตรูที่ต้องตายถึงจะถือว่าชนะ ถ้าเป็น 0 = ต้องตายทั้งหมด")]
     [SerializeField] int minCount;
 
+    [Header("Required Loot")]
+    [Tooltip("หน่วงเวลาก่อนเริ่มตรวจหาไอเทมเงื่อนไขในห้องหลังศัตรูตายครบ")]
+    [SerializeField, Min(0f)] float requiredLootCheckDelay = 0.5f;
+
     [Header("Barriers")]
-    [Tooltip("ล็อคตอนผู้เล่นเดินเข้า ปลดล็อคตอนศัตรูตายครบ\n" +
+    [Tooltip("ล็อคตอนผู้เล่นเดินเข้า ปลดล็อคหลังศัตรูตายครบและไม่มีไอเทมเงื่อนไขเหลือในห้อง\n" +
              "ล็อค = Play ParticleSystem + collider เป็นของแข็ง, ปลดล็อค = Stop + collider เป็น trigger (เดินผ่านได้)\n" +
              "ใช้ ParticleSystem/Collider ทั้งหมดใน object นั้นและลูกของมัน")]
     [SerializeField] GameObject[] barriers;
@@ -27,6 +31,7 @@ public class EnemyGroupTracker : MonoBehaviour
     private readonly Dictionary<Health, Action> handlers = new Dictionary<Health, Action>();
 
     private bool defeated;
+    private bool roomCompleted;
     private bool playerEntered;
 
     // อ่านอย่างเดียว ให้ script อื่น (เช่น Debug) เห็นรายชื่อศัตรูกับขอบเขตห้อง
@@ -126,9 +131,9 @@ public class EnemyGroupTracker : MonoBehaviour
             if (TotalCount == 0) return; // ไม่มีศัตรูในกลุ่ม ไม่ต้องยิง event
 
             playerEntered = true;
-            if (!defeated)
+            if (!roomCompleted)
             {
-                SetBarriersLocked(true); // ศัตรูตายครบแล้ว ไม่ต้องขังผู้เล่น
+                SetBarriersLocked(true);
                 OnPlayerEnter?.Invoke();
             }
         }
@@ -149,9 +154,39 @@ public class EnemyGroupTracker : MonoBehaviour
         if (deadEnemies.Count >= RequiredCount)
         {
             defeated = true;
-            SetBarriersLocked(false);
-            OnAllEnemiesDefeated?.Invoke();
+            StartCoroutine(WaitForRequiredLootToClear());
         }
+    }
+
+    private IEnumerator WaitForRequiredLootToClear()
+    {
+        Debug.Log("Start");
+        yield return new WaitForSeconds(requiredLootCheckDelay);
+        Debug.Log("WaitForRequiredLootToClear");
+
+        float checkInterval = Mathf.Max(requiredLootCheckDelay, 0.1f);
+        while (HasRequiredLootInRoom())
+            yield return new WaitForSeconds(checkInterval);
+
+        roomCompleted = true;
+        SetBarriersLocked(false);
+        OnAllEnemiesDefeated?.Invoke();
+    }
+
+    private bool HasRequiredLootInRoom()
+    {
+        Bounds roomBounds = RoomBounds;
+        RoomLootRequirement[] lootItems = FindObjectsByType<RoomLootRequirement>(
+            FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+
+        foreach (RoomLootRequirement lootItem in lootItems)
+        {
+            if (lootItem.gameObject.scene == gameObject.scene &&
+                roomBounds.Contains(lootItem.transform.position))
+                return true;
+        }
+
+        return false;
     }
 
     [ContextMenu("Set Up List Enemy")]
