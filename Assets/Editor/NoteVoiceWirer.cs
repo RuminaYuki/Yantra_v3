@@ -14,8 +14,9 @@ using UnityEngine.SceneManagement;
 //
 // ทุก GameObject ที่มี NotaAddition:
 //   1. หา Sub_Note_... ที่ข้อความประโยคแรกตรงกับ Content ของโน้ต (ไม่ตรง = ลองเทียบจาก Title)
-//   2. ใส่ Subtitle (มีอยู่แล้วใช้ตัวเดิม) แล้วใส่ Subtitle Data
-//   3. Interactor Event > On Interact เพิ่ม Subtitle.Play() (มีแล้วไม่เพิ่มซ้ำ)
+//   2. ใส่ NoteVoice (มีอยู่แล้วใช้ตัวเดิม) แล้วใส่ Subtitle Data
+//   3. Interactor Event > On Interact เพิ่ม NoteVoice.Play() (มีแล้วไม่เพิ่มซ้ำ)
+//   เวอร์ชันเก่าเคยใส่ Subtitle + Subtitle.Play() — เจอแล้วเอาออกให้ (ย้ายมาใช้ NoteVoice)
 // กดซ้ำได้ไม่เบิ้ล / Ctrl+Z ย้อนได้ / ไม่เซฟฉากให้ — กด Ctrl+S เอง
 public static class NoteVoiceWirer
 {
@@ -66,10 +67,10 @@ public static class NoteVoiceWirer
                 continue;
             }
 
-            Subtitle subtitle = go.GetComponent<Subtitle>();
-            if (subtitle == null) subtitle = Undo.AddComponent<Subtitle>(go);
+            NoteVoice voice = go.GetComponent<NoteVoice>();
+            if (voice == null) voice = Undo.AddComponent<NoteVoice>(go);
 
-            var so = new SerializedObject(subtitle);
+            var so = new SerializedObject(voice);
             SerializedProperty dataProp = so.FindProperty("_subtitleData");
             if (dataProp != null)
             {
@@ -77,20 +78,35 @@ public static class NoteVoiceWirer
                 so.ApplyModifiedProperties();
             }
 
+            Undo.RecordObject(interactorEvent, "ต่อเสียงโน้ต");
+
+            // ของเวอร์ชันเก่า: Subtitle.Play() ใน On Interact + ตัว Subtitle
+            bool migrated = RemoveOldSubtitlePlay(onInteract);
+            Subtitle oldSubtitle = go.GetComponent<Subtitle>();
+
             bool added = false;
-            if (!HasPlay(onInteract, subtitle))
+            if (!HasPlay(onInteract, voice))
             {
-                Undo.RecordObject(interactorEvent, "ต่อเสียงโน้ต");
-                UnityEventTools.AddVoidPersistentListener(onInteract, subtitle.Play);
+                UnityEventTools.AddVoidPersistentListener(onInteract, voice.Play);
+                added = true;
+            }
+
+            if (added || migrated)
+            {
                 EditorUtility.SetDirty(interactorEvent);
                 if (PrefabUtility.IsPartOfPrefabInstance(interactorEvent))
                     PrefabUtility.RecordPrefabInstancePropertyModifications(interactorEvent);
-                added = true;
+            }
+
+            if (oldSubtitle != null)
+            {
+                Undo.DestroyObjectImmediate(oldSubtitle);
+                migrated = true;
             }
 
             EditorSceneManager.MarkSceneDirty(go.scene);
             wired++;
-            done.AppendLine($"✓ {label} → {data.name}{(added ? "" : "  (ต่อไว้แล้ว)")}");
+            done.AppendLine($"✓ {label} → {data.name}{(migrated ? "  (เปลี่ยนจาก Subtitle เดิม)" : added ? "" : "  (ต่อไว้แล้ว)")}");
         }
 
         Undo.CollapseUndoOperations(group);
@@ -227,11 +243,26 @@ public static class NoteVoiceWirer
         return fallback;
     }
 
-    private static bool HasPlay(UnityEventBase evt, Subtitle subtitle)
+    private static bool HasPlay(UnityEventBase evt, NoteVoice voice)
     {
         for (int i = 0; i < evt.GetPersistentEventCount(); i++)
-            if (evt.GetPersistentTarget(i) == subtitle && evt.GetPersistentMethodName(i) == "Play")
+            if (evt.GetPersistentTarget(i) == voice && evt.GetPersistentMethodName(i) == "Play")
                 return true;
         return false;
+    }
+
+    // เอา Subtitle.Play() ที่เวอร์ชันเก่าใส่ไว้ออก — ไม่งั้นเสียงจะเล่น 2 ทาง
+    private static bool RemoveOldSubtitlePlay(UnityEventBase evt)
+    {
+        bool removed = false;
+        for (int i = evt.GetPersistentEventCount() - 1; i >= 0; i--)
+        {
+            if (evt.GetPersistentTarget(i) is Subtitle && evt.GetPersistentMethodName(i) == "Play")
+            {
+                UnityEventTools.RemovePersistentListener(evt, i);
+                removed = true;
+            }
+        }
+        return removed;
     }
 }

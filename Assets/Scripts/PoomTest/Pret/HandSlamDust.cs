@@ -149,7 +149,15 @@ public class HandSlamDust : MonoBehaviour
 
         Vector3 from = lowest != null ? lowest.position : transform.position;
         if (FindGround(from, out RaycastHit fallback))
+        {
             Hit(lowest, fallback, true);
+            return;
+        }
+
+        // หาพื้นไม่เจอ (มือยกสูงเกิน 3 ม. / กำผู้เล่นอยู่) — ท่าบอกว่าตบแล้ว ไม่มีฝุ่นแต่ต้องมีเสียง
+        Slammed?.Invoke(from);
+        if (_logSlam)
+            Debug.Log($"[HandSlamDust] {name} ตบ (Animation Event) แต่หาพื้นใต้มือไม่เจอ — เล่นแค่เสียงที่มือ", this);
     }
 
     private void Hit(Transform hand, RaycastHit ground, bool sendSignal)

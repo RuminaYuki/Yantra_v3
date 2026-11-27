@@ -15,7 +15,7 @@ MonoBehaviour:
   sounds:
   - idName: Pret_Step
     id: {fileID: 11400000, guid: 760f5656a5d63e74a90d7d7e662464f2, type: 2}
-    mixerGroup: {fileID: -4981207637842103442, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
     priority: 180
     useRandomClips: 1
     randomChance: 100
@@ -36,7 +36,7 @@ MonoBehaviour:
     volume: 1
     spatialBlend: 1
     minDistance: 3
-    maxDistance: 30
+    maxDistance: 300
   - idName: Pret_Slam
     id: {fileID: 11400000, guid: edd810e63a14ffe439fe0e359238b4b2, type: 2}
     mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
@@ -56,7 +56,7 @@ MonoBehaviour:
     volume: 1
     spatialBlend: 1
     minDistance: 5
-    maxDistance: 60
+    maxDistance: 300
   - idName: Pret_Whistle
     id: {fileID: 11400000, guid: f1e0192893bdb2f408ea313f889ecddd, type: 2}
     mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
@@ -76,7 +76,7 @@ MonoBehaviour:
     volume: 1
     spatialBlend: 1
     minDistance: 10
-    maxDistance: 200
+    maxDistance: 300
   - idName: Pret_Scream
     id: {fileID: 11400000, guid: a0b825ce48f603f45b6bb10493a86f99, type: 2}
     mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
@@ -86,7 +86,6 @@ MonoBehaviour:
     clip: {fileID: 0}
     clips:
     - {fileID: 8300000, guid: 987a12628cc598a4394bca29d8d35fd0, type: 3}
-    - {fileID: 8300000, guid: 9738327f358b9ef44938ca7827ce9c5b, type: 3}
     useRandomStartOffset: 0
     maxStartOffsetPercent: 0
     useRandomPitch: 1
@@ -98,4 +97,191 @@ MonoBehaviour:
     volume: 1
     spatialBlend: 1
     minDistance: 5
-    maxDistance: 60
+    maxDistance: 300
+  - idName: Pret_Move_Loop
+    id: {fileID: 11400000, guid: 7487a82d1b93c8f4e8ab4fa78be9339c, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 100
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 0}
+    clips:
+    - {fileID: 8300000, guid: 863a839d491cbfd418d947266a1ee245, type: 3}
+    useRandomStartOffset: 1
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 0
+    minVolume: 0.9
+    maxVolume: 1
+    volume: 0.8
+    spatialBlend: 1
+    minDistance: 5
+    maxDistance: 80
+  - idName: Pret_RandomScream
+    id: {fileID: 11400000, guid: bc54bcc805823224cae48c72bae80fcc, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 100
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 0}
+    clips:
+    - {fileID: 8300000, guid: 987a12628cc598a4394bca29d8d35fd0, type: 3}
+    - {fileID: 8300000, guid: 9738327f358b9ef44938ca7827ce9c5b, type: 3}
+    - {fileID: 8300000, guid: bdf18e0120de121479a0f1fb092c6d1e, type: 3}
+    useRandomStartOffset: 1
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 0
+    minVolume: 0.9
+    maxVolume: 1
+    volume: 0.8
+    spatialBlend: 1
+    minDistance: 5
+    maxDistance: 80
+  - idName: Pret_Charge
+    id: {fileID: 11400000, guid: 816b9f49a1a9931418cae570f961c884, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 60
+    useRandomClips: 0
+    randomChance: 100
+    clip: {fileID: 8300000, guid: 69246232172db3d42984e628940c5f66, type: 3}
+    clips: []
+    useRandomStartOffset: 1
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 0
+    minVolume: 0.9
+    maxVolume: 1
+    volume: 0.8
+    spatialBlend: 1
+    minDistance: 5
+    maxDistance: 80
+  - idName: Pret_Stare_Loop
+    id: {fileID: 11400000, guid: 8c79f4403a08a0847bb43fd58bd30a00, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 60
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 8300000, guid: 8e417c82cf1c07c4eb25b07a5c3932b4, type: 3}
+    clips: []
+    useRandomStartOffset: 1
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 0
+    minVolume: 0.9
+    maxVolume: 1
+    volume: 0.8
+    spatialBlend: 1
+    minDistance: 5
+    maxDistance: 80
+  - idName: Pret_BackHome
+    id: {fileID: 11400000, guid: 6242ad31d3388ef48a15f8a0eaff187b, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 60
+    useRandomClips: 0
+    randomChance: 100
+    clip: {fileID: 8300000, guid: e33ba4d1c92b62a4fb77f6b800205645, type: 3}
+    clips: []
+    useRandomStartOffset: 1
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 0
+    minVolume: 0.9
+    maxVolume: 1
+    volume: 0.8
+    spatialBlend: 1
+    minDistance: 5
+    maxDistance: 80
+  - idName: Pret_Breath_Loop
+    id: {fileID: 11400000, guid: 8bb7a351dbc75a54bba6f651d6b87114, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 60
+    useRandomClips: 0
+    randomChance: 100
+    clip: {fileID: 8300000, guid: 0849ce3c96a52714ea188fe6808ef23f, type: 3}
+    clips: []
+    useRandomStartOffset: 1
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 0
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 0
+    minVolume: 0.9
+    maxVolume: 1
+    volume: 0.5
+    spatialBlend: 1
+    minDistance: 5
+    maxDistance: 80
+  - idName: Pret_Heartbeat_Loop
+    id: {fileID: 11400000, guid: e188d8e9bd26f2d4eb5d4e41b7131ddc, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 100
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 0}
+    clips:
+    - {fileID: 8300000, guid: 4eb142a3bb5cb3b4e82f504a72ccb25e, type: 3}
+    - {fileID: 8300000, guid: 3492af9bdb1cf9842a194f7d15ae245b, type: 3}
+    - {fileID: 8300000, guid: 49a2227e0c9f22d4ab558b63b0683923, type: 3}
+    useRandomStartOffset: 1
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 0
+    minVolume: 0.9
+    maxVolume: 1
+    volume: 0.8
+    spatialBlend: 0
+    minDistance: 5
+    maxDistance: 80
+  - idName: Pret_Heartbeat_Lub
+    id: {fileID: 11400000, guid: b9d0d08913cde8c41a1981cb94d642de, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 100
+    useRandomClips: 0
+    randomChance: 100
+    clip: {fileID: 8300000, guid: 26b433b224fe53648995372d8bb17231, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 0
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 0
+    minVolume: 0.9
+    maxVolume: 1
+    volume: 0.8
+    spatialBlend: 0
+    minDistance: 5
+    maxDistance: 80
+  - idName: Pret_Heartbeat_Dub
+    id: {fileID: 11400000, guid: 93571b7ca5b657c46be1b0db04361f53, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 100
+    useRandomClips: 0
+    randomChance: 100
+    clip: {fileID: 8300000, guid: 96c1a44a4f2963b4d93bce4a7b150c9b, type: 3}
+    clips: []
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0.5
+    useRandomPitch: 0
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 0
+    minVolume: 0.9
+    maxVolume: 1
+    volume: 0.8
+    spatialBlend: 0
+    minDistance: 5
+    maxDistance: 80
