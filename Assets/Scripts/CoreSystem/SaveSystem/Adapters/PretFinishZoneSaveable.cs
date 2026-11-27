@@ -39,22 +39,9 @@ public class PretFinishZoneSaveable : SaveableBehaviour<PretFinishZoneSaveable.P
 
     private void ApplyFinishedState()
     {
-        Transform[] children = GetComponentsInChildren<Transform>(true);
         if (isFinished)
         {
-            for (int i = children.Length - 1; i >= 0; i--)
-            {
-                if (children[i] != transform)
-                    children[i].gameObject.SetActive(false);
-            }
-        }
-        else
-        {
-            foreach (Transform child in children)
-            {
-                if (child != transform)
-                    child.gameObject.SetActive(true);
-            }
+            this.gameObject.SetActive(false);
         }
     }
 }
