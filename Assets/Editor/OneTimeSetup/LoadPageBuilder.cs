@@ -37,7 +37,7 @@ public static class LoadPageBuilder
     private static TMP_FontAsset _font;
     private static readonly List<string> _report = new List<string>();
 
-    [MenuItem("Tools/Yantra/Build Load Page (จัดหน้า Load ตามแบบ)")]
+    [MenuItem("Tools/Yantra/Setup (ใช้ครั้งเดียว)/Build Load Page (จัดหน้า Load ตามแบบ)")]
     private static void Build()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)

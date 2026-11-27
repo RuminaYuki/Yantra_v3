@@ -20,7 +20,7 @@ public static class TaniMusicSetup
     private const string MusicName = "BGM_Tani";
     private const string MusicFolderHint = "BGM_Battle";
 
-    [MenuItem("Tools/Yantra/Setup Tani Boss Music (เพลงบอสตานี)")]
+    [MenuItem("Tools/Yantra/Setup (ใช้ครั้งเดียว)/Setup Tani Boss Music (เพลงบอสตานี)")]
     private static void Run()
     {
         TransitionTableSO root = FindAsset<TransitionTableSO>(TableAssetName);

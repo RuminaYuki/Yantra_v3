@@ -27,7 +27,7 @@ public static class NakGrabSetup
 
     private static readonly StringBuilder Log = new StringBuilder();
 
-    [MenuItem("Tools/Yantra/Setup Nak Grab (ตั้งท่าจับแขนนาค)")]
+    [MenuItem("Tools/Yantra/Setup (ใช้ครั้งเดียว)/Setup Nak Grab (ตั้งท่าจับแขนนาค)")]
     private static void Run()
     {
         List<string> prefabs = FindNakPrefabs();

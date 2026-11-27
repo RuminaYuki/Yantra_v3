@@ -23,7 +23,7 @@ public static class LoadingScreenBuilder
     private static readonly Vector2 LinePos = new Vector2(1119.5f, 85f);
     private const float LineBgAlpha = 0.3f;
 
-    [MenuItem("Tools/Yantra/Build Loading Screen (จัดหน้าโหลด)")]
+    [MenuItem("Tools/Yantra/Setup (ใช้ครั้งเดียว)/Build Loading Screen (จัดหน้าโหลด)")]
     private static void Build()
     {
         LoadingScreen screen = FindScreen();

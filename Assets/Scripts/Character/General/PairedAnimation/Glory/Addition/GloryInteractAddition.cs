@@ -8,6 +8,16 @@ public class GloryInteractAddition : MonoBehaviour, IPairedInteractionSource
     [SerializeField] private PairedAnimationId _playerAnimation;
     [SerializeField] private PairedAnimationId _victimAnimation;
 
+    [Header("ท่าครั้งสุดท้าย (ไม่ใช้ = ปล่อย Final At เป็น 0)")]
+    [Tooltip("โดน Glory ครั้งที่เท่าไหร่ถึงเปลี่ยนไปใช้ท่าข้างล่าง\n0 = ไม่ใช้ ใช้ท่าข้างบนทุกครั้ง\nตานี: 3 (ครั้งที่ 1-2 ท่าแรก ครั้งที่ 3 ท่าที่สอง)")]
+    [SerializeField, Min(0)] private int _finalAt;
+
+    [Tooltip("ท่าผู้เล่นครั้งสุดท้าย — ว่าง = ใช้ Player Animation ข้างบน")]
+    [SerializeField] private PairedAnimationId _finalPlayerAnimation;
+
+    [Tooltip("ท่าผีครั้งสุดท้าย — ว่าง = ใช้ Victim Animation ข้างบน")]
+    [SerializeField] private PairedAnimationId _finalVictimAnimation;
+
     [Header("ตำแหน่งยืน (แก้ตอน Play ได้ มีผลกับการกด E ครั้งถัดไป)")]
     [Tooltip("ผู้เล่นยืนห่างผีกี่เมตร — มือเอื้อมไม่ถึงคอ ลดค่า / มือเลยคอไป เพิ่มค่า")]
     [SerializeField, Min(0f)] private float _distance = 1.2f;
@@ -48,6 +58,9 @@ public class GloryInteractAddition : MonoBehaviour, IPairedInteractionSource
     private PairedAnimationPlayer _activePlayer;   // ผู้เล่นที่กำลังเล่นท่าจาก Interactor ตัวนี้
     private GameObject _checkedRoot;               // จำผู้เล่นไว้ — CanInteract ถูกถามทุกเฟรม ไม่อยากหา component ซ้ำ
     private Transform _checkedBody;
+
+    private int _gloryCount;                       // นับเฉพาะครั้งที่ท่าเริ่มได้จริง
+    public int GloryCount => _gloryCount;
 
     private Transform _aimTransform;
     private bool _aligning;
@@ -133,17 +146,26 @@ public class GloryInteractAddition : MonoBehaviour, IPairedInteractionSource
 
         // ผู้เล่นเล่นท่าเองผ่าน Component (อยู่ใน PlayerInteract_State) แล้วสั่งผีให้เล่นตาม
         // ถ้าเริ่มไม่ได้ PairedAnimationPlayer จะยกเลิก Interact ให้เองในเฟรมถัดไป
+        // ครั้งสุดท้าย (เช่น ตานีครั้งที่ 3) ใช้อีกท่า
+        bool final = _finalAt > 0 && _gloryCount + 1 >= _finalAt;
+        PairedAnimationId playerAnimation = final && _finalPlayerAnimation != null ? _finalPlayerAnimation : _playerAnimation;
+        PairedAnimationId victimAnimation = final && _finalVictimAnimation != null ? _finalVictimAnimation : _victimAnimation;
+
         PairedRequest request = PairedRequest
-            .InPlace(PairedActionType.Glory, _playerAnimation, playerPosition, playerRotation, _baseInteractor, rootplayer)
-            .WithPartner(_victim, _victimAnimation, victimPosition, victimRotation);
+            .InPlace(PairedActionType.Glory, playerAnimation, playerPosition, playerRotation, _baseInteractor, rootplayer)
+            .WithPartner(_victim, victimAnimation, victimPosition, victimRotation);
 
         _activePlayer = player;
-        player.Play(request);
+        if (player.Play(request))
+            _gloryCount++;
 
         BeginAlign();
     }
 
     public void NotifyStarted(GameObject rootPlayer) { }
+
+    [ContextMenu("Reset Glory Count (นับครั้งใหม่)")]
+    public void ResetGloryCount() => _gloryCount = 0;
 
     // ---------- ดึงคอผีเข้าหามือ ----------
     // มือแขน FPS จับลงที่เดิมบนจอทุกครั้ง แต่คอผีเยื้องไปตามมุมที่เดินเข้าหา / ท่าที่ผีเซอยู่

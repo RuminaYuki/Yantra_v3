@@ -22,7 +22,7 @@ public static class NoteVoiceWirer
 {
     private const string Prefix = "Sub_Note_";
 
-    [MenuItem("Tools/Yantra/Wire Note Voices (ต่อเสียงโน้ต)")]
+    [MenuItem("Tools/Yantra/Setup (ใช้ครั้งเดียว)/Wire Note Voices (ต่อเสียงโน้ต)")]
     private static void Wire()
     {
         List<SubtitleDataSO> subs = LoadNoteSubtitles();

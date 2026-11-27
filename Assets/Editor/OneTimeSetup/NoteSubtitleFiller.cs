@@ -99,7 +99,7 @@ public static class NoteSubtitleFiller
 
     private const string Prefix = "sub_note_";
 
-    [MenuItem("Tools/Yantra/Fill Note Subtitles (ใส่บทโน้ต)")]
+    [MenuItem("Tools/Yantra/Setup (ใช้ครั้งเดียว)/Fill Note Subtitles (ใส่บทโน้ต)")]
     private static void Fill()
     {
         SpeakerSO rin = FindSpeaker();

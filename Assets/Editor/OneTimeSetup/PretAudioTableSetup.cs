@@ -45,7 +45,7 @@ public static class PretAudioTableSetup
         new Entry("BackHome_State",   "Pret_BackHome_Audio",   PlayGhostAudioActionSO.Mode.Once,        "Pret_BackHome"),
     };
 
-    [MenuItem("Tools/Yantra/Setup Pret Audio Table (ใส่เสียงเปรตใน table)")]
+    [MenuItem("Tools/Yantra/Setup (ใช้ครั้งเดียว)/Setup Pret Audio Table (ใส่เสียงเปรตใน table)")]
     private static void Run()
     {
         TransitionTableSO table = FindAsset<TransitionTableSO>(TableName);

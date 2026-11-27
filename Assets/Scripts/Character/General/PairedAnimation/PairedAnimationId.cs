@@ -36,6 +36,11 @@ public class PairedAnimationId : ScriptableObject
     [Tooltip("ติ๊ก = วนค้างไว้จนกว่าจะมีคนสั่ง EndLoop (ใช้กับ QTE) — state ใน Animator ต้องติ๊ก Loop Time ด้วย\nไม่ติ๊ก = จบเองเมื่อเล่นครบ 1 รอบ")]
     [SerializeField] private bool _loop;
 
+    [Tooltip("ติ๊ก = รอท่า 'แขน FPS' เล่นจบด้วย ก่อนจบท่า\n" +
+             "ใช้เมื่อท่าแขนยาวกว่าท่าตัว (ท่าตัว Glory ยาวแค่ ~3.9 วิ) เช่น Glory ครั้งสุดท้ายของตานี\n" +
+             "ไม่ติ๊ก = จบตามท่าตัวเหมือนเดิม")]
+    [SerializeField] private bool _endWithArm;
+
     [Tooltip("RootMotion = ดูดตัวเข้าจุดเริ่ม แล้วขยับตามท่า (แบบ Glory)\n" +
              "None = ไม่แตะตำแหน่งตัวเลย ไม่ใช้ Root Motion ให้ State ขยับเอง (เช่น แขนนาคลากด้วย Follow3D)")]
     [SerializeField] private PairedMoveMode _moveMode = PairedMoveMode.RootMotion;
@@ -54,6 +59,7 @@ public class PairedAnimationId : ScriptableObject
     public PairedAnimatorState Arm => _arm;
     public float TransitionDuration => _transitionDuration;
     public bool Loop => _loop;
+    public bool EndWithArm => _endWithArm;
     public PairedMoveMode MoveMode => _moveMode;
     public float SnapDuration => _snapDuration;
     public AnimationCurve UpCurve => _upCurve;

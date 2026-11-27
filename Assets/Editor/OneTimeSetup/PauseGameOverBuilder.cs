@@ -45,7 +45,7 @@ public static class PauseGameOverBuilder
     private static Dictionary<string, Sprite> _sprites;
     private static readonly List<string> _report = new List<string>();
 
-    [MenuItem("Tools/Yantra/Build Pause + Game Over (จัดหน้า Pause - Game Over ตามแบบ)")]
+    [MenuItem("Tools/Yantra/Setup (ใช้ครั้งเดียว)/Build Pause + Game Over (จัดหน้า Pause - Game Over ตามแบบ)")]
     private static void Build()
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
@@ -90,7 +90,7 @@ public static class PauseGameOverBuilder
     /// ค่าพวกนี้ชนะ prefab — ปุ่มเลยกว้าง 0 มองไม่เห็น หรือไปโผล่ผิดที่
     /// เมนูนี้ล้างเฉพาะค่าที่ทับอยู่ใต้หน้า Pause กับ Game Over ในฉากที่เปิดอยู่ ส่วนอื่นของ UIRoot ไม่แตะ
     /// </summary>
-    [MenuItem("Tools/Yantra/Fix Pause + Game Over in Scene (ล้างค่าที่ฉากทับ prefab)")]
+    [MenuItem("Tools/Yantra/Setup (ใช้ครั้งเดียว)/Fix Pause + Game Over in Scene (ล้างค่าที่ฉากทับ prefab)")]
     private static void RevertSceneOverrides()
     {
         const string title = "Fix Pause + Game Over in Scene";

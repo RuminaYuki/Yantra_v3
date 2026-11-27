@@ -449,6 +449,10 @@ public class PairedAnimationActor : MonoBehaviour
         if (inState)
             _hasEnteredState = true;
 
+        // ท่าแขนยาวกว่าท่าตัว (End With Arm) — ตัวจบแล้วค้างท่าสุดท้ายไว้ รอแขนเล่นให้จบก่อน
+        if (animation.EndWithArm && _hasEnteredState && (!inState || stateTime >= 1f) && IsArmStillPlaying(animation))
+            return;
+
         // ท่า Loop ไม่จบเอง ต้องรอ EndLoop
         bool holdLoop = animation.Loop && !_loopReleased;
 
@@ -467,6 +471,15 @@ public class PairedAnimationActor : MonoBehaviour
     private void Finish()
     {
         _phase = Phase.Finished;
+    }
+
+    private bool IsArmStillPlaying(PairedAnimationId animation)
+    {
+        if (_armAnimator == null || string.IsNullOrEmpty(animation.Arm.StateName))
+            return false;
+
+        int armHash = Animator.StringToHash(animation.Arm.StateName);
+        return TryGetStateTime(_armAnimator, animation.Arm.Layer, armHash, out float armTime) && armTime < 1f;
     }
 
     // ---------- Root Motion ----------
