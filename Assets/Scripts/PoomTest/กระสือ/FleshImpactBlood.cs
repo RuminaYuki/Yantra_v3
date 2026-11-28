@@ -55,6 +55,10 @@ public class FleshImpactBlood : MonoBehaviour
     [Tooltip("เวลาหดหาย (วินาที)")]
     [SerializeField, Min(0.01f)] private float _poolShrinkTime = 1.5f;
 
+    [Header("เสียงตอนโดน (ไม่ใส่ก็ได้)")]
+    [Tooltip("เช่น Krasue_ChunkHit — ก้อนเนื้อกระแทก + เลือดกระจาย ดังพร้อมเลือดกระเด็น ทั้งตอนโดนผู้เล่นและตกพื้น")]
+    [SerializeField] private SoundID _landSound;
+
     [Header("Debug")]
     [SerializeField] private bool _logSteps;
 
@@ -151,6 +155,9 @@ public class FleshImpactBlood : MonoBehaviour
         Vector3 up = onGround ? ground.normal : Vector3.up;
         Vector3 travel = onGround ? _velocity : -_velocity;
         Splash(point, travel, up);
+
+        if (_landSound != null && SoundManager.Instance != null)
+            SoundManager.Instance.PlaySFX(_landSound, point);
 
         if (hasGround) SpawnPool(ground);
 

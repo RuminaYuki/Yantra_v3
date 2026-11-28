@@ -241,6 +241,8 @@ GameObject:
   - component: {fileID: 5191745733703531049}
   - component: {fileID: 3145794097304816204}
   - component: {fileID: 6067660496689417359}
+  - component: {fileID: 4623497699566459746}
+  - component: {fileID: 7273947616899541872}
   m_Layer: 7
   m_Name: EnemyController
   m_TagString: Enemy
@@ -314,6 +316,126 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &7273947616899541872
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7452115739348667289}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 892de2b75039a8d4699738295087894c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GhostAudio
+  _step: {fileID: 0}
+  _slam: {fileID: 0}
+  _showUp: {fileID: 0}
+  _swing: {fileID: 11400000, guid: f91ad9a35ca74f88b3ba45458dc5b81e, type: 2}
+  _hit: {fileID: 0}
+  _gore: {fileID: 0}
+  _autoSteps: 0
+  _feet: []
+  _stepHeight: 0.15
+  _stepMinSpeed: 1
+  _move: {fileID: 0}
+  _moveBones: []
+  _moveMinSpeed: 1
+  _moveFullSpeed: 4
+  _moveResponse: 3
+  _randomVoice: {fileID: 11400000, guid: 1d241f56c7294af38e82e7274e53c9bb, type: 2}
+  _randomVoiceMin: 10
+  _randomVoiceMax: 25
+  _randomVoiceAfterShowUp: 0
+  _breath: {fileID: 11400000, guid: f846365f7a0d488d91080d535c1d9d3f, type: 2}
+  _breathAfterShowUp: 0
+  _breathFade: 1.5
+  _breathDuckWhileVoice: 0.3
+  _slots: []
+  _stateSounds:
+  - State: Jump_ShowDown
+    Enter: {fileID: 11400000, guid: 00e24fa2f2cb47069a6010f52db3dd50, type: 2}
+    Loop: {fileID: 11400000, guid: fbd49b667ca24c5b9dde4565743c7a3c, type: 2}
+    Exit: {fileID: 0}
+    Delay: 0
+    OnlyFirstTime: 0
+  - State: Jump_ShowDown
+    Enter: {fileID: 11400000, guid: 3a0b0c5aa11d4862938e0466fb99a626, type: 2}
+    Loop: {fileID: 0}
+    Exit: {fileID: 0}
+    Delay: 0
+    OnlyFirstTime: 1
+  - State: Jump_ShowUp
+    Enter: {fileID: 11400000, guid: a174f40005f34828a22fa44cc4a12388, type: 2}
+    Loop: {fileID: 0}
+    Exit: {fileID: 0}
+    Delay: 0
+    OnlyFirstTime: 0
+  - State: DashAttack
+    Enter: {fileID: 11400000, guid: f91ad9a35ca74f88b3ba45458dc5b81e, type: 2}
+    Loop: {fileID: 0}
+    Exit: {fileID: 0}
+    Delay: 0
+    OnlyFirstTime: 0
+  - State: SpawnVengeful
+    Enter: {fileID: 11400000, guid: 649a28610c33432cb1e59aca65bbc0ef, type: 2}
+    Loop: {fileID: 0}
+    Exit: {fileID: 0}
+    Delay: 0
+    OnlyFirstTime: 0
+  - State: SpawnVengeful 2
+    Enter: {fileID: 11400000, guid: 649a28610c33432cb1e59aca65bbc0ef, type: 2}
+    Loop: {fileID: 0}
+    Exit: {fileID: 0}
+    Delay: 0
+    OnlyFirstTime: 0
+  - State: SpawnMinnion
+    Enter: {fileID: 11400000, guid: 161bb8b8ea3248b69a5f71ed5d45ff4f, type: 2}
+    Loop: {fileID: 0}
+    Exit: {fileID: 0}
+    Delay: 0
+    OnlyFirstTime: 0
+  - State: SpawnMinnion 2
+    Enter: {fileID: 11400000, guid: 161bb8b8ea3248b69a5f71ed5d45ff4f, type: 2}
+    Loop: {fileID: 0}
+    Exit: {fileID: 0}
+    Delay: 0
+    OnlyFirstTime: 0
+  - State: ExitReadyGlory
+    Enter: {fileID: 11400000, guid: 226adafadb684e3895e115c6ded192eb, type: 2}
+    Loop: {fileID: 0}
+    Exit: {fileID: 0}
+    Delay: 0.3
+    OnlyFirstTime: 0
+  _damageHurt: {fileID: 11400000, guid: 192db9fc05fe4a559461fa91b4d7ba72, type: 2}
+  _damageHurtCooldown: 2.5
+  _voiceFadeIn: 0.05
+  _voiceFadeOut: 0.3
+  _chargeState: 
+  _chargeStart: {fileID: 0}
+  _chargeLoop: {fileID: 0}
+  _chargeStop: {fileID: 0}
+  _chargeHit: {fileID: 0}
+  _logPlay: 0
+--- !u!114 &4623497699566459746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7452115739348667289}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85cd48f97c96de340808032fd6a120f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GlorySoundPlayer
+  _sound: {fileID: 11400000, guid: c72b0c07a3c04df3b1ff42a40981f403, type: 2}
+  _perAnimation:
+  - Animation: {fileID: 11400000, guid: 4638893ad80a4ed6937cc3cbea060835, type: 2}
+    Sound: {fileID: 11400000, guid: 2e8be193f7e449e895b4327165ecb7eb, type: 2}
+  _useTimedSounds: 0
+  _timedSounds: []
+  _logPlay: 0
 --- !u!114 &5341022437315325336
 MonoBehaviour:
   m_ObjectHideFlags: 0

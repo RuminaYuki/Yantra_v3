@@ -169,6 +169,10 @@ public class PlayerPairedCamera : MonoBehaviour
         if (_camera == null)
             return;
 
+        // ตัวเพิ่งถูกดูดเข้าจุดเริ่ม แต่กล้อง (และแขน FPS ที่เป็นลูก) ยังไหลตามไม่ถึง
+        // หลังจากนี้กล้องหยุดตาม → ถ้าไม่วางให้ตรงตอนนี้ มือจะใกล้/ไกลไม่เท่ากันทุกรอบ
+        _camera.SnapPositionToEye();
+
         // ซิงค์มุมกล้องให้ตรงกับ StartRotation เป๊ะๆ ตอนเริ่มคลิป
         Vector3 flatForward = _request.StartRotation * Vector3.forward;
         flatForward.y = 0f;

@@ -6822,6 +6822,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: KrasueRig
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: c426e500eceaf324083831d73f220485, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -12511,11 +12515,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2765098281472669206, guid: 6df2064968e38404cb4cb50a3f51d5cd, type: 3}
       propertyPath: _distance
-      value: 0.95
+      value: 0.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 2765098281472669206, guid: 6df2064968e38404cb4cb50a3f51d5cd, type: 3}
+      propertyPath: _maxAlign
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2765098281472669206, guid: 6df2064968e38404cb4cb50a3f51d5cd, type: 3}
+      propertyPath: _sideOffset
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2765098281472669206, guid: 6df2064968e38404cb4cb50a3f51d5cd, type: 3}
       propertyPath: _heightOffset
-      value: -0.05
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2765098281472669206, guid: 6df2064968e38404cb4cb50a3f51d5cd, type: 3}
       propertyPath: _playerAnimation
@@ -12539,7 +12551,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7346290580564806613, guid: 6df2064968e38404cb4cb50a3f51d5cd, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7676953591901692612, guid: 6df2064968e38404cb4cb50a3f51d5cd, type: 3}
       propertyPath: m_IsActive
@@ -12551,7 +12563,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8630104500090987892, guid: 6df2064968e38404cb4cb50a3f51d5cd, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -13979,7 +13991,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3980447771441699500, guid: c9a3ef6e807026940bc3ff829d4161e8, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4722806769002799092, guid: c9a3ef6e807026940bc3ff829d4161e8, type: 3}
       propertyPath: id
@@ -14035,7 +14047,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8327487531587270593, guid: c9a3ef6e807026940bc3ff829d4161e8, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -14244,7 +14256,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 85260874803690308, guid: 777a677026287794c836349a288e0995, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 525644649774859296, guid: 777a677026287794c836349a288e0995, type: 3}
       propertyPath: maxHealth
@@ -14319,20 +14331,8 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5210573628592056479, guid: 777a677026287794c836349a288e0995, type: 3}
-      propertyPath: _distance
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5210573628592056479, guid: 777a677026287794c836349a288e0995, type: 3}
       propertyPath: _logAlign
       value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 5210573628592056479, guid: 777a677026287794c836349a288e0995, type: 3}
-      propertyPath: _heightOffset
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5210573628592056479, guid: 777a677026287794c836349a288e0995, type: 3}
-      propertyPath: _maxHeightDifference
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7404301504982022380, guid: 777a677026287794c836349a288e0995, type: 3}
       propertyPath: _pools.Array.data[0].Options.Array.data[1].Weight
@@ -14340,7 +14340,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8495269386730189109, guid: 777a677026287794c836349a288e0995, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -16259,7 +16259,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!64 &1757603044
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -17235,6 +17235,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GlorySoundPlayer
   _sound: {fileID: 11400000, guid: 734719fc9b7b5894caa0c036903f46ed, type: 2}
+  _perAnimation: []
   _useTimedSounds: 0
   _timedSounds: []
   _logPlay: 0
@@ -18942,9 +18943,17 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 199358773285122495, guid: 098a1788094a7354fb1cf5db14fecabb, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3106150479579373487, guid: 098a1788094a7354fb1cf5db14fecabb, type: 3}
       propertyPath: m_Name
       value: PKa(Enemy) (8)
+      objectReference: {fileID: 0}
+    - target: {fileID: 3106150479579373487, guid: 098a1788094a7354fb1cf5db14fecabb, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3592432855876436341, guid: 098a1788094a7354fb1cf5db14fecabb, type: 3}
       propertyPath: m_LocalPosition.x

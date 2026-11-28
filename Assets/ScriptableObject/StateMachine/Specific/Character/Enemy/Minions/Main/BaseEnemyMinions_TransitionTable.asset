@@ -285,6 +285,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: -7990252567563398469}
+  - {fileID: 5555099719386716726}
 --- !u!114 &-8207450781398800147
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -659,6 +660,24 @@ MonoBehaviour:
   m_Name: Kill_Action
   m_EditorClassIdentifier: Assembly-CSharp::KillActionSO
   _selfAnchor: {fileID: 0}
+--- !u!114 &-4725641430888176983
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1568bb9b2dbad244ea06dc24958e2477, type: 3}
+  m_Name: Minion_Attack_Audio
+  m_EditorClassIdentifier: Assembly-CSharp::PlayGhostAudioActionSO
+  _selfAnchor: {fileID: 0}
+  _mode: 0
+  _slot: 2
+  _sound: {fileID: 0}
+  _delay: 0
+  _fade: 0.5
 --- !u!114 &-4669643337480278969
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -749,6 +768,24 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   _restoreOnExit: 1
+--- !u!114 &-2977242230514738211
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1568bb9b2dbad244ea06dc24958e2477, type: 3}
+  m_Name: Minion_HurtHeavy_Audio
+  m_EditorClassIdentifier: Assembly-CSharp::PlayGhostAudioActionSO
+  _selfAnchor: {fileID: 0}
+  _mode: 0
+  _slot: 4
+  _sound: {fileID: 0}
+  _delay: 0
+  _fade: 0.5
 --- !u!114 &-2825343914856569222
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1403,6 +1440,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: 167646274866248356}
+  - {fileID: -2977242230514738211}
 --- !u!114 &2018981407000030339
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1419,6 +1457,24 @@ MonoBehaviour:
   _targetAnchor: {fileID: 11400000, guid: ded8b5ee8f0dd57488cc9fa0e5c0d061, type: 2}
   _offset: {x: 0, y: 0, z: 3}
   _randomOffsetRange: {x: 1, y: 0, z: 1}
+--- !u!114 &2157640633582790264
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1568bb9b2dbad244ea06dc24958e2477, type: 3}
+  m_Name: Minion_Death_Audio
+  m_EditorClassIdentifier: Assembly-CSharp::PlayGhostAudioActionSO
+  _selfAnchor: {fileID: 0}
+  _mode: 0
+  _slot: 5
+  _sound: {fileID: 0}
+  _delay: 0
+  _fade: 0.5
 --- !u!114 &2749241224364309520
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1516,6 +1572,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: -8835025516484844155}
+  - {fileID: 4332257419548358491}
 --- !u!114 &3688329626171703647
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1566,6 +1623,7 @@ MonoBehaviour:
   - {fileID: 6280428737079694077}
   - {fileID: -8835025516484844155}
   - {fileID: 11400000, guid: a7b808e3d95beb94c9ebdd70b68875c7, type: 2}
+  - {fileID: -4725641430888176983}
 --- !u!114 &3900964166524041676
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1607,6 +1665,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ExitSubStateMachineActionSO
   _selfAnchor: {fileID: 0}
   _exitId: Patrol
+--- !u!114 &4332257419548358491
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1568bb9b2dbad244ea06dc24958e2477, type: 3}
+  m_Name: Minion_Alert_Audio
+  m_EditorClassIdentifier: Assembly-CSharp::PlayGhostAudioActionSO
+  _selfAnchor: {fileID: 0}
+  _mode: 0
+  _slot: 1
+  _sound: {fileID: 0}
+  _delay: 0
+  _fade: 0.5
 --- !u!114 &4931946975430674012
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1769,6 +1845,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: 996581198950735347}
+--- !u!114 &5555099719386716726
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1568bb9b2dbad244ea06dc24958e2477, type: 3}
+  m_Name: Minion_GloryIdle_Audio
+  m_EditorClassIdentifier: Assembly-CSharp::PlayGhostAudioActionSO
+  _selfAnchor: {fileID: 0}
+  _mode: 1
+  _slot: 7
+  _sound: {fileID: 0}
+  _delay: 0
+  _fade: 0.5
 --- !u!114 &5838480089549137350
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1787,6 +1881,7 @@ MonoBehaviour:
   - {fileID: -6761548379165742067}
   - {fileID: -1634625438273243614}
   - {fileID: -4813554661904948984}
+  - {fileID: 2157640633582790264}
 --- !u!114 &6091821685268474597
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2064,6 +2159,24 @@ MonoBehaviour:
   _actions:
   - {fileID: 1943822056990883776}
   - {fileID: -1389171809226878346}
+--- !u!114 &7941891377782471158
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1568bb9b2dbad244ea06dc24958e2477, type: 3}
+  m_Name: Minion_Hurt_Audio
+  m_EditorClassIdentifier: Assembly-CSharp::PlayGhostAudioActionSO
+  _selfAnchor: {fileID: 0}
+  _mode: 0
+  _slot: 3
+  _sound: {fileID: 0}
+  _delay: 0
+  _fade: 0.5
 --- !u!114 &7954348948201577819
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2221,3 +2334,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: 8611242846379312483}
+  - {fileID: 7941891377782471158}
