@@ -266,54 +266,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &5643095972022187081
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3067078080897093266}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 892de2b75039a8d4699738295087894c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GhostAudio
-  _step: {fileID: 11400000, guid: ea2ae8ee9fbd46f08816900935fd5ecd, type: 2}
-  _slam: {fileID: 0}
-  _showUp: {fileID: 0}
-  _swing: {fileID: 11400000, guid: 6295b9cea1e84895ba22eb9a56d9a4ea, type: 2}
-  _hit: {fileID: 0}
-  _gore: {fileID: 11400000, guid: abe8e7a0867c425d83ff751654ccaeac, type: 2}
-  _autoSteps: 0
-  _feet: []
-  _stepHeight: 0.15
-  _stepMinSpeed: 1
-  _move: {fileID: 0}
-  _moveBones: []
-  _moveMinSpeed: 1
-  _moveFullSpeed: 4
-  _moveResponse: 3
-  _randomVoice: {fileID: 11400000, guid: f7665e2f775143a9b3e6c2457722605d, type: 2}
-  _randomVoiceMin: 6
-  _randomVoiceMax: 15
-  _randomVoiceAfterShowUp: 0
-  _breath: {fileID: 11400000, guid: bb97dfe9d708499ea68565dbfe3b2420, type: 2}
-  _breathAfterShowUp: 0
-  _breathFade: 1.5
-  _breathDuckWhileVoice: 0.3
-  _slots:
-  - Slot: 1
-    Sound: {fileID: 11400000, guid: 4004209ab4a34f52af748bcb0a606576, type: 2}
-    Delay: 0
-  - Slot: 3
-    Sound: {fileID: 11400000, guid: 19c81d56f1e64c829af1d5c381ea87fb, type: 2}
-    Delay: 0
-  - Slot: 4
-    Sound: {fileID: 11400000, guid: 19c81d56f1e64c829af1d5c381ea87fb, type: 2}
-    Delay: 0
-  _voiceFadeIn: 0.05
-  _voiceFadeOut: 0.3
-  _logPlay: 0
 --- !u!114 &314466773732120346
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -772,6 +724,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 740952071877262883}
+        m_TargetAssemblyTypeName: DissolveSoundPlayer, Assembly-CSharp
+        m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   _onDissolveFinished:
     m_PersistentCalls:
       m_Calls:
@@ -886,8 +850,65 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GlorySoundPlayer
   _sound: {fileID: 11400000, guid: 709dbbc162ebb7b45b781984a9e51653, type: 2}
+  _perAnimation: []
   _useTimedSounds: 0
   _timedSounds: []
+  _logPlay: 0
+--- !u!114 &5643095972022187081
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3067078080897093266}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 892de2b75039a8d4699738295087894c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GhostAudio
+  _step: {fileID: 11400000, guid: ea2ae8ee9fbd46f08816900935fd5ecd, type: 2}
+  _slam: {fileID: 0}
+  _showUp: {fileID: 0}
+  _swing: {fileID: 11400000, guid: 6295b9cea1e84895ba22eb9a56d9a4ea, type: 2}
+  _hit: {fileID: 0}
+  _gore: {fileID: 11400000, guid: abe8e7a0867c425d83ff751654ccaeac, type: 2}
+  _autoSteps: 0
+  _feet: []
+  _stepHeight: 0.15
+  _stepMinSpeed: 1
+  _move: {fileID: 0}
+  _moveBones: []
+  _moveMinSpeed: 1
+  _moveFullSpeed: 4
+  _moveResponse: 3
+  _randomVoice: {fileID: 11400000, guid: f7665e2f775143a9b3e6c2457722605d, type: 2}
+  _randomVoiceMin: 6
+  _randomVoiceMax: 15
+  _randomVoiceAfterShowUp: 0
+  _breath: {fileID: 11400000, guid: bb97dfe9d708499ea68565dbfe3b2420, type: 2}
+  _breathAfterShowUp: 0
+  _breathFade: 1.5
+  _breathDuckWhileVoice: 0.3
+  _slots:
+  - Slot: 1
+    Sound: {fileID: 11400000, guid: 4004209ab4a34f52af748bcb0a606576, type: 2}
+    Delay: 0
+  - Slot: 3
+    Sound: {fileID: 11400000, guid: 19c81d56f1e64c829af1d5c381ea87fb, type: 2}
+    Delay: 0
+  - Slot: 4
+    Sound: {fileID: 11400000, guid: 19c81d56f1e64c829af1d5c381ea87fb, type: 2}
+    Delay: 0
+  _stateSounds: []
+  _damageHurt: {fileID: 0}
+  _damageHurtCooldown: 2.5
+  _voiceFadeIn: 0.05
+  _voiceFadeOut: 0.3
+  _chargeState: 
+  _chargeStart: {fileID: 0}
+  _chargeLoop: {fileID: 0}
+  _chargeStop: {fileID: 0}
+  _chargeHit: {fileID: 0}
   _logPlay: 0
 --- !u!1 &3108910180406645416
 GameObject:
