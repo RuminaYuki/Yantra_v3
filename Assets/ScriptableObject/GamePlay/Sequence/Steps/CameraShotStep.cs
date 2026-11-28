@@ -41,6 +41,7 @@ public class CameraShotStep : SequenceStep
             float elapsed = 0f;
             while (elapsed < duration)
             {
+                yield return WaitWhileSequencePaused();
                 elapsed += Time.deltaTime;
                 float t = Mathf.Clamp01(elapsed / duration);
                 float k = ease != null ? ease.Evaluate(t) : t;
@@ -52,7 +53,15 @@ public class CameraShotStep : SequenceStep
             cameraController.SetLookRotation(endRot);
 
             if (holdDuration > 0f)
-                yield return new WaitForSeconds(holdDuration);
+            {
+                float holdElapsed = 0f;
+                while (holdElapsed < holdDuration)
+                {
+                    yield return WaitWhileSequencePaused();
+                    holdElapsed += Time.deltaTime;
+                    yield return null;
+                }
+            }
         }
         finally
         {

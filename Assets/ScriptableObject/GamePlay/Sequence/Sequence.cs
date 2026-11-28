@@ -12,6 +12,7 @@ public class Sequence : MonoBehaviour
     [SerializeField] private UnityEvent onFinished;  // เช่น เปิดกลับ
 
     public bool IsPlaying { get; private set; }
+    public bool IsPaused { get; private set; }
     public event Action Finished;
 
     Coroutine routine;
@@ -20,7 +21,24 @@ public class Sequence : MonoBehaviour
     public void Play()
     {
         if (IsPlaying) return;
+        IsPaused = false;
         routine = StartCoroutine(RunAll());
+    }
+
+    public void Pause()
+    {
+        if (!IsPlaying || IsPaused) return;
+
+        IsPaused = true;
+        SetStepsPaused(true);
+    }
+
+    public void Resume()
+    {
+        if (!IsPlaying || !IsPaused) return;
+
+        IsPaused = false;
+        SetStepsPaused(false);
     }
 
     public void Stop()
@@ -34,15 +52,33 @@ public class Sequence : MonoBehaviour
         IsPlaying = true;
         onStarted?.Invoke();
         foreach (var step in steps)
+        {
+            while (IsPaused)
+                yield return null;
+
+            step.SetSequencePaused(false);
             yield return step.Run();
+        }
         End();
+    }
+
+    void SetStepsPaused(bool paused)
+    {
+        foreach (var step in steps)
+            if (step != null) step.SetSequencePaused(paused);
     }
 
     void End()
     {
         foreach (var step in steps)
-            if (step != null) step.OnSequenceEnd();
+        {
+            if (step == null) continue;
+            step.SetSequencePaused(false);
+            step.OnSequenceEnd();
+        }
 
+        routine = null;
+        IsPaused = false;
         IsPlaying = false;
         onFinished?.Invoke();
         Finished?.Invoke();

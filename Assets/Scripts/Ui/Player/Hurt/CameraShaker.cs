@@ -1,9 +1,10 @@
 using UnityEngine;
 
 /// <summary>
-/// สั่นกล้อง มี 2 แบบ
+/// สั่นกล้อง มี 3 แบบ
 ///   AddTrauma — Perlin noise ใช้ตอนเราโดนตี
 ///   Kick      — แบบ lead: สุ่มจุดในรัศมีแล้วใช้ sine ดึงกลับกลาง ใช้ตอนเราตีโดน
+///   Dizzy     — เวียนหัว: โยกเป็นคลื่น sine แรงคงที่ตลอดช่วงเวลา
 /// และรับ offset ของ Head Bob จาก HeadBob.cs มาบวกรวม (SetBob)
 ///
 /// ⚠️ ต้องแปะบน GameObject เปล่าที่คั่นระหว่างตัวหมุนกล้องกับกล้องจริง:
@@ -40,8 +41,24 @@ public class CameraShaker : MonoBehaviour
     [Tooltip("กี่วินาทีสุ่มจุดใหม่ 1 ครั้ง — ต่ำ = สั่นถี่ / สูง = กระตุกทีละจังหวะ")]
     [SerializeField] private float _kickStepTime = 0.035f;
 
+    [Header("Dizzy (เวียนหัว)")]
+    [Tooltip("องศาเอียงซ้าย-ขวา (roll) — ตัวหลักที่ให้ฟีลเวียนหัว")]
+    [SerializeField] private float _dizzyRoll = 6f;
+
+    [Tooltip("องศาส่าย ก้ม-เงย/ซ้าย-ขวา เล็กน้อย")]
+    [SerializeField] private float _dizzyPitchYaw = 2.5f;
+
+    [Tooltip("ระยะโยกตัว (เมตร)")]
+    [SerializeField] private float _dizzyPosition = 0.03f;
+
+    [Tooltip("รอบต่อวินาที — 1 วิ ใช้ 1.5-2 กำลังดี")]
+    [SerializeField] private float _dizzyFrequency = 1.75f;
+
+    [Tooltip("เวลา blend เข้า/ออก (วิ) — 0 = แรงเท่าเดิมแล้วหยุดกึก")]
+    [SerializeField] private float _dizzyBlendTime = 0.1f;
+
     [Header("ออปชัน")]
-    [Tooltip("ติ๊กถ้าจะให้สั่นต่อได้ตอน hitstop (timeScale ต่ำ)\nใช้กับ AddTrauma เท่านั้น — Kick สั่นระหว่าง hitstop เสมอ")]
+    [Tooltip("ติ๊กถ้าจะให้สั่นต่อได้ตอน hitstop (timeScale ต่ำ)\nใช้กับ AddTrauma และ Dizzy — Kick สั่นระหว่าง hitstop เสมอ")]
     [SerializeField] private bool _useUnscaledTime = false;
 
     [Tooltip("ตัวคูณรวม — เอาไว้ต่อกับ setting ให้คนเล่นปิดได้ทีหลัง")]
@@ -60,12 +77,25 @@ public class CameraShaker : MonoBehaviour
     private Vector3 _kickTarget;
     private Vector3 _kickTargetTilt;
 
+    private float _dizzyDuration;
+    private float _dizzyElapsed;
+    private float _dizzyIntensity;
+
     // Head Bob — HeadBob.cs เป็นคนคำนวณแล้วฝากค่ามาทางนี้
     private Vector3 _bobPosition;
     private Quaternion _bobRotation = Quaternion.identity;
 
     /// <summary>ค่าปัจจุบัน 0..1 เผื่อระบบอื่นอยากรู้</summary>
     public float Trauma => _trauma;
+
+    /// <summary>
+    /// ความแรงเวียนหัวตอนนี้ (0 = ไม่เวียน, 1 = เต็มที่ ตาม intensity ที่ส่งเข้ามา)
+    /// เอาไปคุม Lens Distortion / Chromatic Aberration ให้แกว่งตามกันได้
+    /// </summary>
+    public float DizzyAmount { get; private set; }
+
+    /// <summary>กำลังเวียนหัวอยู่ไหม</summary>
+    public bool IsDizzy => _dizzyElapsed < _dizzyDuration;
 
     private void Awake()
     {
@@ -95,6 +125,8 @@ public class CameraShaker : MonoBehaviour
         {
             _trauma = 0f;
             _kickElapsed = _kickDuration;
+            _dizzyElapsed = _dizzyDuration;
+            DizzyAmount = 0f;
             transform.localPosition = _basePosition + _bobPosition;
             transform.localRotation = _baseRotation * _bobRotation;
         }
@@ -133,11 +165,29 @@ public class CameraShaker : MonoBehaviour
         NewKickStep();
     }
 
+    /// <summary>
+    /// เวียนหัว — แรงคงที่ตลอด duration (ไม่ลดตามเวลา)
+    /// duration = นานกี่วิ, intensity = ตัวคูณความแรง (1 = ปกติ)
+    /// เรียกซ้ำระหว่างเวียนอยู่ = เริ่มนับใหม่
+    /// </summary>
+    public void Dizzy(float duration, float intensity = 1f)
+    {
+        if (duration <= 0f) return;
+
+        _dizzyDuration = duration;
+        _dizzyElapsed = 0f;
+        _dizzyIntensity = intensity * _globalMultiplier;
+    }
+
+    public void Dizzy(float duration) => Dizzy(duration, 1f);
+
     /// <summary>หยุดสั่นทันที — ใช้ตอนเข้า cutscene หรือตาย</summary>
     public void StopImmediate()
     {
         _trauma = 0f;
         _kickElapsed = _kickDuration;
+        _dizzyElapsed = _dizzyDuration;
+        DizzyAmount = 0f;
         transform.localPosition = _basePosition + _bobPosition;
         transform.localRotation = _baseRotation * _bobRotation;
     }
@@ -162,10 +212,11 @@ public class CameraShaker : MonoBehaviour
     {
         UpdateTrauma(out Vector3 traumaPos, out Quaternion traumaRot);
         UpdateKick(out Vector3 kickPos, out Quaternion kickRot);
+        UpdateDizzy(out Vector3 dizzyPos, out Quaternion dizzyRot);
 
-        // สามแบบซ้อนกันได้ เช่นตีโดนผีจังหวะเดียวกับโดนผีตีตอนกำลังเดิน
-        transform.localPosition = _basePosition + traumaPos + kickPos + _bobPosition;
-        transform.localRotation = _baseRotation * traumaRot * kickRot * _bobRotation;
+        // ซ้อนกันได้ทุกแบบ เช่นตีโดนผีจังหวะเดียวกับโดนผีตีตอนกำลังเดินและเวียนหัว
+        transform.localPosition = _basePosition + traumaPos + kickPos + dizzyPos + _bobPosition;
+        transform.localRotation = _baseRotation * traumaRot * kickRot * dizzyRot * _bobRotation;
     }
 
     private void UpdateTrauma(out Vector3 position, out Quaternion rotation)
@@ -217,6 +268,48 @@ public class CameraShaker : MonoBehaviour
 
         position = Vector3.Lerp(_kickTarget, Vector3.zero, back);
         rotation = Quaternion.Euler(Vector3.Lerp(_kickTargetTilt, Vector3.zero, back));
+    }
+
+    private void UpdateDizzy(out Vector3 position, out Quaternion rotation)
+    {
+        position = Vector3.zero;
+        rotation = Quaternion.identity;
+
+        if (_dizzyElapsed >= _dizzyDuration)
+        {
+            DizzyAmount = 0f;
+            return;
+        }
+
+        _dizzyElapsed += _useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
+
+        // แอมพลิจูดคงที่ (ไม่ลดตามเวลา) — blend แค่ช่วงสั้น ๆ ต้น/ท้าย กันภาพกระชาก
+        float blend = 1f;
+        if (_dizzyBlendTime > 0f)
+        {
+            float fadeIn = Mathf.Clamp01(_dizzyElapsed / _dizzyBlendTime);
+            float fadeOut = Mathf.Clamp01((_dizzyDuration - _dizzyElapsed) / _dizzyBlendTime);
+            blend = Mathf.SmoothStep(0f, 1f, Mathf.Min(fadeIn, fadeOut));
+        }
+        float amp = blend * _dizzyIntensity;
+        DizzyAmount = amp;
+
+        float t = _dizzyElapsed * _dizzyFrequency * Mathf.PI * 2f;
+
+        // คนละความถี่/เฟส เพื่อให้ไม่ใช่การโยกแกนเดียวเป็นเส้นตรง
+        float roll = Mathf.Sin(t);
+        float pitch = Mathf.Sin(t * 0.7f + 1.3f);
+        float yaw = Mathf.Sin(t * 1.3f + 2.1f);
+
+        rotation = Quaternion.Euler(
+            pitch * _dizzyPitchYaw * amp,
+            yaw * _dizzyPitchYaw * amp,
+            roll * _dizzyRoll * amp);
+
+        position = new Vector3(
+            Mathf.Sin(t * 0.9f + 0.5f),
+            Mathf.Cos(t * 0.7f),
+            0f) * (_dizzyPosition * amp);
     }
 
     private void NewKickStep()
