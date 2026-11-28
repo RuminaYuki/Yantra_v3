@@ -207,7 +207,7 @@ public class ProjectileBullet : MonoBehaviour
     }
 
     // Both are handled since it depends on whether the bullet's/target's collider is set to Is Trigger.
-    private void OnTriggerEnter(Collider other) => ProcessHit(other);
+    //private void OnTriggerEnter(Collider other) => ProcessHit(other);
     private void OnCollisionEnter(Collision collision) => ProcessHit(collision.collider);
 
     private void ProcessHit(Collider other)

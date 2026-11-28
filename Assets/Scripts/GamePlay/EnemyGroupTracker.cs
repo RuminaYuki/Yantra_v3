@@ -170,7 +170,8 @@ public class EnemyGroupTracker : MonoBehaviour
 
         roomCompleted = true;
         SetBarriersLocked(false);
-        OnAllEnemiesDefeated?.Invoke();
+        if (playerEntered)
+            OnAllEnemiesDefeated?.Invoke();
     }
 
     private bool HasRequiredLootInRoom()
