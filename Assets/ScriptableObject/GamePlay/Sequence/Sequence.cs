@@ -7,6 +7,7 @@ using UnityEngine.Events;
 
 public class Sequence : MonoBehaviour
 {
+    [SerializeField] private bool playOneTime = true;  // ถ้า true จะเล่นครั้งเดียวแล้ว disable gameObject นี้
     [SerializeField] private List<SequenceStep> steps = new();
     [SerializeField] private UnityEvent onStarted;   // เช่น ปิด input/กล้องผู้เล่น
     [SerializeField] private UnityEvent onFinished;  // เช่น เปิดกลับ
@@ -15,12 +16,15 @@ public class Sequence : MonoBehaviour
     public bool IsPaused { get; private set; }
     public event Action Finished;
 
+    bool hasPlayed;
+
     Coroutine routine;
 
     [ContextMenu("Play Sequence")]
     public void Play()
     {
-        if (IsPlaying) return;
+        if (IsPlaying || hasPlayed) return;
+        if (playOneTime) hasPlayed = true;
         IsPaused = false;
         routine = StartCoroutine(RunAll());
     }
