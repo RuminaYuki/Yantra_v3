@@ -65,6 +65,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 033a21f8e53c4ec48ad1347c970453da, type: 3}
   m_Name: DeathBlossomAttackCooldownID
   m_EditorClassIdentifier: Assembly-CSharp::CooldownSO
+--- !u!114 &-8654107521752011751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2749e80a99d14940b0b8b04cb6c959d, type: 3}
+  m_Name: Tani_Music_Stop
+  m_EditorClassIdentifier: Assembly-CSharp::MusicOverrideActionSO
+  _selfAnchor: {fileID: 0}
+  _mode: 1
+  _music: {fileID: 0}
 --- !u!114 &-8599085982094099305
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -468,6 +483,21 @@ MonoBehaviour:
     Path: Navigator
   _stateDisplayNames: []
   _removedParameters: []
+--- !u!114 &-6651265137348578593
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2749e80a99d14940b0b8b04cb6c959d, type: 3}
+  m_Name: Tani_Music_Phase2
+  m_EditorClassIdentifier: Assembly-CSharp::MusicOverrideActionSO
+  _selfAnchor: {fileID: 0}
+  _mode: 0
+  _music: {fileID: 11400000, guid: 07200b2432774f55a1bf223919915537, type: 2}
 --- !u!114 &-6350714119868810123
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -765,6 +795,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: -8333454843085663134}
+  - {fileID: -2362089876021144060}
 --- !u!114 &-5317733203777165071
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -976,6 +1007,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Yuki.Learning.StateMachine.ScriptableObjects.StateSO
   _actions:
   - {fileID: 2234849490781005470}
+  - {fileID: -6651265137348578593}
 --- !u!114 &-4681942629760074664
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1340,6 +1372,7 @@ MonoBehaviour:
   _actions:
   - {fileID: -6982686074938321043}
   - {fileID: 1898925047156986070}
+  - {fileID: -8654107521752011751}
 --- !u!114 &-3266015199037380506
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1510,6 +1543,21 @@ MonoBehaviour:
     usePrediction: 1
     leadTime: 0.5
     maxDistance: 3
+--- !u!114 &-2362089876021144060
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2749e80a99d14940b0b8b04cb6c959d, type: 3}
+  m_Name: Tani_Music_Start
+  m_EditorClassIdentifier: Assembly-CSharp::MusicOverrideActionSO
+  _selfAnchor: {fileID: 0}
+  _mode: 3
+  _music: {fileID: 11400000, guid: fcd7d7508c6e4112994572e6ca5b7073, type: 2}
 --- !u!114 &-2281082450910561657
 MonoBehaviour:
   m_ObjectHideFlags: 0

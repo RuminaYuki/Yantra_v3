@@ -7,7 +7,9 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 
 /// <summary>
 /// เพลงบอสตานี — ใส่ action "Music Override" ลง Tanee_TransitionTable — กดซ้ำได้ ไม่ใส่ซ้ำ
-///   เริ่มสู้ (state ที่ NotActive ของ BasephaseSub วิ่งไปตอนผู้เล่นเข้าเขต) → เปลี่ยนเป็น BGM_Tani
+///   เริ่มสู้ (state ที่ NotActive ของ BasephaseSub วิ่งไปตอนผู้เล่นเข้าเขต) → BGM_Tani (เฟส 1)
+///     ใช้โหมด PushIfNone: state นี้ (Burrowing) ถูกเข้าซ้ำทุกเฟส — เปลี่ยนแค่ครั้งแรก ไม่ดึงเพลงเฟส 2 กลับ
+///   Phase2SubVariant_State (เลือด ≤ 50%) → BGM_Tani_Phase2 (เฟส 2 ลากยาวถึงช่วง Glory)
 ///   Death_State → คืนเพลงเดิม
 /// ตานีโดนลบ / ปิดไปก่อน = BattleMusicController ถอดเพลงให้เองอยู่แล้ว
 /// </summary>
@@ -18,6 +20,8 @@ public static class TaniMusicSetup
     private const string IdleStateName = "NotActive";
     private const string DeathStateName = "Death_State";
     private const string MusicName = "BGM_Tani";
+    private const string Phase2StateName = "Phase2SubVariant_State";
+    private const string Phase2MusicName = "BGM_Tani_Phase2";
     private const string MusicFolderHint = "BGM_Battle";
 
     [MenuItem("Tools/Yantra/Setup (ใช้ครั้งเดียว)/Setup Tani Boss Music (เพลงบอสตานี)")]
@@ -34,17 +38,29 @@ public static class TaniMusicSetup
         Object[] subs = AssetDatabase.LoadAllAssetsAtPath(path);
         var report = new StringBuilder();
 
-        SoundID music = FindOrCreateMusicId(out bool created);
+        SoundID music = FindOrCreateMusicId(MusicName, out bool created);
         if (created) report.AppendLine($"สร้าง SoundID {MusicName} แล้ว");
+        SoundID music2 = FindOrCreateMusicId(Phase2MusicName, out bool created2);
+        if (created2) report.AppendLine($"สร้าง SoundID {Phase2MusicName} แล้ว");
 
         // หา state ตอนเริ่มสู้ = ปลายทางของ NotActive ใน BasephaseSub
         List<StateSO> startStates = FindStartStates(subs);
         if (startStates.Count == 0)
             report.AppendLine($"✗ หา state เริ่มสู้ (ต่อจาก {IdleStateName} ใน {StartTableName}) ไม่เจอ");
 
-        var startAction = GetOrCreate(root, subs, "Tani_Music_Start", MusicOverrideActionSO.Mode.Push, music);
+        var startAction = GetOrCreate(root, subs, "Tani_Music_Start", MusicOverrideActionSO.Mode.PushIfNone, music);
         foreach (StateSO s in startStates)
             report.AppendLine($"♪ {s.name} ← เปลี่ยนเพลง {MusicName}{(AddToState(s, startAction) ? "" : " — มีอยู่แล้ว")}");
+
+        var phase2Action = GetOrCreate(root, subs, "Tani_Music_Phase2", MusicOverrideActionSO.Mode.Push, music2);
+        int phase2States = 0;
+        foreach (Object o in subs)
+        {
+            if (!(o is StateSO s) || s.name != Phase2StateName) continue;
+            phase2States++;
+            report.AppendLine($"♪ {s.name} ← เพลงเฟส 2 {Phase2MusicName}{(AddToState(s, phase2Action) ? "" : " — มีอยู่แล้ว")}");
+        }
+        if (phase2States == 0) report.AppendLine($"✗ ไม่เจอ {Phase2StateName}");
 
         var stopAction = GetOrCreate(root, subs, "Tani_Music_Stop", MusicOverrideActionSO.Mode.Pop, null);
         int deaths = 0;
@@ -62,6 +78,8 @@ public static class TaniMusicSetup
 
         if (!InLibrary(music))
             report.AppendLine($"\nยังไม่มี {MusicName} ใน SoundLibrary ไหนเลย — เพิ่มแล้วใส่ไฟล์เพลง (Mixer = BGM)");
+        if (!InLibrary(music2))
+            report.AppendLine($"ยังไม่มี {Phase2MusicName} ใน SoundLibrary ไหนเลย — เพิ่มแล้วใส่ไฟล์เพลง (Mixer = BGM)");
 
         Debug.Log($"[TaniMusic]\n{report}", root);
         EditorUtility.DisplayDialog("Tani Music", report.ToString(), "OK");
@@ -126,10 +144,10 @@ public static class TaniMusicSetup
         return true;
     }
 
-    private static SoundID FindOrCreateMusicId(out bool created)
+    private static SoundID FindOrCreateMusicId(string musicName, out bool created)
     {
         created = false;
-        SoundID found = FindAsset<SoundID>(MusicName);
+        SoundID found = FindAsset<SoundID>(musicName);
         if (found != null) return found;
 
         string folder = "Assets";
@@ -137,7 +155,7 @@ public static class TaniMusicSetup
         if (hint != null) folder = System.IO.Path.GetDirectoryName(AssetDatabase.GetAssetPath(hint)).Replace('\\', '/');
 
         var id = ScriptableObject.CreateInstance<SoundID>();
-        AssetDatabase.CreateAsset(id, $"{folder}/{MusicName}.asset");
+        AssetDatabase.CreateAsset(id, $"{folder}/{musicName}.asset");
         created = true;
         return id;
     }

@@ -62,7 +62,7 @@ MonoBehaviour:
   m_ScaleMode: 0
   m_Offset: {x: 0, y: 0, z: 0}
   m_Size: {x: 1, y: 1, z: 1}
-  m_FadeFactor: 1
+  m_FadeFactor: 0
 --- !u!114 &7091767393793694645
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -284,6 +284,7 @@ GameObject:
   - component: {fileID: 2550454979418761997}
   - component: {fileID: 528935002006726858}
   - component: {fileID: 8990803498509968755}
+  - component: {fileID: 2409738382356031389}
   m_Layer: 0
   m_Name: EnemyController
   m_TagString: Nak
@@ -308,6 +309,7 @@ Transform:
   - {fileID: 6989563619420049827}
   - {fileID: 2211875447195867964}
   - {fileID: 3943960879620025318}
+  - {fileID: 6696155726719737087}
   m_Father: {fileID: 7278256098462044241}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!95 &4280175760629822805
@@ -406,6 +408,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4681aae2f75dd804fbf5009cb3483ae6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PairedAnimationPlayer
+--- !u!114 &2409738382356031389
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6359939469149767001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 772736925c0cd0744ad73a3e244f510d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NakHoleLink
+  _hole: {fileID: 4902995362427522392}
+  _animator: {fileID: 4280175760629822805}
+  _grab: {fileID: 4937324236574349548}
+  _chargingStates:
+  - Flick
+  - Showup
+  _idleStates:
+  - GoBack
+  - Idle
 --- !u!1 &7864430110322767236
 GameObject:
   m_ObjectHideFlags: 0
@@ -499,4 +522,77 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: f573cd3b02c528544b30fc1e906e1160, type: 3}
   m_PrefabInstance: {fileID: 3544749601707035661}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &3582485954462222264
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 6501675175686123537}
+    m_Modifications:
+    - target: {fileID: 1239328647014976197, guid: 59395462a64eb474b95b3271885d7a0e, type: 3}
+      propertyPath: m_Name
+      value: VFX_OccultHole
+      objectReference: {fileID: 0}
+    - target: {fileID: 7879625725632830279, guid: 59395462a64eb474b95b3271885d7a0e, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -1.84
+      objectReference: {fileID: 0}
+    - target: {fileID: 7879625725632830279, guid: 59395462a64eb474b95b3271885d7a0e, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7879625725632830279, guid: 59395462a64eb474b95b3271885d7a0e, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 1.71
+      objectReference: {fileID: 0}
+    - target: {fileID: 7879625725632830279, guid: 59395462a64eb474b95b3271885d7a0e, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7879625725632830279, guid: 59395462a64eb474b95b3271885d7a0e, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7879625725632830279, guid: 59395462a64eb474b95b3271885d7a0e, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7879625725632830279, guid: 59395462a64eb474b95b3271885d7a0e, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7879625725632830279, guid: 59395462a64eb474b95b3271885d7a0e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7879625725632830279, guid: 59395462a64eb474b95b3271885d7a0e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7879625725632830279, guid: 59395462a64eb474b95b3271885d7a0e, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 59395462a64eb474b95b3271885d7a0e, type: 3}
+--- !u!114 &4902995362427522392 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8484073271974513376, guid: 59395462a64eb474b95b3271885d7a0e, type: 3}
+  m_PrefabInstance: {fileID: 3582485954462222264}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b26d8ae7c381f04aabe1f6c5c1e5a09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HoleStateController
+--- !u!4 &6696155726719737087 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7879625725632830279, guid: 59395462a64eb474b95b3271885d7a0e, type: 3}
+  m_PrefabInstance: {fileID: 3582485954462222264}
   m_PrefabAsset: {fileID: 0}

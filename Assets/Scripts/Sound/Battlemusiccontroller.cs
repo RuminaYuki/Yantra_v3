@@ -135,6 +135,9 @@ public class BattleMusicController : MonoBehaviour
         Refresh($"Override ← {owner.name}");
     }
 
+    /// <summary>owner นี้ขอเพลงค้างไว้อยู่ไหม</summary>
+    public bool HasOverride(GameObject owner) => owner != null && _overrides.Exists(o => o.owner == owner);
+
     /// <summary>คืนเพลงที่ owner ขอไว้ — ไม่มีก็ไม่ทำอะไร</summary>
     public void PopOverride(GameObject owner)
     {

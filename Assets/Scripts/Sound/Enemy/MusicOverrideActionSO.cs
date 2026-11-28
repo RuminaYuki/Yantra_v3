@@ -7,6 +7,8 @@ using Yuki.Learning.StateMachine.ScriptableObjects;
 ///   Push         : เข้า State แล้วเปลี่ยนเป็นเพลงนี้ (ค้างไว้จนมี Pop)   เช่น EnterStare_State
 ///   Pop          : เข้า State แล้วคืนเพลงเดิม                          เช่น BackHome_State
 ///   WhileInState : เปลี่ยนตอนเข้า คืนตอนออก
+///   PushIfNone   : เปลี่ยนเฉพาะตอนผีตัวนี้ยังไม่ได้ขอเพลงไว้ — ใส่ใน State ที่เข้าซ้ำบ่อย (เช่น Burrowing ของบอส)
+///                  เพลงเฟสหลังที่ Push ทับไว้แล้วจะไม่ถูกเปลี่ยนกลับ
 /// ฉากที่มี BattleMusicController = ทับเพลงรบ / ไม่รบ แล้วคืนให้ถูก
 /// ฉากที่ไม่มี = สั่ง SoundManager ตรง ๆ แล้วคืนเป็น Scene BGM ของ LevelAudioManager
 /// ผีหาย / ถูกปิด ระหว่างขอเพลงอยู่ = BattleMusicController ถอดให้เอง ไม่ค้าง
@@ -20,7 +22,8 @@ public class MusicOverrideActionSO : StateActionSO
     {
         Push,           // เปลี่ยนเพลง ค้างไว้
         Pop,            // คืนเพลงเดิม
-        WhileInState    // เปลี่ยนตอนเข้า คืนตอนออก
+        WhileInState,   // เปลี่ยนตอนเข้า คืนตอนออก
+        PushIfNone      // เปลี่ยนเฉพาะตอนยังไม่ได้ขอเพลงไว้
     }
 
     [SerializeField] private Mode _mode = Mode.Push;
@@ -55,6 +58,7 @@ public class MusicOverrideAction : StateAction
     public override void OnStateEnter()
     {
         if (_mode == MusicOverrideActionSO.Mode.Pop) Pop();
+        else if (_mode == MusicOverrideActionSO.Mode.PushIfNone) PushIfNone();
         else Push();
     }
 
@@ -79,6 +83,13 @@ public class MusicOverrideAction : StateAction
         if (SoundManager.Instance == null) return;
         SoundManager.Instance.PlayBGM(_music);
         _fallbackOwner = _owner;
+    }
+
+    private void PushIfNone()
+    {
+        BattleMusicController battle = BattleMusicController.Active;
+        if (battle != null ? battle.HasOverride(_owner) : _fallbackOwner == _owner) return;
+        Push();
     }
 
     private void Pop()
