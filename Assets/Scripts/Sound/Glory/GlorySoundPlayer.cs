@@ -12,8 +12,20 @@ public class GlorySoundPlayer : MonoBehaviour
         public SoundID Sound;
     }
 
+    [System.Serializable]
+    private class AnimationSound
+    {
+        [Tooltip("ท่า Glory — ใส่ท่าฝั่งผู้เล่นหรือฝั่งผีก็ได้ (เช่น Victim Glory Tanee 2)")]
+        public PairedAnimationId Animation;
+        public SoundID Sound;
+    }
+
     [Tooltip("เสียงเดียวยาวตลอดท่า ดังตอนท่า Glory เริ่มเล่น")]
     [SerializeField] private SoundID _sound;
+
+    [Header("เสียงแยกตามท่า (ผีที่มี Glory หลายท่า เช่น ตานีครั้งสุดท้าย)")]
+    [Tooltip("ท่าที่เล่นตรงกับในรายการ = ใช้เสียงของท่านั้นแทน\nไม่ตรง = ใช้ช่อง Sound / Timed Sounds ตามปกติ")]
+    [SerializeField] private List<AnimationSound> _perAnimation = new List<AnimationSound>();
 
     [Header("แยกหลายจังหวะ (ไม่ใช้ก็ไม่ต้องติ๊ก)")]
     [Tooltip("ติ๊ก = ใช้รายการ Timed Sounds แทนช่อง Sound\nแต่ละเสียงดังตามวินาทีที่ตั้ง นับจากตอนท่าเริ่ม")]
@@ -61,6 +73,16 @@ public class GlorySoundPlayer : MonoBehaviour
 
     private void Play()
     {
+        SoundID special = FindAnimationSound();
+        if (special != null)
+        {
+            if (_logPlay)
+                Debug.Log($"[GlorySound] ท่า Glory เริ่ม — ท่าพิเศษ {_actor.CurrentRequest.Animation.name} → {special.name}", this);
+            if (SoundManager.Instance != null)
+                SoundManager.Instance.PlaySFXAttached(special, transform);
+            return;
+        }
+
         if (_logPlay)
             Debug.Log($"[GlorySound] ท่า Glory เริ่ม — {(_useTimedSounds ? $"แบบหลายจังหวะ ({_timedSounds.Count} เสียง)" : (_sound != null ? _sound.name : "ยังไม่ได้ใส่เสียง"))}", this);
 
@@ -77,6 +99,23 @@ public class GlorySoundPlayer : MonoBehaviour
 
         StopAllCoroutines();
         StartCoroutine(PlayTimed());
+    }
+
+    // ท่าที่กำลังเล่น (ฝั่งผี หรือฝั่งผู้เล่น) ตรงกับรายการแยกตามท่าไหม
+    private SoundID FindAnimationSound()
+    {
+        if (_actor == null || _perAnimation == null)
+            return null;
+
+        PairedRequest request = _actor.CurrentRequest;
+        foreach (AnimationSound entry in _perAnimation)
+        {
+            if (entry == null || entry.Animation == null || entry.Sound == null)
+                continue;
+            if (entry.Animation == request.Animation || entry.Animation == request.PartnerAnimation)
+                return entry.Sound;
+        }
+        return null;
     }
 
     private IEnumerator PlayTimed()

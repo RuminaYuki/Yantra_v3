@@ -442,6 +442,12 @@ public class PlayerSoundController : MonoBehaviour
         TriggerFootstep();
     }
 
+    /// <summary>
+    /// รับ Animation Event "GhostStep" จากคลิปที่ผู้เล่นใช้ร่วมกับผี (เช่น Mixamo_RunBackward)
+    /// ไม่มีตัวนี้ = Unity ขึ้น error "has no receiver" ทุกก้าว — ส่งต่อเป็นเสียงเท้าผู้เล่น (ดังเฉพาะโหมด AnimationEvent)
+    /// </summary>
+    public void GhostStep(AnimationEvent e) => PlayFootstepSound();
+
     // ==========================================
     // Vocals & Actions Methods
     // ==========================================

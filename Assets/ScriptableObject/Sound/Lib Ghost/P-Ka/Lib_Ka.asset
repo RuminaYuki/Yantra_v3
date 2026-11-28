@@ -1,0 +1,333 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccd93381a6a2f664ba0f5731b83f0ecc, type: 3}
+  m_Name: Lib_Ka
+  m_EditorClassIdentifier: Assembly-CSharp::SoundLibrary
+  sounds:
+  - idName: Ka_Step
+    id: {fileID: 11400000, guid: ea2ae8ee9fbd46f08816900935fd5ecd, type: 2}
+    mixerGroup: {fileID: -4981207637842103442, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 180
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 8300000, guid: 628685172c8b41199bb3abecf4a893fd, type: 3}
+    clips:
+    - {fileID: 8300000, guid: 628685172c8b41199bb3abecf4a893fd, type: 3}
+    - {fileID: 8300000, guid: c8e12a7258954970b9bd65abdeaf6096, type: 3}
+    - {fileID: 8300000, guid: 000dad2cc7e94a1ba75da24b827c95c0, type: 3}
+    - {fileID: 8300000, guid: 87121002ccc6402bbda92ad36f7ec633, type: 3}
+    - {fileID: 8300000, guid: bc9e6442fe004186a024cfafe2aad098, type: 3}
+    - {fileID: 8300000, guid: ec46330f54e147bfa1840c6a237517b3, type: 3}
+    - {fileID: 8300000, guid: 4a3030a3b0564cf9b65979d4225c41f7, type: 3}
+    - {fileID: 8300000, guid: 3b380d4648f245e99aa15c2c2501a3b0, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0
+    useRandomPitch: 1
+    minPitch: 0.92
+    maxPitch: 1.08
+    useRandomVolume: 1
+    minVolume: 0.8
+    maxVolume: 1
+    volume: 1
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 8
+  - idName: Ka_Move_Loop
+    id: {fileID: 11400000, guid: 5819bd080d5c4935b88a4a8fdb344b11, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 200
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 8300000, guid: d94b8f98c98a46818f1b47d8ca9ff932, type: 3}
+    clips:
+    - {fileID: 8300000, guid: d94b8f98c98a46818f1b47d8ca9ff932, type: 3}
+    - {fileID: 8300000, guid: e5474a0017b44e878dc2864b3978c1bd, type: 3}
+    - {fileID: 8300000, guid: 3c4fc6b16e80400c816b9455fb350e42, type: 3}
+    - {fileID: 8300000, guid: 507596ca8cee44aba610554fefcc0709, type: 3}
+    - {fileID: 8300000, guid: b9e1f86253fa47fba3fdbab88bd42271, type: 3}
+    - {fileID: 8300000, guid: fba8b97b6ed344dcb5f9451fea78fdee, type: 3}
+    - {fileID: 8300000, guid: 3531ec017a414567a33980ac6557891a, type: 3}
+    - {fileID: 8300000, guid: 82e01035fb614d2d82cace83438c95c8, type: 3}
+    useRandomStartOffset: 1
+    maxStartOffsetPercent: 0.8
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 0
+    minVolume: 0.9
+    maxVolume: 1
+    volume: 0.35
+    spatialBlend: 1
+    minDistance: 0.5
+    maxDistance: 6
+  - idName: Ka_Chatter_Loop
+    id: {fileID: 11400000, guid: c570649a4002439b9b643dbb510802fa, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 150
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 8300000, guid: 435b16bc83694b78b6c932ac1bef8e36, type: 3}
+    clips:
+    - {fileID: 8300000, guid: 435b16bc83694b78b6c932ac1bef8e36, type: 3}
+    - {fileID: 8300000, guid: ab2cf6bb622a42ebac1d95b29e6dfac1, type: 3}
+    - {fileID: 8300000, guid: 36cc824b55b94ef0a0956ecf8659bc11, type: 3}
+    useRandomStartOffset: 1
+    maxStartOffsetPercent: 0.9
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 0
+    minVolume: 0.9
+    maxVolume: 1
+    volume: 0.35
+    spatialBlend: 1
+    minDistance: 0.5
+    maxDistance: 5
+  - idName: Ka_Alert
+    id: {fileID: 11400000, guid: 5a42a1ebd61842c98c921e3f6ad9d7e0, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 60
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 8300000, guid: 2d988380723c4e78a7588b6d101bc1ac, type: 3}
+    clips:
+    - {fileID: 8300000, guid: 2d988380723c4e78a7588b6d101bc1ac, type: 3}
+    - {fileID: 8300000, guid: 6b00968fb91948b2b00b43f510841774, type: 3}
+    - {fileID: 8300000, guid: ad6faade32114024939059dd997ea31f, type: 3}
+    - {fileID: 8300000, guid: 7c84583f1d0246b298ab35b62522b235, type: 3}
+    - {fileID: 8300000, guid: 60b8b63ea72842db84634d296f33c333, type: 3}
+    - {fileID: 8300000, guid: fd36cd0243b9400f89c8af3b817b16ff, type: 3}
+    - {fileID: 8300000, guid: 227880776aef4d859d6d281fc7f8996e, type: 3}
+    - {fileID: 8300000, guid: a07c4d3c224a49b893e49ba07cffa525, type: 3}
+    - {fileID: 8300000, guid: 8ba33c1a15e5405b84bf0a5723f2c129, type: 3}
+    - {fileID: 8300000, guid: 43e52c22737944ae879dbcd36710c2ff, type: 3}
+    - {fileID: 8300000, guid: a299d7f9aa554f1582c6a1b4eab0f8c5, type: 3}
+    - {fileID: 8300000, guid: cb4f79942e384df5a7bec38a48ae1aa1, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 1
+    minVolume: 0.9
+    maxVolume: 1
+    volume: 1
+    spatialBlend: 1
+    minDistance: 2
+    maxDistance: 30
+  - idName: Ka_Attack
+    id: {fileID: 11400000, guid: 1dc4e9159e4446c3884a67dbdc0d9d73, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 60
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 8300000, guid: 26c5c706dace4f00b8b36bdf31708e6d, type: 3}
+    clips:
+    - {fileID: 8300000, guid: 26c5c706dace4f00b8b36bdf31708e6d, type: 3}
+    - {fileID: 8300000, guid: b0e033dcfc65425da6147aea45a18f02, type: 3}
+    - {fileID: 8300000, guid: 16a4df3cc3934482aa11981b531b3ae5, type: 3}
+    - {fileID: 8300000, guid: 9eccf9aaf90d45f087648c107d921b42, type: 3}
+    - {fileID: 8300000, guid: cdbf6450e322413db091db6f4f9b5de8, type: 3}
+    - {fileID: 8300000, guid: cb324049ed1e4097b11435eec36fa4a7, type: 3}
+    - {fileID: 8300000, guid: 6c4a55204b0c43e1b66221f03314b2e8, type: 3}
+    - {fileID: 8300000, guid: 022c2eaa54af4cb78a50fb285aaea3dd, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 1
+    minVolume: 0.9
+    maxVolume: 1
+    volume: 1
+    spatialBlend: 1
+    minDistance: 1.5
+    maxDistance: 22
+  - idName: Ka_Swing
+    id: {fileID: 11400000, guid: d7fb201db2ab4f3fa0a1452a943fcfb3, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 60
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 8300000, guid: 277a6caf73cc4024b3385c1edd1a3d55, type: 3}
+    clips:
+    - {fileID: 8300000, guid: 277a6caf73cc4024b3385c1edd1a3d55, type: 3}
+    - {fileID: 8300000, guid: fa0a5cefe3784a6f8d1f7ceb6b898cf8, type: 3}
+    - {fileID: 8300000, guid: 09a550ad70e2453f87f9445bf8dc7d55, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0
+    useRandomPitch: 1
+    minPitch: 0.92
+    maxPitch: 1.08
+    useRandomVolume: 1
+    minVolume: 0.85
+    maxVolume: 1
+    volume: 0.7
+    spatialBlend: 1
+    minDistance: 1.5
+    maxDistance: 15
+  - idName: Ka_Hit
+    id: {fileID: 11400000, guid: 9c3b82f00ff64aea915b78cd0dd63b3c, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 50
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 8300000, guid: dfec3366e08d494ba95c9b471019c2af, type: 3}
+    clips:
+    - {fileID: 8300000, guid: dfec3366e08d494ba95c9b471019c2af, type: 3}
+    - {fileID: 8300000, guid: 7baac945c2a24662a7e1e45dd14c457e, type: 3}
+    - {fileID: 8300000, guid: ee7cab6bd10c43819c29787a450d3302, type: 3}
+    - {fileID: 8300000, guid: 557ba861b0544cd9a89e6a6778a8e19a, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0
+    useRandomPitch: 1
+    minPitch: 0.9
+    maxPitch: 1.08
+    useRandomVolume: 1
+    minVolume: 0.85
+    maxVolume: 1
+    volume: 0.8
+    spatialBlend: 1
+    minDistance: 1.5
+    maxDistance: 18
+  - idName: Ka_Hurt
+    id: {fileID: 11400000, guid: ed89d0562e0a48188076abdaed199947, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 70
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 8300000, guid: 3d13518db8454479b152129dc7c595a3, type: 3}
+    clips:
+    - {fileID: 8300000, guid: 3d13518db8454479b152129dc7c595a3, type: 3}
+    - {fileID: 8300000, guid: 8c13ed8d8ed641e0b2a49c566937ec33, type: 3}
+    - {fileID: 8300000, guid: 69ba7e86425343658d446b3841067b6e, type: 3}
+    - {fileID: 8300000, guid: d9bd70fd659f43c3ac1f9e7d16b96d5f, type: 3}
+    - {fileID: 8300000, guid: 06d27f51f66441a4bd16e80343adbbe5, type: 3}
+    - {fileID: 8300000, guid: 8991680d520742d3bd0f29458bd47196, type: 3}
+    - {fileID: 8300000, guid: c8b5cf21da364d53ac75e04c2170e9fe, type: 3}
+    - {fileID: 8300000, guid: 3aa87c9410e44b48a88f551e5d58bfba, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0
+    useRandomPitch: 1
+    minPitch: 0.93
+    maxPitch: 1.07
+    useRandomVolume: 1
+    minVolume: 0.9
+    maxVolume: 1
+    volume: 1
+    spatialBlend: 1
+    minDistance: 1.5
+    maxDistance: 20
+  - idName: Ka_HurtHeavy
+    id: {fileID: 11400000, guid: 0a4ff8c4c4564f85a5cdc84d94eb0cc6, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 60
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 8300000, guid: afe26878a94744dfbc132dedaf1b77a8, type: 3}
+    clips:
+    - {fileID: 8300000, guid: afe26878a94744dfbc132dedaf1b77a8, type: 3}
+    - {fileID: 8300000, guid: 1dc4014d0a574f11b2da0a46f537c7e8, type: 3}
+    - {fileID: 8300000, guid: 4add9bfc021f47618880850cef323b08, type: 3}
+    - {fileID: 8300000, guid: 7d47ed18baf843d7823f7568f27ab20b, type: 3}
+    - {fileID: 8300000, guid: 54fe776da03e43ff9c0159afe9b5141a, type: 3}
+    - {fileID: 8300000, guid: 9e06c07f4f7e42889402ffaa44a2b57f, type: 3}
+    - {fileID: 8300000, guid: d4e35d3bb9064971ab4a42ce695d08b5, type: 3}
+    - {fileID: 8300000, guid: eb1dfd781cab4abaab330c22feaa2390, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 1
+    minVolume: 0.9
+    maxVolume: 1
+    volume: 1
+    spatialBlend: 1
+    minDistance: 2
+    maxDistance: 25
+  - idName: Ka_Death
+    id: {fileID: 11400000, guid: b7389d31736c443d8d21d4c3bd60893a, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 50
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 8300000, guid: 85d591396ce34b6a91702c2b6971678c, type: 3}
+    clips:
+    - {fileID: 8300000, guid: 85d591396ce34b6a91702c2b6971678c, type: 3}
+    - {fileID: 8300000, guid: 528ec1b88ab44a799288dcc1d8377f6f, type: 3}
+    - {fileID: 8300000, guid: 06642100a9874d08a71dc144f2617e56, type: 3}
+    - {fileID: 8300000, guid: 32aad79df4714aaeb82394b9fecc272c, type: 3}
+    - {fileID: 8300000, guid: d3ae2db8abd74fc283c4ccee71fc2f42, type: 3}
+    - {fileID: 8300000, guid: 318b960aafb441699e9fc10eabfa781c, type: 3}
+    - {fileID: 8300000, guid: 3eb5f9d1328a4a56897e8889c3949947, type: 3}
+    - {fileID: 8300000, guid: c271eac58ca0463fb9161c5d85744d9e, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.03
+    useRandomVolume: 0
+    minVolume: 0.9
+    maxVolume: 1
+    volume: 1
+    spatialBlend: 1
+    minDistance: 2
+    maxDistance: 30
+  - idName: Ka_Spawn
+    id: {fileID: 11400000, guid: edc1bbbbefb74ac6ab07e5dfb715649c, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 60
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 8300000, guid: a4fbd7fa0ce548c7a6e8054f00164bf0, type: 3}
+    clips:
+    - {fileID: 8300000, guid: a4fbd7fa0ce548c7a6e8054f00164bf0, type: 3}
+    - {fileID: 8300000, guid: 0c3744001d4c4c4cb5c04926c1acaca8, type: 3}
+    - {fileID: 8300000, guid: 5d3be3f0ef1241eca59aeb94b5018d4a, type: 3}
+    - {fileID: 8300000, guid: f16c4f54c9654766a30899e2474aba9e, type: 3}
+    - {fileID: 8300000, guid: 2a3f302625ef47ada69e6afa60e0ace5, type: 3}
+    - {fileID: 8300000, guid: 2e067e7311e544e8970ee484b77ffaa5, type: 3}
+    - {fileID: 8300000, guid: 980daac40f214cceaf3b4280e39d36d7, type: 3}
+    - {fileID: 8300000, guid: ca77e75354484268855fcdc53298d13a, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 0
+    minVolume: 0.9
+    maxVolume: 1
+    volume: 1
+    spatialBlend: 1
+    minDistance: 2
+    maxDistance: 30
+  - idName: Ka_GloryIdle_Loop
+    id: {fileID: 11400000, guid: a0af1664851f41f59d3a68ae94ca1077, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 80
+    useRandomClips: 0
+    randomChance: 100
+    clip: {fileID: 8300000, guid: ce26cf50027a41939a7c4f3b47f85684, type: 3}
+    clips: []
+    useRandomStartOffset: 1
+    maxStartOffsetPercent: 0.9
+    useRandomPitch: 0
+    minPitch: 1
+    maxPitch: 1
+    useRandomVolume: 0
+    minVolume: 0.9
+    maxVolume: 1
+    volume: 1
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 12

@@ -1,6 +1,60 @@
 using UnityEngine;
 
 /// <summary>
+/// ช่องเสียงตามท่า — table กลางที่ผีหลายตัวใช้ร่วมกัน (เช่น table ลูกน้อง) สั่งตามช่อง
+/// ผีแต่ละตัวเลือกเองว่าช่องไหนใช้ไฟล์อะไร (GhostAudio > เสียงตามท่า)
+/// ตัวเลขกำหนดเอง: Unity เซฟเป็นตัวเลข แทรกช่องใหม่แล้วของเก่าไม่เพี้ยน
+/// </summary>
+public enum GhostSoundSlot
+{
+    None = 0,
+    Alert = 1,       // เห็นผู้เล่น
+    Attack = 2,      // ตี
+    Hurt = 3,        // โดนตี
+    HurtHeavy = 4,   // โดนหนัก / ล้มลงรอ Glory
+    Death = 5,       // ตาย
+    Spawn = 6,       // โผล่ตัว
+    GloryIdle = 7,   // เสียงวนตอนล้มรอ Glory
+}
+
+[System.Serializable]
+public class GhostSlotSound
+{
+    public GhostSoundSlot Slot;
+    public SoundID Sound;
+
+    [Tooltip("รอกี่วินาทีค่อยเล่น — ให้ตรงจังหวะท่าของผีตัวนี้ (บวกกับ Delay ใน action)")]
+    [Min(0f)] public float Delay;
+}
+
+/// <summary>เสียงตาม state ใน Animator — เข้า / วน / ออก (ใช้กับบอสที่มี table ของตัวเอง ไม่ต้องแก้ table)</summary>
+[System.Serializable]
+public class GhostStateSound
+{
+    [Tooltip("ชื่อ state ใน Animator (layer แรก) เช่น Jump_ShowDown — ต้องสะกดตรงเป๊ะ")]
+    public string State;
+
+    [Tooltip("ดังตอนเข้า state")]
+    public SoundID Enter;
+
+    [Tooltip("วนตลอดที่อยู่ใน state — ออกแล้วค่อย ๆ เงียบ")]
+    public SoundID Loop;
+
+    [Tooltip("ดังตอนออกจาก state")]
+    public SoundID Exit;
+
+    [Tooltip("เข้า state แล้วรอกี่วินาทีค่อยดัง Enter — ออกจาก state ก่อน = ไม่ดัง")]
+    [Min(0f)] public float Delay;
+
+    [Tooltip("ติ๊ก = ดังแค่ครั้งแรกครั้งเดียว (เช่น เสียงเปิดตัวบอส)")]
+    public bool OnlyFirstTime;
+
+    [System.NonSerialized] public int Hash;
+    [System.NonSerialized] public bool Pending;
+    [System.NonSerialized] public bool Played;
+}
+
+/// <summary>
 /// เสียงของผีหนึ่งตัว — แปะบนตัวผี (EnemyController)
 /// ใช้ระบบเสียงกลางของเกม: SoundID → SoundLibrary → SoundManager (ผ่าน SoundPooler)
 /// ตั้งไฟล์ / ความดัง / ระยะ / priority / mixer ทั้งหมดใน SoundData ของ SoundLibrary
@@ -12,6 +66,7 @@ using UnityEngine;
 /// 5. ขยับตัว — เสียงวน Move ดังตามความเร็วที่ตัว / มือ / หัวขยับ (ทำเองอัตโนมัติ)
 /// 6. กรีดร้องเป็นช่วง ๆ — Random Voice สุ่มเวลาเอง (เริ่มหลังโผล่ หรือสั่ง StartRandomVoice / StopRandomVoice)
 /// 7. หายใจ — เสียงวนติดตัวผี เริ่มหลังโผล่ เบาลงเองตอนกรีดร้อง (สั่ง StartBreath / StopBreath ได้)
+/// 8. เสียงตามท่า — table กลางสั่งตามช่อง (เห็นผู้เล่น / ตี / โดนตี / ตาย ...) ผีตัวนี้เลือกไฟล์เอง
 /// </summary>
 [DisallowMultipleComponent]
 public class GhostAudio : MonoBehaviour
@@ -23,8 +78,17 @@ public class GhostAudio : MonoBehaviour
     [Tooltip("เสียงตอนผีโผล่ — ต่อกับ On Show Up ของ PretShowUpFeedback")]
     [SerializeField] private SoundID _showUp;
 
+    [Tooltip("เสียงฟาด / ขว้าง — ดังตอนท่าโจมตีถึง Animation Event CastAttack (ตีใกล้) หรือ ShootProjectile (ขว้างของ)\nเฟรมเดียวกับที่ทำดาเมจ / ยิง — โดนหรือวืดก็ดัง / ว่าง = ไม่มีเสียง")]
+    [SerializeField] private SoundID _swing;
+
+    [Tooltip("เสียงตอนท่าโจมตีโดนผู้เล่นจริง (จาก AttackSphereCast บนตัวเดียวกัน)\nผู้เล่นกันหรือปัดได้ = ไม่ดัง / ว่าง = ไม่มีเสียง")]
+    [SerializeField] private SoundID _hit;
+
+    [Tooltip("เสียงเลือด / เนื้อ — ใส่ Animation Event ชื่อ GhostGore ตรงเฟรมที่ต้องการ (เช่น กระสือล้วงคอ ควักเนื้อ)\nออกตรงคอ / หัว / ว่าง = ไม่มีเสียง")]
+    [SerializeField] private SoundID _gore;
+
     [Header("ก้าวเดิน")]
-    [Tooltip("ติ๊ก = GhostAudio จับเท้ากระแทกพื้นเอง\nเอาติ๊กออก = ให้ตัวอื่นสั่ง Footstep() แทน (On Step ของ PretFootstepShake / Animation Event)")]
+    [Tooltip("ติ๊ก = GhostAudio จับเท้ากระแทกพื้นเอง\nเอาติ๊กออก = ใส่ Animation Event ชื่อ GhostStep ในท่าเดินเอง (หรือให้ On Step ของ PretFootstepShake สั่ง Footstep())")]
     [SerializeField] private bool _autoSteps = true;
 
     [Tooltip("กระดูกเท้า — ว่าง = หา foot.l / foot.r ในตัวลูกให้เอง")]
@@ -78,6 +142,22 @@ public class GhostAudio : MonoBehaviour
     [Tooltip("ตอนกรีดร้อง / ร้องอื่น ๆ ลดเสียงหายใจเหลือเท่านี้ (0-1) — 1 = ไม่ลด")]
     [SerializeField, Range(0f, 1f)] private float _breathDuckWhileVoice = 0.3f;
 
+    [Header("เสียงตามท่า — table กลางสั่งตามช่อง ผีตัวนี้เลือกไฟล์เอง")]
+    [Tooltip("ใส่เฉพาะช่องที่ผีตัวนี้มีเสียง — ช่องที่ไม่ใส่ = เงียบ\n" +
+             "Alert เห็นผู้เล่น / Attack ตี / Hurt โดนตี / HurtHeavy ล้มรอ Glory / Death ตาย / GloryIdle วนตอนรอ Glory")]
+    [SerializeField] private GhostSlotSound[] _slots = new GhostSlotSound[0];
+
+    [Header("เสียงตาม state ใน Animator — เข้า / วน / ออก (ไม่ต้องใส่ event / ไม่ต้องแก้ table)")]
+    [Tooltip("ใส่ชื่อ state ใน Animator กับเสียง — state เดียวใส่ได้หลายแถว (เช่น แถวเสียงเปิดตัว Only First Time)")]
+    [SerializeField] private GhostStateSound[] _stateSounds = new GhostStateSound[0];
+
+    [Header("ร้องเจ็บตอนโดนดาเมจ (บอสที่ไม่ได้ใช้ table ลูกน้อง)")]
+    [Tooltip("ร้องตอนโดนดาเมจ เว้นช่วงตาม Cooldown — ว่าง = ไม่ใช้\nลูกน้องใช้ช่อง Hurt ในเสียงตามท่าแทน ไม่ต้องใส่ตรงนี้")]
+    [SerializeField] private SoundID _damageHurt;
+
+    [Tooltip("ร้องแล้วเว้นอย่างน้อยกี่วินาที (สุ่ม ±20%) — โดนยิงรัว ๆ จะได้ไม่ร้องรัว")]
+    [SerializeField, Min(0f)] private float _damageHurtCooldown = 2.5f;
+
     [Header("เฟดเสียงร้อง (โผล่ / กรีดร้อง / Play Voice)")]
     [Tooltip("ค่อย ๆ ดังขึ้นตอนเริ่มร้อง (วินาที) — 0 = ดังทันที")]
     [SerializeField, Min(0f)] private float _voiceFadeIn = 0.25f;
@@ -85,17 +165,50 @@ public class GhostAudio : MonoBehaviour
     [Tooltip("ค่อย ๆ เบาลงตอนท้ายเสียง และตอนโดนเสียงร้องใหม่มาแทน (วินาที) — 0 = ตัดทันที")]
     [SerializeField, Min(0f)] private float _voiceFadeOut = 0.4f;
 
+    [Header("พุ่งชน — ดูจาก state ใน Animator (ไม่ต้องใส่ event / ไม่ต้องแก้ table)")]
+    [Tooltip("ชื่อ state ท่าพุ่งใน Animator เช่น Charge — ว่าง = ผีตัวนี้ไม่พุ่ง")]
+    [SerializeField] private string _chargeState = "";
+
+    [Tooltip("ดังตอนเริ่มพุ่ง (ร้อง / ออกตัว) — ติดตัวผีไปด้วย")]
+    [SerializeField] private SoundID _chargeStart;
+
+    [Tooltip("เสียงวนระหว่างพุ่ง (วิ่งหนัก ๆ)")]
+    [SerializeField] private SoundID _chargeLoop;
+
+    [Tooltip("ดังตอนออกจากท่าพุ่ง (เบรก / หยุด)")]
+    [SerializeField] private SoundID _chargeStop;
+
+    [Tooltip("พุ่งชนโดนผู้เล่น — ใช้แทน Hit ตอนกำลังพุ่ง / ว่าง = ใช้ Hit ปกติ")]
+    [SerializeField] private SoundID _chargeHit;
+
     [Header("Debug")]
     [SerializeField] private bool _logPlay;
 
     private const float StepCooldown = 0.25f;
     private const float EventStepCooldown = 0.12f;   // กัน blend tree ยิง event ซ้อน
+    private const float EventMinWeight = 0.3f;       // คลิปที่ผสมอยู่น้อยกว่านี้ ไม่นับ event เท้า
 
     private SFXHandle _voice = SFXHandle.None;
     private SFXHandle _loop = SFXHandle.None;
     private SoundID _loopId;
 
     private HandSlamDust _slamSource;
+    private Health _health;
+    private AttackSphereCast _attack;
+    private Health _playerHealth;
+    private Transform _goreBone;
+    private bool _goreBoneSearched;
+
+    private Animator _animator;
+    private int _chargeHash;
+    private bool _charging;
+    private SFXHandle _chargeHandle = SFXHandle.None;
+
+    private int _stateHash;
+    private float _stateEnterTime;
+    private SFXHandle _stateLoop = SFXHandle.None;
+    private PairedAnimationActor _pairedActor;
+    private float _nextDamageHurt;
     private Vector3[] _footLast;
     private bool[] _footHasLast;
     private float[] _footLastStep;
@@ -139,6 +252,34 @@ public class GhostAudio : MonoBehaviour
             _voice.FadeToVolumeMultiplier(1f, Mathf.Min(_voiceFadeIn, duration * 0.4f));
         }
         Log($"ร้อง {id.name}");
+    }
+
+    /// <summary>หาเสียงของช่องนี้ — false = ผีตัวนี้ไม่มีเสียงช่องนี้</summary>
+    public bool TryGetSlot(GhostSoundSlot slot, out SoundID sound, out float delay)
+    {
+        sound = null;
+        delay = 0f;
+        if (slot == GhostSoundSlot.None || _slots == null) return false;
+
+        foreach (GhostSlotSound s in _slots)
+        {
+            if (s == null || s.Slot != slot || s.Sound == null) continue;
+            sound = s.Sound;
+            delay = s.Delay;
+            return true;
+        }
+        return false;
+    }
+
+    /// <summary>ตายแล้ว — หยุดหายใจ / งึมงำ / กรีดร้องเป็นช่วง ๆ / เสียงวน (เสียงตายที่เพิ่งสั่งปล่อยให้จบเอง)</summary>
+    public void StopIdleSounds()
+    {
+        StopRandomVoice();
+        StopBreath();
+        StopLoop(0.3f);
+        StopChargeLoop(0.3f);
+        StopStateLoop(0.3f);
+        _breathOn = false;
     }
 
     /// <summary>ค่อย ๆ เบาเสียงร้องที่เล่นอยู่จนเงียบ</summary>
@@ -230,6 +371,16 @@ public class GhostAudio : MonoBehaviour
         PlayStep(pos);
     }
 
+    /// <summary>
+    /// ใส่เป็น Animation Event ชื่อ GhostStep ตรงเฟรมเท้าแตะพื้นในท่าเดิน/วิ่ง
+    /// ข้ามคลิปที่ผสมอยู่น้อย (blend tree / ตอนเปลี่ยนท่า) จะได้ไม่มีเสียงเท้าเกิน
+    /// </summary>
+    public void GhostStep(AnimationEvent e)
+    {
+        if (e != null && e.isFiredByAnimator && e.animatorClipInfo.weight < EventMinWeight) return;
+        Footstep();
+    }
+
     // ---------- Unity ----------
 
     private void Awake()
@@ -241,6 +392,18 @@ public class GhostAudio : MonoBehaviour
         _footLastStep = new float[_feet.Length];
 
         _slamSource = GetComponent<HandSlamDust>();
+        _health = GetComponentInParent<Health>();
+        _animator = GetComponent<Animator>();
+        if (_animator == null) _animator = GetComponentInParent<Animator>();
+        _chargeHash = string.IsNullOrEmpty(_chargeState) ? 0 : Animator.StringToHash(_chargeState);
+        if (_stateSounds != null)
+            foreach (GhostStateSound s in _stateSounds)
+                if (s != null) s.Hash = string.IsNullOrEmpty(s.State) ? 0 : Animator.StringToHash(s.State);
+
+        _pairedActor = GetComponentInParent<PairedAnimationActor>();
+
+        _attack = GetComponent<AttackSphereCast>();
+        if (_attack == null) _attack = GetComponentInParent<AttackSphereCast>();
 
         if (_moveBones == null || _moveBones.Length == 0 || System.Array.TrueForAll(_moveBones, b => b == null))
         {
@@ -254,6 +417,13 @@ public class GhostAudio : MonoBehaviour
     private void OnEnable()
     {
         if (_slamSource != null) _slamSource.Slammed += OnSlam;
+        if (_health != null) _health.OnDead += StopIdleSounds;   // ตายทุกแบบ (รวมโดน Glory) — งึมงำ / หายใจหยุด
+        if (_attack != null) _attack.OnHit += OnAttackHit;
+        if (_health != null) _health.OnHurt += OnDamaged;
+        _stateHash = 0;
+        if (_stateSounds != null)
+            foreach (GhostStateSound s in _stateSounds)
+                if (s != null) { s.Pending = false; s.Played = false; }
         if (_footHasLast != null)
             for (int i = 0; i < _footHasLast.Length; i++) _footHasLast[i] = false;
 
@@ -271,6 +441,9 @@ public class GhostAudio : MonoBehaviour
     private void OnDisable()
     {
         if (_slamSource != null) _slamSource.Slammed -= OnSlam;
+        if (_health != null) _health.OnDead -= StopIdleSounds;
+        if (_attack != null) _attack.OnHit -= OnAttackHit;
+        if (_health != null) _health.OnHurt -= OnDamaged;
 
         // เสียงวน / เสียงติดตามไม่คืนลำโพงเอง — ไม่หยุด = เสียโควต้า pool ถาวร
         _voice.Stop();
@@ -282,6 +455,11 @@ public class GhostAudio : MonoBehaviour
         _loop = SFXHandle.None;
         _moveHandle = SFXHandle.None;
         _loopId = null;
+        _chargeHandle.Stop();
+        _chargeHandle = SFXHandle.None;
+        _charging = false;
+        _stateLoop.Stop();
+        _stateLoop = SFXHandle.None;
     }
 
     private void LateUpdate()
@@ -291,6 +469,135 @@ public class GhostAudio : MonoBehaviour
         UpdateRandomVoice();
         UpdateVoiceTail();
         UpdateBreath();
+        UpdateCharge();
+        UpdateStateSounds();
+    }
+
+    // ---------- เสียงตาม state ใน Animator ----------
+
+    private void UpdateStateSounds()
+    {
+        if (_stateSounds == null || _stateSounds.Length == 0) return;
+        if (_animator == null || !_animator.isActiveAndEnabled || SoundManager.Instance == null) return;
+        if (_health != null && _health.IsDead) return;
+
+        // กำลังเปลี่ยนท่า = นับ state ปลายทาง เสียงจะได้มาพร้อมท่าใหม่
+        int hash = _animator.IsInTransition(0)
+            ? _animator.GetNextAnimatorStateInfo(0).shortNameHash
+            : _animator.GetCurrentAnimatorStateInfo(0).shortNameHash;
+
+        if (hash != _stateHash)
+        {
+            foreach (GhostStateSound s in _stateSounds)
+            {
+                if (s == null || s.Hash == 0) continue;
+                if (s.Hash == _stateHash)
+                {
+                    s.Pending = false;
+                    if (s.Exit != null) SoundManager.Instance.PlaySFXAttached(s.Exit, transform);
+                }
+            }
+            StopStateLoop(0.3f);
+
+            _stateHash = hash;
+            _stateEnterTime = Time.time;
+            foreach (GhostStateSound s in _stateSounds)
+            {
+                if (s == null || s.Hash != hash) continue;
+                s.Pending = s.Enter != null && !(s.OnlyFirstTime && s.Played);
+                if (s.Loop != null && !_stateLoop.IsValid)
+                {
+                    _stateLoop = SoundManager.Instance.PlayLoopSFXForeverAttached(s.Loop, transform);
+                    if (_stateLoop.IsValid)
+                    {
+                        _stateLoop.SetVolumeMultiplier(0f);
+                        _stateLoop.FadeToVolumeMultiplier(1f, 0.3f);
+                    }
+                }
+            }
+        }
+
+        foreach (GhostStateSound s in _stateSounds)
+        {
+            if (s == null || !s.Pending || s.Hash != _stateHash) continue;
+            if (Time.time - _stateEnterTime < s.Delay) continue;
+            s.Pending = false;
+            s.Played = true;
+            SoundManager.Instance.PlaySFXAttached(s.Enter, transform);
+            Log($"state {s.State} → {s.Enter.name}");
+        }
+    }
+
+    private void StopStateLoop(float fadeTime)
+    {
+        if (!_stateLoop.IsValid) return;
+        _stateLoop.FadeOutAndStop(fadeTime);
+        _stateLoop = SFXHandle.None;
+    }
+
+    // ---------- ร้องเจ็บตอนโดนดาเมจ ----------
+
+    private void OnDamaged()
+    {
+        if (_damageHurt == null || SoundManager.Instance == null) return;
+        if (_health != null && _health.IsDead) return;
+        if (Time.time < _nextDamageHurt || InGlory()) return;
+
+        _nextDamageHurt = Time.time + _damageHurtCooldown * UnityEngine.Random.Range(0.8f, 1.2f);
+        SoundManager.Instance.PlaySFXAttached(_damageHurt, transform);
+        Log($"เจ็บ {_damageHurt.name}");
+    }
+
+    // กำลังเล่นท่า Glory อยู่ — ไม่ร้องทับเสียง Glory
+    private bool InGlory()
+    {
+        if (_pairedActor == null) return false;
+        PairedRequest request = _pairedActor.CurrentRequest;
+        return request.Animation != null && request.Type == PairedActionType.Glory && !_pairedActor.IsFinished;
+    }
+
+    // ---------- พุ่งชน ----------
+
+    private void UpdateCharge()
+    {
+        if (_chargeHash == 0 || _animator == null || !_animator.isActiveAndEnabled) return;
+
+        bool now = _animator.IsInTransition(0)
+            ? _animator.GetNextAnimatorStateInfo(0).shortNameHash == _chargeHash
+            : _animator.GetCurrentAnimatorStateInfo(0).shortNameHash == _chargeHash;
+        if (now == _charging) return;
+        _charging = now;
+        if (SoundManager.Instance == null) return;
+
+        if (now)
+        {
+            if (_chargeStart != null) SoundManager.Instance.PlaySFXAttached(_chargeStart, transform);
+            if (_chargeLoop != null)
+            {
+                _chargeHandle.Stop();
+                _chargeHandle = SoundManager.Instance.PlayLoopSFXForeverAttached(_chargeLoop, transform);
+                if (_chargeHandle.IsValid)
+                {
+                    _chargeHandle.SetVolumeMultiplier(0f);
+                    _chargeHandle.FadeToVolumeMultiplier(1f, 0.15f);
+                }
+            }
+            Log("เริ่มพุ่ง");
+        }
+        else
+        {
+            StopChargeLoop(0.25f);
+            if (_chargeStop != null && (_health == null || !_health.IsDead))
+                SoundManager.Instance.PlaySFXAttached(_chargeStop, transform);
+            Log("หยุดพุ่ง");
+        }
+    }
+
+    private void StopChargeLoop(float fadeTime)
+    {
+        if (!_chargeHandle.IsValid) return;
+        _chargeHandle.FadeOutAndStop(fadeTime);
+        _chargeHandle = SFXHandle.None;
     }
 
     // ---------- หายใจ ----------
@@ -341,8 +648,8 @@ public class GhostAudio : MonoBehaviour
         if (!_randomVoiceOn || _randomVoice == null || SoundManager.Instance == null) return;
         if (Time.time < _nextRandomVoice) return;
 
-        // เสียงร้องอื่นยังเล่นอยู่ (เช่นเสียงโผล่) — รออีกนิด ไม่ร้องทับ
-        if (_voice.IsPlaying)
+        // เสียงร้องอื่นยังเล่นอยู่ (เช่นเสียงโผล่) หรือกำลังโดน Glory — รออีกนิด ไม่ร้องทับ
+        if (_voice.IsPlaying || InGlory())
         {
             _nextRandomVoice = Time.time + 1f;
             return;
@@ -471,6 +778,75 @@ public class GhostAudio : MonoBehaviour
         return ground.collider != null;
     }
 
+    // ---------- ฟาด / ตีโดน ----------
+
+    /// <summary>
+    /// ชื่อตรงกับ Animation Event "CastAttack" ในท่าโจมตีโดยตั้งใจ — Unity เรียกทุก component บนตัวที่มีเมธอดชื่อนี้
+    /// AttackSphereCast ทำดาเมจ ส่วนตัวนี้เล่นเสียงฟาดลม ไม่ต้องใส่ event เพิ่ม
+    /// </summary>
+    public void CastAttack() => PlaySwing();
+
+    /// <summary>
+    /// ชื่อตรงกับ Animation Event "ShootProjectile" (ท่าขว้างของกระสือ) — ProjectileShooter ยิง ส่วนตัวนี้เล่นเสียง
+    /// </summary>
+    public void ShootProjectile() => PlaySwing();
+
+    /// <summary>ชื่อตรงกับ Animation Event "Shoot" (เช่น DeathBlossom ของตานี) — ProjectileShooter ยิง ส่วนตัวนี้เล่นเสียง</summary>
+    public void Shoot() => PlaySwing();
+
+    private void PlaySwing()
+    {
+        if (_swing == null || SoundManager.Instance == null) return;
+
+        Transform origin = _attack != null ? _attack.AttackOrigin : null;
+        Vector3 pos = origin != null ? origin.position : transform.position;
+        SoundManager.Instance.PlaySFX(_swing, pos);
+        Log($"ฟาด {_swing.name}");
+    }
+
+    /// <summary>Animation Event ชื่อ GhostGore — เสียงเลือด / เนื้อ ออกตรงคอ (เช่น กระสือล้วงคอ ควักเนื้อ)</summary>
+    public void GhostGore()
+    {
+        if (_gore == null || SoundManager.Instance == null) return;
+
+        if (!_goreBoneSearched)
+        {
+            _goreBoneSearched = true;
+            Transform[] bones = FindBones("neck", "neck.x", "head", "head.x");
+            if (bones.Length > 0) _goreBone = bones[0];
+        }
+        Vector3 pos = _goreBone != null ? _goreBone.position : transform.position + Vector3.up * 1.5f;
+        SoundManager.Instance.PlaySFX(_gore, pos);
+        Log($"เลือด {_gore.name}");
+    }
+
+    private void OnAttackHit()
+    {
+        SoundID hit = _charging && _chargeHit != null ? _chargeHit : _hit;   // กำลังพุ่ง = เสียงพุ่งชน
+        if (hit == null || SoundManager.Instance == null) return;
+        if (PlayerBlocked()) return;   // กัน / ปัดได้ — ไม่ใช่โดนเนื้อ
+
+        Transform origin = _attack.AttackOrigin;
+        Vector3 pos = origin != null ? origin.position : transform.position;
+        SoundManager.Instance.PlaySFX(hit, pos);
+        Log($"ตีโดน {hit.name}");
+    }
+
+    /// <summary>ผู้เล่นกำลังกัน/ปัด (BlockSystem เปิด IgnoreDamage) — ดาเมจไม่เข้า</summary>
+    private bool PlayerBlocked()
+    {
+        if (_playerHealth == null)
+        {
+            BlockSystem block = FindAnyObjectByType<BlockSystem>();
+            if (block != null)
+            {
+                _playerHealth = block.GetComponent<Health>();
+                if (_playerHealth == null) _playerHealth = block.GetComponentInParent<Health>();
+            }
+        }
+        return _playerHealth != null && _playerHealth.IgnoreDamage;
+    }
+
     // ---------- ตบพื้น ----------
 
     private void OnSlam(Vector3 point)
@@ -486,7 +862,12 @@ public class GhostAudio : MonoBehaviour
     {
         var found = new System.Collections.Generic.List<Transform>();
         foreach (Transform t in GetComponentsInChildren<Transform>(true))
-            if (System.Array.IndexOf(names, t.name.ToLowerInvariant()) >= 0) found.Add(t);
+        {
+            string n = t.name.ToLowerInvariant();
+            int colon = n.LastIndexOf(':');   // rig Mixamo ชื่อกระดูกมี prefix เช่น mixamorig:LeftFoot
+            if (colon >= 0) n = n.Substring(colon + 1);
+            if (System.Array.IndexOf(names, n) >= 0) found.Add(t);
+        }
         return found.ToArray();
     }
 

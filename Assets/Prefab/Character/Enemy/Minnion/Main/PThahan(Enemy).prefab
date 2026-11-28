@@ -235,6 +235,9 @@ GameObject:
   - component: {fileID: 1164534005706985808}
   - component: {fileID: 1496280935832184233}
   - component: {fileID: 7851509951193127981}
+  - component: {fileID: 589768479926330197}
+  - component: {fileID: 6558102755938144305}
+  - component: {fileID: 7446863756932546140}
   m_Layer: 7
   m_Name: EnemeyController
   m_TagString: Enemy
@@ -309,6 +312,59 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &7446863756932546140
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3655578508217946147}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 892de2b75039a8d4699738295087894c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GhostAudio
+  _step: {fileID: 11400000, guid: 5f12e4807a5746fb8a5db73829eda457, type: 2}
+  _slam: {fileID: 0}
+  _showUp: {fileID: 0}
+  _swing: {fileID: 11400000, guid: 52feba7e40e34b848644de203b1ba7cd, type: 2}
+  _hit: {fileID: 11400000, guid: 83cb4fb373394dd29c21e1bcdf815e0c, type: 2}
+  _gore: {fileID: 0}
+  _autoSteps: 0
+  _feet: []
+  _stepHeight: 0.15
+  _stepMinSpeed: 1
+  _move: {fileID: 11400000, guid: 8ed310afa16540d884fd9ec5cd52c3e9, type: 2}
+  _moveBones: []
+  _moveMinSpeed: 0.8
+  _moveFullSpeed: 5
+  _moveResponse: 3
+  _randomVoice: {fileID: 11400000, guid: 0958946cc7094c72991e8ada2ebbc690, type: 2}
+  _randomVoiceMin: 8
+  _randomVoiceMax: 20
+  _randomVoiceAfterShowUp: 0
+  _breath: {fileID: 0}
+  _breathAfterShowUp: 0
+  _breathFade: 1.5
+  _breathDuckWhileVoice: 0.3
+  _slots:
+  - Slot: 1
+    Sound: {fileID: 11400000, guid: f7631caad4334671862e0c0c45eea9f7, type: 2}
+    Delay: 0
+  - Slot: 3
+    Sound: {fileID: 11400000, guid: 85381103617f403fb8d5ba8b51f982eb, type: 2}
+    Delay: 0
+  - Slot: 4
+    Sound: {fileID: 11400000, guid: 14d1ebe4a7f14cfca33876f6a013700b, type: 2}
+    Delay: 0
+  _voiceFadeIn: 0.05
+  _voiceFadeOut: 0.3
+  _chargeState: Charge
+  _chargeStart: {fileID: 11400000, guid: 0021e50b5808403d9fba9ba70cfb41fd, type: 2}
+  _chargeLoop: {fileID: 11400000, guid: 34b25850c8064182a047c7a015cd97bc, type: 2}
+  _chargeStop: {fileID: 11400000, guid: ff6d105e1730418db7e3e57e6babb981, type: 2}
+  _chargeHit: {fileID: 11400000, guid: 9045948b3a084cf3b6a748e229d70742, type: 2}
+  _logPlay: 0
 --- !u!114 &8773011137545376764
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -752,6 +808,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 589768479926330197}
+        m_TargetAssemblyTypeName: DissolveSoundPlayer, Assembly-CSharp
+        m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   _onDissolveFinished:
     m_PersistentCalls:
       m_Calls:
@@ -808,6 +876,35 @@ MonoBehaviour:
       Weight: 1
       Cooldown: {fileID: 0}
       CooldownDuration: 0
+--- !u!114 &589768479926330197
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3655578508217946147}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db825033d94e3b3409075006dd28840b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DissolveSoundPlayer
+  _sound: {fileID: 11400000, guid: ffce35e189e255444a3e529047b482ff, type: 2}
+--- !u!114 &6558102755938144305
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3655578508217946147}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 85cd48f97c96de340808032fd6a120f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GlorySoundPlayer
+  _sound: {fileID: 11400000, guid: 921c80a208925684c83a2c30c18154ae, type: 2}
+  _useTimedSounds: 0
+  _timedSounds: []
+  _logPlay: 0
 --- !u!1 &3672652285642102640
 GameObject:
   m_ObjectHideFlags: 0
@@ -919,6 +1016,9 @@ MonoBehaviour:
   _victim: {fileID: 5854683732309997472}
   _playerAnimation: {fileID: 11400000, guid: 66a22c3a1453e6445810b57792a940f3, type: 2}
   _victimAnimation: {fileID: 11400000, guid: f3f77b162d6deb8479c0beb4f44eb5ac, type: 2}
+  _finalAt: 0
+  _finalPlayerAnimation: {fileID: 0}
+  _finalVictimAnimation: {fileID: 0}
   _distance: 1.2
   _sideOffset: 0
   _heightOffset: 0

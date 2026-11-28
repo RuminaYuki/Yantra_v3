@@ -175,6 +175,9 @@ MonoBehaviour:
   _victim: {fileID: 5108908120277485779}
   _playerAnimation: {fileID: 11400000, guid: f0df5507a2c6b8a4ba07fb6cd07eb755, type: 2}
   _victimAnimation: {fileID: 11400000, guid: f3f77b162d6deb8479c0beb4f44eb5ac, type: 2}
+  _finalAt: 0
+  _finalPlayerAnimation: {fileID: 0}
+  _finalVictimAnimation: {fileID: 0}
   _distance: 1
   _sideOffset: 0
   _heightOffset: 0
@@ -4493,6 +4496,7 @@ GameObject:
   - component: {fileID: 1398110084840861163}
   - component: {fileID: 8051407845119167056}
   - component: {fileID: 5584034179111403057}
+  - component: {fileID: 6762514772362469690}
   m_Layer: 7
   m_Name: EnemeyController
   m_TagString: Enemy
@@ -5142,6 +5146,71 @@ MonoBehaviour:
   _sound: {fileID: 11400000, guid: 734719fc9b7b5894caa0c036903f46ed, type: 2}
   _useTimedSounds: 0
   _timedSounds: []
+  _logPlay: 0
+--- !u!114 &6762514772362469690
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5218797756403146892}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 892de2b75039a8d4699738295087894c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GhostAudio
+  _step: {fileID: 11400000, guid: ea2ae8ee9fbd46f08816900935fd5ecd, type: 2}
+  _slam: {fileID: 0}
+  _showUp: {fileID: 11400000, guid: edc1bbbbefb74ac6ab07e5dfb715649c, type: 2}
+  _swing: {fileID: 11400000, guid: d7fb201db2ab4f3fa0a1452a943fcfb3, type: 2}
+  _hit: {fileID: 11400000, guid: 9c3b82f00ff64aea915b78cd0dd63b3c, type: 2}
+  _gore: {fileID: 0}
+  _autoSteps: 0
+  _feet: []
+  _stepHeight: 0.15
+  _stepMinSpeed: 1
+  _move: {fileID: 11400000, guid: 5819bd080d5c4935b88a4a8fdb344b11, type: 2}
+  _moveBones: []
+  _moveMinSpeed: 1
+  _moveFullSpeed: 4
+  _moveResponse: 3
+  _randomVoice: {fileID: 0}
+  _randomVoiceMin: 8
+  _randomVoiceMax: 20
+  _randomVoiceAfterShowUp: 1
+  _breath: {fileID: 11400000, guid: c570649a4002439b9b643dbb510802fa, type: 2}
+  _breathAfterShowUp: 0
+  _breathFade: 1.5
+  _breathDuckWhileVoice: 0.3
+  _slots:
+  - Slot: 1
+    Sound: {fileID: 11400000, guid: 5a42a1ebd61842c98c921e3f6ad9d7e0, type: 2}
+    Delay: 0
+  - Slot: 2
+    Sound: {fileID: 11400000, guid: 1dc4e9159e4446c3884a67dbdc0d9d73, type: 2}
+    Delay: 0
+  - Slot: 3
+    Sound: {fileID: 11400000, guid: ed89d0562e0a48188076abdaed199947, type: 2}
+    Delay: 0
+  - Slot: 4
+    Sound: {fileID: 11400000, guid: 0a4ff8c4c4564f85a5cdc84d94eb0cc6, type: 2}
+    Delay: 0
+  - Slot: 5
+    Sound: {fileID: 11400000, guid: b7389d31736c443d8d21d4c3bd60893a, type: 2}
+    Delay: 0
+  - Slot: 6
+    Sound: {fileID: 11400000, guid: edc1bbbbefb74ac6ab07e5dfb715649c, type: 2}
+    Delay: 0
+  - Slot: 7
+    Sound: {fileID: 11400000, guid: a0af1664851f41f59d3a68ae94ca1077, type: 2}
+    Delay: 0
+  _voiceFadeIn: 0.05
+  _voiceFadeOut: 0.3
+  _chargeState: 
+  _chargeStart: {fileID: 0}
+  _chargeLoop: {fileID: 0}
+  _chargeStop: {fileID: 0}
+  _chargeHit: {fileID: 0}
   _logPlay: 0
 --- !u!1 &5244849501420090772
 GameObject:
@@ -6417,6 +6486,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: db7d2c2f751dc8b4b9b74e00719fb013, type: 2}
   - {fileID: 11400000, guid: 2d7edf95ab3dfa94dae1cfd634488ceb, type: 2}
   _tutorialDelay: 1
+  _delayOnBlockedUntilTutorials: 1
   OnStarted:
     m_PersistentCalls:
       m_Calls:

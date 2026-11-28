@@ -194,6 +194,17 @@ public class PlayerCameraController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// วางกล้องตรงจุดตาทันที ไม่ค่อย ๆ ไหลตาม — เรียกตอนท่า Glory เริ่ม (หลังจากนั้นกล้องหยุดตามตัว)
+    /// แขน FPS เป็นลูกของกล้องตัวนี้ ถ้าตอนหยุดกล้องยังไหลตามตัวที่เพิ่งถูกดูดเข้าที่ไม่ทัน
+    /// แขนจะใกล้/ไกลไม่เท่ากันทุกรอบ (ยิ่งกด E ห่างจากจุดเริ่มท่า ยิ่งคลาดมาก)
+    /// </summary>
+    public void SnapPositionToEye()
+    {
+        if (_fppEyePosition != null)
+            transform.position = _fppEyePosition.position;
+    }
+
     public void ClearLookTargetYaw()
     {
         _hasTargetYaw = false;

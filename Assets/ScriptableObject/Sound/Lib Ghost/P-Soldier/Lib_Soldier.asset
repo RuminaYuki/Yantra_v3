@@ -1,0 +1,346 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccd93381a6a2f664ba0f5731b83f0ecc, type: 3}
+  m_Name: Lib_Soldier
+  m_EditorClassIdentifier: Assembly-CSharp::SoundLibrary
+  sounds:
+  - idName: Soldier_Step
+    id: {fileID: 11400000, guid: 5f12e4807a5746fb8a5db73829eda457, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 180
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 8300000, guid: f84ca31b287d49a78a56cb9a50d0fbbd, type: 3}
+    clips:
+    - {fileID: 8300000, guid: f84ca31b287d49a78a56cb9a50d0fbbd, type: 3}
+    - {fileID: 8300000, guid: 590e6ccd168248ca93871af8ea1edd19, type: 3}
+    - {fileID: 8300000, guid: be7a9fdaea7542a78b1d25b89c03780d, type: 3}
+    - {fileID: 8300000, guid: 34c0ff873e674f679343233257cdb7d6, type: 3}
+    - {fileID: 8300000, guid: 2f37d20cd8f74d25b3018a2a447146ed, type: 3}
+    - {fileID: 8300000, guid: 6f0dbfa5d8c34dc4b46c170180976ce0, type: 3}
+    - {fileID: 8300000, guid: db4e2a5a1048461081eb703866640f5b, type: 3}
+    - {fileID: 8300000, guid: 4ff202fd28a148fda5532d50a94ff672, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0
+    useRandomPitch: 1
+    minPitch: 0.92
+    maxPitch: 1.08
+    useRandomVolume: 1
+    minVolume: 0.8
+    maxVolume: 1
+    volume: 0.35
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 10
+  - idName: Soldier_Gear_Loop
+    id: {fileID: 11400000, guid: 8ed310afa16540d884fd9ec5cd52c3e9, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 200
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 8300000, guid: 2d82efc10a0b4df18acd6b1de5756b7a, type: 3}
+    clips:
+    - {fileID: 8300000, guid: 2d82efc10a0b4df18acd6b1de5756b7a, type: 3}
+    - {fileID: 8300000, guid: 3f0bd02b86b84616826775380918632e, type: 3}
+    - {fileID: 8300000, guid: 32130301caea49da9448037326a297eb, type: 3}
+    - {fileID: 8300000, guid: eb9c637471bc40ad9cf68d058120719a, type: 3}
+    - {fileID: 8300000, guid: 9301e80130434b298a733af3f6424ea4, type: 3}
+    - {fileID: 8300000, guid: e9ad6bcc7a3344e295bbb5063733709e, type: 3}
+    - {fileID: 8300000, guid: 517bc3d47c89449e8de1941b198c01c3, type: 3}
+    - {fileID: 8300000, guid: 62a8ea1f24ee4e5590d8596887dbc9b1, type: 3}
+    useRandomStartOffset: 1
+    maxStartOffsetPercent: 0.8
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 0
+    minVolume: 0.9
+    maxVolume: 1
+    volume: 0.35
+    spatialBlend: 1
+    minDistance: 0.5
+    maxDistance: 8
+  - idName: Soldier_Idle
+    id: {fileID: 11400000, guid: 0958946cc7094c72991e8ada2ebbc690, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 120
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 8300000, guid: 367f80c1b2d142dd93e42923267442b8, type: 3}
+    clips:
+    - {fileID: 8300000, guid: 367f80c1b2d142dd93e42923267442b8, type: 3}
+    - {fileID: 8300000, guid: 2bed2316a4344f94b86a1a3c5e8531ac, type: 3}
+    - {fileID: 8300000, guid: 99c9c6ef3169470593819b229402f384, type: 3}
+    - {fileID: 8300000, guid: 2cbc9ef794db4524a2c14f7562701ce4, type: 3}
+    - {fileID: 8300000, guid: 47e5c3bec8f4486c9929ef4fa6b9438a, type: 3}
+    - {fileID: 8300000, guid: cdd732e828ff4ffabf3e660a515e1f95, type: 3}
+    - {fileID: 8300000, guid: 58c6aa753cb14fceb91a3f62111201d9, type: 3}
+    - {fileID: 8300000, guid: e57f9653ff6b457d81fa43958bbd7c3f, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 1
+    minVolume: 0.9
+    maxVolume: 1
+    volume: 0.5
+    spatialBlend: 1
+    minDistance: 1
+    maxDistance: 14
+  - idName: Soldier_Alert
+    id: {fileID: 11400000, guid: f7631caad4334671862e0c0c45eea9f7, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 60
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 8300000, guid: b1da5aebc79a44acaa686153a9ceee8b, type: 3}
+    clips:
+    - {fileID: 8300000, guid: b1da5aebc79a44acaa686153a9ceee8b, type: 3}
+    - {fileID: 8300000, guid: 2c2a3c5382974b59b8e7c9b4543f5d8c, type: 3}
+    - {fileID: 8300000, guid: 8a0de9539e0945bf8f02c053d316c7c0, type: 3}
+    - {fileID: 8300000, guid: 59e232829c304fca9715a6885f5a961b, type: 3}
+    - {fileID: 8300000, guid: fdf7b8c7e42e4f7e8acc412a730113f3, type: 3}
+    - {fileID: 8300000, guid: 365d06ce58e249f786d73d28ad6016da, type: 3}
+    - {fileID: 8300000, guid: 4467124703b24ef3a9ed693ffe97dce2, type: 3}
+    - {fileID: 8300000, guid: 620b409b9e2b4531bba555cc600d7350, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 1
+    minVolume: 0.9
+    maxVolume: 1
+    volume: 0.6
+    spatialBlend: 1
+    minDistance: 2
+    maxDistance: 30
+  - idName: Soldier_ChargeStart
+    id: {fileID: 11400000, guid: 0021e50b5808403d9fba9ba70cfb41fd, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 50
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 8300000, guid: 366eef6015af4691ae48caefc0edecca, type: 3}
+    clips:
+    - {fileID: 8300000, guid: 366eef6015af4691ae48caefc0edecca, type: 3}
+    - {fileID: 8300000, guid: d00feb53d7ec4352a8cf0f65473c797f, type: 3}
+    - {fileID: 8300000, guid: 6fea0c27d1e0457a8da132ae1deb361b, type: 3}
+    - {fileID: 8300000, guid: 0a6dc973c6334fc9ac1ccf6f7b59515a, type: 3}
+    - {fileID: 8300000, guid: 578e22c74ee846e8b7d7c7791c12b39e, type: 3}
+    - {fileID: 8300000, guid: 81e5c9bd1b5a43e480e2b6948ae8d5f5, type: 3}
+    - {fileID: 8300000, guid: 0ac7729df909490d9d82b5f348cfcfa1, type: 3}
+    - {fileID: 8300000, guid: ac6ed30dc4354d638f7730a4eb19de1b, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 1
+    minVolume: 0.9
+    maxVolume: 1
+    volume: 0.9
+    spatialBlend: 1
+    minDistance: 4
+    maxDistance: 40
+  - idName: Soldier_ChargeRun_Loop
+    id: {fileID: 11400000, guid: 34b25850c8064182a047c7a015cd97bc, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 80
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 8300000, guid: db9553fe2ec14fa98989096a62f359ed, type: 3}
+    clips:
+    - {fileID: 8300000, guid: db9553fe2ec14fa98989096a62f359ed, type: 3}
+    - {fileID: 8300000, guid: af5726ff147d441aad91c8863a42f4ac, type: 3}
+    - {fileID: 8300000, guid: 21387688f8b044c0ae9f8fedfe67fbf7, type: 3}
+    - {fileID: 8300000, guid: 2b7d520e228c4360a96b5f39e67aaef3, type: 3}
+    useRandomStartOffset: 1
+    maxStartOffsetPercent: 0.9
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 0
+    minVolume: 0.9
+    maxVolume: 1
+    volume: 0.6
+    spatialBlend: 1
+    minDistance: 2
+    maxDistance: 25
+  - idName: Soldier_ChargeStop
+    id: {fileID: 11400000, guid: ff6d105e1730418db7e3e57e6babb981, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 70
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 8300000, guid: 4ddb46eaf9f340199a51d1c370d2f0e1, type: 3}
+    clips:
+    - {fileID: 8300000, guid: 4ddb46eaf9f340199a51d1c370d2f0e1, type: 3}
+    - {fileID: 8300000, guid: 4286b226e7454769b8dfd9c2509e4900, type: 3}
+    - {fileID: 8300000, guid: 65e29cf71f58428e9b06d2d5a5c5bd9b, type: 3}
+    - {fileID: 8300000, guid: 9b33d286904e4a5b972b2a7e95233003, type: 3}
+    - {fileID: 8300000, guid: 6ad9ce22995e4fec8e610e01eb0f5e1e, type: 3}
+    - {fileID: 8300000, guid: ddd901f7f4214d2cb1390e0aa809551a, type: 3}
+    - {fileID: 8300000, guid: 0c2c73203ccf4039be545500b48dc672, type: 3}
+    - {fileID: 8300000, guid: 367a4ee8a1ab4af0a7fa43f0693d1a6e, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 1
+    minVolume: 0.9
+    maxVolume: 1
+    volume: 0.7
+    spatialBlend: 1
+    minDistance: 2
+    maxDistance: 25
+  - idName: Soldier_ChargeHit
+    id: {fileID: 11400000, guid: 9045948b3a084cf3b6a748e229d70742, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 40
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 8300000, guid: 47297477f71b400c9adff7d359870992, type: 3}
+    clips:
+    - {fileID: 8300000, guid: 47297477f71b400c9adff7d359870992, type: 3}
+    - {fileID: 8300000, guid: 952942c9b0684919b88fcb28ea6d7209, type: 3}
+    - {fileID: 8300000, guid: 5d22cab885754699ac790e35db2f4510, type: 3}
+    - {fileID: 8300000, guid: d5ebdf1c73574a408350af347000d9f8, type: 3}
+    - {fileID: 8300000, guid: 8f2b621d83b5443e8fc775589636e092, type: 3}
+    - {fileID: 8300000, guid: b50b9fdcd1ad4cfcbf9cb0f28050891b, type: 3}
+    - {fileID: 8300000, guid: 869d12df8b5340b3980edcd78b569dae, type: 3}
+    - {fileID: 8300000, guid: fb8e3cdd89694db6b3ed74582a46973d, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 1
+    minVolume: 0.9
+    maxVolume: 1
+    volume: 1
+    spatialBlend: 1
+    minDistance: 2
+    maxDistance: 25
+  - idName: Soldier_PunchSwing
+    id: {fileID: 11400000, guid: 52feba7e40e34b848644de203b1ba7cd, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 60
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 8300000, guid: 4028363cc9b74d8fb6686ab0806d561a, type: 3}
+    clips:
+    - {fileID: 8300000, guid: 4028363cc9b74d8fb6686ab0806d561a, type: 3}
+    - {fileID: 8300000, guid: eae024f0ac264df0b399d6db6cb688ff, type: 3}
+    - {fileID: 8300000, guid: 76b7ddc79e7c4ac6be295d0aeb3ae71f, type: 3}
+    - {fileID: 8300000, guid: c1e265a7def2475386b06bea2d5ce0e7, type: 3}
+    - {fileID: 8300000, guid: 6a5c18c59cd445c29d1a232da91a64da, type: 3}
+    - {fileID: 8300000, guid: 5f2bb1af1e454e0e91a9e24f2abbf070, type: 3}
+    - {fileID: 8300000, guid: 7c5ce44c119c4bc7aae8d41b93673d62, type: 3}
+    - {fileID: 8300000, guid: 65843a9a1bef400cbc3ea224e039a499, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0
+    useRandomPitch: 1
+    minPitch: 0.92
+    maxPitch: 1.08
+    useRandomVolume: 1
+    minVolume: 0.85
+    maxVolume: 1
+    volume: 0.8
+    spatialBlend: 1
+    minDistance: 1.5
+    maxDistance: 15
+  - idName: Soldier_PunchHit
+    id: {fileID: 11400000, guid: 83cb4fb373394dd29c21e1bcdf815e0c, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 50
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 8300000, guid: 64774e378e184f02a9a986930130afd9, type: 3}
+    clips:
+    - {fileID: 8300000, guid: 64774e378e184f02a9a986930130afd9, type: 3}
+    - {fileID: 8300000, guid: 28fc08a9a8af43e78fe93646c3554d8a, type: 3}
+    - {fileID: 8300000, guid: c2ebe19900974393be76888fc8c2e4ed, type: 3}
+    - {fileID: 8300000, guid: 7fb7693db02143b4b775a8edfbd33efe, type: 3}
+    - {fileID: 8300000, guid: 2da52b6601a84a2a916c6240a5df26b5, type: 3}
+    - {fileID: 8300000, guid: 86b4a1c252db4c75bafbb9c911777f5d, type: 3}
+    - {fileID: 8300000, guid: 63b5f0c9c964435591f9e996a0aa7f24, type: 3}
+    - {fileID: 8300000, guid: 002093ba2a7a40629ba2973d9b25933e, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 1
+    minVolume: 0.9
+    maxVolume: 1
+    volume: 0.9
+    spatialBlend: 1
+    minDistance: 1.5
+    maxDistance: 18
+  - idName: Soldier_Hurt
+    id: {fileID: 11400000, guid: 85381103617f403fb8d5ba8b51f982eb, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 70
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 8300000, guid: 31cdd88742ad46eba49c6568c017d10f, type: 3}
+    clips:
+    - {fileID: 8300000, guid: 31cdd88742ad46eba49c6568c017d10f, type: 3}
+    - {fileID: 8300000, guid: 30be0d89af934eba9628825e0ec77143, type: 3}
+    - {fileID: 8300000, guid: db84ddb229f0402dba447866c7b056ec, type: 3}
+    - {fileID: 8300000, guid: 6b11760cc9044dee9c7bd9b0decfd041, type: 3}
+    - {fileID: 8300000, guid: fe7f70b13c05458a993f0d9514de8abf, type: 3}
+    - {fileID: 8300000, guid: a8f1246d14bb4ac185c58a5fa4cc877f, type: 3}
+    - {fileID: 8300000, guid: ece8302d98894199bc2c8d544409e9fb, type: 3}
+    - {fileID: 8300000, guid: f9b674a8d9684d0da4615705f8f372ac, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 1
+    minVolume: 0.9
+    maxVolume: 1
+    volume: 0.8
+    spatialBlend: 1
+    minDistance: 1.5
+    maxDistance: 20
+  - idName: Soldier_Stagger
+    id: {fileID: 11400000, guid: 14d1ebe4a7f14cfca33876f6a013700b, type: 2}
+    mixerGroup: {fileID: 6828953027838122716, guid: 2fd5cbcfcb432d84cb5a4e241e65e2df, type: 2}
+    priority: 65
+    useRandomClips: 1
+    randomChance: 100
+    clip: {fileID: 8300000, guid: b740270ee61241c5ac2ab2e562e5edbf, type: 3}
+    clips:
+    - {fileID: 8300000, guid: b740270ee61241c5ac2ab2e562e5edbf, type: 3}
+    - {fileID: 8300000, guid: 02e5fcd5f65e4b5c9184c39fa904ca8e, type: 3}
+    - {fileID: 8300000, guid: c587ce746dd94cbbb7dd386bb0ef507e, type: 3}
+    - {fileID: 8300000, guid: d3dd31969d4c48d087db263e29b81e05, type: 3}
+    - {fileID: 8300000, guid: 3476fa8a22a14246bacecb6598fae47d, type: 3}
+    - {fileID: 8300000, guid: bd705ba5cb514e68a6275f96e353c973, type: 3}
+    - {fileID: 8300000, guid: 8e97ea23b55440ce99e7a12f053e3c89, type: 3}
+    useRandomStartOffset: 0
+    maxStartOffsetPercent: 0
+    useRandomPitch: 1
+    minPitch: 0.95
+    maxPitch: 1.05
+    useRandomVolume: 1
+    minVolume: 0.9
+    maxVolume: 1
+    volume: 0.85
+    spatialBlend: 1
+    minDistance: 2
+    maxDistance: 25
